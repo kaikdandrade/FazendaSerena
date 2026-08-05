@@ -1,5 +1,5 @@
 /* ========================================================================== */
-/* REVISÃO 46 — RODAPÉ, ADSENSE E PREFERÊNCIAS DE COOKIES                    */
+/* RODAPÉ, ADSENSE E PREFERÊNCIAS DE COOKIES                                  */
 /* ========================================================================== */
 
 .ad-region {
@@ -114,6 +114,11 @@
 }
 
 .footer-credit a:hover { text-decoration: underline; }
+
+.footer-credit small {
+  color: var(--ink-soft);
+  font-size: .64rem;
+}
 
 .cookie-banner {
   background: rgba(255, 255, 252, .96);

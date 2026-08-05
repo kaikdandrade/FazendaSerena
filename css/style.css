@@ -5423,7 +5423,7 @@ body {
 }
 
 /* ========================================================================== */
-/* Revisão 35 — controles consistentes e ajustes responsivos                  */
+/* Controles consistentes e ajustes responsivos                               */
 /* ========================================================================== */
 .setting-row input[type="checkbox"] {
   -webkit-appearance: none !important;
@@ -5559,7 +5559,7 @@ body {
 .contract-dock-panel::-webkit-scrollbar-thumb { background: rgba(75, 116, 73, .24); border-radius: 999px; }
 
 /* ========================================================================== */
-/* Revisão 36 — desbloqueios, contratos, conta e rank global                  */
+/* Desbloqueios, contratos, conta e ranking global                            */
 /* ========================================================================== */
 .experience-settings-card { grid-column: 1 / -1; }
 
@@ -5772,7 +5772,7 @@ body {
 
 
 /* ========================================================================== */
-/* Revisão 40 — culturas platinadas, perfil de ranking e avatares             */
+/* Culturas platinadas, perfil de ranking e avatares                          */
 /* ========================================================================== */
 .crop-card.crop-mastered {
   background: linear-gradient(155deg, rgba(255,253,239,.98), rgba(244,249,232,.96)) !important;
@@ -5980,7 +5980,7 @@ body {
 
 
 /* ========================================================================== */
-/* Revisão 41 — perfil compacto, ranking pessoal, estatísticas e contratos    */
+/* Perfil compacto, ranking pessoal, estatísticas e contratos                 */
 /* ========================================================================== */
 .player-profile-fields {
   display: grid;
@@ -6112,7 +6112,7 @@ body {
 /* ========================================================================== */
 
 /* ========================================================================== */
-/* Revisão 37 — marcos, prévias, diálogos e correção estrutural do Estoque    */
+/* Marcos, prévias, diálogos e estrutura do Estoque                           */
 /* ========================================================================== */
 .sr-only {
   clip: rect(0 0 0 0) !important;
@@ -6670,7 +6670,7 @@ body {
 
 
 
-  /* Revisão 37 */
+  /* Ajustes estruturais */
   #stockView > .section-heading {
     grid-template-columns: minmax(0, 1fr) minmax(200px, 250px) !important;
   }
@@ -7304,7 +7304,7 @@ body {
   .contract-company-mark > span { height: 42px !important; width: 42px !important; }
 
 
-  /* Revisão 37 */
+  /* Ajustes estruturais */
   #stockView > .section-heading {
     align-items: stretch !important;
     grid-template-columns: minmax(0, 1fr) !important;
@@ -7348,7 +7348,7 @@ body {
     width: 46px !important;
   }
 
-  /* Revisão 40: a navegação contextual mede apenas os próprios tabs e fica centralizada. */
+  /* A navegação contextual mede apenas os próprios tabs e fica centralizada. */
   .navigation-stack > .context-nav-column {
     align-self: center !important;
     flex: 0 1 auto !important;
@@ -7559,7 +7559,7 @@ body {
   .contract-company-mark strong { font-size: .78rem !important; }
 
 
-  /* Revisão 37 */
+  /* Ajustes estruturais */
   #stockView .stock-summary {
     grid-template-columns: minmax(0, 1fr) !important;
   }
@@ -7610,7 +7610,7 @@ body {
 
 
 /* ========================================================================== */
-/* Revisão 43 — perfil, contratos e ambiente dinâmico                         */
+/* Perfil, contratos e ambiente dinâmico                                      */
 /* ========================================================================== */
 .profile-ranking-choice {
   align-items: center !important;
@@ -7669,7 +7669,7 @@ body {
 #officeView .contract-product-focus > div { align-content: center; display: grid; }
 
 /* ========================================================================== */
-/* Revisão 42 — privacidade do ranking, avatares animais e bloqueios limpos   */
+/* Privacidade do ranking, avatares animais e bloqueios limpos                */
 /* ========================================================================== */
 .profile-ranking-choice {
   background: rgba(241,245,237,.72);
@@ -7777,8 +7777,33 @@ body {
 
 
 /* ==========================================================================
-   Revisão 45 — counters flutuantes sem fricção durante a rolagem
+   Counters flutuantes sem fricção durante a rolagem
    ========================================================================== */
 
 /* A classe de rolagem controla apenas o painel flutuante. O cabeçalho original
    nunca muda de altura, evitando saltos no scroll e alternância no limiar. */
+
+
+/* ========================================================================== */
+/* Alinhamento dos cards bloqueados                                           */
+/* ========================================================================== */
+#farmView .locked-level-strip {
+  align-items: center !important;
+  display: flex !important;
+}
+
+#farmView .locked-level-strip .crop-level-compact {
+  align-items: center;
+  line-height: 1;
+}
+
+
+/* Release 1.0.0 — marcos visuais, laboratório permanente e histórico condicional. */
+.completed-order-board[hidden] { display: none !important; }
+.milestone-dialog-group li { align-items: center; background: rgba(247,252,243,.78); border: 1px solid rgba(75,126,70,.1); border-radius: 11px; gap: 10px; min-height: 46px; padding: 6px 9px; }
+.milestone-dialog-group li::before { content: none !important; }
+.milestone-unlock-icon { align-items: center; background: rgba(255,255,255,.92); border: 1px solid rgba(75,126,70,.14); border-radius: 10px; display: inline-flex; flex: 0 0 38px; height: 38px; justify-content: center; overflow: hidden; width: 38px; }
+.milestone-unlock-icon img { height: 30px; object-fit: contain; width: 30px; }
+.milestone-unlock-check { color: var(--green-deep); font-size: 1rem; font-weight: 950; }
+.laboratory-current-value, .laboratory-progress-value { display: block; margin-top: 8px; }
+.laboratory-current-value b, .laboratory-progress-value b { color: var(--green-deep); }

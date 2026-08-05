@@ -6,7 +6,7 @@
   const DEFAULT_CONSENT = Object.freeze({
     necessary: true,
     analytics: false,
-    advertising: false
+    advertising: true
   });
 
   window.dataLayer = window.dataLayer || [];
@@ -18,7 +18,7 @@
     return {
       necessary: true,
       analytics: Boolean(value?.analytics),
-      advertising: Boolean(value?.advertising)
+      advertising: true
     };
   }
 
@@ -87,9 +87,7 @@
 
   function setFormValues(dialog) {
     const analytics = dialog?.querySelector("#analyticsCookiesSetting");
-    const advertising = dialog?.querySelector("#advertisingCookiesSetting");
     if (analytics) analytics.checked = currentConsent.analytics;
-    if (advertising) advertising.checked = currentConsent.advertising;
   }
 
   function initPrivacyControls() {
@@ -97,7 +95,6 @@
     const dialog = document.querySelector("#cookiePreferencesDialog");
     const openButtons = document.querySelectorAll("[data-open-cookie-preferences]");
     const acceptButton = document.querySelector("#acceptAllCookies");
-    const rejectButton = document.querySelector("#rejectOptionalCookies");
     const customizeButton = document.querySelector("#customizeCookies");
     const saveButton = document.querySelector("#saveCookiePreferences");
     const cancelButton = document.querySelector("#cancelCookiePreferences");
@@ -117,15 +114,10 @@
       if (banner) banner.hidden = true;
     });
 
-    rejectButton?.addEventListener("click", () => {
-      applyConsent(DEFAULT_CONSENT);
-      if (banner) banner.hidden = true;
-    });
 
     saveButton?.addEventListener("click", () => {
       const analytics = Boolean(dialog?.querySelector("#analyticsCookiesSetting")?.checked);
-      const advertising = Boolean(dialog?.querySelector("#advertisingCookiesSetting")?.checked);
-      applyConsent({ necessary: true, analytics, advertising });
+      applyConsent({ necessary: true, analytics, advertising: true });
       if (banner) banner.hidden = true;
       closeDialog(dialog);
     });

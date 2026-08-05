@@ -1,7 +1,8 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 46;
+  static APP_VERSION = window.FazendaSerenaConfig.appVersion;
+  static DEFAULT_MUSIC_VOLUME = window.FazendaSerenaConfig.audioDefaults.musicVolume;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -9,12 +10,17 @@ class GameEngine {
   static MAX_ACTIVE_CONTRACTS = 7;
   static CONTRACT_OFFER_COUNT = 6;
   static CONTRACT_COOLDOWN_SECONDS = 5 * 60;
-  // Revisão 39: 30% menos tempo em relação à revisão 38 (0,72 × 0,70).
+  // Fator acumulado do equilíbrio histórico dos prazos contratuais.
   static CONTRACT_DURATION_FACTOR = 0.504;
   static CONTRACT_REWARD_FACTOR = 1.10;
   static BASE_STARTING_COINS = 120;
   static TREASURY_COINS_PER_LEVEL = 5000;
   static BASE_STORAGE_CAPACITY = 200;
+  static BASE_PASSIVE_XP_RATE = 0.0005;
+  static RESEARCH_PASSIVE_XP_RATE = 0.0001;
+  static PRESTIGE_PASSIVE_XP_RATE = 0.0005;
+  static PASSIVE_RESEARCH_STAGE_RATES = Object.freeze([0.0001, 0.0002, 0.0002]);
+  static WHOLESALE_SALE_MULTIPLIER = 0.50;
   static MAX_BATCH_UPGRADES = 1000;
   static MAX_CROP_LEVEL = 300;
   static MAX_FARM_LEVEL = 1000;
@@ -26,8 +32,19 @@ class GameEngine {
     "barnHay", "harvestFestival", "tropicalOrchard"
   ]);
 
+  static getLegacySaveFormat(value) {
+    if (typeof value === "number" && Number.isFinite(value)) return Math.max(0, Math.floor(value));
+    if (typeof value === "string") {
+      const normalized = value.trim();
+      if (/^\d+$/.test(normalized)) return Math.max(0, Math.floor(Number(normalized)));
+      if (/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(normalized)) return Number.POSITIVE_INFINITY;
+    }
+    return 0;
+  }
+
   constructor(onEvent = () => {}, initialState = null) {
     this.data = window.GameData;
+    this.cropById = new Map(this.data.crops.map(crop => [crop.id, crop]));
     this.onEvent = onEvent;
     this.state = this.load(initialState);
   }
@@ -41,7 +58,7 @@ class GameEngine {
       uiScale: permanent.settings?.uiScale ?? 100,
       masterVolume: permanent.settings?.masterVolume ?? 100,
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
-      musicVolume: permanent.settings?.musicVolume ?? 30,
+      musicVolume: permanent.settings?.musicVolume ?? GameEngine.DEFAULT_MUSIC_VOLUME,
       musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows",
       numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian",
       playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
@@ -69,10 +86,11 @@ class GameEngine {
     });
 
     return {
-      version: GameEngine.SAVE_VERSION,
+      version: GameEngine.APP_VERSION,
       coins: GameEngine.BASE_STARTING_COINS + Math.max(0, royalTreasury) * GameEngine.TREASURY_COINS_PER_LEVEL,
       research: immortalAcademy * 3,
       prestigePoints,
+      passiveResearchProgress: Math.max(0, Number(permanent.passiveResearchProgress || 0)) % 1,
       farmLevel: 1,
       farmXP: 0,
       crops,
@@ -168,6 +186,7 @@ class GameEngine {
   normalizeState(input) {
     const permanent = {
       prestigePoints: input?.prestigePoints,
+      passiveResearchProgress: input?.passiveResearchProgress,
       prestigeUpgrades: input?.prestigeUpgrades,
       permanentBonuses: input?.permanentBonuses,
       missionsClaimed: input?.missionsClaimed,
@@ -197,6 +216,7 @@ class GameEngine {
     };
     const base = this.createState(permanent);
     if (!input || typeof input !== "object") return base;
+    const legacySaveFormat = GameEngine.getLegacySaveFormat(input.version);
 
     const merged = {
       ...base,
@@ -218,13 +238,13 @@ class GameEngine {
     const legacyMusicEnabled = merged.settings.musicEnabled !== false;
     merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
     merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
-    merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
+    merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? GameEngine.DEFAULT_MUSIC_VOLUME) || 0 : 0));
     merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
     merged.settings.numberFormat = merged.settings.numberFormat === "international" ? "international" : "brazilian";
     merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
     merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
     merged.settings.playerRankingOptOut = Boolean(merged.settings.playerRankingOptOut);
-    if (Number(input.version || 0) < 42) {
+    if (legacySaveFormat < 42) {
       const legacyAvatarMap = { frog_1: "chameleon", frog_2: "frog_1", frog_3: "frog_2", owl: "hawk" };
       merged.settings.playerAvatar = legacyAvatarMap[merged.settings.playerAvatar] || merged.settings.playerAvatar;
     }
@@ -236,7 +256,7 @@ class GameEngine {
     Reflect.deleteProperty(merged.settings, "musicEnabled");
     Reflect.deleteProperty(merged.settings, "soundMappings");
 
-    if (Number(input.version || 0) < 14) {
+    if (legacySaveFormat < 14) {
       const migrateLevels = (target, source, map) => {
         Object.entries(map).forEach(([oldId, newId]) => {
           const oldLevel = Math.max(0, Math.floor(Number(source?.[oldId]) || 0));
@@ -260,7 +280,7 @@ class GameEngine {
         storageLegacy: "endlessGranary", rootMemory: "ancestralMastery", academyLegacy: "immortalAcademy"
       });
     }
-    if (Number(input.version || 0) < 15) {
+    if (legacySaveFormat < 15) {
       const removedLevel = (...values) => Math.max(0, ...values.map(value => Math.floor(Number(value) || 0)));
       const spent = (level, baseCost, growth) => {
         let total = 0;
@@ -278,13 +298,13 @@ class GameEngine {
       Reflect.deleteProperty(merged.researchTechs, "autonomousMarket");
       Reflect.deleteProperty(merged.researchTechs, "prestigeMathematics");
     }
-    if (Number(input?.version || 0) < 16) {
-      // Revisão 15: propostas antigas são recriadas pelo novo sistema de equilíbrio.
+    if (legacySaveFormat < 16) {
+      // Propostas antigas são recriadas pelo sistema de equilíbrio atual.
       merged.contractOffers = [];
       merged.contractCooldowns = [];
     }
-    if (Number(input?.version || 0) < 18) {
-      // Revisão 17: propostas antigas são recriadas com o novo bônus por modalidade.
+    if (legacySaveFormat < 18) {
+      // Propostas antigas são recriadas com o bônus atual de cada modalidade.
       // Contratos já assinados são preservados e nunca têm a recompensa reduzida.
       merged.contractOffers = [];
       merged.contractCooldowns = [];
@@ -303,9 +323,9 @@ class GameEngine {
       merged.prestigeUpgrades[item.id] = Math.max(0, Math.min(item.max, Math.floor(Number(merged.prestigeUpgrades[item.id]) || 0)));
     });
 
-    // Na Revisão 10, a antiga escala visual de 85% passou a ser o novo 100%.
+    // A antiga escala visual de 85% passou a equivaler ao novo 100%.
     // Preserva a aparência de quem havia escolhido explicitamente 85% antes da migração.
-    if (Number(input.version || 0) < 12 && Number(input.settings?.uiScale) === 85) {
+    if (legacySaveFormat < 12 && Number(input.settings?.uiScale) === 85) {
       merged.settings.uiScale = 100;
     }
 
@@ -326,16 +346,16 @@ class GameEngine {
       const previousDelivered = Math.max(0, Math.floor(Number(previousOrder.delivered) || 0));
       merged.orders[crop.id] = {
         tier: Math.max(0, Math.min(this.data.orderSteps.length, Math.floor(Number(previousOrder.tier) || 0))),
-        delivered: Number(input.version || 0) < 19 ? 0 : previousDelivered,
+        delivered: legacySaveFormat < 19 ? 0 : previousDelivered,
         autoDeliver: false
       };
       const step = this.data.orderSteps[merged.orders[crop.id].tier];
-      if (Number(input.version || 0) < 19 && previousDelivered > 0 && step) merged.crops[crop.id].stock += Math.min(step.amount, previousDelivered);
+      if (legacySaveFormat < 19 && previousDelivered > 0 && step) merged.crops[crop.id].stock += Math.min(step.amount, previousDelivered);
       merged.orders[crop.id].delivered = 0;
     });
 
     const legacyOwned = this.data.crops.filter(crop => merged.crops[crop.id].owned);
-    const untouchedRevisionFive = Number(input.version || 0) < 9
+    const untouchedLegacyStarter = legacySaveFormat < 9
       && legacyOwned.length === 1
       && legacyOwned[0].id === "onion"
       && merged.crops.onion.level <= 1
@@ -343,15 +363,15 @@ class GameEngine {
       && Number(input.stats?.totalSold || 0) === 0
       && Number(input.stats?.ordersCompleted || 0) === 0
       && Number(input.stats?.contractsCompleted || 0) === 0;
-    if (untouchedRevisionFive) {
+    if (untouchedLegacyStarter) {
       Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
       merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
       merged.coins = GameEngine.BASE_STARTING_COINS + Math.max(0, Number(merged.prestigeUpgrades.royalTreasury || 0)) * GameEngine.TREASURY_COINS_PER_LEVEL;
-    } else if (Number(input.version || 0) < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
+    } else if (legacySaveFormat < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
       merged.coins = Math.min(merged.coins, GameEngine.BASE_STARTING_COINS + Math.max(0, Number(merged.prestigeUpgrades.royalTreasury || 0)) * GameEngine.TREASURY_COINS_PER_LEVEL);
     }
 
-    const legacyStarterOnly = Number(input.version || 0) < 5
+    const legacyStarterOnly = legacySaveFormat < 5
       && legacyOwned.length === 1
       && legacyOwned[0].id === "onion"
       && merged.crops.onion.level <= 1
@@ -363,15 +383,15 @@ class GameEngine {
     }
 
     const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
-    const rawOffers = Number(input.version || 0) < 19 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
+    const rawOffers = legacySaveFormat < 19 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
     const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
     merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, GameEngine.CONTRACT_OFFER_COUNT);
-    merged.contractCooldowns = (Number(input.version || 0) < 19 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
+    merged.contractCooldowns = (legacySaveFormat < 19 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
       .map(value => this.normalizeContractCooldown(value))
       .filter(Boolean)
       .slice(0, GameEngine.CONTRACT_OFFER_COUNT);
     merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
-    if (Number(input.version || 0) < 19) {
+    if (legacySaveFormat < 19) {
       merged.activeContracts.forEach(contract => {
         const crop = this.getCrop(contract.cropId);
         const difficulty = this.getContractDifficulty(contract.difficulty);
@@ -386,9 +406,9 @@ class GameEngine {
       });
     }
 
-    // Revisão 39: propostas e contratos existentes recebem o mesmo ajuste dos
-    // novos contratos, sem aplicar novamente após o save já estar na versão 39.
-    if (Number(input.version || 0) < 39) {
+    // Propostas e contratos antigos recebem o mesmo ajuste dos
+    // novos contratos, sem reaplicar o ajuste em saves já normalizados.
+    if (legacySaveFormat < 39) {
       const migrateContractBalance = (contract, active = false) => {
         const previousDuration = Math.max(1, Number(contract.durationSeconds) || 1);
         contract.durationSeconds = Math.max(22, Math.round(previousDuration * 0.70));
@@ -408,9 +428,9 @@ class GameEngine {
     }
     Reflect.deleteProperty(merged, "contracts");
 
-    // Revisão 36: contas realmente intocadas passam a usar o novo capital
+    // Contas realmente intocadas passam a usar o capital
     // inicial de 120 moedas. Jornadas em andamento preservam o saldo atual.
-    if (Number(input.version || 0) < 36) {
+    if (legacySaveFormat < 36) {
       const hasJourneyProgress = Number(input.farmLevel || 1) > 1
         || Number(input.farmXP || 0) > 0
         || Object.values(input.crops || {}).some(crop => crop?.owned || Number(crop?.totalHarvested || 0) > 0 || Number(crop?.totalSold || 0) > 0)
@@ -429,7 +449,7 @@ class GameEngine {
 
     merged.farmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(merged.farmLevel) || 1)));
     const loadedFarmXP = Math.max(0, Number(merged.farmXP) || 0);
-    if (Number(input.version || 0) < 38 && merged.farmLevel < GameEngine.MAX_FARM_LEVEL) {
+    if (legacySaveFormat < 38 && merged.farmLevel < GameEngine.MAX_FARM_LEVEL) {
       // Preserva a porcentagem já preenchida da barra ao migrar da curva antiga
       // para a escala longa que alcança os sufixos Aa–Az nos níveis avançados.
       const previousNeed = Math.round(160 + 72 * Math.pow(merged.farmLevel, 1.52));
@@ -438,10 +458,11 @@ class GameEngine {
     } else {
       merged.farmXP = loadedFarmXP;
     }
-    merged.version = GameEngine.SAVE_VERSION;
+    merged.version = GameEngine.APP_VERSION;
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.research = Math.max(0, Number(merged.research) || 0);
     merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0);
+    merged.passiveResearchProgress = Math.max(0, Number(merged.passiveResearchProgress) || 0) % 1;
     Reflect.deleteProperty(merged, ["repu", "tation"].join(""));
     merged.stats.soldByCategory = { ...base.stats.soldByCategory, ...(input.stats?.soldByCategory || {}) };
     merged.stats.lifetimeSoldByCategory = { ...base.stats.lifetimeSoldByCategory, ...(input.stats?.lifetimeSoldByCategory || input.stats?.soldByCategory || {}) };
@@ -504,6 +525,7 @@ class GameEngine {
     const safe = Math.min(5, Math.max(0, Number(seconds) || 0));
     if (safe <= 0) return;
     this.simulate(safe, false);
+    this.addPassiveFarmXP(safe);
   }
 
   simulate(seconds, offline = false) {
@@ -526,6 +548,7 @@ class GameEngine {
       }
 
       this.produce(step, offline);
+      this.advancePassiveResearch(step);
       this.advanceContractTimers(step, offline);
       this.ensureContractOffers();
       remaining -= step;
@@ -533,12 +556,18 @@ class GameEngine {
   }
 
   produce(seconds, offline) {
+    const activeContractCropIds = new Set(this.state.activeContracts
+      .filter(contract => contract.delivered < contract.amount && !contract.completedAt && (contract.timeRemaining > 0 || contract.defaultedAt))
+      .map(contract => contract.cropId));
+    const wholesaleOverflowEnabled = this.hasWholesaleOverflowSale();
+    let storageRemaining = this.getStorageRemaining();
+
     for (const crop of this.data.crops) {
       const cropState = this.state.crops[crop.id];
       if (!cropState.owned || cropState.level <= 0) continue;
 
-      const directRoute = cropState.autoSell || this.hasActiveContractForCrop(crop.id);
-      if (!directRoute && this.getStorageRemaining() <= 0) {
+      const directRoute = cropState.autoSell || activeContractCropIds.has(crop.id) || wholesaleOverflowEnabled;
+      if (!directRoute && storageRemaining <= 0) {
         cropState.progress = Math.min(cropState.progress, 0.995);
         continue;
       }
@@ -556,22 +585,28 @@ class GameEngine {
       cropState.productionBuffer = Math.max(0, Number(cropState.productionBuffer) || 0) + cycles * perCycle;
       const requested = Math.floor(cropState.productionBuffer);
       if (requested < 1) continue;
-      const routed = this.routeProducedCrop(crop.id, requested, offline);
+      const routed = this.routeProducedCrop(crop.id, requested, offline, storageRemaining);
+      storageRemaining = Math.max(0, storageRemaining - routed.stored);
       cropState.productionBuffer = Math.max(0, cropState.productionBuffer - routed.accepted);
       if (routed.accepted < 1) continue;
 
       cropState.totalHarvested += routed.accepted;
       this.state.stats.totalHarvested += routed.accepted;
       this.state.stats.lifetimeHarvested += routed.accepted;
-      this.state.stats.maxStorageUsed = Math.max(this.state.stats.maxStorageUsed, this.getStorageUsed());
     }
+
+    this.state.stats.maxStorageUsed = Math.max(
+      this.state.stats.maxStorageUsed,
+      this.getStorageCap() - storageRemaining
+    );
   }
 
-  routeProducedCrop(cropId, amount, silent = false) {
+  routeProducedCrop(cropId, amount, silent = false, storageRemainingOverride = null) {
     const cropState = this.state.crops[cropId];
     let remaining = Math.max(0, Math.floor(Number(amount) || 0));
     let delivered = 0;
     let autoSold = 0;
+    let wholesaleSold = 0;
     let stored = 0;
     let gain = 0;
 
@@ -596,15 +631,27 @@ class GameEngine {
 
     if (remaining > 0 && cropState.autoSell) {
       autoSold = remaining;
-      gain = Math.floor(autoSold * this.getAutoSalePrice(cropId));
-      this.recordSale(cropId, autoSold, gain, silent);
+      const autoSaleGain = Math.floor(autoSold * this.getAutoSalePrice(cropId));
+      gain += autoSaleGain;
+      this.recordSale(cropId, autoSold, autoSaleGain, silent);
       remaining = 0;
     }
 
     if (remaining > 0) {
-      stored = Math.min(remaining, this.getStorageRemaining());
+      const availableStorage = Number.isFinite(storageRemainingOverride)
+        ? Math.max(0, Number(storageRemainingOverride) || 0)
+        : this.getStorageRemaining();
+      stored = Math.min(remaining, availableStorage);
       cropState.stock += stored;
       remaining -= stored;
+    }
+
+    if (remaining > 0 && this.hasWholesaleOverflowSale()) {
+      wholesaleSold = remaining;
+      const wholesaleGain = Math.floor(wholesaleSold * this.getWholesaleSalePrice(cropId));
+      gain += wholesaleGain;
+      this.recordSale(cropId, wholesaleSold, wholesaleGain, silent);
+      remaining = 0;
     }
 
     return {
@@ -612,6 +659,7 @@ class GameEngine {
       delivered,
       orderDelivered,
       autoSold,
+      wholesaleSold,
       stored,
       gain,
       blocked: remaining
@@ -693,6 +741,43 @@ class GameEngine {
     return expired;
   }
 
+  getPassiveResearchRate() {
+    const level = Math.max(0, Math.min(
+      GameEngine.PASSIVE_RESEARCH_STAGE_RATES.length,
+      Math.floor(Number(this.state.prestigeUpgrades.laboratoryFunding || 0))
+    ));
+    return GameEngine.PASSIVE_RESEARCH_STAGE_RATES
+      .slice(0, level)
+      .reduce((sum, rate) => sum + rate, 0);
+  }
+
+  advancePassiveResearch(seconds) {
+    const elapsed = Math.max(0, Number(seconds) || 0);
+    const rate = this.getPassiveResearchRate();
+    if (elapsed <= 0 || rate <= 0) return 0;
+    const totalProgress = Math.max(0, Number(this.state.passiveResearchProgress) || 0) + rate * elapsed;
+    const generatedPoints = Math.max(0, Math.floor(totalProgress + 1e-10));
+    this.state.passiveResearchProgress = totalProgress - generatedPoints;
+    if (generatedPoints > 0) this.state.research += generatedPoints;
+    return generatedPoints;
+  }
+
+  getPassiveFarmXPRate() {
+    const researchLevel = Math.max(0, Number(this.state.researchTechs.continuousLearning || 0));
+    const prestigeLevel = Math.max(0, Number(this.state.prestigeUpgrades.experienceLegacy || 0));
+    return GameEngine.BASE_PASSIVE_XP_RATE
+      + researchLevel * GameEngine.RESEARCH_PASSIVE_XP_RATE
+      + prestigeLevel * GameEngine.PRESTIGE_PASSIVE_XP_RATE;
+  }
+
+  addPassiveFarmXP(seconds) {
+    if (this.state.farmLevel >= GameEngine.MAX_FARM_LEVEL) return;
+    const elapsed = Math.max(0, Number(seconds) || 0);
+    const rate = this.getPassiveFarmXPRate();
+    if (elapsed <= 0 || rate <= 0) return;
+    this.addFarmXP(this.getFarmXPNeed() * rate * elapsed);
+  }
+
   addFarmXP(amount, silent = false) {
     const training = Number(this.state.upgrades.fieldAcademy || 0);
     const education = Number(this.state.researchTechs.agriculturalPedagogy || 0);
@@ -754,24 +839,20 @@ class GameEngine {
     const unlocks = this.data.crops
       .filter(crop => Number(crop.unlockLevel) === milestoneLevel)
       .sort((cropA, cropB) => cropA.index - cropB.index)
-      .map(crop => `Nova cultura disponível para compra: ${crop.name}.`);
-
+      .map(crop => ({ text: `Nova cultura disponível para compra: ${crop.name}.`, icon: crop.image, type: "crop" }));
     if (milestoneLevel === GameEngine.FEATURE_UNLOCK_LEVEL) {
-      unlocks.push("Pedidos liberados no Escritório.");
-      unlocks.push("Aprimoramentos e pesquisas liberados no Centro de evoluções.");
+      unlocks.push({ text: "Contratos liberados no Escritório.", icon: "assets/icons/commercial-contract.png", type: "feature" });
+      unlocks.push({ text: "Pedidos liberados no Escritório.", icon: "assets/icons/package.png", type: "feature" });
+      unlocks.push({ text: "Aprimoramentos e pesquisas liberados no Centro de evoluções.", icon: "assets/icons/tools.png", type: "feature" });
     }
-    if (milestoneLevel === GameEngine.SECOND_CONTRACT_SLOT_LEVEL) {
-      unlocks.push("Segundo slot de contrato ativo liberado.");
-    }
-    if (milestoneLevel === GameEngine.PRESTIGE_UNLOCK_LEVEL) {
-      unlocks.push("A ação de prestigiar foi liberada.");
-    }
-    if (!unlocks.length) unlocks.push("Novo marco de desenvolvimento alcançado pela fazenda.");
+    if (milestoneLevel === GameEngine.SECOND_CONTRACT_SLOT_LEVEL) unlocks.push({ text: "Segundo slot de contrato ativo liberado.", icon: "assets/icons/commercial-contract.png", type: "feature" });
+    if (milestoneLevel === GameEngine.PRESTIGE_UNLOCK_LEVEL) unlocks.push({ text: "A ação de prestigiar foi liberada.", icon: "assets/icons/prestige.png", type: "prestige" });
+    if (!unlocks.length) unlocks.push({ text: "Novo marco de desenvolvimento alcançado pela fazenda.", icon: "assets/icons/seedling-pot.png", type: "feature" });
     return unlocks;
   }
 
   getCrop(cropId) {
-    return this.data.crops.find(item => item.id === cropId);
+    return this.cropById.get(cropId);
   }
 
   getOwnedCrops() {
@@ -893,6 +974,14 @@ class GameEngine {
   getAutoSalePrice(cropId) {
     const sovereign = Number(this.state.prestigeUpgrades.sovereignNetwork || 0);
     return this.getSalePrice(cropId) * (1 + sovereign * 0.10);
+  }
+
+  hasWholesaleOverflowSale() {
+    return Number(this.state.prestigeUpgrades.wholesaleHub || 0) > 0;
+  }
+
+  getWholesaleSalePrice(cropId) {
+    return this.getSalePrice(cropId) * GameEngine.WHOLESALE_SALE_MULTIPLIER;
   }
 
   getBuyCost(cropId) {
@@ -1633,7 +1722,7 @@ class GameEngine {
   getPrestigeEstimate() {
     if (!this.isPrestigeUnlocked()) return 0;
     const owned = Object.values(this.state.crops).filter(item => item.owned).length;
-    // Revisão 14: o prestígio acompanha melhor uma jornada consistente sem
+    // O prestígio acompanha melhor uma jornada consistente sem
     // ultrapassar a importância das missões e dos legados permanentes.
     const score = Math.sqrt(Math.max(0, this.state.stats.runCoinsEarned) / 36000)
       + owned / 8
@@ -1651,6 +1740,7 @@ class GameEngine {
     if (gain < 1) return { ok: false, message: "Fortaleça mais a fazenda antes de prestigiar." };
     const permanent = {
       prestigePoints: this.state.prestigePoints + gain,
+      passiveResearchProgress: this.state.passiveResearchProgress,
       prestigeUpgrades: { ...this.state.prestigeUpgrades },
       permanentBonuses: { ...this.state.permanentBonuses },
       missionsClaimed: { ...this.state.missionsClaimed },

@@ -236,7 +236,7 @@ class FirebaseManager {
           const batch = this.sdk.writeBatch(this.db);
           batch.set(reference, {
             state: snapshot,
-            saveVersion: Number(snapshot.version || 0),
+            saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
             updatedAt: this.sdk.serverTimestamp(),
             updatedAtClient: savedAt.getTime()
           });

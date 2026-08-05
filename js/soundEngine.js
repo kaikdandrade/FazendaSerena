@@ -66,7 +66,7 @@ class SoundEngine {
 
     this.masterVolume = 1;
     this.effectVolume = 0.55;
-    this.musicVolume = 0.30;
+    this.musicVolume = SoundEngine.toVolume(window.FazendaSerenaConfig.audioDefaults.musicVolume);
     this.playSequence = 0;
     this.musicStarted = false;
   }
@@ -74,7 +74,7 @@ class SoundEngine {
   configure(settings = {}) {
     this.masterVolume = SoundEngine.toVolume(settings.masterVolume ?? 100);
     this.effectVolume = SoundEngine.toVolume(settings.effectVolume ?? settings.soundVolume ?? 55);
-    this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? 30);
+    this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? window.FazendaSerenaConfig.audioDefaults.musicVolume);
 
     const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack]
       ? settings.musicTrack

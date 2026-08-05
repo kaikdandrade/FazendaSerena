@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
+    <meta name="google-adsense-account" content="ca-pub-4578037304455366">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta content="#eef4e8" name="theme-color" />
     <meta content="Política de Privacidade e Cookies da Fazenda Serena — Agricultura Industrial." name="description" />
@@ -11,6 +12,7 @@
     <link href="https://fazenda-serena.web.app/privacy.html" rel="canonical" />
     <link href="css/privacy.css" rel="stylesheet" />
     <link href="css/monetization.css" rel="stylesheet" />
+    <script defer src="js/appConfig.js"></script>
     <script defer src="js/privacyConsent.js"></script>
     <script defer src="js/adsense-config.js"></script>
     <script defer src="js/adsenseManager.js"></script>
@@ -30,7 +32,7 @@
                 <p class="privacy-eyebrow">privacidade e transparência</p>
                 <h1>Política de Privacidade e Cookies</h1>
                 <p>Esta página explica quais dados podem ser tratados pela Fazenda Serena, por que eles são usados, como
-                    o save na nuvem e o ranking funcionam e como você pode controlar cookies opcionais.</p>
+                    o save na nuvem e o ranking funcionam e como funcionam os cookies necessários, de publicidade e a análise opcional.</p>
                 <span class="privacy-updated">Última atualização: 5 de agosto de 2026.</span>
             </section>
             <div class="privacy-layout">
@@ -66,8 +68,7 @@
                                 estatísticas e preferências do jogo salvos na nuvem.</li>
                             <li>Apelido, avatar de animal e opção de participação no ranking global.</li>
                             <li>Preferências de cookies escolhidas neste site.</li>
-                            <li>Dados técnicos e de publicidade que poderão ser processados pelo Google quando o AdSense
-                                for ativado e o usuário permitir essa categoria.</li>
+                            <li>Dados técnicos e de publicidade que poderão ser processados pelo Google quando o AdSense estiver ativo.</li>
                         </ul>
                         <div class="privacy-callout">Visitantes não possuem save persistente do jogo: sem login, o
                             progresso existe somente durante a sessão e é perdido ao recarregar ou fechar a página.
@@ -121,8 +122,7 @@
                             <li><strong>Publicidade:</strong> permitem carregar o Google AdSense e processar dados
                                 relacionados à exibição de anúncios.</li>
                         </ul>
-                        <p>As categorias opcionais começam desativadas. Você pode aceitar todas, recusar as opcionais ou
-                            escolher cada categoria.</p>
+                        <p>Cookies necessários e de publicidade permanecem ativos. A categoria de análise começa desativada e pode ser habilitada ou desabilitada a qualquer momento.</p>
                         <div class="privacy-actions"><button class="privacy-action" data-open-cookie-preferences
                                 type="button">Alterar preferências de cookies</button></div>
                     </section>
@@ -132,8 +132,7 @@
                             Google e seus parceiros poderão usar cookies, identificadores e informações de navegação
                             para fornecer, limitar, medir e personalizar anúncios, conforme as escolhas do usuário e as
                             regras aplicáveis à sua região.</p>
-                        <p>O carregamento do AdSense neste projeto depende da configuração do publicador e da
-                            autorização para cookies de publicidade. Em algumas regiões, o Google também poderá
+                        <p>O carregamento do AdSense depende da configuração do publicador e permanece ativo para monetizar o jogo. Em regiões que exigem consentimento específico, o Google também poderá
                             apresentar sua própria mensagem de consentimento por meio da ferramenta “Privacidade e
                             mensagens”.</p>
                         <p>Mais informações estão disponíveis em <a href="https://policies.google.com/technologies/ads"
@@ -147,7 +146,7 @@
                             <li>Entrar ou sair da conta Google.</li>
                             <li>Alterar apelido, avatar e participação no ranking.</li>
                             <li>Resetar todo o progresso salvo na nuvem pela área de Conta.</li>
-                            <li>Recusar ou alterar cookies opcionais a qualquer momento.</li>
+                            <li>Ativar ou desativar os cookies opcionais de análise a qualquer momento.</li>
                             <li>Solicitar esclarecimentos ou comunicar um problema pelos canais de contato.</li>
                         </ul>
                     </section>
@@ -163,7 +162,7 @@
                     <section class="privacy-card privacy-section" id="contato">
                         <h2>10. Contato e atualizações</h2>
                         <p>Esta política pode ser atualizada quando novos recursos, serviços de terceiros ou exigências
-                            de privacidade forem adicionados. A data no início da página indica a versão mais recente.
+                            de privacidade forem adicionados. A data no início da página indica a atualização mais recente.
                         </p>
                         <p>Contato do projeto: <a href="https://github.com/kaikdandrade" rel="noopener noreferrer"
                                 target="_blank">github.com/kaikdandrade</a>.</p>
@@ -172,7 +171,7 @@
             </div>
         </main>
         <footer class="privacy-footer">
-            <span>© 2026 Fazenda Serena — Agricultura Industrial</span>
+            <span>© 2026 Fazenda Serena — Agricultura Industrial · Versão <b data-app-version></b></span>
             <span><a href="index.html">Jogar</a> · <button class="footer-link-button" data-open-cookie-preferences
                     type="button">Preferências de cookies</button></span>
         </footer>
@@ -182,13 +181,10 @@
             <span aria-hidden="true" class="cookie-banner-icon">●</span>
             <div>
                 <h2 id="cookieBannerTitle">Sua privacidade na Fazenda Serena</h2>
-                <p>Usamos cookies necessários para lembrar suas escolhas. Com sua autorização, também poderemos usar
-                    cookies de análise e publicidade do Google. Você pode aceitar, recusar os opcionais ou configurar
-                    cada categoria.</p>
+                <p>Usamos cookies necessários e de publicidade para manter o jogo, a segurança e a monetização por anúncios. A análise de uso é opcional. Você pode aceitar tudo ou configurar essa preferência.</p>
             </div>
         </div>
         <div class="cookie-banner-actions">
-            <button class="cookie-button ghost" id="rejectOptionalCookies" type="button">Recusar opcionais</button>
             <button class="cookie-button secondary" id="customizeCookies" type="button">Configurar</button>
             <button class="cookie-button primary" id="acceptAllCookies" type="button">Aceitar todos</button>
         </div>
@@ -198,8 +194,7 @@
             <div class="cookie-dialog-heading">
                 <p class="eyebrow">privacidade</p>
                 <h2 id="cookiePreferencesTitle">Preferências de cookies</h2>
-                <p>Escolha quais categorias opcionais podem ser usadas. Os cookies necessários permanecem ativos porque
-                    guardam suas escolhas e ajudam no funcionamento seguro do site.</p>
+                <p>Cookies necessários e de publicidade permanecem ativos para o funcionamento, a segurança e a monetização do jogo. Você pode decidir se permite a análise de uso.</p>
             </div>
             <div class="cookie-category-list">
                 <article class="cookie-category">
@@ -208,17 +203,12 @@
                     <span class="cookie-state-required">Sempre ativos</span>
                 </article>
                 <article class="cookie-category">
-                    <div class="cookie-category-copy"><strong>Análise de uso</strong><small>Permite medir o uso do site
-                            quando uma ferramenta de análise for ativada.</small></div>
-                    <label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox" /><span
-                            aria-hidden="true"></span><span class="sr-only">Permitir cookies de análise</span></label>
+                    <div class="cookie-category-copy"><strong>Publicidade</strong><small>Permite carregar o Google AdSense, financiar o jogo e aplicar recursos de segurança, limitação e medição de anúncios.</small></div>
+                    <span class="cookie-state-required">Sempre ativos</span>
                 </article>
                 <article class="cookie-category">
-                    <div class="cookie-category-copy"><strong>Publicidade</strong><small>Permite o carregamento do
-                            Google AdSense e o uso de dados para exibir anúncios conforme suas escolhas.</small></div>
-                    <label class="cookie-switch"><input id="advertisingCookiesSetting" type="checkbox" /><span
-                            aria-hidden="true"></span><span class="sr-only">Permitir cookies de
-                            publicidade</span></label>
+                    <div class="cookie-category-copy"><strong>Análise de uso</strong><small>Permite medir o uso do site quando uma ferramenta de análise for ativada.</small></div>
+                    <label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox" /><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de análise</span></label>
                 </article>
             </div>
             <p class="cookie-dialog-note">Você pode alterar esta decisão a qualquer momento pelo rodapé.</p>

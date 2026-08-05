@@ -42,6 +42,7 @@
     orderList: $("#orderList"),
     completedOrderList: $("#completedOrderList"),
     completedOrderCount: $("#completedOrderCount"),
+    completedOrderBoard: $("#completedOrderBoard"),
     missionList: $("#missionList"),
     toggleCompletedMissions: $("#toggleCompletedMissions"),
     completedMissionCount: $("#completedMissionCount"),
@@ -286,7 +287,11 @@
       dom.milestoneDialogList.innerHTML = unique.map(milestone => `
         <section class="milestone-dialog-group">
           <strong>Nível ${Number(milestone.level) || 0}</strong>
-          <ul>${(milestone.unlocks || []).map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+          <ul>${(milestone.unlocks || []).map(item => {
+            const detail = typeof item === "string" ? { text: item, icon: "" } : (item || {});
+            const icon = detail.icon ? `<span class="milestone-unlock-icon"><img src="${escapeHtml(detail.icon)}" alt=""></span>` : `<span class="milestone-unlock-icon milestone-unlock-check" aria-hidden="true">✓</span>`;
+            return `<li>${icon}<span>${escapeHtml(detail.text || "Novo recurso liberado.")}</span></li>`;
+          }).join("")}</ul>
         </section>`).join("");
     }
     if (typeof dom.milestoneDialog.showModal === "function" && !dom.milestoneDialog.open) {
@@ -677,8 +682,8 @@
     if (dom.masterVolumeText) dom.masterVolumeText.textContent = `${settings.masterVolume ?? 100}%`;
     if (dom.effectVolumeSetting && document.activeElement !== dom.effectVolumeSetting) dom.effectVolumeSetting.value = String(settings.effectVolume ?? 55);
     if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${settings.effectVolume ?? 55}%`;
-    if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
-    if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
+    if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? window.FazendaSerenaConfig.audioDefaults.musicVolume);
+    if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? window.FazendaSerenaConfig.audioDefaults.musicVolume}%`;
     if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
     [dom.uiScaleSetting, dom.masterVolumeSetting, dom.effectVolumeSetting, dom.musicVolumeSetting].forEach(syncRangeVisual);
   }
@@ -828,17 +833,20 @@
   function updateLiveFarmUI(now = performance.now()) {
     if (activeView !== "farmView") return;
     const storageRemaining = engine.getStorageRemaining();
+    const wholesaleOverflowEnabled = engine.hasWholesaleOverflowSale();
+    const activeContractCropIds = new Set(engine.state.activeContracts
+      .filter(contract => contract.delivered < contract.amount && !contract.completedAt && (contract.timeRemaining > 0 || contract.defaultedAt))
+      .map(contract => contract.cropId));
     const updateControls = now - lastCropControls >= 450;
     if (updateControls) lastCropControls = now;
 
-    $$('[data-live-crop]').forEach(card => {
+    $$('[data-live-crop]', dom.cropGrid).forEach(card => {
       const cropId = card.dataset.liveCrop;
       const cropState = engine.state.crops[cropId];
       if (!cropState?.owned) return;
       const growthTime = engine.getGrowthTime(cropId);
       const instant = growthTime <= 0;
-      const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === cropId && contract.delivered < contract.amount && contract.timeRemaining > 0 && !contract.completedAt);
-      const directRoute = cropState.autoSell || activeContracts.length > 0;
+      const directRoute = cropState.autoSell || activeContractCropIds.has(cropId) || wholesaleOverflowEnabled;
       const paused = storageRemaining <= 0 && !directRoute;
       const progress = instant ? 100 : percent(cropState.progress * 100);
       const ring = $('[data-crop-ring]', card);
@@ -874,7 +882,7 @@
     });
 
     if (updateControls) {
-      $$('[data-locked-crop]').forEach(card => {
+      $$('[data-locked-crop]', dom.cropGrid).forEach(card => {
         const cropId = card.dataset.lockedCrop;
         const crop = engine.getCrop(cropId);
         const unlocked = engine.isCropUnlocked(cropId);
@@ -981,8 +989,9 @@
     const growthTime = engine.getGrowthTime(crop.id);
     const instant = growthTime <= 0;
     const growthPct = instant ? 100 : percent(data.progress * 100);
-    const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount && !contract.completedAt);
-    const directRoute = data.autoSell || activeContracts.length > 0;
+    const directRoute = data.autoSell
+      || engine.hasActiveContractForCrop(crop.id)
+      || engine.hasWholesaleOverflowSale();
     const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
     const speedMaxed = data.level >= engine.getInstantGrowthLevel();
     const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;
@@ -1126,15 +1135,20 @@
     const affordable = !maxed && !journeyLocked && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
     const isRoyalTreasury = kind === "prestige" && item.id === "royalTreasury";
+    const isLaboratoryFunding = kind === "prestige" && item.id === "laboratoryFunding";
     const iconMarkup = typeof item.icon === "string" && /^(?:data:image\/|.*\.(?:png|webp|svg)$)/i.test(item.icon)
       ? `<img src="${escapeHtml(item.icon)}" alt="">`
       : escapeHtml(item.icon);
     const treasuryAmount = engine.getStartingCoins();
+    const laboratoryRate = isLaboratoryFunding ? engine.getPassiveResearchRate() * 100 : 0;
+    const laboratoryProgress = isLaboratoryFunding ? Math.max(0, Math.min(1, Number(engine.state.passiveResearchProgress) || 0)) * 100 : 0;
     const descriptionHtml = isRoyalTreasury
       ? `<span class="treasury-current-value">${resourceAmount("coins", treasuryAmount, { compact: true })}<span>ao começar uma nova jornada.</span></span>${level < item.max
         ? `<span class="treasury-next-value">Próximo nível: ${resourceAmount("coins", GameEngine.TREASURY_COINS_PER_LEVEL, { compact: true })} adicionais.</span>`
         : `<span class="treasury-next-value">Valor inicial máximo consolidado.</span>`}`
-      : enrichResourceText(item.desc);
+      : isLaboratoryFunding
+        ? `${enrichResourceText(item.desc)}<span class="laboratory-current-value">Ritmo atual: <b>${laboratoryRate.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</b> por segundo.</span>${level > 0 ? `<span class="laboratory-progress-value">Progresso do próximo ponto: <b>${laboratoryProgress.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</b>.</span>` : ""}`
+        : enrichResourceText(item.desc);
     const buttonLabel = maxed
       ? "Concluído"
       : journeyLocked
@@ -1366,6 +1380,10 @@
   }
 
   function renderOrders() {
+    const setCompletedOrderBoardVisible = visible => {
+      if (dom.completedOrderBoard) dom.completedOrderBoard.hidden = !visible;
+    };
+
     if (!engine.isOrdersUnlocked()) {
       dom.orderList.innerHTML = featureGateMarkup({
         eyebrow: "prévia do escritório",
@@ -1373,20 +1391,23 @@
         description: "Esta área já pode ser consultada. As entregas e recompensas começam quando sua fazenda atingir o nível necessário.",
         level: GameEngine.FEATURE_UNLOCK_LEVEL
       });
-      dom.completedOrderList.innerHTML = `<div class="empty-state compact-order-empty">O histórico de pedidos aparecerá depois da primeira entrega.</div>`;
-      if (dom.completedOrderCount) dom.completedOrderCount.textContent = `Entregas disponíveis a partir do nível ${GameEngine.FEATURE_UNLOCK_LEVEL}.`;
+      setCompletedOrderBoardVisible(false);
+      dom.completedOrderList.innerHTML = "";
+      if (dom.completedOrderCount) dom.completedOrderCount.textContent = "";
       return;
     }
 
     const owned = engine.getOwnedCrops();
     if (!owned.length) {
       dom.orderList.innerHTML = `<div class="empty-state office-empty">Compre uma cultura para iniciar sua primeira sequência de pedidos.</div>`;
-      dom.completedOrderList.innerHTML = `<div class="empty-state compact-order-empty">Nenhum pedido finalizado ainda.</div>`;
-      if (dom.completedOrderCount) dom.completedOrderCount.textContent = "Nenhum pedido finalizado ainda.";
+      setCompletedOrderBoardVisible(false);
+      dom.completedOrderList.innerHTML = "";
+      if (dom.completedOrderCount) dom.completedOrderCount.textContent = "";
       return;
     }
 
     const completedCrops = owned.filter(crop => engine.getOrder(crop.id)?.complete);
+    setCompletedOrderBoardVisible(completedCrops.length > 0);
     const activeCrops = owned
       .filter(crop => !engine.getOrder(crop.id)?.complete)
       .sort((cropA, cropB) => {
@@ -1423,11 +1444,11 @@
         <div class="completed-order-identity"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Série completa</small><h3>${escapeHtml(crop.name)}</h3><p>${escapeHtml(category)}</p></div></div>
         <strong class="completed-order-status">Pedido finalizado</strong>
       </article>`;
-    }).join("") || `<div class="empty-state compact-order-empty">Nenhum pedido finalizado ainda.</div>`;
+    }).join("");
 
     if (dom.completedOrderCount) dom.completedOrderCount.textContent = completedCrops.length
       ? `${completedCrops.length} ${completedCrops.length === 1 ? "cultura finalizou" : "culturas finalizaram"} todos os pedidos.`
-      : "Nenhum pedido finalizado ainda.";
+      : "";
   }
 
   function rewardHtml(reward) {
