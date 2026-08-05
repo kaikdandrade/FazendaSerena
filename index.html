@@ -42,7 +42,7 @@
 <div aria-label="Experiência da fazenda" class="soft-progress" role="progressbar">
 <span id="farmXPBar"></span>
 </div>
-<small id="farmXPText">0 / 68 XP</small>
+<small id="farmXPText">0 / 232 XP</small>
 </section>
 <section aria-label="Recursos do jogo" class="resource-strip">
 <article class="resource-pill">
@@ -61,24 +61,24 @@
 </header>
 <div class="workspace-shell"><aside aria-label="Navegação do jogo" class="navigation-stack"><nav aria-label="Áreas do jogo" class="main-nav">
 
-<button class="nav-tab active" data-view="farmView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/seedling-pot.png"/></span><span class="nav-tab-label">Fazenda</span></button>
-<button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/warehouse.png"/></span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
-<button class="nav-tab" data-view="evolveView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/tools.png"/></span><span class="nav-tab-label">Evoluções</span></button>
-<button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/clipboard.png"/></span><span class="nav-tab-label">Escritório</span></button>
-<button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
+<button class="nav-tab active" data-view="farmView" title="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/seedling-pot.png"/></span><span class="nav-tab-label">Fazenda</span></button>
+<button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" title="Estoque 0% cheio" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/warehouse.png"/></span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
+<button class="nav-tab" data-view="evolveView" title="Evoluções" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/tools.png"/></span><span class="nav-tab-label">Evoluções</span></button>
+<button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" title="Escritório" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/clipboard.png"/></span><span class="nav-tab-label">Escritório</span></button>
+<button class="nav-tab settings-nav-tab" data-view="settingsView" title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
 
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" type="button"><span><i><img alt="" src="assets/icons/upgrade-anvil.png"/></i> Aprimoramentos</span><small>Moedas</small></button>
-<button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" type="button"><span><i><img alt="" src="assets/icons/books.png"/></i> Pesquisa</span><small>Pontos de pesquisa</small></button>
-<button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" role="tab" type="button"><span><i><img alt="" src="assets/icons/prestige.png"/></i> Prestígio</span><small>Legados permanentes</small></button>
+<button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" title="Aprimoramentos comprados com moedas" type="button"><span><i><img alt="" src="assets/icons/upgrade-anvil.png"/></i> Aprimoramentos</span><small>Moedas</small></button>
+<button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" title="Tecnologias compradas com pontos de pesquisa" type="button"><span><i><img alt="" src="assets/icons/books.png"/></i> Pesquisa</span><small>Pontos de pesquisa</small></button>
+<button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" role="tab" title="Legados permanentes comprados com prestígio" type="button"><span><i><img alt="" src="assets/icons/prestige.png"/></i> Prestígio</span><small>Legados permanentes</small></button>
 </nav>
 </aside><aside aria-label="Navegação do escritório" class="context-nav-column context-nav-block" data-context-for="officeView" hidden="">
 
 <nav aria-label="Seções do escritório" class="office-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="office-tab active" data-office-tab="contracts" role="tab" type="button"><span><i><img alt="" src="assets/icons/commercial-contract.png"/></i> Contratos</span><b id="contractTabCount">0</b></button>
-<button aria-selected="false" class="office-tab" data-office-tab="orders" role="tab" type="button"><span><i><img alt="" src="assets/icons/package.png"/></i> Pedidos</span><b id="orderTabCount">0</b></button>
-<button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" type="button"><span><i><img alt="" src="assets/icons/graduation-cap.png"/></i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" type="button"><span><i><img alt="" src="assets/icons/field-map.png"/></i> Estatísticas</span></button>
+<button aria-selected="true" class="office-tab active" data-office-tab="contracts" role="tab" title="Contratos" type="button"><span><i><img alt="" src="assets/icons/commercial-contract.png"/></i> Contratos</span><b id="contractTabCount">0</b></button>
+<button aria-selected="false" class="office-tab" data-office-tab="orders" role="tab" title="Pedidos" type="button"><span><i><img alt="" src="assets/icons/package.png"/></i> Pedidos</span><b id="orderTabCount">0</b></button>
+<button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" title="Missões" type="button"><span><i><img alt="" src="assets/icons/graduation-cap.png"/></i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" title="Estatísticas" type="button"><span><i><img alt="" src="assets/icons/field-map.png"/></i> Estatísticas</span></button>
 </nav>
 </aside></aside>
 <main class="game-main">
@@ -111,7 +111,7 @@
 </div>
 <div class="stock-toolbar">
 
-<select aria-label="Filtrar estoque por categoria" id="stockCategoryFilter"><option value="all">Todas as categorias</option></select>
+<select aria-label="Filtrar estoque por categoria" id="stockCategoryFilter" title="Filtrar estoque por categoria"><option value="all">Todas as categorias</option></select>
 </div>
 </div>
 <div class="stock-summary" id="stockSummary"></div>
@@ -262,7 +262,14 @@
 </label>
 <label class="range-setting">
 <span><strong>Escala da interface</strong><small id="uiScaleText">100%</small></span>
-<input id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
+<input aria-label="Escala da interface" id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
+</label>
+<label class="setting-row number-format-setting">
+<span><strong>Formato dos números</strong><small>Escolha entre vírgula brasileira e ponto internacional.</small></span>
+<select aria-label="Formato dos números" id="numberFormatSetting">
+<option value="brazilian">Brasileiro (1,2K)</option>
+<option value="international">Internacional (1.2K)</option>
+</select>
 </label>
 <div class="contract-section-divider experience-divider" aria-hidden="true"><span></span></div>
 <div class="experience-audio-heading">
@@ -271,15 +278,15 @@
 <div class="experience-audio-controls">
 <label class="range-setting">
 <span><strong>Volume geral</strong><small id="masterVolumeText">100%</small></span>
-<input id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/>
+<input aria-label="Volume geral" id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/>
 </label>
 <label class="range-setting">
 <span><strong>Volume dos efeitos</strong><small id="effectVolumeText">55%</small></span>
-<input id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
+<input aria-label="Volume dos efeitos" id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
 </label>
 <label class="range-setting">
 <span><strong>Volume da música</strong><small id="musicVolumeText">30%</small></span>
-<input id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/>
+<input aria-label="Volume da música" id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/>
 </label>
 <label class="setting-row audio-track-setting">
 <span><strong>Trilha sonora</strong><small>Escolha a música ambiente da fazenda.</small></span>
@@ -305,7 +312,7 @@
 <section><span>01</span><div><h3>Compre a primeira cultura</h3><p>Você começa com 2.000 moedas. A Folha é a cultura inicial; depois dela, uma nova cultura é liberada a cada cinco níveis da fazenda.</p></div></section>
 <section><span>02</span><div><h3>Gerencie o estoque</h3><p>O celeiro é compartilhado por todas as culturas. Venda produtos manualmente, ative a venda automática ou compre mais 100 espaços diretamente no Estoque.</p></div></section>
 <section><span>03</span><div><h3>Entenda as prioridades</h3><p>A produção atende contratos ativos primeiro, inclusive entregas atrasadas, depois a venda automática e, por último, o estoque. Contratos vencidos perdem a recompensa, exigem 100% da entrega e geram multa.</p></div></section>
-<section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção e valorizam cada cultura. Comprar culturas, aprimorar plantações, ampliar o estoque e investir em melhorias concede XP; colheitas e vendas não concedem XP.</p></div></section>
+<section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção e valorizam cada cultura. Contratos no prazo concedem 8% do XP necessário para o próximo nível; cada compra, aprimoramento e pedido entregue concede 1,7%. Colheitas e vendas não concedem XP.</p></div></section>
 <section><span>05</span><div><h3>Use o escritório</h3><p>Escolha entre seis propostas, mantenha até três contratos ativos, renove pedidos a cada prestígio e avance missões permanentes que nunca reiniciam.</p></div></section>
 <section><span>06</span><div><h3>Invista e prestigie</h3><p>Aprimoramentos usam moedas, pesquisas usam pontos de pesquisa e legados usam prestígio. O prestígio desbloqueia no nível 15 e inicia uma nova jornada.</p></div></section>
 </div></article>

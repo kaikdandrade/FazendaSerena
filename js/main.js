@@ -73,6 +73,7 @@
     ambientSetting: $("#ambientSetting"),
     uiScaleSetting: $("#uiScaleSetting"),
     uiScaleText: $("#uiScaleText"),
+    numberFormatSetting: $("#numberFormatSetting"),
     masterVolumeSetting: $("#masterVolumeSetting"),
     masterVolumeText: $("#masterVolumeText"),
     effectVolumeSetting: $("#effectVolumeSetting"),
@@ -111,6 +112,15 @@
     return Math.max(0, Math.min(100, Number(value) || 0));
   }
 
+  function syncRangeVisual(input) {
+    if (!input) return;
+    const minimum = Number(input.min || 0);
+    const maximum = Number(input.max || 100);
+    const value = Number(input.value || minimum);
+    const progress = maximum > minimum ? ((value - minimum) / (maximum - minimum)) * 100 : 0;
+    input.style.setProperty("--range-progress", `${percent(progress)}%`);
+  }
+
   const resourceIcons = {
     coins: "assets/icons/coin.png",
     research: "assets/icons/potion.png",
@@ -143,7 +153,7 @@
 
   function enrichResourceText(message) {
     let html = escapeHtml(message);
-    const amount = '([+−-]?(?:\\d[\\d.,]*)(?:\\s(?:mil|mi|bi|tri|q))?)';
+    const amount = '([+−-]?(?:\\d[\\d.,]*)(?:(?:K|M|B|T)|(?:[A-Z]+[a-z]))?)';
     const replace = (type, labelPattern) => {
       const expression = new RegExp(`${amount}\\s+(?:${labelPattern})`, "gi");
       html = html.replace(expression, (_, value) => {
@@ -443,6 +453,7 @@
     if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
     if (dom.uiScaleSetting && document.activeElement !== dom.uiScaleSetting) dom.uiScaleSetting.value = String(settings.uiScale || 100);
     if (dom.uiScaleText) dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
+    if (dom.numberFormatSetting && document.activeElement !== dom.numberFormatSetting) dom.numberFormatSetting.value = settings.numberFormat === "international" ? "international" : "brazilian";
 
     soundEngine.configure(settings);
     if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(settings.masterVolume ?? 100);
@@ -452,6 +463,7 @@
     if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
     if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
     if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
+    [dom.uiScaleSetting, dom.masterVolumeSetting, dom.effectVolumeSetting, dom.musicVolumeSetting].forEach(syncRangeVisual);
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -465,9 +477,7 @@
     dom.stockNavTab.setAttribute("aria-label", full
       ? `Estoque cheio: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados.`
       : `Estoque: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados, ${Math.floor(usage)} por cento.`);
-    dom.stockNavTab.title = full
-      ? "Estoque cheio — venda produtos ou amplie o celeiro"
-      : `Estoque ${Math.floor(usage)}% ocupado`;
+    dom.stockNavTab.title = `Estoque ${Math.floor(usage)}% cheio`;
   }
 
   function updateOfficeNavigation() {
@@ -1460,6 +1470,11 @@
     dom.uiScaleSetting.addEventListener("input", () => {
       engine.setSetting("uiScale", Number(dom.uiScaleSetting.value));
       applySettings();
+    });
+    dom.numberFormatSetting?.addEventListener("change", () => {
+      engine.setSetting("numberFormat", dom.numberFormatSetting.value);
+      applySettings();
+      render(true);
     });
 
     dom.masterVolumeSetting?.addEventListener("input", () => {

@@ -6396,3 +6396,214 @@ body {
   }
 
 }
+
+
+/* ========================================================================== */
+/* Revisão 35 — controles consistentes e ajustes responsivos                  */
+/* ========================================================================== */
+.setting-row input[type="checkbox"] {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: #d7ddd5 !important;
+  border: 1px solid rgba(61, 88, 65, .2) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 3px rgba(37, 58, 40, .12) !important;
+  cursor: pointer !important;
+  flex: 0 0 50px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  position: relative !important;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease !important;
+  width: 50px !important;
+}
+
+.setting-row input[type="checkbox"]::before {
+  background: #fff !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 7px rgba(36, 57, 39, .24) !important;
+  content: "" !important;
+  height: 20px !important;
+  left: 3px !important;
+  position: absolute !important;
+  top: 3px !important;
+  transform: translateX(0) !important;
+  transition: transform .2s ease !important;
+  width: 20px !important;
+}
+
+.setting-row input[type="checkbox"]:checked {
+  background: linear-gradient(135deg, #76ad68, #4f874d) !important;
+  border-color: rgba(60, 116, 57, .38) !important;
+  box-shadow: inset 0 1px 3px rgba(35, 79, 35, .2), 0 0 0 1px rgba(91, 148, 83, .08) !important;
+}
+
+.setting-row input[type="checkbox"]:checked::before { transform: translateX(22px) !important; }
+
+.setting-row input[type="checkbox"]:focus-visible {
+  outline: 3px solid rgba(95, 153, 83, .28) !important;
+  outline-offset: 3px !important;
+}
+
+.range-setting input[type="range"] {
+  --range-progress: 0%;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  height: 22px !important;
+  margin: 0 !important;
+  min-height: 22px !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.range-setting input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(90deg, #5c9554 0 var(--range-progress), #d8ddd7 var(--range-progress) 100%) !important;
+  border: 1px solid rgba(61, 86, 63, .12) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 2px rgba(45, 67, 47, .1) !important;
+  height: 8px !important;
+}
+
+.range-setting input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: #fff !important;
+  border: 3px solid #4f874d !important;
+  border-radius: 50% !important;
+  box-shadow: 0 3px 8px rgba(43, 72, 47, .25) !important;
+  height: 20px !important;
+  margin-top: -7px !important;
+  width: 20px !important;
+}
+
+.range-setting input[type="range"]::-moz-range-track {
+  background: #d8ddd7 !important;
+  border: 1px solid rgba(61, 86, 63, .12) !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 2px rgba(45, 67, 47, .1) !important;
+  height: 8px !important;
+}
+
+.range-setting input[type="range"]::-moz-range-progress {
+  background: #5c9554 !important;
+  border-radius: 999px !important;
+  height: 8px !important;
+}
+
+.range-setting input[type="range"]::-moz-range-thumb {
+  background: #fff !important;
+  border: 3px solid #4f874d !important;
+  border-radius: 50% !important;
+  box-shadow: 0 3px 8px rgba(43, 72, 47, .25) !important;
+  height: 14px !important;
+  width: 14px !important;
+}
+
+.range-setting input[type="range"]:focus-visible { outline: none !important; }
+
+.range-setting input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(95, 153, 83, .22), 0 3px 8px rgba(43, 72, 47, .25) !important;
+}
+
+.number-format-setting { align-items: center !important; }
+
+.number-format-setting select {
+  background-color: rgba(255, 255, 250, .94) !important;
+  border-color: rgba(69, 101, 70, .16) !important;
+  flex: 0 0 min(230px, 45%) !important;
+  min-height: 42px !important;
+  min-width: 190px !important;
+}
+
+#stockCategoryFilter {
+  background-color: rgba(255, 255, 250, .94) !important;
+  border-color: rgba(73, 105, 73, .16) !important;
+  box-shadow: 0 7px 18px rgba(49, 79, 52, .06) !important;
+  min-height: 42px !important;
+}
+
+.contract-dock-panel {
+  max-height: min(62vh, 520px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.contract-dock-panel::-webkit-scrollbar { width: 6px; }
+.contract-dock-panel::-webkit-scrollbar-thumb { background: rgba(75, 116, 73, .24); border-radius: 999px; }
+
+@media (max-width: 768px) {
+  #stockView > .section-heading { align-items: stretch !important; }
+
+  #stockView .stock-toolbar {
+    align-self: start !important;
+    max-width: 360px !important;
+    width: 100% !important;
+  }
+
+  #stockView .stock-toolbar select {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .contract-dock:not(.collapsed) {
+    bottom: 12px !important;
+    max-width: 420px !important;
+    right: 12px !important;
+    width: calc(100vw - 24px) !important;
+  }
+
+  .contract-dock-panel { max-height: min(54vh, 410px) !important; }
+
+  .contract-dock-item {
+    gap: 7px !important;
+    grid-template-columns: 32px minmax(0, 1fr) 40px !important;
+    padding: 7px !important;
+  }
+
+  .contract-dock-item img { height: 32px !important; width: 32px !important; }
+}
+
+@media (max-width: 480px) {
+  .setting-row.number-format-setting {
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .number-format-setting select {
+    flex-basis: auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  #stockView .stock-toolbar { max-width: none !important; }
+
+  .contract-dock:not(.collapsed) {
+    bottom: 8px !important;
+    border-radius: 17px !important;
+    padding: 7px !important;
+    right: 8px !important;
+    width: calc(100vw - 16px) !important;
+  }
+
+  .contract-dock-panel { max-height: min(56vh, 360px) !important; }
+
+  .contract-dock-title { padding-inline: 6px !important; }
+
+  .contract-dock-item {
+    grid-template-columns: 30px minmax(0, 1fr) 36px !important;
+    padding: 6px !important;
+  }
+
+  .contract-dock-item img { height: 30px !important; width: 30px !important; }
+  .contract-dock-rewards { gap: 3px !important; }
+  .contract-dock-rewards .resource-amount { padding-right: 4px !important; }
+
+  .contract-dock.collapsed {
+    bottom: 8px !important;
+    right: 8px !important;
+  }
+}

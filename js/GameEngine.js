@@ -1,7 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 34;
+  static SAVE_VERSION = 35;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -32,7 +32,8 @@ class GameEngine {
       masterVolume: permanent.settings?.masterVolume ?? 100,
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
       musicVolume: permanent.settings?.musicVolume ?? 30,
-      musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows"
+      musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows",
+      numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian"
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -203,6 +204,7 @@ class GameEngine {
     merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
     merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
     merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
+    merged.settings.numberFormat = merged.settings.numberFormat === "international" ? "international" : "brazilian";
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");
@@ -599,6 +601,14 @@ class GameEngine {
     if (leveled && !silent) this.emit("level", { level: this.state.farmLevel, rewardCoins });
   }
 
+  addFarmXPPercent(rate, occurrences = 1, silent = false) {
+    const percentage = Math.max(0, Number(rate) || 0);
+    const count = Math.max(0, Math.floor(Number(occurrences) || 0));
+    for (let index = 0; index < count; index += 1) {
+      this.addFarmXP(this.getFarmXPNeed() * percentage, silent);
+    }
+  }
+
   getFarmXPNeed(level = this.state.farmLevel) {
     return Math.round(160 + 72 * Math.pow(Math.max(1, level), 1.52));
   }
@@ -686,7 +696,7 @@ class GameEngine {
     if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
     this.state.coins -= cost;
     this.state.storageExpansions = Math.max(0, Number(this.state.storageExpansions || 0)) + 1;
-    this.addFarmXP(45 + this.state.storageExpansions * 12);
+    this.addFarmXPPercent(0.017);
     return { ok: true, cost, added: 100, capacity: this.getStorageCap() };
   }
 
@@ -799,7 +809,7 @@ class GameEngine {
     Object.assign(cropState, { owned: true, level: 1, progress: 0 });
     this.state.cropsDiscovered[cropId] = true;
     this.state.stats.lifetimeCropPurchases += 1;
-    this.addFarmXP(55 + crop.index * 4);
+    this.addFarmXPPercent(0.017);
     this.state.stats.maxCropsOwned = Math.max(this.state.stats.maxCropsOwned, this.getOwnedCrops().length);
     this.state.stats.maxCropLevel = Math.max(this.state.stats.maxCropLevel, 1);
     this.ensureContractOffers();
@@ -831,7 +841,7 @@ class GameEngine {
     this.state.coins -= totalCost;
     cropState.level += purchased;
     this.state.stats.lifetimeCropUpgrades += purchased;
-    this.addFarmXP(purchased * (3 + Math.sqrt(cropState.level) * 0.6));
+    this.addFarmXPPercent(0.017, purchased);
     this.state.stats.maxCropLevel = Math.max(this.state.stats.maxCropLevel, cropState.level);
     return { ok: true, purchased, totalCost, level: cropState.level, crop };
   }
@@ -930,7 +940,7 @@ class GameEngine {
     if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
     this.state.coins -= cost;
     this.state.upgrades[id] = level + 1;
-    this.addFarmXP(55 + (level + 1) * 18);
+    this.addFarmXPPercent(0.017);
     return { ok: true };
   }
 
@@ -943,7 +953,7 @@ class GameEngine {
     if (this.state.research < cost) return { ok: false, message: `São necessários ${cost} pontos de pesquisa.` };
     this.state.research -= cost;
     this.state.researchTechs[id] = level + 1;
-    this.addFarmXP(70 + (level + 1) * 22);
+    this.addFarmXPPercent(0.017);
     return { ok: true };
   }
 
@@ -1277,8 +1287,7 @@ class GameEngine {
     if (!contract.defaultedAt) {
       this.state.stats.contractsCompleted += 1;
       this.state.stats.lifetimeContractsCompleted += 1;
-      const xp = 55 + Math.sqrt(contract.amount) * 5 + Math.log10(contract.rewardCoins + 10) * 20;
-      this.addFarmXP(xp, silent);
+      this.addFarmXPPercent(0.08, 1, silent);
     }
     return contract;
   }
@@ -1353,7 +1362,7 @@ class GameEngine {
     this.state.stats.lifetimeOrdersCompleted += 1;
     this.addCoins(order.rewardCoins);
     this.state.research += order.rewardResearch;
-    this.addFarmXP(35 + Math.sqrt(order.amount) * 4 + order.tier * 12, silent);
+    this.addFarmXPPercent(0.017, 1, silent);
     return { coins: order.rewardCoins, research: order.rewardResearch };
   }
 
@@ -1509,13 +1518,47 @@ class GameEngine {
   formatNumber(value, digits = 1) {
     const number = Number(value) || 0;
     const abs = Math.abs(number);
-    const units = [
-      [1e15, "q"], [1e12, "tri"], [1e9, "bi"], [1e6, "mi"], [1e3, "mil"]
-    ];
-    for (const [size, suffix] of units) {
-      if (abs >= size) return `${(number / size).toFixed(digits).replace(/[,\.]0$/, "").replace(".", ",")} ${suffix}`;
+    const precision = Math.max(0, Math.min(3, Math.floor(Number(digits) || 0)));
+    const international = this.state.settings.numberFormat === "international";
+    const decimalSeparator = international ? "." : ",";
+    const locale = international ? "en-US" : "pt-BR";
+
+    if (abs < 1000) return Math.floor(number).toLocaleString(locale);
+
+    let group = Math.max(1, Math.floor(Math.log10(abs) / 3));
+    let scaled = number / Math.pow(1000, group);
+    const roundingFactor = Math.pow(10, precision);
+    let rounded = Math.round(scaled * roundingFactor) / roundingFactor;
+
+    // Evita resultados como 1000K quando o arredondamento já alcançou a
+    // próxima ordem de grandeza.
+    if (Math.abs(rounded) >= 1000) {
+      group += 1;
+      scaled = number / Math.pow(1000, group);
+      rounded = Math.round(scaled * roundingFactor) / roundingFactor;
     }
-    return Math.floor(number).toLocaleString("pt-BR");
+
+    const fixed = Math.abs(rounded)
+      .toFixed(precision)
+      .replace(/\.0+$/, "")
+      .replace(/(\.\d*?)0+$/, "$1");
+    const formatted = `${rounded < 0 ? "-" : ""}${fixed.replace(".", decimalSeparator)}`;
+
+    const standardSuffixes = ["", "K", "M", "B", "T"];
+    if (group < standardSuffixes.length) return `${formatted}${standardSuffixes[group]}`;
+
+    // Após T: Aa, Ab, ... Az, Ba, Bb... para manter a função preparada para
+    // economias maiores sem voltar a nomes longos ou inserir espaços.
+    const extendedIndex = group - standardSuffixes.length;
+    const trailing = String.fromCharCode(97 + (extendedIndex % 26));
+    let leadingIndex = Math.floor(extendedIndex / 26);
+    let leading = "";
+    do {
+      leading = String.fromCharCode(65 + (leadingIndex % 26)) + leading;
+      leadingIndex = Math.floor(leadingIndex / 26) - 1;
+    } while (leadingIndex >= 0);
+
+    return `${formatted}${leading}${trailing}`;
   }
 
   formatMoney(value) {
