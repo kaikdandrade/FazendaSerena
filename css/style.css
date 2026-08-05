@@ -6041,6 +6041,136 @@ body {
 .account-avatar-shell img.game-avatar { object-fit: contain; }
 .leaderboard-row > img { object-fit: contain; }
 
+
+
+/* ========================================================================== */
+/* Revisão 41 — perfil compacto, ranking pessoal, estatísticas e contratos    */
+/* ========================================================================== */
+.player-profile-fields {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(260px, .9fr) minmax(320px, 1.1fr);
+}
+
+.profile-nickname-field {
+  align-content: start;
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+}
+
+.profile-avatar-field {
+  align-content: start;
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.profile-field-copy { display: grid; gap: 3px; }
+.profile-field-copy strong { color: var(--ink); font-size: .82rem; }
+.profile-field-copy small { color: var(--ink-soft); font-size: .62rem; }
+
+.profile-avatar-control {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.selected-avatar-preview {
+  align-items: center;
+  background: rgba(255,255,251,.96);
+  border: 1px solid rgba(69,101,70,.18);
+  border-radius: 13px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  min-height: 54px;
+  min-width: 0;
+  padding: 5px 10px 5px 6px;
+}
+
+.selected-avatar-preview > img {
+  background: rgba(235,241,230,.8);
+  border-radius: 10px;
+  height: 42px;
+  object-fit: contain;
+  padding: 3px;
+  width: 42px;
+}
+
+.selected-avatar-preview > span { display: grid; gap: 2px; min-width: 0; }
+.selected-avatar-preview strong { color: var(--ink); font-size: .72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selected-avatar-preview small { color: var(--ink-soft); font-size: .56rem; }
+.avatar-picker-toggle { min-width: 132px; white-space: nowrap; }
+.avatar-picker-panel[hidden] { display: none !important; }
+.avatar-picker-panel { border-top: 1px solid var(--line); padding-top: 13px; }
+
+.player-profile-actions {
+  align-items: center;
+  background: rgba(234,242,228,.55);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 10px;
+}
+
+.contract-offer-actions {
+  grid-template-areas: "decline accept";
+  grid-template-columns: .72fr 1.28fr;
+}
+.contract-accept-button { grid-area: accept; }
+.contract-decline-button {
+  background: rgba(190, 86, 78, .085) !important;
+  border-color: rgba(168, 72, 67, .18) !important;
+  color: #914a44 !important;
+  grid-area: decline;
+}
+.contract-decline-button:hover:not(:disabled) {
+  background: rgba(190, 86, 78, .14) !important;
+  border-color: rgba(168, 72, 67, .28) !important;
+}
+
+.player-stat-icon img,
+.achievement-summary article > span img,
+.achievement-card > span img {
+  height: 70%;
+  object-fit: contain;
+  width: 70%;
+}
+
+.achievement-summary article > span {
+  align-items: center;
+  background: rgba(255,255,252,.72);
+  border-radius: 10px;
+  display: flex;
+  flex: 0 0 auto;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+
+#achievementGrid > .empty-state {
+  box-sizing: border-box;
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.leaderboard-position {
+  align-items: center;
+  display: inline-flex;
+  gap: 3px;
+  justify-content: center;
+}
+.leaderboard-position > img { height: 18px; object-fit: contain; width: 18px; }
+.leaderboard-position > span { font-variant-numeric: tabular-nums; }
+.leaderboard-row.personal-rank-row {
+  background: linear-gradient(135deg, rgba(230,243,222,.98), rgba(255,248,218,.96));
+  border-color: rgba(91,139,66,.34);
+}
+
 /* ========================================================================== */
 /* Até 1024px */
 /* ========================================================================== */
@@ -6618,6 +6748,13 @@ body {
 /* Até 768px */
 /* ========================================================================== */
 @media (max-width: 768px) {
+  .player-profile-fields { grid-template-columns: 1fr; }
+  .profile-avatar-control { grid-template-columns: minmax(0, 1fr) auto; }
+  .contract-offer-actions {
+    grid-template-areas: "accept" "decline";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .account-settings-head { grid-template-columns: auto minmax(0, 1fr); }
 
   .account-actions { align-items: stretch; flex-direction: column; }
@@ -7324,6 +7461,11 @@ body {
 /* Até 480px */
 /* ========================================================================== */
 @media (max-width: 480px) {
+  .profile-avatar-control { grid-template-columns: 1fr; }
+  .avatar-picker-toggle { min-width: 0; width: 100%; }
+  .player-profile-actions { align-items: stretch; grid-template-columns: 1fr; }
+  .selected-avatar-preview { min-height: 58px; }
+
   .active-contract-grid { grid-template-columns: minmax(0, 1fr) !important; }
 
   .account-settings-card { gap: 14px; }

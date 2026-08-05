@@ -103,6 +103,11 @@
     playerNicknameSetting: $("#playerNicknameSetting"),
     playerAvatarPicker: $("#playerAvatarPicker"),
     playerAvatarSetting: $("#playerAvatarSetting"),
+    selectedAvatarPreview: $("#selectedAvatarPreview"),
+    selectedAvatarImage: $("#selectedAvatarImage"),
+    selectedAvatarName: $("#selectedAvatarName"),
+    toggleAvatarPicker: $("#toggleAvatarPicker"),
+    avatarPickerPanel: $("#avatarPickerPanel"),
     savePlayerProfile: $("#savePlayerProfile"),
     playerProfileFeedback: $("#playerProfileFeedback"),
     profileRankingNotice: $("#profileRankingNotice"),
@@ -182,6 +187,14 @@
       button.setAttribute("aria-checked", String(selected));
       button.disabled = disabled;
     });
+
+    const selectedAvatar = getAvatarEntry(selectedId);
+    if (dom.selectedAvatarImage) {
+      dom.selectedAvatarImage.src = selectedAvatar?.src || "assets/icons/feature-lock.png";
+      dom.selectedAvatarImage.alt = selectedAvatar ? `Avatar selecionado: ${selectedAvatar.label}` : "Nenhum avatar selecionado";
+    }
+    if (dom.selectedAvatarName) dom.selectedAvatarName.textContent = selectedAvatar?.label || "Nenhum avatar escolhido";
+    if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.textContent = selectedAvatar ? "Trocar avatar" : "Escolher avatar";
   }
 
   function percent(value) {
@@ -405,7 +418,12 @@
       dom.playerNicknameSetting.placeholder = signedIn ? "Seu apelido no ranking" : "Entre com o Google para definir";
     }
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = !signedIn;
+    if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = !signedIn;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = !signedIn;
+    if (!signedIn && dom.avatarPickerPanel) {
+      dom.avatarPickerPanel.hidden = true;
+      dom.toggleAvatarPicker?.setAttribute("aria-expanded", "false");
+    }
 
     if (dom.profileCompletionBadge) {
       dom.profileCompletionBadge.textContent = profileComplete ? "Perfil completo" : "Incompleto";
@@ -416,7 +434,7 @@
       dom.profileRankingNotice.textContent = !signedIn
         ? "Entre com o Google, escolha um apelido e um avatar para poder participar do ranking global."
         : profileComplete
-          ? "Perfil completo: sua fazenda participa do ranking global e poderá aparecer entre as cinco melhores."
+          ? "Perfil completo: sua fazenda participa do ranking global. As cinco melhores aparecem no topo e sua posição pessoal também é mostrada nas Estatísticas."
           : "Somente jogadores conectados com apelido e avatar salvos participam do ranking global.";
     }
 
@@ -430,6 +448,7 @@
     if (dom.resetProgressButton) dom.resetProgressButton.disabled = busy;
     if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
+    if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = profileDisabled;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
     $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
   }
@@ -1296,7 +1315,7 @@
         <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty)}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-clock-badge">⏱ ${engine.formatTime(contract.durationSeconds)}</span></div>
         <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         ${rewardsLine(contract)}
-        <div class="contract-offer-actions"><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button></div>
+        <div class="contract-offer-actions"><button class="button primary contract-accept-button" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button><button class="button secondary contract-decline-button" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button></div>
       </article>`;
     });
 
@@ -1412,8 +1431,12 @@
       : "Nenhuma missão concluída ainda.";
   }
 
-  function statCard(icon, label, value, note = "") {
-    return `<article class="player-stat-card"><span class="player-stat-icon">${icon}</span><div><small>${escapeHtml(label)}</small><strong>${value}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div></article>`;
+  function statIcon(source, label = "") {
+    return `<img alt="" aria-hidden="true" src="${escapeHtml(source)}" title="${escapeHtml(label)}">`;
+  }
+
+  function statCard(iconSource, label, value, note = "") {
+    return `<article class="player-stat-card"><span class="player-stat-icon">${statIcon(iconSource, label)}</span><div><small>${escapeHtml(label)}</small><strong>${value}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div></article>`;
   }
 
   function formatAccountAge(timestamp) {
@@ -1430,7 +1453,7 @@
     if (!dom.prestigeLeaderboard) return;
     const user = window.FirebaseManager.getUser();
     if (leaderboardState.status === "loading") {
-      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty leaderboard-loading"><strong>Atualizando o rank global...</strong><span>Consultando as cinco melhores fazendas salvas na nuvem.</span></div>`;
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty leaderboard-loading"><strong>Atualizando o rank global...</strong><span>Consultando as cinco melhores fazendas e sua posição atual.</span></div>`;
       return;
     }
     if (leaderboardState.status === "error") {
@@ -1438,27 +1461,38 @@
       return;
     }
     if (leaderboardState.status !== "success") {
-      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Top 5 global</strong><span>O ranking é público e pode ser consultado mesmo sem entrar com o Google.</span></div>`;
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Top 5 global</strong><span>O ranking é público. Jogadores conectados com perfil completo também veem a própria classificação.</span></div>`;
       return;
     }
 
     const top = Array.isArray(leaderboardState.top) ? leaderboardState.top.slice(0, 5) : [];
     const currentUid = user?.uid || "";
-    const medal = position => position === 1 ? "🥇" : position === 2 ? "🥈" : position === 3 ? "🥉" : `${position}º`;
-    const rows = top.map(player => {
+    const renderPosition = position => `<span>${engine.formatNumber(position)}º</span>${position === 1 ? '<img alt="" aria-hidden="true" src="assets/icons/crown.png">' : ""}`;
+    const renderRow = (player, personal = false) => {
       const avatar = getAvatarEntry(player?.avatarId);
       if (!avatar) return "";
       const current = Boolean(currentUid && player.uid === currentUid);
-      return `<article class="leaderboard-row ${current ? "current-player" : ""}">
-        <strong class="leaderboard-position">${medal(player.position)}</strong>
+      return `<article class="leaderboard-row ${current ? "current-player" : ""} ${personal ? "personal-rank-row" : ""}">
+        <strong class="leaderboard-position">${renderPosition(player.position)}</strong>
         <img src="${escapeHtml(avatar.src)}" alt="Avatar de ${escapeHtml(player?.displayName || "jogador")}">
         <div class="leaderboard-player"><strong>${escapeHtml(player?.displayName || "Fazendeiro")}</strong><small>${engine.formatNumber(player?.prestigeCount || 0)} prestígios · nível máximo ${engine.formatNumber(player?.maxFarmLevel || 1)}</small></div>
         <div class="leaderboard-score"><small>Prestígio total</small><strong>${resourceAmount("prestige", player?.prestigeTotal || 0, { compact: true })}</strong></div>
       </article>`;
-    }).filter(Boolean);
-    dom.prestigeLeaderboard.innerHTML = rows.length
-      ? `<div class="leaderboard-list">${rows.join("")}</div>`
-      : `<div class="empty-state leaderboard-empty"><strong>Ainda não há fazendas classificadas</strong><span>Para participar, o jogador precisa estar conectado e ter apelido e avatar salvos.</span></div>`;
+    };
+
+    const topRows = top.map(player => renderRow(player)).filter(Boolean);
+    const player = leaderboardState.player;
+    const playerOutsideTop = Boolean(player && !top.some(entry => entry.uid === player.uid));
+    const personalRow = playerOutsideTop
+      ? `<div class="leaderboard-personal-divider"><span>Sua classificação</span></div>${renderRow(player, true)}`
+      : "";
+
+    if (!topRows.length) {
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Ainda não há fazendas classificadas</strong><span>Para participar, o jogador precisa estar conectado e ter apelido e avatar salvos.</span></div>`;
+      return;
+    }
+
+    dom.prestigeLeaderboard.innerHTML = `<div class="leaderboard-list">${topRows.join("")}${personalRow}</div>`;
   }
 
   async function refreshPrestigeLeaderboard(force = false) {
@@ -1497,27 +1531,27 @@
     const legacyLevels = Object.values(state.prestigeUpgrades).reduce((sum, value) => sum + Number(value || 0), 0);
     dom.statsHero.innerHTML = `<article class="stats-account-card"><div><p class="eyebrow">sua história</p><h2>${stats.prestiges > 0 ? `${stats.prestiges + 1}ª jornada da fazenda` : "Primeira jornada da fazenda"}</h2><p>Conta criada há ${formatAccountAge(state.createdAt)}. Estatísticas históricas e conquistas permanecem entre prestígios.</p></div><div class="stats-account-score"><small>Etapas de missão</small><strong>${claimed.length}<span>/ ${engine.data.missions.length}</span></strong></div></article>`;
     dom.lifetimeStats.innerHTML = [
-      statCard("🪙", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "Total de todas as jornadas"),
-      statCard("🌾", "Itens produzidos", engine.formatNumber(stats.lifetimeHarvested), "Produção histórica"),
-      statCard("🛒", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "Mercado manual e automático"),
-      statCard("📑", "Contratos concluídos", engine.formatNumber(stats.lifetimeContractsCompleted), `${engine.formatNumber(stats.lifetimeContractUnitsDelivered)} unidades entregues`),
-      statCard("🧾", "Pedidos concluídos", engine.formatNumber(stats.lifetimeOrdersCompleted), `${engine.formatNumber(stats.lifetimeOrderUnitsDelivered)} unidades entregues`),
-      statCard("✨", "Prestígios realizados", engine.formatNumber(stats.prestiges), `${engine.formatNumber(stats.totalPrestigeEarned)} pontos conquistados`),
-      statCard("📚", "Séries de pedidos finalizadas", engine.formatNumber(stats.completedOrderSeries), "Catálogos completos por cultura"),
-      statCard("⚠️", "Contratos expirados", engine.formatNumber(stats.lifetimeContractsFailed), "Entregas concluídas depois do prazo"),
-      statCard("🔨", "Contratos quebrados", engine.formatNumber(stats.lifetimeContractsBroken), "Multas pagas para encerrar contratos")
+      statCard("assets/icons/coin.png", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "Total de todas as jornadas"),
+      statCard("assets/icons/harvest-crate.png", "Itens produzidos", engine.formatNumber(stats.lifetimeHarvested), "Produção histórica"),
+      statCard("assets/icons/shop.png", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "Mercado manual e automático"),
+      statCard("assets/icons/commercial-contract.png", "Contratos concluídos", engine.formatNumber(stats.lifetimeContractsCompleted), `${engine.formatNumber(stats.lifetimeContractUnitsDelivered)} unidades entregues`),
+      statCard("assets/icons/clipboard.png", "Pedidos concluídos", engine.formatNumber(stats.lifetimeOrdersCompleted), `${engine.formatNumber(stats.lifetimeOrderUnitsDelivered)} unidades entregues`),
+      statCard("assets/icons/prestige.png", "Prestígios realizados", engine.formatNumber(stats.prestiges), `${engine.formatNumber(stats.totalPrestigeEarned)} pontos conquistados`),
+      statCard("assets/icons/books.png", "Séries de pedidos finalizadas", engine.formatNumber(stats.completedOrderSeries), "Catálogos completos por cultura"),
+      statCard("assets/icons/clock.png", "Contratos expirados", engine.formatNumber(stats.lifetimeContractsFailed), "Entregas concluídas depois do prazo"),
+      statCard("assets/icons/tools.png", "Contratos quebrados", engine.formatNumber(stats.lifetimeContractsBroken), "Multas pagas para encerrar contratos")
     ].join("");
     dom.recordStats.innerHTML = [
-      statCard("🏡", "Maior nível da fazenda", engine.formatNumber(stats.maxFarmLevel)),
-      statCard("🌱", "Maior nível de cultura", engine.formatNumber(stats.maxCropLevel), "Limite atual: 300"),
-      statCard("🧺", "Maior estoque ocupado", engine.formatNumber(stats.maxStorageUsed)),
-      statCard("💰", "Maior saldo registrado", resourceAmount("coins", stats.maxCoinsHeld)),
-      statCard("🌿", "Culturas descobertas", `${discovered} / ${engine.data.crops.length}`),
-      statCard("🗂️", "Máximo de culturas na jornada", `${stats.maxCropsOwned} / ${engine.data.crops.length}`)
+      statCard("assets/icons/barn.png", "Maior nível da fazenda", engine.formatNumber(stats.maxFarmLevel)),
+      statCard("assets/icons/seedling-pot.png", "Maior nível de cultura", engine.formatNumber(stats.maxCropLevel), "Limite atual: 300"),
+      statCard("assets/icons/warehouse.png", "Maior estoque ocupado", engine.formatNumber(stats.maxStorageUsed)),
+      statCard("assets/icons/coin.png", "Maior saldo registrado", resourceAmount("coins", stats.maxCoinsHeld)),
+      statCard("assets/icons/field-map.png", "Culturas descobertas", `${discovered} / ${engine.data.crops.length}`),
+      statCard("assets/icons/harvest-crate.png", "Máximo de culturas na jornada", `${stats.maxCropsOwned} / ${engine.data.crops.length}`)
     ].join("");
-    dom.achievementSummary.innerHTML = `<article><span>🏅</span><div><small>Missões concluídas</small><strong>${claimed.length} / ${engine.data.missions.length}</strong></div></article><article><span>🌳</span><div><small>Níveis de legado</small><strong>${legacyLevels}</strong></div></article><article><span>♾️</span><div><small>Bônus permanentes</small><strong>${state.permanentBonuses.prestigeDouble ? "Prestígio 2× ativo" : "Em construção"}</strong></div></article>`;
+    dom.achievementSummary.innerHTML = `<article><span>${statIcon("assets/icons/clipboard.png", "Missões")}</span><div><small>Missões concluídas</small><strong>${claimed.length} / ${engine.data.missions.length}</strong></div></article><article><span>${statIcon("assets/icons/crown.png", "Legados")}</span><div><small>Níveis de legado</small><strong>${legacyLevels}</strong></div></article><article><span>${statIcon("assets/icons/prestige.png", "Bônus permanentes")}</span><div><small>Bônus permanentes</small><strong>${state.permanentBonuses.prestigeDouble ? "Prestígio 2× ativo" : "Em construção"}</strong></div></article>`;
     const permanentAchievements = [];
-    if (state.permanentBonuses.prestigeDouble) permanentAchievements.push(`<article class="achievement-card permanent-achievement"><span>∞</span><div><small>Bônus permanente</small><h3>Prestígio dos prestígios</h3><p>Todos os próximos prestígios concedem o dobro de pontos.</p></div></article>`);
+    if (state.permanentBonuses.prestigeDouble) permanentAchievements.push(`<article class="achievement-card permanent-achievement"><span>${statIcon("assets/icons/prestige.png", "Bônus permanente")}</span><div><small>Bônus permanente</small><h3>Prestígio dos prestígios</h3><p>Todos os próximos prestígios concedem o dobro de pontos.</p></div></article>`);
     engine.data.prestigeUpgrades.forEach(item => {
       const level = Number(state.prestigeUpgrades[item.id] || 0);
       if (level > 0) {
@@ -1527,7 +1561,7 @@
         permanentAchievements.push(`<article class="achievement-card legacy-achievement"><span>${legacyIcon}</span><div><small>Legado permanente · nível ${level}/${item.max}</small><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.desc)}</p></div></article>`);
       }
     });
-    const missionAchievements = claimed.map(mission => `<article class="achievement-card"><span>✓</span><div><small>${mission.series ? `Etapa ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${escapeHtml(mission.desc)}</p></div></article>`);
+    const missionAchievements = claimed.map(mission => `<article class="achievement-card"><span>${statIcon("assets/icons/clipboard.png", "Missão concluída")}</span><div><small>${mission.series ? `Etapa ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${escapeHtml(mission.desc)}</p></div></article>`);
     const achievements = [...permanentAchievements, ...missionAchievements];
     dom.achievementGrid.innerHTML = achievements.length ? achievements.join("") : `<div class="empty-state">Missões concluídas, bônus permanentes e legados comprados aparecerão aqui e nunca serão apagados pelo prestígio.</div>`;
     renderPrestigeLeaderboard();
@@ -1831,6 +1865,14 @@
       setProfileFeedback("Alterações ainda não salvas.", "pending");
     });
 
+    dom.toggleAvatarPicker?.addEventListener("click", () => {
+      if (!dom.avatarPickerPanel) return;
+      const willOpen = dom.avatarPickerPanel.hidden;
+      dom.avatarPickerPanel.hidden = !willOpen;
+      dom.toggleAvatarPicker.setAttribute("aria-expanded", String(willOpen));
+      if (willOpen) dom.avatarPickerPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
     dom.playerAvatarPicker?.addEventListener("click", event => {
       const button = event.target.closest("[data-avatar-id]");
       if (!button || button.disabled || !window.FirebaseManager.isAuthenticated()) return;
@@ -1883,7 +1925,9 @@
         const saveResult = await engine.save();
         if (!saveResult?.ok) throw saveResult?.error || new Error("Não foi possível salvar o perfil na nuvem.");
         updateAccountUI();
-        setProfileFeedback("Perfil salvo. Sua fazenda já pode participar do ranking global.", "success");
+        if (dom.avatarPickerPanel) dom.avatarPickerPanel.hidden = true;
+        if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.setAttribute("aria-expanded", "false");
+        setProfileFeedback("Perfil salvo na nuvem. Sua fazenda já participa do ranking global.", "success");
         if (activeView === "officeView" && activeOfficeTab === "stats") await refreshPrestigeLeaderboard(true);
       } catch (error) {
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";

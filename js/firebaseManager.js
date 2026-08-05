@@ -265,27 +265,27 @@ class FirebaseManager {
 
     const outputLimit = Math.max(1, Math.min(5, Math.floor(Number(maximum) || 5)));
     const collectionReference = this.sdk.collection(this.db, FirebaseManager.LEADERBOARD_COLLECTION);
-    const topQuery = this.sdk.query(
+    const rankingQuery = this.sdk.query(
       collectionReference,
-      this.sdk.orderBy("prestigeTotal", "desc"),
-      this.sdk.limit(50)
+      this.sdk.orderBy("prestigeTotal", "desc")
     );
-    const topSnapshot = await this.sdk.getDocs(topQuery);
-    const validEntries = topSnapshot.docs
+    const rankingSnapshot = await this.sdk.getDocs(rankingQuery);
+    const validEntries = rankingSnapshot.docs
       .map(document => ({ uid: document.id, ...document.data() }))
       .filter(entry => {
         const nickname = this.normalizeNickname(entry.displayName);
         return entry.profileComplete === true
           && nickname.length >= 4
+          && nickname.length <= 24
           && Boolean(this.getAvatarEntry(entry.avatarId));
       })
-      .slice(0, outputLimit)
       .map((entry, index) => ({ ...entry, position: index + 1 }));
+
     const user = this.currentUser;
     const player = user ? validEntries.find(entry => entry.uid === user.uid) || null : null;
     return {
       authenticated: Boolean(user),
-      top: validEntries,
+      top: validEntries.slice(0, outputLimit),
       rank: player?.position || null,
       player
     };

@@ -258,23 +258,37 @@
 </div>
 <form class="player-profile-form" id="playerProfileForm" novalidate>
 <div class="player-profile-heading">
-<div><p class="eyebrow">perfil público</p><h3>Perfil do ranking</h3><p>Defina um apelido e escolha um avatar do jogo. Você poderá editar os dois depois.</p></div>
+<div><p class="eyebrow">perfil público</p><h3>Perfil do ranking</h3><p>Escolha o apelido e o avatar que representarão sua fazenda. Os dois podem ser editados e salvos novamente quando quiser.</p></div>
 <span class="profile-completion-badge" id="profileCompletionBadge">Incompleto</span>
 </div>
+<div class="player-profile-fields">
 <label class="profile-nickname-field" for="playerNicknameSetting">
 <span><strong>Apelido</strong><small>Obrigatório, entre 4 e 24 caracteres.</small></span>
 <input autocomplete="nickname" id="playerNicknameSetting" maxlength="24" minlength="4" placeholder="Seu apelido no ranking" required="" type="text"/>
 </label>
-<fieldset class="avatar-picker-fieldset">
-<legend>Avatar do jogador</legend>
-<p>Selecione uma imagem para representar sua fazenda no ranking global.</p>
-<div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
+<div class="profile-avatar-field">
+<span class="profile-field-copy"><strong>Avatar</strong><small>Obrigatório para participar do ranking.</small></span>
+<div class="profile-avatar-control">
+<div class="selected-avatar-preview" id="selectedAvatarPreview">
+<img alt="" id="selectedAvatarImage" src="assets/icons/feature-lock.png"/>
+<span><strong id="selectedAvatarName">Nenhum avatar escolhido</strong><small>Abra a galeria para selecionar.</small></span>
+</div>
+<button aria-controls="avatarPickerPanel" aria-expanded="false" class="button secondary avatar-picker-toggle" id="toggleAvatarPicker" type="button">Escolher avatar</button>
+</div>
 <input id="playerAvatarSetting" required="" type="hidden"/>
-</fieldset>
+</div>
+</div>
 <div class="profile-ranking-notice" id="profileRankingNotice" role="status">Somente jogadores conectados com apelido e avatar salvos participam do ranking global.</div>
 <div class="player-profile-actions">
 <button class="button primary" id="savePlayerProfile" type="submit">Salvar perfil</button>
 <small aria-live="polite" id="playerProfileFeedback"></small>
+</div>
+<div class="avatar-picker-panel" hidden="" id="avatarPickerPanel">
+<fieldset class="avatar-picker-fieldset">
+<legend>Escolha seu avatar</legend>
+<p>Selecione uma imagem. A escolha só será enviada para a nuvem depois de clicar em “Salvar perfil”.</p>
+<div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
+</fieldset>
 </div>
 </form>
 <div class="button-row account-actions">
@@ -336,14 +350,18 @@
 </div>
 </article>
 <article class="panel-card settings-card guide-card">
-<div class="guide-heading"><div><p class="eyebrow">manual da fazenda</p><h2>Como jogar</h2></div><p>Um resumo visual do ciclo principal e das prioridades automáticas.</p></div>
+<div class="guide-heading"><div><p class="eyebrow">manual da fazenda</p><h2>Como jogar</h2></div><p>Conheça o ciclo da fazenda, as formas de progredir e o que permanece entre as jornadas.</p></div>
 <div class="guide-sections">
-<section><span>01</span><div><h3>Compre a primeira cultura</h3><p>Você começa com 120 moedas. A Folha é a cultura inicial; depois dela, uma nova cultura é liberada a cada cinco níveis da fazenda.</p></div></section>
-<section><span>02</span><div><h3>Gerencie o estoque</h3><p>O celeiro é compartilhado por todas as culturas. Venda produtos manualmente, ative a venda automática ou compre mais 100 espaços diretamente no Estoque.</p></div></section>
-<section><span>03</span><div><h3>Entenda as prioridades</h3><p>A produção atende contratos ativos primeiro, inclusive entregas atrasadas, depois a venda automática e, por último, o estoque. Contratos vencidos perdem a recompensa, exigem 100% da entrega e geram multa.</p></div></section>
-<section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção e valorizam cada cultura. Contratos no prazo concedem 8% do XP necessário para o próximo nível; cada compra, aprimoramento e pedido entregue concede 1,7%. Colheitas e vendas não concedem XP.</p></div></section>
-<section><span>05</span><div><h3>Use o escritório</h3><p>Contratos estão disponíveis desde o início com um slot ativo. Pedidos liberam no nível 5, o segundo slot de contrato no nível 20 e os outros cinco são obtidos por pesquisa e prestígio.</p></div></section>
-<section><span>06</span><div><h3>Invista e prestigie</h3><p>Aprimoramentos usam moedas, pesquisas usam pontos de pesquisa e legados usam prestígio. O prestígio desbloqueia no nível 40 e inicia uma nova jornada.</p></div></section>
+<section><span>01</span><div><h3>Comece produzindo</h3><p>Compre a primeira cultura e deixe a produção acontecer. Novas plantas aparecem gradualmente conforme o nível da fazenda aumenta, criando uma jornada longa em que cada cultivo tem espaço para evoluir.</p></div></section>
+<section><span>02</span><div><h3>Fortaleça suas culturas</h3><p>Use moedas para comprar culturas e melhorar suas plantações. Os níveis aumentam a eficiência de cada safra, e uma cultura que alcança o nível máximo recebe uma aparência especial e uma recompensa de experiência.</p></div></section>
+<section><span>03</span><div><h3>Evolua o nível da fazenda</h3><p>A fazenda recebe experiência ao concluir contratos dentro do prazo, entregar pedidos e realizar compras ou aprimoramentos elegíveis. Colheitas comuns, vendas, missões e melhorias permanentes de prestígio não concedem experiência diretamente.</p></div></section>
+<section><span>04</span><div><h3>Organize o estoque</h3><p>Todas as culturas compartilham a mesma capacidade. Você pode vender itens manualmente, vender todo o estoque, ativar vendas automáticas por cultura e ampliar o espaço disponível quando a produção crescer.</p></div></section>
+<section><span>05</span><div><h3>Assine contratos com cuidado</h3><p>Contratos reservam parte da produção e oferecem recompensas maiores. Cada proposta possui quantidade e prazo próprios. Um contrato atrasado deve ser concluído sem recompensa e exige multa; um contrato assinado também pode ser quebrado mediante pagamento.</p></div></section>
+<section><span>06</span><div><h3>Complete pedidos</h3><p>Pedidos são entregas progressivas do Escritório. Eles consomem produtos do estoque, concedem recompensas e experiência, avançam por etapas e são renovados quando uma nova jornada de prestígio começa.</p></div></section>
+<section><span>07</span><div><h3>Cumpra missões permanentes</h3><p>Missões acompanham feitos importantes ao longo de todas as jornadas. O progresso e as etapas concluídas não são apagados pelo prestígio, por isso elas funcionam como um histórico permanente da conta.</p></div></section>
+<section><span>08</span><div><h3>Invista em Evoluções</h3><p>Aprimoramentos usam moedas, Pesquisas usam pontos de pesquisa e Legados usam prestígio. Essas três áreas aceleram produção, vendas, contratos, pedidos, estoque e outros sistemas da fazenda.</p></div></section>
+<section><span>09</span><div><h3>Prestigie quando estiver pronto</h3><p>O prestígio inicia uma nova jornada e reinicia o progresso renovável, mas preserva missões permanentes, estatísticas, pontos acumulados e legados comprados. Antes de confirmar, o jogo mostra o que será reiniciado e o que será mantido.</p></div></section>
+<section><span>10</span><div><h3>Proteja e publique seu progresso</h3><p>Visitantes jogam apenas durante a sessão atual. Entrar com o Google ativa o save automático na nuvem. Para participar do ranking global, salve também um apelido válido e um avatar no perfil público.</p></div></section>
 </div></article>
 </div>
 </section>
