@@ -662,14 +662,11 @@
     dom.stockGrid.innerHTML = owned.map(crop => {
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
-      const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount && !contract.completedAt).length;
-      const priorityText = activeContracts ? `${activeContracts} contrato${activeContracts === 1 ? " ativo" : "s ativos"}` : "";
       return `
         <article class="stock-card normalized-stock-card ${data.autoSell ? "auto-sell-card" : ""}">
           <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div></div>
           <div class="stock-value-grid"><div><small>Quantidade</small><strong>${engine.formatNumber(data.stock)} <span>un.</span></strong></div><div><small>Valor unitário</small><strong>${resourceAmount("coins", price, { compact: true })}</strong></div><div><small>Valor guardado</small><strong>${resourceAmount("coins", data.stock * price, { compact: true })}</strong></div></div>
           <button class="auto-sell-toggle compact-auto-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}"><span><strong>Venda automática</strong><small>${data.autoSell ? "Ativada" : "Desativada"}</small></span><span class="auto-sell-switch"><i></i></span></button>
-          ${priorityText ? `<div class="stock-priority-note"><strong>${escapeHtml(priorityText)}</strong><small>Contratos têm prioridade; depois vem a venda automática e, por último, o estoque.</small></div>` : ""}
           <div class="stock-actions"><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>25%</button><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.5" ${data.stock <= 0 ? "disabled" : ""}>50%</button><button class="button primary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="1" ${data.stock <= 0 ? "disabled" : ""}>Vender tudo</button></div>
         </article>`;
     }).join("");
@@ -1034,14 +1031,36 @@
     return true;
   }
 
+  function getVisibleResourceCounter(type) {
+    const counters = {
+      coins: [dom.floatingCoinsCounter, dom.coinsCounter],
+      research: [dom.floatingResearchCounter, dom.researchCounter],
+      prestige: [dom.floatingPrestigeCounter, dom.prestigeCounter]
+    }[type] || [];
+
+    return counters.find(counter => {
+      if (!counter) return false;
+      const rect = counter.getBoundingClientRect();
+      const style = window.getComputedStyle(counter);
+      return style.visibility !== "hidden"
+        && style.display !== "none"
+        && rect.width > 0
+        && rect.height > 0
+        && rect.bottom > 0
+        && rect.top < window.innerHeight;
+    }) || counters.find(Boolean) || null;
+  }
+
   function animateResourceReward(source, reward = {}) {
     if (!source) return;
     const sourceRect = source.getBoundingClientRect();
     const types = [
-      ["coins", reward.coins, dom.coinsCounter],
-      ["research", reward.research, dom.researchCounter],
-      ["prestige", reward.prestige, dom.prestigeCounter]
-    ].filter(([, value, target]) => Number(value) > 0 && target);
+      ["coins", reward.coins],
+      ["research", reward.research],
+      ["prestige", reward.prestige]
+    ].map(([type, value]) => [type, value, getVisibleResourceCounter(type)])
+      .filter(([, value, target]) => Number(value) > 0 && target);
+
     types.forEach(([type, value, target], typeIndex) => {
       const targetRect = target.getBoundingClientRect();
       const particles = Math.min(9, Math.max(4, Math.ceil(Math.log10(Number(value) + 1) * 3)));
@@ -1050,18 +1069,30 @@
         particle.className = `reward-particle reward-particle-${type}`;
         particle.src = resourceIcons[type];
         particle.alt = "";
+        particle.draggable = false;
         particle.style.left = `${sourceRect.left + sourceRect.width / 2 - 10}px`;
         particle.style.top = `${sourceRect.top + sourceRect.height / 2 - 10}px`;
         document.body.appendChild(particle);
+
         const spreadX = (Math.random() - .5) * 90;
         const spreadY = -30 - Math.random() * 55;
         const endX = targetRect.left + targetRect.width / 2 - sourceRect.left - sourceRect.width / 2;
         const endY = targetRect.top + targetRect.height / 2 - sourceRect.top - sourceRect.height / 2;
-        particle.animate([
+        const animation = particle.animate([
           { transform: "translate(0,0) scale(.65)", opacity: 0 },
           { transform: `translate(${spreadX}px, ${spreadY}px) scale(1.08)`, opacity: 1, offset: .28 },
           { transform: `translate(${endX}px, ${endY}px) scale(.5)`, opacity: .15 }
-        ], { duration: 720 + i * 45 + typeIndex * 80, delay: i * 35, easing: "cubic-bezier(.2,.75,.25,1)", fill: "forwards" }).finished.finally(() => particle.remove());
+        ], {
+          duration: 720 + i * 45 + typeIndex * 80,
+          delay: i * 35,
+          easing: "cubic-bezier(.2,.75,.25,1)",
+          fill: "forwards"
+        });
+
+        animation.finished
+          .then(() => soundEngine.playResourceCounterHit(type))
+          .catch(() => {})
+          .finally(() => particle.remove());
       }
     });
   }
@@ -1080,9 +1111,13 @@
     const cropId = button.dataset.crop;
     const id = button.dataset.id;
 
-    if (action !== "perform-prestige") soundEngine.play(getActionSound(action));
+    if (!["perform-prestige", "buy-crop"].includes(action)) soundEngine.play(getActionSound(action));
 
-    if (action === "buy-crop") act(engine.buyCrop(cropId));
+    if (action === "buy-crop") {
+      const result = engine.buyCrop(cropId);
+      if (result.ok) soundEngine.play("cropPurchase");
+      act(result);
+    }
     if (action === "select-upgrade-mode") {
       cropUpgradeModes.set(cropId, button.dataset.upgradeMode === "max" ? "max" : "one");
       const card = button.closest("[data-live-crop]");

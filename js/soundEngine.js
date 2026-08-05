@@ -3,41 +3,57 @@
 /**
  * Motor global de áudio.
  *
- * Os efeitos compartilham um único canal para impedir sobreposição em cliques
- * rápidos. A navegação usa uma sequência curta: clique suave e, quando ele
- * termina, o som de transição. A música usa um canal independente e contínuo.
+ * Os efeitos principais usam um canal interrompível para evitar acúmulo em
+ * cliques rápidos. Os impactos dos recursos usam pequenos pools independentes,
+ * permitindo que cada partícula toque ao alcançar o contador sem interromper
+ * a navegação, a recompensa ou outros impactos que ainda estejam soando.
  */
 class SoundEngine {
   static FIXED_MAPPINGS = Object.freeze({
-    click: "assets/sounds/01A_interface_click_soft_pop.wav",
-    navigation: "assets/sounds/02_navigation.wav",
-    mainNavigation: "assets/sounds/02_navigation.wav",
-    secondaryNavigation: "assets/sounds/02_navigation.wav",
-    upgrade: "assets/sounds/07_upgrade_order_mission.wav",
-    reward: "assets/sounds/03_reward.wav",
-    sell: "assets/sounds/06_sell_items.wav",
-    prestige: "assets/sounds/05_prestige.wav",
-    levelUp: "assets/sounds/04_level_up.wav"
+    click: "assets/sounds/interface_click.wav",
+    navigation: "assets/sounds/navigation_transition.wav",
+    mainNavigation: "assets/sounds/navigation_transition.wav",
+    secondaryNavigation: "assets/sounds/navigation_transition.wav",
+    cropPurchase: "assets/sounds/crop_purchase.wav",
+    upgrade: "assets/sounds/upgrade_confirmation.wav",
+    reward: "assets/sounds/reward_claim.wav",
+    sell: "assets/sounds/stock_sale.wav",
+    prestige: "assets/sounds/prestige_activation.wav",
+    levelUp: "assets/sounds/level_up.wav",
+    coinCounterHit: "assets/sounds/coin_counter_hit.wav",
+    researchCounterHit: "assets/sounds/research_counter_hit.wav",
+    prestigeCounterHit: "assets/sounds/prestige_counter_hit.wav"
   });
 
   static DEFAULT_MAPPINGS = SoundEngine.FIXED_MAPPINGS;
+
+  static RESOURCE_COUNTER_MAPPINGS = Object.freeze({
+    coins: "coinCounterHit",
+    research: "researchCounterHit",
+    prestige: "prestigeCounterHit"
+  });
+
   static MUSIC_SOURCES = Object.freeze({
-    betweenLightAndShadows: "assets/sounds/music/entre_luz_sombras.wav",
-    pixelSprouts: "assets/sounds/music/brotos_pixelados.wav",
-    moonlitFields: "assets/sounds/music/campos_ao_luar.wav",
-    fieldRain: "assets/sounds/music/chuva_no_campo.wav",
-    electricHarvest: "assets/sounds/music/colheita_eletrizante.wav",
-    dirtRoad: "assets/sounds/music/estrada_de_terra.wav",
-    enchantedGreenhouse: "assets/sounds/music/estufa_encantada.wav",
-    solarFarm: "assets/sounds/music/fazenda_solar.wav",
-    barnHay: "assets/sounds/music/feno_do_celeiro.wav",
-    harvestFestival: "assets/sounds/music/festa_da_colheita.wav",
-    tropicalOrchard: "assets/sounds/music/pomar_tropical.wav"
+    betweenLightAndShadows: "assets/sounds/music/between_light_and_shadows.wav",
+    pixelSprouts: "assets/sounds/music/pixel_sprouts.wav",
+    moonlitFields: "assets/sounds/music/moonlit_fields.wav",
+    fieldRain: "assets/sounds/music/field_rain.wav",
+    electricHarvest: "assets/sounds/music/electric_harvest.wav",
+    dirtRoad: "assets/sounds/music/dirt_road.wav",
+    enchantedGreenhouse: "assets/sounds/music/enchanted_greenhouse.wav",
+    solarFarm: "assets/sounds/music/solar_farm.wav",
+    barnHay: "assets/sounds/music/barn_hay.wav",
+    harvestFestival: "assets/sounds/music/harvest_festival.wav",
+    tropicalOrchard: "assets/sounds/music/tropical_orchard.wav"
   });
 
   constructor() {
     this.effectChannel = new Audio();
     this.effectChannel.preload = "auto";
+
+    this.concurrentPoolSize = 10;
+    this.concurrentPools = new Map();
+    this.concurrentPoolCursors = new Map();
 
     this.musicTrack = "betweenLightAndShadows";
     this.musicChannel = new Audio(SoundEngine.MUSIC_SOURCES[this.musicTrack]);
@@ -56,21 +72,29 @@ class SoundEngine {
     this.effectVolume = SoundEngine.toVolume(settings.effectVolume ?? settings.soundVolume ?? 55);
     this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? 30);
 
-    const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
+    const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack]
+      ? settings.musicTrack
+      : "betweenLightAndShadows";
+
     if (requestedTrack !== this.musicTrack) {
       this.musicTrack = requestedTrack;
-      const absoluteSource = new URL(SoundEngine.MUSIC_SOURCES[this.musicTrack], document.baseURI).href;
+      const source = SoundEngine.MUSIC_SOURCES[this.musicTrack];
+      const absoluteSource = new URL(source, document.baseURI).href;
       const wasPlaying = !this.musicChannel.paused;
       this.musicChannel.pause();
-      if (this.musicChannel.src !== absoluteSource) this.musicChannel.src = SoundEngine.MUSIC_SOURCES[this.musicTrack];
+      if (this.musicChannel.src !== absoluteSource) this.musicChannel.src = source;
       this.musicChannel.currentTime = 0;
       if (wasPlaying) this.playMusic();
     }
 
-    this.effectChannel.volume = this.getEffectiveEffectVolume();
+    const effectVolume = this.getEffectiveEffectVolume();
+    this.effectChannel.volume = effectVolume;
+    this.concurrentPools.forEach(pool => pool.forEach(channel => {
+      channel.volume = effectVolume;
+    }));
     this.musicChannel.volume = this.getEffectiveMusicVolume();
 
-    if (this.getEffectiveEffectVolume() <= 0) this.stop();
+    if (effectVolume <= 0) this.stop();
     if (this.getEffectiveMusicVolume() <= 0) this.pauseMusic();
     else this.playMusic();
   }
@@ -87,16 +111,64 @@ class SoundEngine {
     return Math.max(0, Math.min(1, this.masterVolume * this.musicVolume));
   }
 
+  getEffectPlaybackVolume(options = {}) {
+    if (Number.isFinite(options.volume)) {
+      return Math.max(0, Math.min(1, options.volume * this.masterVolume));
+    }
+    return this.getEffectiveEffectVolume();
+  }
+
   play(action, options = {}) {
     const source = options.source ?? SoundEngine.FIXED_MAPPINGS[action];
-    const volume = Number.isFinite(options.volume)
-      ? Math.max(0, Math.min(1, options.volume * this.masterVolume))
-      : this.getEffectiveEffectVolume();
+    const volume = this.getEffectPlaybackVolume(options);
     if (!source || volume <= 0) return false;
 
     const sequence = ++this.playSequence;
     this.playSource(source, volume, sequence);
     return true;
+  }
+
+  playConcurrent(action, options = {}) {
+    const source = options.source ?? SoundEngine.FIXED_MAPPINGS[action];
+    const volume = this.getEffectPlaybackVolume(options);
+    if (!source || volume <= 0) return false;
+
+    const pool = this.getConcurrentPool(source);
+    const nextCursor = this.concurrentPoolCursors.get(source) || 0;
+    let channelIndex = pool.findIndex(channel => channel.paused || channel.ended);
+    if (channelIndex < 0) channelIndex = nextCursor % pool.length;
+
+    const channel = pool[channelIndex];
+    this.concurrentPoolCursors.set(source, (channelIndex + 1) % pool.length);
+    channel.pause();
+    try { channel.currentTime = 0; } catch (_) {}
+    channel.volume = volume;
+
+    const playback = channel.play();
+    if (playback && typeof playback.catch === "function") {
+      playback.catch(() => channel.pause());
+    }
+    return true;
+  }
+
+  playResourceCounterHit(resourceType) {
+    const action = SoundEngine.RESOURCE_COUNTER_MAPPINGS[resourceType];
+    return action ? this.playConcurrent(action) : false;
+  }
+
+  getConcurrentPool(source) {
+    if (this.concurrentPools.has(source)) return this.concurrentPools.get(source);
+
+    const pool = Array.from({ length: this.concurrentPoolSize }, () => {
+      const channel = new Audio(source);
+      channel.preload = "auto";
+      channel.volume = this.getEffectiveEffectVolume();
+      return channel;
+    });
+
+    this.concurrentPools.set(source, pool);
+    this.concurrentPoolCursors.set(source, 0);
+    return pool;
   }
 
   playNavigation() {
@@ -141,6 +213,11 @@ class SoundEngine {
     this.effectChannel.onended = null;
     this.effectChannel.onerror = null;
     try { this.effectChannel.currentTime = 0; } catch (_) {}
+
+    this.concurrentPools.forEach(pool => pool.forEach(channel => {
+      channel.pause();
+      try { channel.currentTime = 0; } catch (_) {}
+    }));
   }
 
   playMusic() {
@@ -149,7 +226,9 @@ class SoundEngine {
     this.musicChannel.volume = volume;
     const playback = this.musicChannel.play();
     if (playback && typeof playback.then === "function") {
-      playback.then(() => { this.musicStarted = true; }).catch(() => { this.musicStarted = false; });
+      playback
+        .then(() => { this.musicStarted = true; })
+        .catch(() => { this.musicStarted = false; });
     }
     return true;
   }
