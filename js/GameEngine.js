@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 30;
+  static SAVE_VERSION = 31;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;

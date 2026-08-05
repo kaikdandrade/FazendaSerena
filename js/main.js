@@ -190,69 +190,45 @@
     container.dataset.dragNavigationReady = "true";
 
     let pointerId = null;
-    let pointerType = "";
     let startX = 0;
     let startY = 0;
     let startScrollLeft = 0;
-    let startControl = null;
     let moved = false;
+    let horizontalGesture = false;
     let suppressClickUntil = 0;
-    let dispatchingTouchClick = false;
 
-    const navigationControl = target => target?.closest?.(".nav-tab, .office-tab, .evolution-tab");
     const hasHorizontalOverflow = () => container.scrollWidth > container.clientWidth + 1;
 
     const resetPointer = () => {
       pointerId = null;
-      pointerType = "";
-      startControl = null;
       moved = false;
+      horizontalGesture = false;
       container.classList.remove("is-dragging");
     };
 
-    const finishDrag = (event, cancelled = false) => {
+    const finishDrag = event => {
       if (pointerId === null) return;
       if (event?.pointerId !== undefined && event.pointerId !== pointerId) return;
 
       const activePointerId = pointerId;
-      const activePointerType = pointerType;
-      const activeControl = startControl;
-      const shouldActivateTouch = !cancelled
-        && !moved
-        && Boolean(activeControl)
-        && (activePointerType === "touch" || activePointerType === "pen");
-
+      if (moved) suppressClickUntil = performance.now() + 420;
       if (container.hasPointerCapture?.(activePointerId)) {
         try { container.releasePointerCapture(activePointerId); } catch (_) {}
       }
-
-      if (moved || shouldActivateTouch) suppressClickUntil = performance.now() + 520;
       resetPointer();
-
-      // Pointer capture redirects pointerup to the scrolling container. Triggering
-      // the original control explicitly guarantees taps on phones and tablets.
-      if (shouldActivateTouch) {
-        event?.preventDefault?.();
-        dispatchingTouchClick = true;
-        activeControl.click();
-        dispatchingTouchClick = false;
-      }
     };
 
     container.addEventListener("pointerdown", event => {
-      const isTouchLike = event.pointerType === "touch" || event.pointerType === "pen";
-      if (!isTouchLike && event.button !== 0) return;
-      if (!isTouchLike && !hasHorizontalOverflow()) return;
+      const touchLike = event.pointerType === "touch" || event.pointerType === "pen";
+      if (!touchLike && event.button !== 0) return;
+      if (!hasHorizontalOverflow()) return;
 
       pointerId = event.pointerId;
-      pointerType = event.pointerType || "mouse";
       startX = event.clientX;
       startY = event.clientY;
       startScrollLeft = container.scrollLeft;
-      startControl = navigationControl(event.target);
       moved = false;
-
-      try { container.setPointerCapture(pointerId); } catch (_) {}
+      horizontalGesture = false;
     }, { passive: true });
 
     container.addEventListener("pointermove", event => {
@@ -260,24 +236,31 @@
 
       const deltaX = event.clientX - startX;
       const deltaY = event.clientY - startY;
-      if (!moved && Math.abs(deltaX) >= 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
+
+      if (!horizontalGesture && Math.max(Math.abs(deltaX), Math.abs(deltaY)) >= 6) {
+        if (Math.abs(deltaY) >= Math.abs(deltaX)) {
+          resetPointer();
+          return;
+        }
+
+        horizontalGesture = true;
         moved = true;
         container.classList.add("is-dragging");
+        try { container.setPointerCapture(pointerId); } catch (_) {}
       }
-      if (!moved || !hasHorizontalOverflow()) return;
 
+      if (!horizontalGesture || !hasHorizontalOverflow()) return;
       container.scrollLeft = startScrollLeft - deltaX;
       event.preventDefault();
     }, { passive: false });
 
-    container.addEventListener("pointerup", event => finishDrag(event, false));
-    container.addEventListener("pointercancel", event => finishDrag(event, true));
-    container.addEventListener("lostpointercapture", event => finishDrag(event, true));
+    container.addEventListener("pointerup", finishDrag);
+    container.addEventListener("pointercancel", finishDrag);
+    container.addEventListener("lostpointercapture", finishDrag);
     container.addEventListener("click", event => {
-      if (!dispatchingTouchClick && performance.now() < suppressClickUntil) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      }
+      if (performance.now() >= suppressClickUntil) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }, true);
   }
 
@@ -1162,6 +1145,10 @@
   }
 
   function setupEvents() {
+    document.addEventListener("dragstart", event => {
+      if (event.target?.closest?.("img")) event.preventDefault();
+    }, true);
+
     setupDragNavigation(document.querySelector(".main-nav"));
     dom.contextNavBlocks.forEach(setupDragNavigation);
     dom.tabs.forEach(tab => tab.addEventListener("click", () => {

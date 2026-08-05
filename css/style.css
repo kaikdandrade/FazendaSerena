@@ -75,7 +75,13 @@ button:disabled {
   transform: none !important;
 }
 
-img { display: block; max-width: 100%; }
+img {
+  -webkit-user-drag: none;
+  display: block;
+  max-width: 100%;
+  user-drag: none;
+  user-select: none;
+}
 
 .hidden { display: none !important; }
 
@@ -4424,17 +4430,6 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 .evolution-tab small { color: #74867b !important; margin-left: 2px !important; }
 
-.main-nav .stock-nav-tab.active::before {
-  background: linear-gradient(90deg,
-    rgba(255,255,255,.24) 0 var(--stock-progress, 0%),
-    rgba(255,255,255,0) var(--stock-progress, 0%) 100%) !important;
-}
-
-.main-nav .stock-nav-tab.stock-full::before {
-  background: linear-gradient(90deg,
-    rgba(205, 97, 93, .24) 0 var(--stock-progress, 0%),
-    rgba(255,255,255,0) var(--stock-progress, 0%) 100%) !important;
-}
 
 .main-nav .stock-nav-tab > * { position: relative !important; z-index: 1 !important; }
 
@@ -5758,19 +5753,11 @@ body {
 
   body.compact-cards #farmView .crop-grid { grid-template-columns: 1fr !important; }
 
-  .main-nav { overflow: visible !important; }
-
   body.page-scrolled .app-header { grid-template-columns: minmax(0,1fr) !important; padding: 6px 8px !important; }
 
   body.page-scrolled .app-header .brand { display: none !important; }
 
   body.page-scrolled .app-header .farm-progress { display: none !important; }
-
-  .main-nav { grid-template-columns: repeat(5,minmax(0,1fr)) !important; }
-
-  .main-nav .nav-tab { flex-direction: column; }
-
-  .nav-tab-label { width: 100%; }
 
   .evolution-tab { min-height: 40px !important; padding: 0 5px !important; }
 
@@ -5963,8 +5950,10 @@ body {
   .navigation-stack > .main-nav {
     cursor: grab !important;
     flex-flow: row nowrap !important;
+    margin-inline: auto !important;
     overflow-x: auto !important;
     overscroll-behavior-x: contain !important;
+    width: 100% !important;
   }
 
   .navigation-stack > .main-nav { justify-content: flex-start !important; }
@@ -6045,8 +6034,10 @@ body {
   }
 
   .navigation-stack .nav-tab-label {
+    flex: 0 0 auto !important;
     min-width: 0 !important;
     overflow: visible !important;
+    width: auto !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
     word-break: normal !important;
