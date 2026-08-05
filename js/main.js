@@ -64,8 +64,6 @@
     achievementSummary: $("#achievementSummary"),
     achievementGrid: $("#achievementGrid"),
     ambientSetting: $("#ambientSetting"),
-    reducedMotionSetting: $("#reducedMotionSetting"),
-    compactCardsSetting: $("#compactCardsSetting"),
     uiScaleSetting: $("#uiScaleSetting"),
     uiScaleText: $("#uiScaleText")
   };
@@ -189,15 +187,13 @@
   function applySettings() {
     const settings = engine.state.settings;
     document.body.dataset.ambient = String(Boolean(settings.ambient));
-    document.body.classList.toggle("reduce-motion", Boolean(settings.reducedMotion));
-    document.body.classList.toggle("compact-cards", Boolean(settings.compactCards));
+    document.body.classList.remove("reduce-motion");
+    document.body.classList.add("compact-cards");
     document.documentElement.style.setProperty("--ui-scale", String(((Number(settings.uiScale) || 100) / 100) * 0.85));
 
-    if (document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
-    if (document.activeElement !== dom.reducedMotionSetting) dom.reducedMotionSetting.checked = Boolean(settings.reducedMotion);
-    if (document.activeElement !== dom.compactCardsSetting) dom.compactCardsSetting.checked = Boolean(settings.compactCards);
-    if (document.activeElement !== dom.uiScaleSetting) dom.uiScaleSetting.value = String(settings.uiScale || 100);
-    dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
+    if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
+    if (dom.uiScaleSetting && document.activeElement !== dom.uiScaleSetting) dom.uiScaleSetting.value = String(settings.uiScale || 100);
+    if (dom.uiScaleText) dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -508,18 +504,14 @@
     const storageUsed = engine.getStorageUsed();
     const storagePct = percent((storageUsed / totalCapacity) * 100);
     const totalValue = allOwned.reduce((sum, crop) => sum + engine.state.crops[crop.id].stock * engine.getSalePrice(crop.id), 0);
-    const warehouse = engine.data.upgrades.find(item => item.id === "warehouse");
-    const warehouseLevel = Number(engine.state.upgrades.warehouse || 0);
-    const warehouseMaxed = warehouseLevel >= warehouse.max;
-    const warehouseCost = warehouseMaxed ? 0 : engine.getUpgradeCost(warehouse, engine.state.upgrades);
-    const warehousePercent = engine.getStorageUpgradePercent("warehouse");
-    const canUpgradeWarehouse = !warehouseMaxed && engine.state.coins >= warehouseCost;
+    const expansionCost = engine.getDirectStorageExpansionCost();
+    const canExpandStorage = engine.state.coins >= expansionCost;
 
     dom.stockSummary.innerHTML = `
       <article class="summary-card storage-capacity-card normalized-summary-card">
         <div class="summary-card-heading"><div><small>Estoque compartilhado</small><strong>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></div><span class="summary-status ${storagePct >= 100 ? "full" : ""}">${storagePct >= 100 ? "Cheio" : "Capacidade"}</span></div>
         <div class="progress-track growth"><span style="width:${Math.min(100, storagePct)}%"></span></div>
-        <button class="button soft full" type="button" data-action="buy-upgrade" data-id="warehouse" ${canUpgradeWarehouse ? "" : "disabled"}>${warehouseMaxed ? "Capacidade máxima" : canUpgradeWarehouse ? `Ampliar +${warehousePercent}% ${resourceAmount("coins", -warehouseCost, { sign: true, compact: true })}` : "Saldo insuficiente"}</button>
+        <button class="button soft full" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>${canExpandStorage ? `Adicionar +100 espaços ${resourceAmount("coins", -expansionCost, { sign: true, compact: true })}` : "Saldo insuficiente"}</button>
       </article>
       <article class="summary-card stock-sale-summary normalized-summary-card">
         <div class="summary-card-heading"><div><small>Venda geral</small><strong>${engine.formatNumber(storageUsed)} itens</strong></div><span class="summary-status">Mercado</span></div>
@@ -566,7 +558,6 @@
       <article class="upgrade-card normalized-upgrade-card ${!maxed && !affordable ? "unaffordable" : ""}">
         <div class="upgrade-head"><div><h3>${escapeHtml(item.name)}</h3><span class="crop-category">Nível ${level} / ${item.max}</span></div><span class="upgrade-icon" aria-hidden="true">${item.icon}</span></div>
         <p>${enrichResourceText(item.desc)}</p>
-        <div class="upgrade-level-row"><span>Próximo nível</span><strong>${maxed ? "Máximo" : resourceAmount(resourceType, -cost, { sign: true })}</strong></div>
         <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : affordable ? `Aprimorar ${resourceAmount(resourceType, -cost, { sign: true, compact: true })}` : "Recurso insuficiente"}</button>
       </article>`;
   }
@@ -601,11 +592,11 @@
     ];
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-overview-card normalized-prestige-card ${!prestigeUnlocked ? "prestige-locked" : ""}">
-        <div class="prestige-copy"><p class="eyebrow">novo ciclo</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : "Prestígio libera no nível 15"}</h2><p>${prestigeUnlocked ? "O cálculo usa somente o progresso renovável desta jornada." : `Continue evoluindo a fazenda. Faltam ${Math.max(0, 15 - engine.state.farmLevel)} níveis para liberar o prestígio.`}</p></div>
-        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain, { sign: true })}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : "Bloqueado até o nível 15"}</span></div>
+        <div class="prestige-copy"><p class="eyebrow">novo ciclo</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : "Prestígio desbloqueia no nível 15"}</h2><p>${prestigeUnlocked ? "O cálculo usa somente o progresso renovável desta jornada." : `Continue evoluindo a fazenda. Faltam ${Math.max(0, 15 - engine.state.farmLevel)} níveis para liberar o prestígio.`}</p></div>
+        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain, { sign: true })}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : "Desbloqueia no nível 15"}</span></div>
       </section>
       <section class="prestige-requirements normalized-prestige-requirements"><div class="prestige-requirements-head"><div><small>Requisitos da jornada</small><h3>Progresso que será convertido</h3></div><span>${prestigeUnlocked && gain > 0 ? "Pronto" : "Em progresso"}</span></div><div class="prestige-driver-grid">${drivers.map(item => `<article class="${item.ready ? "ready" : ""}"><div><small>${item.label}</small><strong>${item.value}</strong></div></article>`).join("")}</div></section>
-      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, evoluções, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? "Disponível no nível 15" : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { sign: true, compact: true })}`}</button></section>`;
+      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, evoluções, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? "Desbloqueia no nível 15" : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { sign: true, compact: true })}`}</button></section>`;
     showEvolutionTab(activeEvolutionTab);
   }
 
@@ -866,7 +857,7 @@
   }
 
   function animateResourceReward(source, reward = {}) {
-    if (engine.state.settings.reducedMotion || !source) return;
+    if (!source) return;
     const sourceRect = source.getBoundingClientRect();
     const types = [
       ["coins", reward.coins, dom.coinsCounter],
@@ -923,6 +914,7 @@
     if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId), result => `Venda automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
     if (action === "toggle-order-auto") act(engine.toggleOrderAutoDelivery(cropId), result => `Entrega automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
     if (action === "sell-all-stock") act(engine.sellAll(), result => `${engine.formatNumber(result.sold)} produtos vendidos por ${engine.formatMoney(result.gain)}.`);
+    if (action === "expand-storage") act(engine.expandStorage(), result => `Celeiro ampliado em +${result.added} espaços.`);
     if (action === "buy-upgrade") act(engine.buyUpgrade(id), "Infraestrutura aprimorada.");
     if (action === "buy-research") act(engine.buyResearch(id), "Nova etapa da pesquisa concluída.");
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id), "Legado permanente aprimorado.");
@@ -1044,15 +1036,6 @@
     dom.ambientSetting.addEventListener("change", () => {
       engine.setSetting("ambient", dom.ambientSetting.checked);
       applySettings();
-    });
-    dom.reducedMotionSetting.addEventListener("change", () => {
-      engine.setSetting("reducedMotion", dom.reducedMotionSetting.checked);
-      applySettings();
-    });
-    dom.compactCardsSetting.addEventListener("change", () => {
-      engine.setSetting("compactCards", dom.compactCardsSetting.checked);
-      applySettings();
-      render(true);
     });
     dom.uiScaleSetting.addEventListener("input", () => {
       engine.setSetting("uiScale", Number(dom.uiScaleSetting.value));

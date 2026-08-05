@@ -17,9 +17,10 @@
 <div aria-hidden="true" class="ambient-layer">
 <span class="ambient-orb orb-one"></span>
 <span class="ambient-orb orb-two"></span>
-<span class="floating-leaf leaf-one">🍃</span>
-<span class="floating-leaf leaf-two">🌿</span>
-<span class="floating-leaf leaf-three">🍂</span>
+<img alt="" class="floating-leaf leaf-one" src="img/plants/leaf.png"/>
+<img alt="" class="floating-leaf leaf-two" src="img/plants/autumn.png"/>
+<img alt="" class="floating-leaf leaf-three" src="img/plants/leaf.png"/>
+<img alt="" class="floating-leaf leaf-four" src="img/plants/autumn.png"/>
 </div>
 <div class="app-shell">
 <header class="app-header">
@@ -65,7 +66,7 @@
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
 
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" type="button"><span><i>🛠️</i> Evoluções</span><small>Moedas</small></button>
+<button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" type="button"><span><i>🛠️</i> Aprimoramentos</span><small>Moedas</small></button>
 <button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" type="button"><span><i>🧪</i> Pesquisa</span><small>Pontos de pesquisa</small></button>
 <button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" role="tab" type="button"><span><i>✨</i> Prestígio</span><small>Legados permanentes</small></button>
 </nav>
@@ -124,7 +125,7 @@
 <div class="evolution-workspace panel-card">
 <section class="evolution-panel active" data-evolution-panel="upgrades" role="tabpanel">
 <div class="section-heading compact-heading evolution-panel-heading">
-<div><p class="eyebrow">investimento cotidiano</p><h2>Infraestrutura da fazenda</h2><p class="section-copy">Use moedas para melhorar produção, armazenamento e vendas durante esta jornada.</p></div>
+<div><p class="eyebrow">investimento cotidiano</p><h2>Aprimoramentos da fazenda</h2><p class="section-copy">Use moedas para aperfeiçoar produção, armazenamento, comércio e organização durante esta jornada.</p></div>
 </div>
 <div class="upgrade-grid" id="upgradeList"></div>
 </section>
@@ -231,14 +232,6 @@
 <span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span>
 <input id="ambientSetting" type="checkbox"/>
 </label>
-<label class="setting-row">
-<span><strong>Reduzir movimentos</strong><small>Desativa animações que não são essenciais.</small></span>
-<input id="reducedMotionSetting" type="checkbox"/>
-</label>
-<label class="setting-row">
-<span><strong>Cards compactos</strong><small>Exibe mais culturas ao mesmo tempo.</small></span>
-<input id="compactCardsSetting" type="checkbox"/>
-</label>
 <label class="range-setting">
 <span><strong>Escala da interface</strong><small id="uiScaleText">100%</small></span>
 <input id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
@@ -257,22 +250,23 @@
 <button class="button danger" id="resetGame" type="button">Apagar progresso</button>
 </div>
 </article>
-<article class="panel-card settings-card guide-card"><h2>Como jogar</h2>
+<article class="panel-card settings-card guide-card">
+<div class="guide-heading"><div><p class="eyebrow">manual da fazenda</p><h2>Como jogar</h2></div><p>Um resumo visual do ciclo principal e das prioridades automáticas.</p></div>
 <div class="guide-sections">
-<section><h3>1. Comece a produzir</h3><p>Use as moedas iniciais para comprar a cebola. Cada cultura produz automaticamente e envia duas unidades por ciclo antes de qualquer bônus.</p></section>
-<section><h3>2. Escolha o destino</h3><p>Sem contratos, a produção vai para o celeiro ou para a venda automática configurada no Estoque. Contratos têm prioridade máxima, seguidos por pedidos com entrega automática e pela venda automática.</p></section>
-<section><h3>3. Aprimore a fazenda</h3><p>Níveis das culturas reduzem o tempo até o nível 250; do 251 ao 300 aumentam o rendimento. Evoluções, pesquisas e legados afetam toda a fazenda.</p></section>
-<section><h3>4. Organize o escritório</h3><p>Aceite até três contratos. O estoque disponível é enviado ao aceitar; a produção restante completa o acordo. Depois, receba a recompensa manualmente.</p></section>
-<section><h3>5. Complete pedidos e missões</h3><p>Pedidos são permanentes por cultura. Missões possuem objetivos da conta, podem avançar em estágios e continuam concluídas após o prestígio.</p></section>
-<section><h3>6. Use o prestígio</h3><p>O prestígio libera no nível 15. Ele reinicia o progresso da jornada, mas preserva pontos de prestígio, legados, missões concluídas, recordes e estatísticas históricas.</p></section>
+<section><span>01</span><div><h3>Compre a primeira cultura</h3><p>Você começa com 100 moedas. Compre a cebola por 80 moedas e aguarde a produção automática de duas unidades por ciclo.</p></div></section>
+<section><span>02</span><div><h3>Gerencie o estoque</h3><p>O celeiro é compartilhado por todas as culturas. Venda produtos manualmente, ative a venda automática ou compre mais 100 espaços diretamente no Estoque.</p></div></section>
+<section><span>03</span><div><h3>Entenda as prioridades</h3><p>A produção sempre atende contratos ativos primeiro, depois pedidos com entrega automática, venda automática e, por último, o estoque.</p></div></section>
+<section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção até o nível 250. Entre 251 e 300, cada nível aumenta o rendimento da cultura.</p></div></section>
+<section><span>05</span><div><h3>Use o escritório</h3><p>Escolha entre seis propostas, mantenha até três contratos ativos, avance pedidos permanentes e receba recompensas de missões em etapas.</p></div></section>
+<section><span>06</span><div><h3>Invista e prestigie</h3><p>Aprimoramentos usam moedas, pesquisas usam pontos de pesquisa e legados usam prestígio. O prestígio desbloqueia no nível 15 e inicia uma nova jornada.</p></div></section>
 </div></article>
 </div>
 </section>
 </main>
 </div>
 <footer class="app-footer">
-<span>Agricultura Industrial</span>
-<span>Seu progresso é salvo localmente.</span>
+<div><img alt="" src="img/logo.png"/><span><strong>Agricultura Industrial</strong><small>Fazenda Serena</small></span></div>
+<p>Desenvolvido por <a href="https://github.com/kaikdandrade" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a></p>
 </footer>
 </div>
 <aside aria-label="Acompanhamento dos contratos ativos" class="contract-dock" id="contractDock"></aside>

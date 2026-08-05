@@ -104,19 +104,33 @@ window.GameData = (() => {
   });
 
   const upgrades = [
-    { id: "irrigation", name: "Irrigação silenciosa", icon: "💧", desc: "+8% de velocidade para todas as culturas.", max: 25, baseCost: 180, growth: 1.72, currency: "coins" },
-    { id: "fertilizer", name: "Composto orgânico", icon: "🌱", desc: "+10% de rendimento por colheita.", max: 25, baseCost: 230, growth: 1.76, currency: "coins" },
-    { id: "warehouse", name: "Celeiro modular", icon: "🏡", desc: "+20% de capacidade no estoque compartilhado por nível.", max: 30, baseCost: 300, growth: 1.62, currency: "coins" },
-    { id: "logistics", name: "Rotas tranquilas", icon: "🚚", desc: "+7% no valor de todas as vendas.", max: 20, baseCost: 520, growth: 1.69, currency: "coins" }
+    { id: "irrigation", name: "Irrigação silenciosa", icon: "💧", desc: "+4% de velocidade para todas as culturas por nível.", max: 20, baseCost: 180, growth: 1.48, currency: "coins" },
+    { id: "fertilizer", name: "Composto orgânico", icon: "🌱", desc: "+5% de rendimento em todas as colheitas por nível.", max: 20, baseCost: 220, growth: 1.50, currency: "coins" },
+    { id: "warehouse", name: "Celeiro modular", icon: "🏡", desc: "+15% de capacidade no estoque compartilhado por nível.", max: 12, baseCost: 320, growth: 1.58, currency: "coins" },
+    { id: "logistics", name: "Rotas tranquilas", icon: "🚚", desc: "+4% no valor de todas as vendas por nível.", max: 20, baseCost: 450, growth: 1.50, currency: "coins" },
+    { id: "seedWorkshop", name: "Oficina de sementes", icon: "🫘", desc: "−2% no custo de compra das culturas por nível.", max: 15, baseCost: 600, growth: 1.55, currency: "coins" },
+    { id: "fieldTraining", name: "Treinamento de campo", icon: "📒", desc: "+4% de experiência da fazenda por nível.", max: 15, baseCost: 700, growth: 1.58, currency: "coins" },
+    { id: "contractOffice", name: "Mesa de negociações", icon: "🤝", desc: "+5% nas moedas oferecidas por contratos por nível.", max: 12, baseCost: 900, growth: 1.60, currency: "coins" },
+    { id: "orderCounter", name: "Balcão de pedidos", icon: "🧾", desc: "+5% nas moedas recebidas por pedidos por nível.", max: 12, baseCost: 850, growth: 1.58, currency: "coins" },
+    { id: "autoMarket", name: "Mercado automático", icon: "🛒", desc: "+3% no valor das vendas automáticas por nível.", max: 15, baseCost: 1000, growth: 1.60, currency: "coins" },
+    { id: "packingStation", name: "Estação de embalagem", icon: "📦", desc: "+3% de prazo nos novos contratos por nível.", max: 12, baseCost: 1200, growth: 1.62, currency: "coins" },
+    { id: "mechanization", name: "Mecanização serena", icon: "⚙️", desc: "+3% de produção contínua após o nível 250 por nível.", max: 15, baseCost: 1400, growth: 1.63, currency: "coins" },
+    { id: "maintenance", name: "Manutenção preventiva", icon: "🔧", desc: "−2% no custo dos níveis das plantações por nível.", max: 15, baseCost: 1100, growth: 1.60, currency: "coins" }
   ];
 
   const research = [
-    { id: "genetics", name: "Sementes resilientes", icon: "🧬", desc: "+7% de produção por nível.", max: 16, baseCost: 2, growth: 1.55 },
-    { id: "hydroponics", name: "Hidroponia modular", icon: "🫧", desc: "+6% de velocidade por nível.", max: 16, baseCost: 2, growth: 1.57 },
-    { id: "marketData", name: "Mercado cooperativo", icon: "📈", desc: "+4% no preço de venda por nível.", max: 18, baseCost: 3, growth: 1.6 },
-    { id: "storageScience", name: "Conservação natural", icon: "🧺", desc: "+12% de capacidade no estoque compartilhado por nível.", max: 15, baseCost: 3, growth: 1.61 },
-    { id: "contractAI", name: "Planejamento industrial", icon: "📋", desc: "+8% nas recompensas de contratos.", max: 14, baseCost: 4, growth: 1.67 },
-    { id: "prestigeTheory", name: "Memória da terra", icon: "✨", desc: "+8% nos pontos obtidos ao prestigiar.", max: 12, baseCost: 6, growth: 1.74 }
+    { id: "genetics", name: "Sementes resilientes", icon: "🧬", desc: "+4% de rendimento por nível.", max: 8, baseCost: 2, growth: 1.47 },
+    { id: "hydroponics", name: "Hidroponia modular", icon: "🫧", desc: "+4% de velocidade por nível.", max: 8, baseCost: 2, growth: 1.49 },
+    { id: "marketData", name: "Mercado cooperativo", icon: "📈", desc: "+3% no preço de venda por nível.", max: 8, baseCost: 3, growth: 1.50 },
+    { id: "storageScience", name: "Conservação natural", icon: "🧺", desc: "+10% de capacidade no estoque compartilhado por nível.", max: 8, baseCost: 3, growth: 1.51 },
+    { id: "contractAI", name: "Planejamento industrial", icon: "📋", desc: "+5% nas recompensas de contratos por nível.", max: 8, baseCost: 4, growth: 1.52 },
+    { id: "prestigeTheory", name: "Memória da terra", icon: "✨", desc: "+5% nos pontos obtidos ao prestigiar por nível.", max: 8, baseCost: 5, growth: 1.55 },
+    { id: "soilMapping", name: "Mapeamento do solo", icon: "🗺️", desc: "−2% no custo dos níveis das plantações por nível.", max: 8, baseCost: 3, growth: 1.50 },
+    { id: "deadlineModel", name: "Modelagem de prazos", icon: "⏱️", desc: "+4% de prazo nos novos contratos por nível.", max: 8, baseCost: 4, growth: 1.52 },
+    { id: "orderAnalytics", name: "Análise de encomendas", icon: "📊", desc: "+5% nas recompensas de pedidos por nível.", max: 8, baseCost: 4, growth: 1.52 },
+    { id: "marketAutomation", name: "Venda inteligente", icon: "🏷️", desc: "+3% no valor das vendas automáticas por nível.", max: 8, baseCost: 3, growth: 1.50 },
+    { id: "farmEducation", name: "Educação agrícola", icon: "🎓", desc: "+4% de experiência da fazenda por nível.", max: 8, baseCost: 4, growth: 1.53 },
+    { id: "seedCatalog", name: "Catálogo de cultivares", icon: "📚", desc: "−2% no custo de compra das culturas por nível.", max: 8, baseCost: 4, growth: 1.53 }
   ];
 
   const prestigeUpgrades = [

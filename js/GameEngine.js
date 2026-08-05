@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 12;
+  static SAVE_VERSION = 13;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -23,7 +23,7 @@ class GameEngine {
     const settings = {
       ambient: permanent.settings?.ambient ?? true,
       reducedMotion: permanent.settings?.reducedMotion ?? false,
-      compactCards: permanent.settings?.compactCards ?? true,
+      compactCards: true,
       uiScale: permanent.settings?.uiScale ?? 100
     };
 
@@ -56,6 +56,7 @@ class GameEngine {
       crops,
       orders,
       upgrades: Object.fromEntries(this.data.upgrades.map(item => [item.id, 0])),
+      storageExpansions: 0,
       researchTechs: Object.fromEntries(this.data.research.map(item => [item.id, 0])),
       prestigeUpgrades,
       permanentBonuses: { prestigeDouble: Boolean(permanent.permanentBonuses?.prestigeDouble) },
@@ -165,6 +166,7 @@ class GameEngine {
       ...input,
       settings: { ...base.settings, ...(input.settings || {}) },
       upgrades: { ...base.upgrades, ...(input.upgrades || {}) },
+      storageExpansions: Math.max(0, Math.floor(Number(input.storageExpansions) || 0)),
       researchTechs: { ...base.researchTechs, ...(input.researchTechs || {}) },
       prestigeUpgrades: { ...base.prestigeUpgrades, ...(input.prestigeUpgrades || {}) },
       permanentBonuses: { ...base.permanentBonuses, ...(input.permanentBonuses || {}) },
@@ -174,6 +176,9 @@ class GameEngine {
       crops: {},
       orders: {}
     };
+
+    merged.settings.reducedMotion = false;
+    merged.settings.compactCards = true;
 
     // Na Revisão 10, a antiga escala visual de 85% passou a ser o novo 100%.
     // Preserva a aparência de quem havia escolhido explicitamente 85% antes da migração.
@@ -428,7 +433,7 @@ class GameEngine {
 
     if (remaining > 0 && cropState.autoSell) {
       autoSold = remaining;
-      gain = Math.floor(autoSold * this.getSalePrice(cropId));
+      gain = Math.floor(autoSold * this.getAutoSalePrice(cropId));
       this.recordSale(cropId, autoSold, gain, silent);
       remaining = 0;
     }
@@ -488,7 +493,10 @@ class GameEngine {
   }
 
   addFarmXP(amount, silent = false) {
-    this.state.farmXP += Math.max(0, amount);
+    const training = Number(this.state.upgrades.fieldTraining || 0);
+    const education = Number(this.state.researchTechs.farmEducation || 0);
+    const multiplier = 1 + training * 0.04 + education * 0.04;
+    this.state.farmXP += Math.max(0, amount) * multiplier;
     let leveled = false;
     let rewardCoins = 0;
     while (this.state.farmXP >= this.getFarmXPNeed()) {
@@ -519,7 +527,7 @@ class GameEngine {
     const irrigation = Number(this.state.upgrades.irrigation || 0);
     const hydro = Number(this.state.researchTechs.hydroponics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
-    return 1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04;
+    return 1 + irrigation * 0.04 + hydro * 0.04 + legacy * 0.04;
   }
 
   getGrowthTime(cropId) {
@@ -544,7 +552,8 @@ class GameEngine {
     const previousProgress = (GameEngine.INSTANT_GROWTH_LEVEL - 2) / (GameEngine.INSTANT_GROWTH_LEVEL - 1);
     const previousFactor = Math.max(0.0001, 1 - Math.sqrt(previousProgress));
     const previousTime = Math.max(0.01, (crop.baseGrowth * previousFactor) / this.getGlobalGrowthSpeed());
-    return Math.max(1, 1 / previousTime);
+    const mechanization = Number(this.state.upgrades.mechanization || 0);
+    return Math.max(1, (1 / previousTime) * (1 + mechanization * 0.03));
   }
 
   getYield(cropId) {
@@ -557,7 +566,7 @@ class GameEngine {
     // deixam de reduzir tempo e passam a aprimorar o rendimento específico.
     const postSpeedLevels = Math.max(0, cropLevel - GameEngine.INSTANT_GROWTH_LEVEL);
     const cropYieldMultiplier = 1 + postSpeedLevels * 0.02;
-    const globalYieldMultiplier = 1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03;
+    const globalYieldMultiplier = 1 + fertilizer * 0.05 + genetics * 0.04 + legacy * 0.03;
     return crop.baseYield * cropYieldMultiplier * globalYieldMultiplier;
   }
 
@@ -568,18 +577,30 @@ class GameEngine {
   }
 
   getStorageCap() {
-    const warehouseBonus = Number(this.state.upgrades.warehouse || 0) * 0.20;
-    const researchBonus = Number(this.state.researchTechs.storageScience || 0) * 0.12;
+    const warehouseBonus = Number(this.state.upgrades.warehouse || 0) * 0.15;
+    const researchBonus = Number(this.state.researchTechs.storageScience || 0) * 0.10;
     const legacyBonus = Number(this.state.prestigeUpgrades.storageLegacy || 0) * 0.25;
-    return Math.max(
-      GameEngine.BASE_STORAGE_CAPACITY,
-      Math.round(GameEngine.BASE_STORAGE_CAPACITY * (1 + warehouseBonus + researchBonus + legacyBonus))
-    );
+    const percentageCapacity = Math.round(GameEngine.BASE_STORAGE_CAPACITY * (1 + warehouseBonus + researchBonus + legacyBonus));
+    const directCapacity = Math.max(0, Number(this.state.storageExpansions || 0)) * 100;
+    return Math.max(GameEngine.BASE_STORAGE_CAPACITY, percentageCapacity + directCapacity);
   }
 
   getStorageUpgradePercent(id) {
-    const percentages = { warehouse: 20, storageScience: 12, storageLegacy: 25 };
+    const percentages = { warehouse: 15, storageScience: 10, storageLegacy: 25 };
     return percentages[id] || 0;
+  }
+
+  getDirectStorageExpansionCost() {
+    const level = Math.max(0, Number(this.state.storageExpansions || 0));
+    return Math.ceil(260 * Math.pow(1.52, level));
+  }
+
+  expandStorage() {
+    const cost = this.getDirectStorageExpansionCost();
+    if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
+    this.state.coins -= cost;
+    this.state.storageExpansions = Math.max(0, Number(this.state.storageExpansions || 0)) + 1;
+    return { ok: true, cost, added: 100, capacity: this.getStorageCap() };
   }
 
   getStorageUsedFromState(state = this.state) {
@@ -599,14 +620,23 @@ class GameEngine {
     const logistics = Number(this.state.upgrades.logistics || 0);
     const market = Number(this.state.researchTechs.marketData || 0);
     const merchant = Number(this.state.prestigeUpgrades.merchantCrown || 0);
-    return Math.max(1, crop.basePrice * (1 + logistics * 0.07 + market * 0.04 + merchant * 0.05));
+    return Math.max(1, crop.basePrice * (1 + logistics * 0.04 + market * 0.03 + merchant * 0.05));
+  }
+
+  getAutoSalePrice(cropId) {
+    const autoMarket = Number(this.state.upgrades.autoMarket || 0);
+    const automationResearch = Number(this.state.researchTechs.marketAutomation || 0);
+    return this.getSalePrice(cropId) * (1 + autoMarket * 0.03 + automationResearch * 0.03);
   }
 
   getBuyCost(cropId) {
     const crop = this.getCrop(cropId);
     if (!crop) return Infinity;
-    const inheritedDiscount = Math.min(0.48, Number(this.state.prestigeUpgrades.rootMemory || 0) * 0.04);
-    return Math.max(0, Math.floor(crop.cost * (1 - inheritedDiscount)));
+    const inheritedDiscount = Number(this.state.prestigeUpgrades.rootMemory || 0) * 0.04;
+    const workshopDiscount = Number(this.state.upgrades.seedWorkshop || 0) * 0.02;
+    const catalogDiscount = Number(this.state.researchTechs.seedCatalog || 0) * 0.02;
+    const totalDiscount = Math.min(0.72, inheritedDiscount + workshopDiscount + catalogDiscount);
+    return Math.max(0, Math.floor(crop.cost * (1 - totalDiscount)));
   }
 
   getCropUpgradeCost(cropId, levelOverride = null) {
@@ -619,7 +649,10 @@ class GameEngine {
     const base = Math.max(28, crop.basePrice * 6 + Math.sqrt(crop.cost) * 2.5);
     const curve = Math.pow(1 + (level - 1) * 0.055, 2.05);
     const milestone = 1 + Math.floor((level - 1) / 50) * 0.16;
-    return Math.ceil(base * curve * milestone);
+    const maintenanceDiscount = Number(this.state.upgrades.maintenance || 0) * 0.02;
+    const mappingDiscount = Number(this.state.researchTechs.soilMapping || 0) * 0.02;
+    const discount = Math.min(0.55, maintenanceDiscount + mappingDiscount);
+    return Math.max(1, Math.ceil(base * curve * milestone * (1 - discount)));
   }
 
   getCropAffordableUpgrades(cropId, budget = this.state.coins) {
@@ -929,13 +962,16 @@ class GameEngine {
 
       const difficultyId = difficultyIds[Math.floor(Math.random() * difficultyIds.length)];
       const difficulty = this.getContractDifficulty(difficultyId);
+      const durationMultiplier = 1 + Number(this.state.upgrades.packingStation || 0) * 0.03 + Number(this.state.researchTechs.deadlineModel || 0) * 0.04;
+      const durationSeconds = Math.max(30, Math.round(difficulty.duration * durationMultiplier));
       const rate = Math.max(0.08, this.getProductionRate(crop.id));
       const variation = 0.84 + Math.random() * 0.3;
       const minimumByProgress = 5 + this.state.farmLevel * 2 + owned.length * 2 + Math.floor(cropLevel / 12);
-      const roughAmount = Math.max(minimumByProgress, rate * difficulty.duration * difficulty.load * progression * variation);
+      const roughAmount = Math.max(minimumByProgress, rate * durationSeconds * difficulty.load * progression * variation);
       const amount = this.roundContractAmount(roughAmount);
       const researchLevel = Number(this.state.researchTechs.contractAI || 0);
-      const rewardMultiplier = difficulty.reward + researchLevel * 0.08;
+      const officeLevel = Number(this.state.upgrades.contractOffice || 0);
+      const rewardMultiplier = difficulty.reward * (1 + researchLevel * 0.05 + officeLevel * 0.05);
       const rewardCoins = Math.max(1, Math.floor(amount * this.getSalePrice(crop.id) * rewardMultiplier));
       const researchChance = difficulty.research + Math.min(0.2, this.state.farmLevel / 150);
       const researchBase = amount >= 40 && Math.random() < researchChance ? 1 + Math.floor(Math.log10(amount + 1)) + Math.floor(this.state.farmLevel / 14) : 0;
@@ -950,8 +986,8 @@ class GameEngine {
         rewardCoins,
         rewardResearch: Math.floor(researchBase * researchBonus),
         difficulty: difficulty.id,
-        durationSeconds: difficulty.duration,
-        timeRemaining: difficulty.duration,
+        durationSeconds,
+        timeRemaining: durationSeconds,
         createdAt: Date.now(),
         acceptedAt: 0
       });
@@ -1162,7 +1198,9 @@ class GameEngine {
     if (!crop || !cropState?.owned || !orderState) return null;
     const step = this.data.orderSteps[orderState.tier];
     if (!step) return { crop, complete: true, tier: orderState.tier, totalTiers: this.data.orderSteps.length };
-    const rewardCoins = Math.max(1, Math.floor(step.amount * crop.basePrice * step.rewardMultiplier));
+    const counterBonus = Number(this.state.upgrades.orderCounter || 0) * 0.05;
+    const analyticsBonus = Number(this.state.researchTechs.orderAnalytics || 0) * 0.05;
+    const rewardCoins = Math.max(1, Math.floor(step.amount * crop.basePrice * step.rewardMultiplier * (1 + counterBonus + analyticsBonus)));
     return {
       crop,
       complete: false,
@@ -1321,7 +1359,7 @@ class GameEngine {
     if (this.state.farmLevel < 15) return 0;
     const owned = Object.values(this.state.crops).filter(item => item.owned).length;
     const score = Math.sqrt(Math.max(0, this.state.stats.runCoinsEarned) / 42000) + owned / 9 + this.state.farmLevel / 9 + this.state.stats.contractsCompleted / 7 - 3.2;
-    const theory = 1 + Number(this.state.researchTechs.prestigeTheory || 0) * 0.08;
+    const theory = 1 + Number(this.state.researchTechs.prestigeTheory || 0) * 0.05;
         const missionMultiplier = this.state.permanentBonuses.prestigeDouble ? 2 : 1;
     return Math.max(0, Math.floor(score * theory * missionMultiplier));
   }
