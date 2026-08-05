@@ -9,7 +9,6 @@
   let lastRender = 0;
   let lastSave = 0;
   let activeView = "farmView";
-  const nurtureCooldowns = new Map();
 
   const dom = {
     tabs: $$(".nav-tab[data-view]"),
@@ -81,7 +80,6 @@
     if (event.type === "toast") toast(event.message);
     if (event.type === "season") toast(`Chegou ${event.season.name}. ${event.season.description}`);
     if (event.type === "level") toast(`A fazenda alcançou o nível ${event.level}. Novas sementes podem ter sido liberadas.`, "success");
-    if (event.type === "mastery") toast(`${event.crop.name} alcançou domínio ${event.level}.`, "success");
     if (event.type === "offline") toast(`Enquanto você esteve longe, a fazenda produziu ${engine ? engine.formatNumber(event.harvested) : Math.floor(event.harvested)} itens.`);
   }
 
@@ -160,7 +158,7 @@
     const metrics = engine.getMetrics();
     dom.farmMetrics.innerHTML = `
       <span class="metric-chip">🌱 <strong>${metrics.owned}</strong> / ${engine.data.crops.length} culturas</span>
-      <span class="metric-chip">🧺 <strong>${engine.formatNumber(metrics.stock)}</strong> no celeiro</span>
+      <span class="metric-chip">🧺 <strong>${engine.formatNumber(metrics.stock)}</strong> / ${engine.formatNumber(metrics.storageCapacity)} no celeiro</span>
       <span class="metric-chip">🤝 <strong>${engine.state.reputation}</strong> reputação</span>
       <span class="metric-chip">📋 <strong>${metrics.contracts}</strong> contratos</span>`;
   }
@@ -191,70 +189,82 @@
       if (engine.state.reputation < crop.unlockReputation) requirements.push(`${crop.unlockReputation} reputação`);
       return `
         <article class="crop-card locked" style="--crop-glow:${getCropGlow(crop.category)}">
+          <div class="crop-level-strip locked-level-strip">
+            <span>Ainda não cultivada</span>
+          </div>
           <div class="crop-head">
             <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            <div>
+            <div class="crop-info">
               <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
-              <span class="crop-category">${escapeHtml(category)}</span>
-              <span class="crop-season-tag">Melhor: ${escapeHtml(bestNames || "todas")}</span>
+              <div class="crop-meta-row">
+                <span class="crop-category">${escapeHtml(category)}</span>
+                <span class="crop-season-tag">Melhor: ${escapeHtml(bestNames || "todas")}</span>
+                <span class="crop-price-chip"><img src="img/icons/coin.png" alt="">${engine.formatNumber(engine.getBuyCost(crop.id))}</span>
+              </div>
             </div>
           </div>
           <div class="locked-copy">
             <div class="unlock-line"><span>Desbloqueio</span><strong>${requirements.length ? escapeHtml(requirements.join(" · ")) : "Disponível"}</strong></div>
-            <div class="unlock-line"><span>Sementes</span><strong>${engine.formatMoney(engine.getBuyCost(crop.id))}</strong></div>
+            <div class="unlock-line"><span>Compra da cultura</span><strong>${engine.formatMoney(engine.getBuyCost(crop.id))}</strong></div>
           </div>
           <button class="button primary full" type="button" data-action="buy-crop" data-crop="${crop.id}" ${unlocked ? "" : "disabled"}>${unlocked ? "Comprar cultura" : "Ainda bloqueada"}</button>
         </article>`;
     }
 
-    const masteryNeed = engine.getMasteryXPNeed(crop.id);
-    const masteryPct = percent((data.masteryXP / masteryNeed) * 100);
     const growthPct = percent(data.progress * 100);
-    const cap = engine.getStorageCap(crop.id);
-    const yieldValue = engine.getYield(crop.id);
     const growthTime = engine.getGrowthTime(crop.id);
     const price = engine.getSalePrice(crop.id);
     const effect = engine.getSeasonEffect(crop.id);
-    const upgradeCost = engine.getCropUpgradeCost(crop.id);
-    const cooldown = Math.max(0, 3000 - (Date.now() - Number(nurtureCooldowns.get(crop.id) || 0)));
+    const storageFull = engine.getStorageRemaining() <= 0;
+    const affordable = engine.getCropAffordableUpgrades(crop.id);
+    const nextCost = affordable.nextCost;
+    const affordableText = affordable.levels > 0
+      ? `Suas moedas permitem avançar +${affordable.levels} nível${affordable.levels === 1 ? "" : "is"} agora.`
+      : `Próximo nível custa ${engine.formatMoney(nextCost)}.`;
 
     return `
       <article class="crop-card" style="--crop-glow:${getCropGlow(crop.category)}">
+        <div class="crop-level-strip">
+          <div class="crop-level-copy"><span>Nível da plantação</span><strong>${data.level}</strong></div>
+        </div>
+
         <div class="crop-head">
           <div class="crop-art">
             <img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy">
-            <span class="level-badge" title="Nível de domínio">${data.masteryLevel}</span>
           </div>
-          <div>
+          <div class="crop-info">
             <div class="crop-title-row">
               <h3>${escapeHtml(crop.name)}</h3>
-              <span class="status-tag">Eq. ${data.tier}</span>
             </div>
-            <span class="crop-category">${escapeHtml(category)}</span>
-            <span class="crop-season-tag">${escapeHtml(effect.label)}</span>
+            <div class="crop-meta-row">
+              <span class="crop-category">${escapeHtml(category)}</span>
+              <span class="crop-season-tag">${escapeHtml(effect.label)}</span>
+              <span class="crop-price-chip" title="Preço atual por unidade"><img src="img/icons/coin.png" alt="">${engine.formatNumber(price)}</span>
+            </div>
           </div>
         </div>
 
-        <div class="crop-bars">
-          <div class="progress-block">
-            <div class="progress-label"><span>Próxima colheita</span><strong>${growthPct.toFixed(0)}% · ${engine.formatTime((1 - data.progress) * growthTime)}</strong></div>
-            <div class="progress-track growth"><span style="width:${growthPct}%"></span></div>
+        <div class="crop-production ${storageFull ? "storage-paused" : ""}">
+          <div class="progress-label">
+            <span>${storageFull ? "Produção pausada: celeiro cheio" : "Produzindo para o celeiro"}</span>
+            <strong>${growthPct.toFixed(0)}%${storageFull ? "" : ` · ${engine.formatTime((1 - data.progress) * growthTime)}`}</strong>
           </div>
-          <div class="progress-block">
-            <div class="progress-label"><span>Domínio ${data.masteryLevel}</span><strong>${engine.formatNumber(data.masteryXP)} / ${engine.formatNumber(masteryNeed)} XP</strong></div>
-            <div class="progress-track mastery"><span style="width:${masteryPct}%"></span></div>
-          </div>
+          <div class="progress-track growth"><span style="width:${growthPct}%"></span></div>
+          <div class="production-foot"><span>🧺 ${engine.formatNumber(data.stock)} desta cultura guardados</span><span>Produção automática</span></div>
         </div>
 
-        <div class="crop-stats">
-          <div class="crop-stat"><small>Estoque</small><strong>${engine.formatNumber(data.stock)} / ${engine.formatNumber(cap)}</strong></div>
-          <div class="crop-stat"><small>Colheita</small><strong>+${engine.formatNumber(yieldValue)}</strong></div>
-          <div class="crop-stat"><small>Preço un.</small><strong>${engine.formatNumber(price)}</strong></div>
+        <div class="crop-upgrade-panel">
+          <div class="crop-upgrade-copy">
+            <strong>Aprimorar plantação</strong>
+            <small>${affordableText}</small>
+          </div>
+          <div class="crop-upgrade-actions">
+            <button class="button soft compact-button" type="button" data-action="upgrade-crop-once" data-crop="${crop.id}" ${engine.state.coins < nextCost ? "disabled" : ""}>+1 · ${engine.formatNumber(nextCost)}</button>
+            <button class="button primary compact-button" type="button" data-action="upgrade-crop-max" data-crop="${crop.id}" ${affordable.levels < 1 ? "disabled" : ""}>Máximo${affordable.levels > 0 ? ` (+${affordable.levels})` : ""}</button>
+          </div>
         </div>
 
         <div class="crop-actions">
-          <button class="button soft" type="button" data-action="nurture-crop" data-crop="${crop.id}" ${cooldown > 0 ? "disabled" : ""}>${cooldown > 0 ? "Cuidando..." : "Cuidar +12%"}</button>
-          <button class="button gold" type="button" data-action="upgrade-crop" data-crop="${crop.id}">Equipar · ${engine.formatNumber(upgradeCost)}</button>
           <button class="button secondary" type="button" data-action="sell-crop" data-crop="${crop.id}" ${data.stock <= 0 ? "disabled" : ""}>Vender estoque</button>
         </div>
       </article>`;
@@ -272,7 +282,7 @@
     list = [...list].sort((a, b) => {
       if (sort === "owned") return Number(engine.state.crops[b.id].owned) - Number(engine.state.crops[a.id].owned) || a.index - b.index;
       if (sort === "stock") return engine.state.crops[b.id].stock - engine.state.crops[a.id].stock || a.index - b.index;
-      if (sort === "mastery") return engine.state.crops[b.id].masteryLevel - engine.state.crops[a.id].masteryLevel || a.index - b.index;
+      if (sort === "level") return engine.state.crops[b.id].level - engine.state.crops[a.id].level || a.index - b.index;
       if (sort === "price") return engine.getSalePrice(b.id) - engine.getSalePrice(a.id) || a.index - b.index;
       return a.index - b.index;
     });
@@ -284,11 +294,22 @@
   function renderStock() {
     const owned = engine.data.crops.filter(crop => engine.state.crops[crop.id].owned);
     const metrics = engine.getMetrics();
-    const totalCapacity = owned.reduce((sum, crop) => sum + engine.getStorageCap(crop.id), 0);
+    const totalCapacity = engine.getStorageCap();
+    const storageUsed = engine.getStorageUsed();
+    const storageAvailable = engine.getStorageRemaining();
+    const storagePct = percent((storageUsed / totalCapacity) * 100);
     const totalValue = owned.reduce((sum, crop) => sum + engine.state.crops[crop.id].stock * engine.getSalePrice(crop.id), 0);
+    const warehouse = engine.data.upgrades.find(item => item.id === "warehouse");
+    const warehouseLevel = Number(engine.state.upgrades.warehouse || 0);
+    const warehouseMaxed = warehouseLevel >= warehouse.max;
+    const warehouseCost = warehouseMaxed ? 0 : engine.getUpgradeCost(warehouse, engine.state.upgrades);
     dom.stockSummary.innerHTML = `
-      <article class="summary-card"><small>Total guardado</small><strong>${engine.formatNumber(metrics.stock)}</strong></article>
-      <article class="summary-card"><small>Capacidade</small><strong>${engine.formatNumber(totalCapacity)}</strong></article>
+      <article class="summary-card storage-capacity-card">
+        <div class="storage-summary-head"><span><small>Estoque compartilhado</small><strong>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></span><b>${storagePct.toFixed(0)}%</b></div>
+        <div class="progress-track growth"><span style="width:${Math.min(100, storagePct)}%"></span></div>
+        <button class="button soft compact-button full" type="button" data-action="buy-upgrade" data-id="warehouse" ${warehouseMaxed || engine.state.coins < warehouseCost ? "disabled" : ""}>${warehouseMaxed ? "Capacidade máxima" : `Aumentar +100 · ${engine.formatNumber(warehouseCost)}`}</button>
+      </article>
+      <article class="summary-card"><small>Espaço disponível</small><strong>${engine.formatNumber(storageAvailable)}</strong></article>
       <article class="summary-card"><small>Valor estimado</small><strong>${engine.formatMoney(totalValue)}</strong></article>
       <article class="summary-card"><small>Total vendido</small><strong>${engine.formatNumber(metrics.sold)}</strong></article>`;
 
@@ -300,7 +321,7 @@
     dom.stockGrid.innerHTML = owned.map(crop => {
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
-      const cap = engine.getStorageCap(crop.id);
+      const share = storageUsed > 0 ? percent((data.stock / storageUsed) * 100) : 0;
       return `
         <article class="stock-card">
           <div class="stock-head">
@@ -308,11 +329,11 @@
               <img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy">
               <div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div>
             </div>
-            <span class="status-tag">Domínio ${data.masteryLevel}</span>
+            <span class="crop-price-chip"><img src="img/icons/coin.png" alt="">${engine.formatNumber(price)}</span>
           </div>
           <div class="stock-amount">
             <strong>${engine.formatNumber(data.stock)} unidades</strong>
-            <small>${engine.formatNumber(cap)} de capacidade · ${engine.formatMoney(price)} por unidade</small>
+            <small>${share.toFixed(0)}% do conteúdo atual do celeiro · ${engine.formatMoney(price)} por unidade</small>
           </div>
           <div class="stock-actions">
             <button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>Vender 25%</button>
@@ -353,7 +374,7 @@
       <div class="prestige-copy">
         <p class="eyebrow">renascimento e legado</p>
         <h2>Comece uma nova estação da sua história</h2>
-        <p>Prestigiar reinicia moedas, culturas, equipamentos, infraestrutura, pesquisa e reputação. Seus pontos de prestígio, legados comprados, configurações e total histórico permanecem.</p>
+        <p>Prestigiar reinicia moedas, culturas, níveis das plantações, infraestrutura, pesquisa e reputação. Seus pontos de prestígio, legados comprados, configurações e total histórico permanecem.</p>
       </div>
       <div class="prestige-side">
         <div class="prestige-stat-row">
@@ -459,13 +480,8 @@
     const id = button.dataset.id;
 
     if (action === "buy-crop") act(engine.buyCrop(cropId));
-    if (action === "upgrade-crop") act(engine.upgradeCrop(cropId));
-    if (action === "nurture-crop") {
-      const last = Number(nurtureCooldowns.get(cropId) || 0);
-      if (Date.now() - last < 3000) return;
-      nurtureCooldowns.set(cropId, Date.now());
-      act(engine.nurtureCrop(cropId));
-    }
+    if (action === "upgrade-crop-once") act(engine.upgradeCrop(cropId, 1), result => `${result.crop.name} aprimorada para o nível ${result.level}.`);
+    if (action === "upgrade-crop-max") act(engine.upgradeCropMax(cropId), result => `${result.crop.name} avançou ${result.purchased} nível${result.purchased === 1 ? "" : "is"} e chegou ao nível ${result.level}.`);
     if (action === "sell-crop") {
       const stock = engine.state.crops[cropId]?.stock || 0;
       act(engine.sellCrop(cropId, stock), result => `Venda concluída: +${engine.formatMoney(result.gain)}.`);

@@ -2,9 +2,11 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 3;
+  static SAVE_VERSION = 4;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static SEASON_DURATION = 180;
+  static BASE_STORAGE_CAPACITY = 200;
+  static MAX_BATCH_UPGRADES = 1000;
 
   constructor(onEvent = () => {}) {
     this.data = window.GameData;
@@ -33,11 +35,9 @@ class GameEngine {
       const owned = index < starterCount;
       crops[crop.id] = {
         owned,
-        tier: owned ? 1 : 0,
+        level: owned ? 1 : 0,
         progress: 0,
         stock: 0,
-        masteryLevel: owned ? 1 : 0,
-        masteryXP: 0,
         totalHarvested: 0,
         totalSold: 0
       };
@@ -125,7 +125,16 @@ class GameEngine {
     };
 
     this.data.crops.forEach(crop => {
-      merged.crops[crop.id] = { ...base.crops[crop.id], ...(input.crops?.[crop.id] || {}) };
+      const previous = input.crops?.[crop.id] || {};
+      merged.crops[crop.id] = {
+        owned: Boolean(previous.owned ?? base.crops[crop.id].owned),
+        level: Math.max(0, Math.floor(Number(previous.level ?? previous.tier ?? base.crops[crop.id].level) || 0)),
+        progress: Math.max(0, Math.min(0.999, Number(previous.progress) || 0)),
+        stock: Math.max(0, Math.floor(Number(previous.stock) || 0)),
+        totalHarvested: Math.max(0, Math.floor(Number(previous.totalHarvested) || 0)),
+        totalSold: Math.max(0, Math.floor(Number(previous.totalSold) || 0))
+      };
+      if (merged.crops[crop.id].owned && merged.crops[crop.id].level < 1) merged.crops[crop.id].level = 1;
     });
 
     merged.contracts = Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : [];
@@ -200,11 +209,13 @@ class GameEngine {
   }
 
   produce(seconds, offline) {
+    const capacity = this.getStorageCap();
+    let stored = this.getStorageUsed();
+
     for (const crop of this.data.crops) {
       const cropState = this.state.crops[crop.id];
-      if (!cropState.owned || cropState.tier <= 0) continue;
-      const cap = this.getStorageCap(crop.id);
-      if (cropState.stock >= cap) {
+      if (!cropState.owned || cropState.level <= 0) continue;
+      if (stored >= capacity) {
         cropState.progress = Math.min(cropState.progress, 0.995);
         continue;
       }
@@ -215,15 +226,15 @@ class GameEngine {
 
       const perCycle = this.getYield(crop.id);
       const amount = Math.max(1, Math.floor(cycles * perCycle));
-      const accepted = Math.max(0, Math.min(cap - cropState.stock, amount));
+      const accepted = Math.max(0, Math.min(capacity - stored, amount));
       if (accepted <= 0) continue;
 
       cropState.stock += accepted;
+      stored += accepted;
       cropState.progress -= cycles;
       cropState.totalHarvested += accepted;
       this.state.stats.totalHarvested += accepted;
       this.addFarmXP(Math.max(0.4, accepted * 0.22), offline);
-      this.addMasteryXP(crop.id, cycles + accepted * 0.045, offline);
 
       if (!offline && accepted >= Math.max(20, perCycle * 4) && Math.random() < 0.025) {
         this.emit("toast", { message: `${crop.name} trouxe uma colheita especialmente bonita: +${this.formatNumber(accepted)}.` });
@@ -244,29 +255,8 @@ class GameEngine {
     if (leveled && !silent) this.emit("level", { level: this.state.farmLevel });
   }
 
-  addMasteryXP(cropId, amount, silent = false) {
-    const cropState = this.state.crops[cropId];
-    if (!cropState?.owned) return;
-    cropState.masteryXP += Math.max(0, amount);
-    let leveled = false;
-    while (cropState.masteryXP >= this.getMasteryXPNeed(cropId)) {
-      cropState.masteryXP -= this.getMasteryXPNeed(cropId);
-      cropState.masteryLevel += 1;
-      leveled = true;
-    }
-    if (leveled && !silent) {
-      const crop = this.getCrop(cropId);
-      this.emit("mastery", { crop, level: cropState.masteryLevel });
-    }
-  }
-
   getFarmXPNeed(level = this.state.farmLevel) {
     return Math.round(38 + 30 * Math.pow(Math.max(1, level), 1.32));
-  }
-
-  getMasteryXPNeed(cropId) {
-    const level = this.state.crops[cropId]?.masteryLevel || 1;
-    return Math.round(8 + level * 5.5 + Math.pow(level, 1.32));
   }
 
   currentSeason() {
@@ -311,9 +301,8 @@ class GameEngine {
     const irrigation = Number(this.state.upgrades.irrigation || 0);
     const hydro = Number(this.state.researchTechs.hydroponics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
-    const tier = Math.max(0, cropState.tier - 1);
-    const mastery = Math.max(0, cropState.masteryLevel - 1);
-    const speed = season.speed * (1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04 + tier * 0.055 + mastery * 0.012);
+    const cropLevel = Math.max(0, cropState.level - 1);
+    const speed = season.speed * (1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04 + cropLevel * 0.055);
     return Math.max(1.1, crop.baseGrowth / speed);
   }
 
@@ -324,14 +313,25 @@ class GameEngine {
     const fertilizer = Number(this.state.upgrades.fertilizer || 0);
     const genetics = Number(this.state.researchTechs.genetics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
-    const tier = Math.max(0, cropState.tier - 1);
-    const mastery = Math.max(0, cropState.masteryLevel - 1);
-    return crop.baseYield * season.yield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03 + tier * 0.14 + mastery * 0.035);
+    const cropLevel = Math.max(0, cropState.level - 1);
+    return crop.baseYield * season.yield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03 + cropLevel * 0.14);
   }
 
-  getStorageCap(cropId) {
-    const cropState = this.state.crops[cropId];
-    return Math.round(90 + Number(this.state.upgrades.warehouse || 0) * 70 + Number(this.state.researchTechs.storageScience || 0) * 45 + Number(this.state.prestigeUpgrades.storageLegacy || 0) * 50 + Math.max(0, cropState.tier - 1) * 12);
+  getStorageCap() {
+    return Math.round(
+      GameEngine.BASE_STORAGE_CAPACITY
+      + Number(this.state.upgrades.warehouse || 0) * 100
+      + Number(this.state.researchTechs.storageScience || 0) * 50
+      + Number(this.state.prestigeUpgrades.storageLegacy || 0) * 75
+    );
+  }
+
+  getStorageUsed() {
+    return Object.values(this.state.crops).reduce((sum, cropState) => sum + Math.max(0, Number(cropState.stock) || 0), 0);
+  }
+
+  getStorageRemaining() {
+    return Math.max(0, this.getStorageCap() - this.getStorageUsed());
   }
 
   getSalePrice(cropId) {
@@ -350,10 +350,36 @@ class GameEngine {
     return crop ? crop.cost : Infinity;
   }
 
-  getCropUpgradeCost(cropId) {
+  getCropUpgradeCost(cropId, levelOverride = null) {
     const crop = this.getCrop(cropId);
-    const level = this.state.crops[cropId]?.tier || 1;
+    const level = Math.max(1, Number(levelOverride ?? this.state.crops[cropId]?.level) || 1);
     return Math.ceil(Math.max(45, crop.cost * 0.48 + crop.basePrice * 28) * Math.pow(1.48, Math.max(0, level - 1)));
+  }
+
+  getCropAffordableUpgrades(cropId, budget = this.state.coins) {
+    const cropState = this.state.crops[cropId];
+    if (!cropState?.owned) {
+      return { levels: 0, totalCost: 0, nextCost: 0 };
+    }
+
+    let levels = 0;
+    let totalCost = 0;
+    let simulatedLevel = cropState.level;
+    const available = Math.max(0, Number(budget) || 0);
+
+    while (levels < GameEngine.MAX_BATCH_UPGRADES) {
+      const cost = this.getCropUpgradeCost(cropId, simulatedLevel);
+      if (!Number.isFinite(cost) || totalCost + cost > available) break;
+      totalCost += cost;
+      levels += 1;
+      simulatedLevel += 1;
+    }
+
+    return {
+      levels,
+      totalCost,
+      nextCost: this.getCropUpgradeCost(cropId, cropState.level)
+    };
   }
 
   isCropUnlocked(cropId) {
@@ -369,29 +395,43 @@ class GameEngine {
     const cost = this.getBuyCost(cropId);
     if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
     this.state.coins -= cost;
-    Object.assign(cropState, { owned: true, tier: 1, masteryLevel: 1, masteryXP: 0, progress: 0 });
+    Object.assign(cropState, { owned: true, level: 1, progress: 0 });
     this.emit("toast", { message: `${crop.name} agora faz parte da fazenda.` });
     return { ok: true };
   }
 
-  upgradeCrop(cropId) {
+  upgradeCrop(cropId, requestedLevels = 1) {
     const crop = this.getCrop(cropId);
     const cropState = this.state.crops[cropId];
     if (!cropState?.owned) return { ok: false, message: "Compre a cultura primeiro." };
-    const cost = this.getCropUpgradeCost(cropId);
-    if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
-    this.state.coins -= cost;
-    cropState.tier += 1;
-    this.emit("toast", { message: `${crop.name}: equipamentos no nível ${cropState.tier}.` });
-    return { ok: true };
+
+    const target = Math.min(GameEngine.MAX_BATCH_UPGRADES, Math.max(1, Math.floor(Number(requestedLevels) || 1)));
+    let purchased = 0;
+    let totalCost = 0;
+
+    while (purchased < target) {
+      const cost = this.getCropUpgradeCost(cropId, cropState.level + purchased);
+      if (!Number.isFinite(cost) || totalCost + cost > this.state.coins) break;
+      totalCost += cost;
+      purchased += 1;
+    }
+
+    if (purchased < 1) {
+      const nextCost = this.getCropUpgradeCost(cropId);
+      return { ok: false, message: `Faltam ${this.formatMoney(nextCost - this.state.coins)}.` };
+    }
+
+    this.state.coins -= totalCost;
+    cropState.level += purchased;
+    return { ok: true, purchased, totalCost, level: cropState.level, crop };
   }
 
-  nurtureCrop(cropId) {
-    const cropState = this.state.crops[cropId];
-    if (!cropState?.owned) return { ok: false };
-    cropState.progress = Math.min(0.98, cropState.progress + 0.12);
-    this.addMasteryXP(cropId, 0.35, true);
-    return { ok: true };
+  upgradeCropMax(cropId) {
+    const affordable = this.getCropAffordableUpgrades(cropId);
+    if (affordable.levels < 1) {
+      return { ok: false, message: "Ainda não há moedas suficientes para outro aprimoramento." };
+    }
+    return this.upgradeCrop(cropId, affordable.levels);
   }
 
   sellCrop(cropId, amount = Infinity) {
@@ -478,7 +518,7 @@ class GameEngine {
     const result = [];
     for (let i = 0; i < count; i += 1) {
       const crop = owned[Math.floor(Math.random() * owned.length)];
-      const cap = this.getStorageCap(crop.id);
+      const cap = this.getStorageCap();
       const amount = Math.max(8, Math.round(Math.min(cap * 0.32, 12 + this.state.farmLevel * 2.4 + Math.random() * 35)));
       const multiplier = Number((1.35 + Math.random() * 0.65 + Number(this.state.researchTechs.contractAI || 0) * 0.08).toFixed(2));
       const rewardCoins = Math.floor(amount * this.getSalePrice(crop.id) * multiplier);
@@ -538,9 +578,9 @@ class GameEngine {
       harvested: this.state.stats.totalHarvested,
       owned: cropStates.filter(item => item.owned).length,
       sold: this.state.stats.totalSold,
-      tiers: cropStates.reduce((sum, item) => sum + (item.tier || 0), 0),
+      cropLevels: cropStates.reduce((sum, item) => sum + (item.level || 0), 0),
       contracts: this.state.stats.contractsCompleted,
-      mastery: Math.max(0, ...cropStates.map(item => item.masteryLevel || 0)),
+      maxCropLevel: Math.max(0, ...cropStates.map(item => item.level || 0)),
       farmLevel: this.state.farmLevel,
       stock: cropStates.reduce((sum, item) => sum + (item.stock || 0), 0),
       coinsEarned: this.state.stats.runCoinsEarned
@@ -596,7 +636,9 @@ class GameEngine {
       sold: this.state.stats.totalSold,
       harvested: this.state.stats.totalHarvested,
       contracts: this.state.stats.contractsCompleted,
-      maxMastery: Math.max(0, ...cropStates.map(item => item.masteryLevel || 0))
+      maxCropLevel: Math.max(0, ...cropStates.map(item => item.level || 0)),
+      storageCapacity: this.getStorageCap(),
+      storageRemaining: this.getStorageRemaining()
     };
   }
 
