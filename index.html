@@ -232,7 +232,7 @@
 </div>
 </div>
 <div class="settings-grid">
-<article class="panel-card settings-card">
+<article class="panel-card settings-card experience-settings-card">
 <h2>Experiência</h2>
 <label class="setting-row">
 <span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span>
@@ -242,40 +242,24 @@
 <span><strong>Escala da interface</strong><small id="uiScaleText">100%</small></span>
 <input id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
 </label>
-</article>
-<article class="panel-card settings-card sound-lab-card">
-<div class="sound-lab-heading">
-<div><p class="eyebrow">áudio do jogo</p><h2>Sons e música</h2></div>
-<span>Revisão 21</span>
+<div class="experience-divider" aria-hidden="true"></div>
+<div class="experience-audio-heading">
+<div><p class="eyebrow">áudio</p><h3>Sons e música</h3></div>
+<p>Leve qualquer barra a zero para silenciar aquele canal.</p>
 </div>
-<p class="sound-lab-copy">Cliques, aprimoramentos, recompensas, vendas, prestígio e subida de nível usam sons definitivos. A seleção temporária abaixo permanece somente para comparar os sons de navegação.</p>
-<div class="sound-master-grid">
-<section class="sound-master-block">
-<label class="setting-row">
-<span><strong>Efeitos sonoros</strong><small>Ativa ou silencia os sons das ações do jogo.</small></span>
-<input id="soundEnabledSetting" type="checkbox"/>
+<div class="experience-audio-controls">
+<label class="range-setting audio-range-setting">
+<span><strong>Volume geral</strong><small id="masterVolumeText">100%</small></span>
+<input id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/>
 </label>
-<label class="range-setting sound-volume-setting">
-<span><strong>Volume dos efeitos</strong><small id="soundVolumeText">55%</small></span>
-<input id="soundVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
+<label class="range-setting audio-range-setting">
+<span><strong>Volume dos efeitos</strong><small id="effectVolumeText">55%</small></span>
+<input id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
 </label>
-</section>
-<section class="sound-master-block">
-<label class="setting-row">
-<span><strong>Música ambiente</strong><small>Mantém a trilha calma da fazenda tocando em repetição.</small></span>
-<input id="musicEnabledSetting" type="checkbox"/>
-</label>
-<label class="range-setting sound-volume-setting">
+<label class="range-setting audio-range-setting">
 <span><strong>Volume da música</strong><small id="musicVolumeText">30%</small></span>
 <input id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/>
 </label>
-</section>
-</div>
-<div class="sound-navigation-heading"><strong>Sons de navegação em teste</strong><small>A escolha das navegações principal e secundária continua temporária.</small></div>
-<div class="sound-action-list" id="soundActionList"></div>
-<div class="button-row sound-lab-actions">
-<button class="button secondary" id="stopSoundPreview" type="button">Parar teste</button>
-<button class="button secondary" id="resetSoundMappings" type="button">Restaurar navegação</button>
 </div>
 </article>
 <article class="panel-card settings-card">

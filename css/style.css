@@ -7339,3 +7339,478 @@ button:disabled .inline-resource img,
   .office-tab > span,
   .evolution-tab > span { font-size: .57rem !important; }
 }
+
+/* ========================================================================== */
+/* REVISÃO 22 — áudio definitivo, navegação responsiva e evoluções concluídas */
+/* ========================================================================== */
+
+/* O áudio deixa de ser um laboratório e passa a integrar a Experiência. */
+.experience-settings-card {
+  align-content: start;
+}
+.experience-divider {
+  height: 1px;
+  margin: 4px 0 1px;
+  background: linear-gradient(90deg, transparent, rgba(69, 104, 70, .18) 12%, rgba(69, 104, 70, .18) 88%, transparent);
+}
+.experience-audio-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 2px;
+}
+.experience-audio-heading h3 {
+  margin-top: 2px;
+  font-size: .92rem;
+}
+.experience-audio-heading > p {
+  max-width: 310px;
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: .62rem;
+  line-height: 1.42;
+  text-align: right;
+}
+.experience-audio-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+.audio-range-setting {
+  min-width: 0;
+  margin: 0 !important;
+  padding: 10px 11px !important;
+  border: 1px solid rgba(70, 108, 68, .10);
+  border-radius: 14px;
+  background: rgba(248, 250, 244, .72);
+}
+.audio-range-setting > span {
+  gap: 8px;
+}
+.audio-range-setting strong {
+  font-size: .69rem;
+}
+.audio-range-setting small {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Navegação inteiramente reconstruída: as duas superfícies têm a mesma altura,
+   os tabs nunca quebram internamente e telas estreitas usam rolagem horizontal. */
+.navigation-stack {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: .55rem 0 1rem !important;
+  overflow: visible !important;
+}
+.main-nav,
+.navigation-stack > .context-nav-column {
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  padding: 4px !important;
+  border: 1px solid rgba(82, 113, 82, .11) !important;
+  border-radius: 15px !important;
+  background: rgba(252, 253, 248, .94) !important;
+  box-shadow: 0 7px 20px rgba(47, 74, 54, .075) !important;
+  box-sizing: border-box !important;
+  scrollbar-width: none;
+}
+.main-nav {
+  flex: 0 1 auto !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  justify-content: flex-start !important;
+  gap: 3px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+.navigation-stack > .context-nav-column {
+  flex: 0 1 auto !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  justify-content: flex-end !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+.navigation-stack > .context-nav-column[hidden] {
+  display: none !important;
+}
+.main-nav::-webkit-scrollbar,
+.navigation-stack > .context-nav-column::-webkit-scrollbar,
+.context-tabs::-webkit-scrollbar {
+  display: none;
+}
+.context-tabs,
+.office-tabs,
+.evolution-tabs {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  gap: 3px !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  height: 40px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+.main-nav .nav-tab,
+.context-tabs .office-tab,
+.context-tabs .evolution-tab {
+  position: relative !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-width: max-content !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border: 1px solid transparent !important;
+  border-radius: 11px !important;
+  color: #53665a !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  transition: color .18s ease, background .18s ease, border-color .18s ease, transform .18s ease !important;
+}
+.main-nav .nav-tab:hover,
+.context-tabs .office-tab:hover,
+.context-tabs .evolution-tab:hover {
+  color: #315d37 !important;
+  border-color: rgba(83, 138, 73, .10) !important;
+  background: rgba(231, 241, 225, .70) !important;
+  transform: translateY(-1px);
+}
+.main-nav .nav-tab.active,
+.context-tabs .office-tab.active,
+.context-tabs .evolution-tab.active {
+  color: #245b2b !important;
+  border-color: rgba(78, 139, 68, .16) !important;
+  background: linear-gradient(145deg, rgba(218, 237, 208, .98), rgba(232, 245, 225, .98)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .42), 0 4px 10px rgba(65, 113, 62, .10) !important;
+  transform: none;
+}
+.nav-tab-icon,
+.office-tab i,
+.evolution-tab i {
+  width: 18px !important;
+  height: 18px !important;
+  flex: 0 0 18px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.nav-tab-icon img,
+.office-tab i img,
+.evolution-tab i img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+.nav-tab-label,
+.office-tab > span,
+.evolution-tab > span {
+  min-width: 0 !important;
+  color: inherit !important;
+  font-size: .66rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .005em !important;
+}
+.office-tab > span,
+.evolution-tab > span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+.evolution-tab small {
+  display: none !important;
+}
+.office-tab b {
+  display: grid !important;
+  place-items: center !important;
+  min-width: 17px !important;
+  height: 17px !important;
+  padding: 0 4px !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  font-size: .51rem !important;
+  font-weight: 900 !important;
+  background: #5f9657 !important;
+}
+.office-tab b[hidden] {
+  display: none !important;
+}
+
+/* O preenchimento do Estoque usa exatamente a caixa inteira do tab. */
+.main-nav .stock-nav-tab {
+  isolation: isolate !important;
+  overflow: hidden !important;
+}
+.main-nav .stock-nav-tab::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  inset: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg,
+    rgba(105, 169, 93, .20) 0%,
+    rgba(105, 169, 93, .20) var(--stock-progress),
+    transparent var(--stock-progress),
+    transparent 100%) !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+.main-nav .stock-nav-tab.active::before {
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, .25) 0%,
+    rgba(255, 255, 255, .25) var(--stock-progress),
+    transparent var(--stock-progress),
+    transparent 100%) !important;
+}
+.main-nav .stock-nav-tab.stock-full::before {
+  background: rgba(181, 82, 76, .15) !important;
+}
+.main-nav .stock-nav-tab > * {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Evoluções concluídas podem ser reconhecidas sem leitura do botão. */
+#evolveView .evolution-upgrade-completed {
+  position: relative !important;
+  border-color: rgba(78, 146, 71, .42) !important;
+  background: linear-gradient(145deg, rgba(239, 249, 233, .97), rgba(249, 252, 245, .94)) !important;
+  box-shadow: 0 .62rem 1.45rem rgba(61, 113, 58, .12), inset 0 0 0 1px rgba(255, 255, 255, .62) !important;
+  overflow: hidden !important;
+}
+#evolveView .evolution-upgrade-completed::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, #5f9e57, #8bc47b);
+}
+#evolveView .evolution-complete-seal {
+  position: absolute;
+  z-index: 3;
+  top: 13px;
+  left: 13px;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 2px solid rgba(255, 255, 255, .9);
+  border-radius: 50%;
+  color: #fff;
+  font-size: .76rem;
+  font-weight: 1000;
+  background: linear-gradient(145deg, #4f9149, #77b76a);
+  box-shadow: 0 4px 10px rgba(51, 111, 49, .20);
+}
+#evolveView .evolution-upgrade-completed .upgrade-card-identity {
+  padding-left: 35px !important;
+}
+#evolveView .evolution-upgrade-completed .upgrade-level-badge {
+  color: #356d36 !important;
+  border-color: rgba(76, 137, 69, .20) !important;
+  background: rgba(219, 239, 210, .96) !important;
+}
+#evolveView .evolution-upgrade-completed .upgrade-icon {
+  filter: saturate(.88) contrast(1.02);
+}
+#evolveView .evolution-upgrade-completed .button:disabled {
+  color: #3f7540 !important;
+  border-color: rgba(77, 137, 70, .19) !important;
+  background: rgba(218, 237, 209, .92) !important;
+}
+
+/* O footer só empilha na faixa de celular. */
+@media (min-width: 621px) {
+  .app-footer {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 18px !important;
+    text-align: left !important;
+  }
+  .app-footer > p {
+    margin-left: auto !important;
+    text-align: right !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .navigation-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .main-nav {
+    align-self: flex-start !important;
+  }
+  .navigation-stack > .context-nav-column {
+    align-self: flex-end !important;
+    margin-left: auto !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .experience-audio-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .experience-audio-heading > p {
+    max-width: none;
+    text-align: left;
+  }
+  .experience-audio-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .navigation-stack {
+    gap: 7px !important;
+  }
+  .main-nav,
+  .navigation-stack > .context-nav-column {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    align-self: stretch !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .navigation-stack > .context-nav-column {
+    margin-left: 0 !important;
+  }
+  .context-tabs,
+  .office-tabs,
+  .evolution-tabs {
+    display: flex !important;
+    grid-template-columns: none !important;
+    flex-flow: row nowrap !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    height: 38px !important;
+  }
+  .main-nav .nav-tab,
+  .context-tabs .office-tab,
+  .context-tabs .evolution-tab {
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding-inline: 10px !important;
+  }
+  .nav-tab-label,
+  .office-tab > span,
+  .evolution-tab > span {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: .61rem !important;
+  }
+
+  .app-footer {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    text-align: center !important;
+  }
+  .app-footer > p {
+    margin-left: 0 !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .main-nav .nav-tab,
+  .context-tabs .office-tab,
+  .context-tabs .evolution-tab {
+    gap: 5px !important;
+    padding-inline: 8px !important;
+  }
+  .nav-tab-icon,
+  .office-tab i,
+  .evolution-tab i {
+    width: 16px !important;
+    height: 16px !important;
+    flex-basis: 16px !important;
+  }
+  .nav-tab-label,
+  .office-tab > span,
+  .evolution-tab > span {
+    font-size: .57rem !important;
+  }
+  #evolveView .evolution-complete-seal {
+    top: 12px;
+    left: 12px;
+    width: 25px;
+    height: 25px;
+  }
+}
+
+/* Correção de especificidade para regras legadas que transformavam as subabas
+   do Escritório em uma grade 2 × 2 no celular. */
+@media (max-width: 760px) {
+  .navigation-stack > .context-nav-column .context-tabs,
+  .navigation-stack > .context-nav-column .office-tabs,
+  .navigation-stack > .context-nav-column .evolution-tabs {
+    display: flex !important;
+    grid-template-columns: none !important;
+    flex-flow: row nowrap !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+  }
+  .navigation-stack > .context-nav-column .office-tab,
+  .navigation-stack > .context-nav-column .evolution-tab {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+  }
+}
+
+/* Neutraliza larguras de 100% herdadas das primeiras versões da navegação. */
+.main-nav .nav-tab,
+.main-nav .stock-nav-tab,
+.context-tabs .office-tab,
+.context-tabs .evolution-tab {
+  width: auto !important;
+  max-width: none !important;
+  align-self: center !important;
+}
+
+/* Entre celular e tablet o rodapé continua em uma única linha. */
+@media (min-width: 621px) and (max-width: 760px) {
+  .app-footer {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 18px !important;
+    text-align: left !important;
+  }
+  .app-footer > p {
+    margin-left: auto !important;
+    text-align: right !important;
+  }
+}

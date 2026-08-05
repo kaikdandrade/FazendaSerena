@@ -131,7 +131,7 @@ window.GameData = (() => {
     { id: "acceleratedGermination", name: "Germinação acelerada", icon: "assets/icons/fertilizer.png", desc: "+7% de velocidade para todas as safras.", max: 10, baseCost: 2, growth: 1.48 },
     { id: "hybridGenetics", name: "Genética híbrida", icon: "assets/icons/dna.png", desc: "+8% de rendimento nas safras.", max: 10, baseCost: 2, growth: 1.49 },
     { id: "priceForecast", name: "Previsão de preços", icon: "assets/icons/price-estimate.png", desc: "+6% de aumento do valor de todas as vendas.", max: 10, baseCost: 3, growth: 1.50 },
-    { id: "coldChain", name: "Cadeia de conservação", icon: "assets/icons/silo-brick.png", desc: "+20% de capacidade no estoque.", max: 10, baseCost: 3, growth: 1.51 },
+    { id: "coldChain", name: "Cadeia de conservação", icon: "assets/icons/silo.png", desc: "+20% de capacidade no estoque.", max: 10, baseCost: 3, growth: 1.51 },
     { id: "smartSeedCatalog", name: "Catálogo inteligente", icon: "assets/icons/books.png", desc: "−4% no custo de compra das culturas.", max: 10, baseCost: 3, growth: 1.51 },
     { id: "cultivationAlgorithms", name: "Algoritmos de cultivo", icon: "assets/icons/field-map.png", desc: "−4% no custo dos níveis das plantações.", max: 10, baseCost: 3, growth: 1.52 },
     { id: "negotiationModels", name: "Modelos de negociação", icon: "assets/icons/pricing.png", desc: "+8% de ganhos nas recompensas oferecidas por contratos.", max: 10, baseCost: 4, growth: 1.53 },

@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 22;
+  static SAVE_VERSION = 23;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -27,14 +27,9 @@ class GameEngine {
       reducedMotion: permanent.settings?.reducedMotion ?? false,
       compactCards: true,
       uiScale: permanent.settings?.uiScale ?? 100,
-      soundEnabled: permanent.settings?.soundEnabled ?? true,
-      soundVolume: permanent.settings?.soundVolume ?? 55,
-      musicEnabled: permanent.settings?.musicEnabled ?? true,
-      musicVolume: permanent.settings?.musicVolume ?? 30,
-      soundMappings: {
-        ...(window.SoundEngine?.DEFAULT_MAPPINGS || {}),
-        ...(permanent.settings?.soundMappings || {})
-      }
+      masterVolume: permanent.settings?.masterVolume ?? 100,
+      effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
+      musicVolume: permanent.settings?.musicVolume ?? 30
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -189,17 +184,15 @@ class GameEngine {
 
     merged.settings.reducedMotion = false;
     merged.settings.compactCards = true;
-    merged.settings.soundEnabled = merged.settings.soundEnabled !== false;
-    merged.settings.soundVolume = Math.max(0, Math.min(100, Number(merged.settings.soundVolume) || 0));
-    merged.settings.musicEnabled = merged.settings.musicEnabled !== false;
-    merged.settings.musicVolume = Math.max(0, Math.min(100, Number(merged.settings.musicVolume ?? 30) || 0));
-    const previousSoundMappings = merged.settings.soundMappings && typeof merged.settings.soundMappings === "object"
-      ? merged.settings.soundMappings
-      : {};
-    merged.settings.soundMappings = {
-      mainNavigation: previousSoundMappings.mainNavigation ?? window.SoundEngine?.DEFAULT_MAPPINGS?.mainNavigation ?? "",
-      secondaryNavigation: previousSoundMappings.secondaryNavigation ?? window.SoundEngine?.DEFAULT_MAPPINGS?.secondaryNavigation ?? ""
-    };
+    const legacyEffectsEnabled = merged.settings.soundEnabled !== false;
+    const legacyMusicEnabled = merged.settings.musicEnabled !== false;
+    merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
+    merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
+    merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
+    Reflect.deleteProperty(merged.settings, "soundEnabled");
+    Reflect.deleteProperty(merged.settings, "soundVolume");
+    Reflect.deleteProperty(merged.settings, "musicEnabled");
+    Reflect.deleteProperty(merged.settings, "soundMappings");
 
     if (Number(input.version || 0) < 14) {
       const migrateLevels = (target, source, map) => {

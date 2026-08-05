@@ -74,15 +74,12 @@
     ambientSetting: $("#ambientSetting"),
     uiScaleSetting: $("#uiScaleSetting"),
     uiScaleText: $("#uiScaleText"),
-    soundEnabledSetting: $("#soundEnabledSetting"),
-    soundVolumeSetting: $("#soundVolumeSetting"),
-    soundVolumeText: $("#soundVolumeText"),
-    musicEnabledSetting: $("#musicEnabledSetting"),
+    masterVolumeSetting: $("#masterVolumeSetting"),
+    masterVolumeText: $("#masterVolumeText"),
+    effectVolumeSetting: $("#effectVolumeSetting"),
+    effectVolumeText: $("#effectVolumeText"),
     musicVolumeSetting: $("#musicVolumeSetting"),
     musicVolumeText: $("#musicVolumeText"),
-    soundActionList: $("#soundActionList"),
-    stopSoundPreview: $("#stopSoundPreview"),
-    resetSoundMappings: $("#resetSoundMappings"),
     backToTop: $("#backToTop")
   };
 
@@ -205,31 +202,6 @@
     render(true);
   }
 
-  function renderSoundActionList() {
-    if (!dom.soundActionList) return;
-    const actions = SoundEngine.getActions();
-    const files = SoundEngine.getFiles();
-    const mappings = engine.state.settings.soundMappings || {};
-
-    if (!dom.soundActionList.children.length) {
-      const options = files.map(file => `<option value="${escapeHtml(file.path)}">${escapeHtml(file.label)}</option>`).join("");
-      dom.soundActionList.innerHTML = actions.map(action => `
-        <label class="sound-action-row">
-          <span><strong>${escapeHtml(action.label)}</strong><small>${escapeHtml(action.description)}</small></span>
-          <span class="sound-action-controls">
-            <select aria-label="Som para ${escapeHtml(action.label)}" data-sound-action="${action.id}">${options}</select>
-            <button class="sound-preview-button" type="button" data-sound-preview="${action.id}" aria-label="Testar ${escapeHtml(action.label)}" title="Testar som">▶</button>
-          </span>
-        </label>`).join("");
-    }
-
-    $$("[data-sound-action]", dom.soundActionList).forEach(select => {
-      if (document.activeElement !== select) {
-        select.value = mappings[select.dataset.soundAction] ?? SoundEngine.DEFAULT_MAPPINGS[select.dataset.soundAction] ?? "";
-      }
-    });
-  }
-
   function applySettings() {
     const settings = engine.state.settings;
     document.body.dataset.ambient = String(Boolean(settings.ambient));
@@ -242,13 +214,12 @@
     if (dom.uiScaleText) dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
 
     soundEngine.configure(settings);
-    if (dom.soundEnabledSetting && document.activeElement !== dom.soundEnabledSetting) dom.soundEnabledSetting.checked = settings.soundEnabled !== false;
-    if (dom.soundVolumeSetting && document.activeElement !== dom.soundVolumeSetting) dom.soundVolumeSetting.value = String(settings.soundVolume ?? 55);
-    if (dom.soundVolumeText) dom.soundVolumeText.textContent = `${settings.soundVolume ?? 55}%`;
-    if (dom.musicEnabledSetting && document.activeElement !== dom.musicEnabledSetting) dom.musicEnabledSetting.checked = settings.musicEnabled !== false;
+    if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(settings.masterVolume ?? 100);
+    if (dom.masterVolumeText) dom.masterVolumeText.textContent = `${settings.masterVolume ?? 100}%`;
+    if (dom.effectVolumeSetting && document.activeElement !== dom.effectVolumeSetting) dom.effectVolumeSetting.value = String(settings.effectVolume ?? 55);
+    if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${settings.effectVolume ?? 55}%`;
     if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
     if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
-    renderSoundActionList();
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -632,14 +603,15 @@
           : `<span class="treasury-next-value">Valor inicial máximo consolidado.</span>`}`
       : enrichResourceText(item.desc);
     return `
-      <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-upgrade-kind="${kind}">
-        <div class="upgrade-level-badge">Nível ${level} / ${item.max}</div>
+      <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${maxed ? "evolution-upgrade-completed" : ""}" data-upgrade-kind="${kind}" data-upgrade-completed="${String(maxed)}">
+        ${maxed ? `<span class="evolution-complete-seal" aria-label="Evolução concluída"><span>✓</span></span>` : ""}
+        <div class="upgrade-level-badge">${maxed ? "Nível máximo" : `Nível ${level} / ${item.max}`}</div>
         <div class="upgrade-card-identity">
           <span class="upgrade-icon" aria-hidden="true">${iconMarkup}</span>
           <h3>${escapeHtml(item.name)}</h3>
         </div>
         <p class="upgrade-description ${isRoyalTreasury ? "treasury-description" : ""}">${descriptionHtml}</p>
-        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
+        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "✓ Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
       </article>`;
   }
 
@@ -1088,22 +1060,22 @@
 
   function setupEvents() {
     dom.tabs.forEach(tab => tab.addEventListener("click", () => {
-      if (tab.dataset.view !== activeView) soundEngine.play("mainNavigation");
+      soundEngine.playNavigation();
       showView(tab.dataset.view);
     }));
     dom.officeTabs.forEach(tab => tab.addEventListener("click", () => {
-      if (tab.dataset.officeTab !== activeOfficeTab) soundEngine.play("secondaryNavigation");
+      soundEngine.playNavigation();
       showOfficeTab(tab.dataset.officeTab);
       render(true);
     }));
     dom.evolutionTabs.forEach(tab => tab.addEventListener("click", () => {
-      if (tab.dataset.evolutionTab !== activeEvolutionTab) soundEngine.play("secondaryNavigation");
+      soundEngine.playNavigation();
       showEvolutionTab(tab.dataset.evolutionTab);
       render(true);
     }));
     $$('[data-go-view]').forEach(link => link.addEventListener("click", event => {
       event.preventDefault();
-      if (link.dataset.goView !== activeView) soundEngine.play("mainNavigation");
+      soundEngine.playNavigation();
       showView(link.dataset.goView);
     }));
 
@@ -1180,54 +1152,23 @@
       applySettings();
     });
 
-    dom.soundEnabledSetting?.addEventListener("change", () => {
-      engine.setSetting("soundEnabled", dom.soundEnabledSetting.checked);
-      applySettings();
-      if (dom.soundEnabledSetting.checked) soundEngine.play("click");
-    });
-    dom.soundVolumeSetting?.addEventListener("input", () => {
-      engine.setSetting("soundVolume", Number(dom.soundVolumeSetting.value));
+    dom.masterVolumeSetting?.addEventListener("input", () => {
+      engine.setSetting("masterVolume", Number(dom.masterVolumeSetting.value));
       applySettings();
     });
-    dom.musicEnabledSetting?.addEventListener("change", () => {
-      engine.setSetting("musicEnabled", dom.musicEnabledSetting.checked);
+    dom.effectVolumeSetting?.addEventListener("input", () => {
+      engine.setSetting("effectVolume", Number(dom.effectVolumeSetting.value));
       applySettings();
     });
     dom.musicVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("musicVolume", Number(dom.musicVolumeSetting.value));
       applySettings();
     });
-    dom.soundActionList?.addEventListener("change", event => {
-      const select = event.target.closest("[data-sound-action]");
-      if (!select) return;
-      const mappings = {
-        ...(engine.state.settings.soundMappings || {}),
-        [select.dataset.soundAction]: select.value
-      };
-      engine.setSetting("soundMappings", mappings);
-      applySettings();
-      soundEngine.preview(select.value);
-    });
-    dom.soundActionList?.addEventListener("click", event => {
-      const preview = event.target.closest("[data-sound-preview]");
-      if (!preview) return;
-      const select = $(`[data-sound-action="${preview.dataset.soundPreview}"]`, dom.soundActionList);
-      if (select) soundEngine.preview(select.value);
-    });
-    dom.stopSoundPreview?.addEventListener("click", () => soundEngine.stop());
-    dom.resetSoundMappings?.addEventListener("click", () => {
-      engine.setSetting("soundMappings", {
-        mainNavigation: SoundEngine.DEFAULT_MAPPINGS.mainNavigation,
-        secondaryNavigation: SoundEngine.DEFAULT_MAPPINGS.secondaryNavigation
-      });
-      applySettings();
-      soundEngine.play("click");
-    });
 
     document.addEventListener("click", event => {
       const control = event.target.closest("button, a.brand");
       if (!control || control.disabled) return;
-      if (control.matches("[data-action], .nav-tab, .office-tab, .evolution-tab, [data-go-view], [data-sound-preview], #stopSoundPreview, #resetSoundMappings")) return;
+      if (control.matches("[data-action], .nav-tab, .office-tab, .evolution-tab, [data-go-view]")) return;
       soundEngine.play("click");
     }, true);
 
