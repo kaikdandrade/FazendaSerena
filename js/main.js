@@ -14,6 +14,7 @@
   let activeOfficeTab = "contracts";
   let activeEvolutionTab = "upgrades";
   let showCompletedMissions = false;
+  let contractDockCollapsed = false;
   const cropUpgradeModes = new Map();
 
   const dom = {
@@ -223,18 +224,13 @@
 
   function updateOfficeNavigation(activeContracts, readyOrders, readyMissions) {
     const claimable = engine.getReadyContractCount();
-    const hasProposalsToReview = engine.state.contractOffers.length > 0 && activeContracts < GameEngine.MAX_ACTIVE_CONTRACTS;
-    const needsAttention = activeContracts > 0 || hasProposalsToReview || readyOrders > 0 || readyMissions > 0;
-    dom.officeNavTab.classList.toggle("has-attention", needsAttention);
-
+    dom.officeNavTab.classList.remove("has-attention");
     const reasons = [];
     if (claimable > 0) reasons.push(`${claimable} recompensa${claimable === 1 ? " pronta" : "s prontas"}`);
-    else if (activeContracts > 0) reasons.push(`${activeContracts} contrato${activeContracts === 1 ? " em andamento" : "s em andamento"}`);
-    if (hasProposalsToReview) reasons.push("propostas disponíveis");
     if (readyOrders > 0) reasons.push(`${readyOrders} pedido${readyOrders === 1 ? " pronto" : "s prontos"}`);
     if (readyMissions > 0) reasons.push(`${readyMissions} missão${readyMissions === 1 ? " pronta" : "ões prontas"}`);
-    dom.officeNavTab.setAttribute("aria-label", needsAttention ? `Escritório: ${reasons.join(", ")}.` : "Escritório: nenhuma ação pendente.");
-    dom.officeNavTab.title = needsAttention ? `Há ações no escritório: ${reasons.join(", ")}` : "Nenhuma ação pendente no escritório";
+    dom.officeNavTab.setAttribute("aria-label", reasons.length ? `Escritório: ${reasons.join(", ")}.` : "Escritório");
+    dom.officeNavTab.title = reasons.length ? `Ações prontas: ${reasons.join(", ")}` : "Escritório";
   }
 
   function renderHeader() {
@@ -256,12 +252,16 @@
     const metrics = engine.getMetrics();
     updateStockNavigation(metrics);
     const activeContracts = state.activeContracts.length;
+    const readyContracts = engine.getReadyContractCount();
     const readyOrders = engine.getReadyOrderCount();
     const readyMissions = engine.getReadyMissionCount();
     updateOfficeNavigation(activeContracts, readyOrders, readyMissions);
-    dom.contractTabCount.textContent = String(activeContracts);
+    dom.contractTabCount.textContent = String(readyContracts);
+    dom.contractTabCount.hidden = readyContracts < 1;
     dom.orderTabCount.textContent = String(readyOrders);
+    dom.orderTabCount.hidden = readyOrders < 1;
     dom.missionTabCount.textContent = String(readyMissions);
+    dom.missionTabCount.hidden = readyMissions < 1;
     renderContractDock();
   }
 
@@ -308,8 +308,7 @@
       const growthTime = engine.getGrowthTime(cropId);
       const instant = growthTime <= 0;
       const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === cropId && contract.delivered < contract.amount && contract.timeRemaining > 0 && !contract.completedAt);
-      const autoOrder = engine.hasActiveAutoOrderForCrop(cropId);
-      const directRoute = cropState.autoSell || autoOrder || activeContracts.length > 0;
+      const directRoute = cropState.autoSell || activeContracts.length > 0;
       const paused = storageRemaining <= 0 && !directRoute;
       const progress = instant ? 100 : percent(cropState.progress * 100);
       const ring = $('[data-crop-ring]', card);
@@ -334,7 +333,10 @@
         ring.classList.toggle("instant", instant);
         ring.classList.toggle("paused", paused);
       }
-      if (progressLabel) progressLabel.textContent = instant ? "∞" : paused ? "Ⅱ" : `${Math.floor(progress)}%`;
+      if (progressLabel) {
+        progressLabel.hidden = instant;
+        if (!instant) progressLabel.textContent = paused ? "Ⅱ" : `${Math.floor(progress)}%`;
+      }
       if (cycle) cycle.textContent = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
       card.classList.toggle("auto-sell-enabled", Boolean(cropState.autoSell));
 
@@ -384,11 +386,11 @@
     const maxed = cropState.level >= GameEngine.MAX_CROP_LEVEL;
     const oneCost = maxed ? 0 : engine.getCropUpgradeCost(cropId);
     const affordablePlan = engine.getCropAffordableUpgrades(cropId);
-    const levels = mode === "max" ? affordablePlan.levels : maxed ? 0 : 1;
-    const affordable = !maxed && (mode === "max" ? levels > 0 : engine.state.coins >= oneCost);
+    const levels = mode === "max" ? (maxed ? 0 : Math.max(1, affordablePlan.levels)) : maxed ? 0 : 1;
+    const affordable = !maxed && (mode === "max" ? affordablePlan.levels > 0 : engine.state.coins >= oneCost);
     // Sem níveis acessíveis, mostramos o custo do próximo nível em vez de “0”.
     const cost = mode === "max"
-      ? (levels > 0 ? affordablePlan.totalCost : affordablePlan.nextCost)
+      ? (affordablePlan.levels > 0 ? affordablePlan.totalCost : affordablePlan.nextCost)
       : oneCost;
     return { mode, maxed, oneCost, affordablePlan, cost, levels, affordable };
   }
@@ -445,25 +447,24 @@
     const instant = growthTime <= 0;
     const growthPct = instant ? 100 : percent(data.progress * 100);
     const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount && !contract.completedAt);
-    const autoOrder = engine.hasActiveAutoOrderForCrop(crop.id);
-    const directRoute = data.autoSell || autoOrder || activeContracts.length > 0;
+    const directRoute = data.autoSell || activeContracts.length > 0;
     const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
-    const speedMaxed = data.level >= GameEngine.INSTANT_GROWTH_LEVEL;
+    const speedMaxed = data.level >= engine.getInstantGrowthLevel();
     const cycleLabel = instant ? "Contínua" : storageFull ? "Pausada" : formatLiveTime((1 - data.progress) * growthTime);
     const selection = getCropUpgradeSelection(crop.id);
 
     return `
       <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip" ${speedMaxed ? 'title="Velocidade máxima; níveis 251–300 aprimoram o rendimento desta cultura"' : ""}>
+        <div class="crop-level-strip" ${speedMaxed ? 'title="Velocidade máxima; os níveis restantes continuam valorizando esta cultura"' : ""}>
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
         </div>
         <div class="crop-head">
           <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
             <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            <span class="crop-progress-percent" data-crop-percent>${instant ? "∞" : storageFull ? "Ⅱ" : `${Math.floor(growthPct)}%`}</span>
+            ${instant ? "" : `<span class="crop-progress-percent" data-crop-percent>${storageFull ? "Ⅱ" : `${Math.floor(growthPct)}%`}</span>`}
           </div>
           <div class="crop-info">
-            <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3>${speedMaxed ? '<span class="instant-mini" title="Velocidade máxima">∞</span>' : ""}</div>
+            <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
             <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>
             <div class="crop-quick-stats">
               <span title="Tempo restante"><i>◷</i><b data-crop-cycle>${cycleLabel}</b></span>
@@ -539,14 +540,13 @@
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
       const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount && !contract.completedAt).length;
-      const autoOrder = engine.hasActiveAutoOrderForCrop(crop.id);
-      const priorityText = activeContracts ? `${activeContracts} contrato${activeContracts === 1 ? " ativo" : "s ativos"}` : autoOrder ? "Pedido automático ativo" : "";
+      const priorityText = activeContracts ? `${activeContracts} contrato${activeContracts === 1 ? " ativo" : "s ativos"}` : "";
       return `
         <article class="stock-card normalized-stock-card ${data.autoSell ? "auto-sell-card" : ""}">
           <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div></div>
           <div class="stock-value-grid"><div><small>Quantidade</small><strong>${engine.formatNumber(data.stock)} <span>un.</span></strong></div><div><small>Valor unitário</small><strong>${resourceAmount("coins", price, { compact: true })}</strong></div><div><small>Valor guardado</small><strong>${resourceAmount("coins", data.stock * price, { compact: true })}</strong></div></div>
           <button class="auto-sell-toggle compact-auto-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}"><span><strong>Venda automática</strong><small>${data.autoSell ? "Ativada" : "Desativada"}</small></span><span class="auto-sell-switch"><i></i></span></button>
-          ${priorityText ? `<div class="stock-priority-note"><strong>${escapeHtml(priorityText)}</strong><small>Contratos têm prioridade; depois vêm pedidos automáticos e venda automática.</small></div>` : ""}
+          ${priorityText ? `<div class="stock-priority-note"><strong>${escapeHtml(priorityText)}</strong><small>Contratos têm prioridade; depois vem a venda automática e, por último, o estoque.</small></div>` : ""}
           <div class="stock-actions"><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>25%</button><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.5" ${data.stock <= 0 ? "disabled" : ""}>50%</button><button class="button primary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="1" ${data.stock <= 0 ? "disabled" : ""}>Vender tudo</button></div>
         </article>`;
     }).join("");
@@ -561,6 +561,9 @@
     const availableResource = kind === "upgrade" ? engine.state.coins : kind === "research" ? engine.state.research : engine.state.prestigePoints;
     const affordable = !maxed && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
+    const description = kind === "prestige" && item.id === "royalTreasury"
+      ? `${Math.floor(2000 + level * 2000).toLocaleString("pt-BR")} ao começar uma nova jornada.`
+      : item.desc;
     return `
       <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-upgrade-kind="${kind}">
         <div class="upgrade-level-badge">Nível ${level} / ${item.max}</div>
@@ -568,7 +571,7 @@
           <span class="upgrade-icon" aria-hidden="true">${item.icon}</span>
           <h3>${escapeHtml(item.name)}</h3>
         </div>
-        <p class="upgrade-description">${enrichResourceText(item.desc)}</p>
+        <p class="upgrade-description">${enrichResourceText(description)}</p>
         <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
       </article>`;
   }
@@ -628,28 +631,37 @@
   function renderContractDock() {
     const contracts = engine.state.activeContracts || [];
     if (!contracts.length) {
-      dom.contractDock.classList.remove("visible");
+      dom.contractDock.classList.remove("visible", "collapsed");
       dom.contractDock.innerHTML = "";
       return;
     }
     dom.contractDock.classList.add("visible");
+    dom.contractDock.classList.toggle("collapsed", contractDockCollapsed);
+    const toggleLabel = contractDockCollapsed ? "Mostrar contratos" : "Recolher contratos";
+    if (contractDockCollapsed) {
+      dom.contractDock.innerHTML = `<button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="false">${toggleLabel}</button>`;
+      return;
+    }
     dom.contractDock.innerHTML = `
-      <button class="contract-dock-title" type="button" data-go-office-contracts><strong>Contratos</strong><small>${contracts.length}/${GameEngine.MAX_ACTIVE_CONTRACTS}</small></button>
-      <div class="contract-dock-list">
-        ${contracts.map(contract => {
-          const crop = engine.getCrop(contract.cropId);
-          const company = engine.getCompany(contract.companyId);
-          const progress = engine.getContractProgress(contract);
-          const urgent = !progress.completed && contract.timeRemaining <= 30;
-          const actionAttributes = progress.completed
-            ? `data-action="claim-contract" data-id="${contract.id}" title="Receber recompensa"`
-            : 'data-go-office-contracts title="Abrir contratos"';
-          return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""}" type="button" ${actionAttributes}>
-            <img src="${crop.image}" alt="${escapeHtml(crop.name)}">
-            <span class="contract-dock-copy"><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${progress.completed ? "Clique para receber" : `${engine.formatTime(contract.timeRemaining)} restantes`}</u><span class="contract-dock-rewards">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</span></span>
-            <em class="${progress.completed ? "ready" : ""}">${Math.floor(progress.percent)}%<small>${progress.completed ? "receber" : "entregue"}</small></em>
-          </button>`;
-        }).join("")}
+      <button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="true">${toggleLabel}</button>
+      <div class="contract-dock-panel">
+        <button class="contract-dock-title" type="button" data-go-office-contracts><strong>Contratos</strong><small>${contracts.length}/${GameEngine.MAX_ACTIVE_CONTRACTS}</small></button>
+        <div class="contract-dock-list">
+          ${contracts.map(contract => {
+            const crop = engine.getCrop(contract.cropId);
+            const company = engine.getCompany(contract.companyId);
+            const progress = engine.getContractProgress(contract);
+            const urgent = !progress.completed && contract.timeRemaining <= 30;
+            const actionAttributes = progress.completed
+              ? `data-action="claim-contract" data-id="${contract.id}" title="Receber recompensa"`
+              : 'data-go-office-contracts title="Abrir contratos"';
+            return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""}" type="button" ${actionAttributes}>
+              <img src="${crop.image}" alt="${escapeHtml(crop.name)}">
+              <span class="contract-dock-copy"><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${progress.completed ? "Clique para receber" : `${engine.formatTime(contract.timeRemaining)} restantes`}</u><span class="contract-dock-rewards">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</span></span>
+              <em class="${progress.completed ? "ready" : ""}">${Math.floor(progress.percent)}%<small>${progress.completed ? "receber" : "entregue"}</small></em>
+            </button>`;
+          }).join("")}
+        </div>
       </div>`;
   }
 
@@ -725,25 +737,16 @@
     const activeCrops = owned.filter(crop => !engine.getOrder(crop.id)?.complete);
     dom.orderList.innerHTML = activeCrops.map(crop => {
       const order = engine.getOrder(crop.id);
-      const orderState = engine.state.orders[crop.id];
-      const stock = engine.state.crops[crop.id].stock;
-      const progress = percent((order.delivered / order.amount) * 100);
-      const canDeliver = stock > 0 && !order.readyToClaim && !orderState.autoDeliver;
-      let actionHtml = "";
-      if (order.readyToClaim) {
-        actionHtml = `<button class="button gold full" type="button" data-action="claim-order" data-crop="${crop.id}">Receber recompensa</button>`;
-      } else if (orderState.autoDeliver) {
-        actionHtml = `<button class="button secondary full" type="button" disabled>Entregando...</button>`;
-      } else {
-        actionHtml = `<button class="button ${canDeliver ? "primary" : "secondary"} full" type="button" data-action="deliver-order" data-crop="${crop.id}" ${canDeliver ? "" : "disabled"}>Entregar agora</button>`;
-      }
-      return `<article class="order-card normalized-order-card ${orderState.autoDeliver ? "auto-order-enabled" : ""} ${order.readyToClaim ? "order-reward-ready" : ""}">
+      const stock = Math.max(0, Number(engine.state.crops[crop.id].stock) || 0);
+      const available = Math.min(stock, order.amount);
+      const progress = percent((available / order.amount) * 100);
+      const canDeliver = stock >= order.amount;
+      return `<article class="order-card normalized-order-card ${canDeliver ? "order-ready-to-deliver" : ""}">
         <div class="order-head"><div class="contract-crop"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Etapa ${order.tier + 1} de ${order.totalTiers}</small><h3>${escapeHtml(crop.name)}</h3></div></div></div>
-        <p>${order.readyToClaim ? "Meta alcançada. Colete a recompensa para liberar a próxima etapa." : `Entregue mais ${engine.formatNumber(order.remaining)} unidades para concluir esta etapa.`}</p>
-        <div class="order-progress"><div class="progress-label"><span>Progresso acumulado</span><strong>${engine.formatNumber(order.delivered)} / ${engine.formatNumber(order.amount)}</strong></div><div class="progress-track growth"><span style="width:${progress}%"></span></div></div>
+        <p>${canDeliver ? "Lote completo disponível no estoque. Entregue para receber a recompensa." : `Reúna ${engine.formatNumber(order.amount)} unidades no estoque. Faltam ${engine.formatNumber(order.remaining)}.`}</p>
+        <div class="order-progress"><div class="progress-label"><span>Disponível no estoque</span><strong>${engine.formatNumber(available)} / ${engine.formatNumber(order.amount)}</strong></div><div class="progress-track growth"><span style="width:${progress}%"></span></div></div>
         <div class="contract-reward-unified"><span>Recompensa</span><strong class="resource-reward-group">${resourceRewards({ coins: order.rewardCoins, research: order.rewardResearch })}</strong></div>
-        <button class="order-auto-toggle ${orderState.autoDeliver ? "active" : ""}" type="button" data-action="toggle-order-auto" data-crop="${crop.id}" aria-pressed="${String(orderState.autoDeliver)}"><span><strong>Entrega automática</strong><small>${order.readyToClaim ? "Pausada até coletar a recompensa" : orderState.autoDeliver ? "Produção sendo direcionada" : "Ativar para esta cultura"}</small></span><span class="auto-sell-switch"><i></i></span></button>
-        ${actionHtml}
+        <button class="button ${canDeliver ? "primary" : "secondary"} full" type="button" data-action="deliver-order" data-crop="${crop.id}" ${canDeliver ? "" : "disabled"}>Entregar pedido</button>
       </article>`;
     }).join("") || `<div class="empty-state office-empty">Todas as séries de pedidos foram concluídas.</div>`;
 
@@ -941,7 +944,6 @@
       const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
       act(engine.setAllAutoSell(!allEnabled), result => `Venda automática ${result.enabled ? "ativada" : "desativada"} para ${result.count} cultura${result.count === 1 ? "" : "s"}.`);
     }
-    if (action === "toggle-order-auto") act(engine.toggleOrderAutoDelivery(cropId), result => `Entrega automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
     if (action === "sell-all-stock") act(engine.sellAll(), result => `${engine.formatNumber(result.sold)} produtos vendidos por ${engine.formatMoney(result.gain)}.`);
     if (action === "expand-storage") act(engine.expandStorage(), result => `Celeiro ampliado em +${result.added} espaços.`);
     if (action === "buy-upgrade") act(engine.buyUpgrade(id), "Infraestrutura aprimorada.");
@@ -959,19 +961,15 @@
     if (action === "deliver-order") {
       const result = engine.deliverOrder(cropId);
       if (!result.ok) return act(result);
-      toast(result.readyToClaim
-        ? `Meta de ${result.order.crop.name.toLowerCase()} concluída. A recompensa está pronta.`
-        : `${engine.formatNumber(result.delivered)} unidades entregues. O progresso ficou salvo.`, "success");
-      render(true);
-    }
-    if (action === "claim-order") {
-      const result = engine.claimOrderReward(cropId);
-      if (!result.ok) return act(result);
       animateResourceReward(button, result.rewards || {});
       toast(result.seriesComplete
         ? `Todos os pedidos de ${result.order.crop.name.toLowerCase()} foram finalizados.`
-        : `Recompensa recebida. A próxima etapa de ${result.order.crop.name.toLowerCase()} foi liberada.`, "success");
+        : `Pedido entregue e recompensa recebida. A próxima etapa de ${result.order.crop.name.toLowerCase()} foi liberada.`, "success");
       render(true);
+    }
+    if (action === "toggle-contract-dock") {
+      contractDockCollapsed = !contractDockCollapsed;
+      renderContractDock();
     }
     if (action === "claim-mission") {
       const result = engine.claimMission(id);

@@ -6674,3 +6674,86 @@ button:disabled .inline-resource img,
   .order-board-heading > small { text-align: left; }
   #evolveView .prestige-grid .redesigned-evolution-card { min-height: 0 !important; }
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 18 — contratos especializados, pedidos manuais e safra contínua    */
+/* ========================================================================== */
+
+/* O Escritório não recebe mais tonalidade de atenção na navegação principal. */
+.office-nav-tab.has-attention,
+.office-nav-tab.has-attention:hover,
+.office-nav-tab.has-attention:not(.active),
+.office-nav-tab.has-attention:not(.active):hover {
+  color: inherit !important;
+  background: inherit !important;
+  box-shadow: inherit !important;
+}
+
+/* Contadores secundários só ocupam espaço quando há algo pronto para coletar. */
+.office-tab b[hidden] { display: none !important; }
+
+/* Controle superior para recolher e restaurar o acompanhamento dos contratos. */
+.contract-dock-collapse-toggle {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: 121;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,.86);
+  border-radius: 999px;
+  color: var(--green-deep);
+  font: inherit;
+  font-size: .65rem;
+  font-weight: 900;
+  cursor: pointer;
+  background: rgba(249,251,244,.94);
+  box-shadow: 0 10px 28px rgba(43,72,47,.18);
+  backdrop-filter: blur(14px);
+  transform: translateX(-50%);
+}
+.contract-dock-collapse-toggle:hover { background: rgba(241,247,235,.98); }
+.contract-dock-panel { display: grid; }
+.contract-dock.collapsed {
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+.contract-dock.collapsed .contract-dock-panel { display: none !important; }
+
+/* O prazo do atalho ganha legibilidade sem alterar a composição geral. */
+.contract-dock-item > span u {
+  margin-top: 4px !important;
+  font-size: .57rem !important;
+  line-height: 1.18;
+}
+
+/* Sem entrega automática, cada pedido comunica quanto já existe no estoque. */
+.order-card.order-ready-to-deliver {
+  border-color: rgba(84,143,75,.24);
+  box-shadow: 0 12px 28px rgba(72,111,67,.10);
+}
+.order-card .button:disabled { cursor: not-allowed; }
+
+/* No modo contínuo não há selo percentual nem símbolo de infinito. */
+.crop-art-progress.instant .crop-progress-percent,
+.instant-mini { display: none !important; }
+
+@media (max-width: 760px) {
+  .contract-dock-collapse-toggle {
+    top: 8px;
+    min-height: 31px;
+    padding: 0 11px;
+    font-size: .6rem;
+  }
+  .contract-dock:not(.collapsed) {
+    right: 10px !important;
+    bottom: 10px !important;
+    width: calc(100vw - 20px) !important;
+  }
+}
