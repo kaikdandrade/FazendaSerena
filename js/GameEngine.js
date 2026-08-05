@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 29;
+  static SAVE_VERSION = 30;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -29,8 +29,6 @@ class GameEngine {
     const prestiges = Number(permanent.prestiges || 0);
     const settings = {
       ambient: permanent.settings?.ambient ?? true,
-      reducedMotion: permanent.settings?.reducedMotion ?? false,
-      compactCards: true,
       uiScale: permanent.settings?.uiScale ?? 100,
       masterVolume: permanent.settings?.masterVolume ?? 100,
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
@@ -127,17 +125,7 @@ class GameEngine {
 
     const now = Date.now();
     const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
-    if (elapsed > 0.05) {
-      const before = state.stats.totalHarvested;
-      const failedBefore = state.stats.contractsFailed;
-      this.simulate(elapsed, true);
-      const harvested = Math.max(0, state.stats.totalHarvested - before);
-      const expiredContracts = Math.max(0, state.stats.contractsFailed - failedBefore);
-      if (elapsed >= 10 && harvested > 0) {
-        this.emit("offline", { seconds: elapsed, harvested });
-      }
-      if (expiredContracts > 0) this.emit("contracts-expired-offline", { count: expiredContracts });
-    }
+    if (elapsed > 0.05) this.simulate(elapsed, true);
     state.lastUpdate = now;
     return state;
   }
@@ -188,8 +176,6 @@ class GameEngine {
       orders: {}
     };
 
-    merged.settings.reducedMotion = false;
-    merged.settings.compactCards = true;
     const legacyEffectsEnabled = merged.settings.soundEnabled !== false;
     const legacyMusicEnabled = merged.settings.musicEnabled !== false;
     merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
@@ -555,10 +541,6 @@ class GameEngine {
     return this.state.activeContracts.some(contract => contract.cropId === cropId && contract.delivered < contract.amount && !contract.completedAt && contract.timeRemaining > 0);
   }
 
-  hasActiveAutoOrderForCrop() {
-    return false;
-  }
-
   advanceContractTimers(seconds, silent = false) {
     const elapsed = Math.max(0, Number(seconds) || 0);
     this.state.activeContracts.forEach(contract => {
@@ -684,11 +666,6 @@ class GameEngine {
     return Math.max(GameEngine.BASE_STORAGE_CAPACITY, percentageCapacity + directCapacity);
   }
 
-  getStorageUpgradePercent(id) {
-    const percentages = { reinforcedBarn: 20, coldChain: 20, endlessGranary: 60 };
-    return percentages[id] || 0;
-  }
-
   getDirectStorageExpansionCost() {
     const level = Math.max(0, Number(this.state.storageExpansions || 0));
     return Math.ceil(260 * Math.pow(1.52, level));
@@ -794,22 +771,6 @@ class GameEngine {
   }
 
 
-  getCropUpgradeToMaxCost(cropId) {
-    const cropState = this.state.crops[cropId];
-    if (!cropState?.owned || cropState.level >= GameEngine.MAX_CROP_LEVEL) {
-      return { levels: 0, totalCost: 0, targetLevel: GameEngine.MAX_CROP_LEVEL };
-    }
-    let totalCost = 0;
-    for (let level = cropState.level; level < GameEngine.MAX_CROP_LEVEL; level += 1) {
-      totalCost += this.getCropUpgradeCost(cropId, level);
-    }
-    return {
-      levels: GameEngine.MAX_CROP_LEVEL - cropState.level,
-      totalCost,
-      targetLevel: GameEngine.MAX_CROP_LEVEL
-    };
-  }
-
   isCropUnlocked(cropId) {
     const crop = this.getCrop(cropId);
     return Boolean(crop && this.state.farmLevel >= crop.unlockLevel);
@@ -865,15 +826,6 @@ class GameEngine {
       return { ok: false, message: "Ainda não há moedas suficientes para outro aprimoramento." };
     }
     return this.upgradeCrop(cropId, affordable.levels);
-  }
-
-  upgradeCropToMax(cropId) {
-    const plan = this.getCropUpgradeToMaxCost(cropId);
-    if (plan.levels < 1) return { ok: false, message: "Esta plantação já está no nível máximo." };
-    if (this.state.coins < plan.totalCost) {
-      return { ok: false, message: `Faltam ${this.formatMoney(plan.totalCost - this.state.coins)} para chegar ao nível 300.` };
-    }
-    return this.upgradeCrop(cropId, plan.levels);
   }
 
   recordSale(cropId, sold, gain, silent = false) {
@@ -1297,10 +1249,6 @@ class GameEngine {
     return contract;
   }
 
-  completeContract(id, silent = false, automatic = false) {
-    return this.markContractComplete(id, silent, automatic);
-  }
-
   claimContractReward(id) {
     const index = this.state.activeContracts.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Contrato não encontrado." };
@@ -1311,26 +1259,6 @@ class GameEngine {
     this.state.research += contract.rewardResearch;
     this.ensureContractOffers();
     return { ok: true, contract };
-  }
-
-  deliverContract(id) {
-    const result = this.deliverStockToContract(id, false);
-    if (!result.contract) return { ok: false, message: "Contrato ativo não encontrado." };
-    if (result.delivered < 1) return { ok: false, message: "Não há unidades disponíveis no estoque para este contrato." };
-    return { ok: true, delivered: result.delivered, completed: result.completed, contract: result.contract };
-  }
-
-  getContractRerollCost() {
-    return Math.max(25, Math.floor(15 + this.state.farmLevel * 9));
-  }
-
-  rerollContracts() {
-    if (!this.getContractEligibleCrops().length) return { ok: false, message: "Evolua a fazenda para liberar culturas e novas propostas." };
-    const cost = this.getContractRerollCost();
-    if (this.state.coins < cost) return { ok: false, message: `Renovar todas as propostas custa ${this.formatMoney(cost)}.` };
-    this.state.coins -= cost;
-    this.state.contractOffers = this.createContractOffers(3);
-    return { ok: true, cost };
   }
 
   getReadyContractCount() {
@@ -1378,14 +1306,6 @@ class GameEngine {
     return { coins: order.rewardCoins, research: order.rewardResearch };
   }
 
-  claimOrderReward() {
-    return { ok: false, message: "Os pedidos agora são concluídos em uma única entrega." };
-  }
-
-  deliverUnitsToOrder() {
-    return { delivered: 0, readyToClaim: false, rewards: { coins: 0, research: 0 }, order: null };
-  }
-
   deliverOrder(cropId) {
     const order = this.getOrder(cropId);
     if (!order) return { ok: false, message: "Compre esta cultura para liberar seus pedidos." };
@@ -1399,14 +1319,6 @@ class GameEngine {
     const rewards = this.completeOrderStage(cropId, order, false);
     const nextOrder = this.getOrder(cropId);
     return { ok: true, delivered: order.amount, order, rewards, seriesComplete: Boolean(nextOrder?.complete), nextOrder };
-  }
-
-  setOrderAutoDelivery() {
-    return { ok: false, message: "A entrega automática de pedidos foi removida." };
-  }
-
-  toggleOrderAutoDelivery() {
-    return { ok: false, message: "A entrega automática de pedidos foi removida." };
   }
 
   getReadyOrderCount() {

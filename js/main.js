@@ -3,8 +3,6 @@
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const pendingEvents = [];
-  let engine = null;
   const soundEngine = new SoundEngine();
   let lastFrame = performance.now();
   let lastRender = 0;
@@ -18,6 +16,7 @@
   let contractDockCollapsed = false;
   const cropUpgradeModes = new Map();
 
+  // Elementos persistentes da interface.
   const dom = {
     tabs: $$(".nav-tab[data-view]"),
     views: $$("[data-view-panel]"),
@@ -34,7 +33,6 @@
     prestigeList: $("#prestigeList"),
     activeContractList: $("#activeContractList"),
     contractOfferList: $("#contractOfferList"),
-    contractCapacity: $("#contractCapacity"),
     contractDock: $("#contractDock"),
     orderList: $("#orderList"),
     completedOrderList: $("#completedOrderList"),
@@ -83,6 +81,7 @@
     backToTop: $("#backToTop")
   };
 
+  // Utilitários de formatação e marcação segura.
   function escapeHtml(value) {
     return String(value)
       .replaceAll("&", "&amp;")
@@ -161,12 +160,9 @@
     }
   }
 
-  engine = new GameEngine(event => {
-    if (!engine) pendingEvents.push(event);
-    else handleEngineEvent(event);
-  });
-  pendingEvents.splice(0).forEach(handleEngineEvent);
+  const engine = new GameEngine(handleEngineEvent);
 
+  // Navegação, responsividade e configurações.
   function setupCategoryFilter() {
     const options = Object.entries(engine.data.categories)
       .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`)
@@ -312,8 +308,6 @@
   function applySettings() {
     const settings = engine.state.settings;
     document.body.dataset.ambient = String(Boolean(settings.ambient));
-    document.body.classList.remove("reduce-motion");
-    document.body.classList.add("compact-cards");
     document.documentElement.style.setProperty("--ui-scale", String(((Number(settings.uiScale) || 100) / 100) * 0.85));
 
     if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
@@ -559,6 +553,7 @@
     }
   }
 
+  // Renderização das áreas do jogo.
   function renderCropCard(crop) {
     const data = engine.state.crops[crop.id];
     const category = engine.data.categories[crop.category];
@@ -1096,6 +1091,7 @@
     return "click";
   }
 
+  // Ações do jogador e eventos da interface.
   function handleAction(button) {
     const action = button.dataset.action;
     const cropId = button.dataset.crop;
@@ -1309,6 +1305,7 @@
     });
   }
 
+  // Ciclo principal e inicialização.
   function gameLoop(now) {
     const dt = Math.max(0, Math.min(2, (now - lastFrame) / 1000));
     lastFrame = now;
