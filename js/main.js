@@ -89,9 +89,10 @@
   function resourceAmount(type, value, options = {}) {
     const number = Number(value) || 0;
     const sign = options.sign === true ? (number > 0 ? "+" : number < 0 ? "−" : "") : "";
+    const signHtml = sign ? `<span class="resource-sign ${number > 0 ? "positive" : "negative"}" aria-hidden="true">${sign}</span>` : "";
     const label = options.label ? `<small>${escapeHtml(options.label)}</small>` : "";
     const title = options.title ? ` title="${escapeHtml(options.title)}"` : "";
-    return `<span class="resource-amount resource-${type}${options.compact ? " compact" : ""}"${title}><img src="${resourceIcons[type]}" alt=""><b>${sign}${engine.formatNumber(Math.abs(number))}</b>${label}</span>`;
+    return `<span class="resource-amount resource-${type}${options.compact ? " compact" : ""}"${title}><img src="${resourceIcons[type]}" alt="">${signHtml}<b>${engine.formatNumber(Math.abs(number))}</b>${label}</span>`;
   }
 
   function resourceRewards(reward, sign = true) {
@@ -107,7 +108,13 @@
     const amount = '([+−-]?(?:\\d[\\d.,]*)(?:\\s(?:mil|mi|bi|tri|q))?)';
     const replace = (type, labelPattern) => {
       const expression = new RegExp(`${amount}\\s+(?:${labelPattern})`, "gi");
-      html = html.replace(expression, (_, value) => `<span class="inline-resource resource-${type}"><img src="${resourceIcons[type]}" alt=""><b>${value}</b></span>`);
+      html = html.replace(expression, (_, value) => {
+        const first = value.trim().charAt(0);
+        const signed = ["+", "−", "-"].includes(first);
+        const sign = signed ? (first === "-" ? "−" : first) : "";
+        const absolute = signed ? value.trim().slice(1) : value.trim();
+        return `<span class="inline-resource resource-${type}"><img src="${resourceIcons[type]}" alt="">${sign ? `<span class="resource-sign ${sign === "+" ? "positive" : "negative"}">${sign}</span>` : ""}<b>${absolute}</b></span>`;
+      });
     };
     replace("coins", "moedas?");
     replace("research", "(?:pontos? de )?pesquisa");
@@ -129,6 +136,7 @@
     if (event.type === "toast") toast(event.message);
     if (event.type === "level") toast(`A fazenda alcançou o nível ${event.level} e recebeu +${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "success");
     if (event.type === "offline") toast(`Enquanto você esteve longe, a fazenda produziu ${engine ? engine.formatNumber(event.harvested) : Math.floor(event.harvested)} itens.`);
+    if (event.type === "contracts-expired-offline") toast(`${event.count} contrato${event.count === 1 ? " expirou" : "s expiraram"} enquanto você esteve longe. As unidades já entregues foram perdidas.`, "error");
   }
 
   engine = new GameEngine(event => {
@@ -202,7 +210,7 @@
         <small>Produção automática</small>
         <h2>O celeiro trabalha com você</h2>
         <p>${engine.formatNumber(metrics.stock)} de ${engine.formatNumber(metrics.storageCapacity)} espaços estão ocupados.</p>
-        <span class="farm-status-note">${metrics.storageRemaining > 0 ? `${engine.formatNumber(metrics.storageRemaining)} espaços disponíveis` : "Celeiro cheio: a produção está pausada"}</span>
+        <span class="farm-status-note">${metrics.storageRemaining > 0 ? `${engine.formatNumber(metrics.storageRemaining)} espaços disponíveis` : "Celeiro cheio: apenas culturas sem contrato ou venda automática ficam pausadas"}</span>
       </div>`;
   }
 
@@ -260,43 +268,60 @@
         </article>`;
     }
 
-    const growthPct = percent(data.progress * 100);
     const growthTime = engine.getGrowthTime(crop.id);
+    const instant = growthTime <= 0;
+    const growthPct = instant ? 100 : percent(data.progress * 100);
     const price = engine.getSalePrice(crop.id);
-    const storageFull = engine.getStorageRemaining() <= 0;
+    const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount);
+    const directRoute = data.autoSell || activeContracts.length > 0;
+    const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
+    const maxed = data.level >= GameEngine.MAX_CROP_LEVEL;
+    const speedMaxed = data.level >= GameEngine.INSTANT_GROWTH_LEVEL;
     const affordable = engine.getCropAffordableUpgrades(crop.id);
     const nextCost = affordable.nextCost;
-    const affordableText = affordable.levels > 0
-      ? `Pode avançar <strong>+${affordable.levels}</strong> nível${affordable.levels === 1 ? "" : "is"} com o saldo atual.`
-      : `Próximo nível: ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}.`;
+    const affordableText = maxed
+      ? "Esta plantação alcançou o nível máximo 300."
+      : affordable.levels > 0
+        ? `Pode avançar <strong>+${affordable.levels}</strong> nível${affordable.levels === 1 ? "" : "is"} com o saldo atual.`
+        : `Próximo nível: ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}.`;
+    const routeMessage = activeContracts.length
+      ? `Produção direcionada para ${activeContracts.length === 1 ? "o contrato ativo" : `${activeContracts.length} contratos ativos`}`
+      : data.autoSell
+        ? "Produção vendida automaticamente"
+        : "Produção enviada ao estoque";
+    const cycleLabel = instant
+      ? "Produção instantânea"
+      : storageFull
+        ? "Produção pausada"
+        : engine.formatTime((1 - data.progress) * growthTime);
 
     return `
-      <article class="crop-card" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip"><div class="crop-level-copy"><span>Nível da plantação</span><strong>${data.level}</strong></div></div>
+      <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" style="--crop-glow:${getCropGlow(crop.category)}">
+        <div class="crop-level-strip"><div class="crop-level-copy"><span>Nível da plantação</span><strong>${data.level} / ${GameEngine.MAX_CROP_LEVEL}</strong></div>${speedMaxed ? '<span class="instant-level-badge">Velocidade máxima</span>' : ""}</div>
         <div class="crop-head">
-          <div class="crop-art-progress ${storageFull ? "paused" : ""}" style="--growth-progress:${growthPct}%" title="${storageFull ? "Produção pausada: celeiro cheio" : `${growthPct.toFixed(0)}% do próximo ciclo`}">
+          <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" style="--growth-progress:${growthPct}%" title="${instant ? "Produção instantânea e contínua" : storageFull ? "Produção pausada: celeiro cheio" : `${growthPct.toFixed(0)}% do próximo ciclo`}">
             <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            <span class="crop-progress-percent">${storageFull ? "Ⅱ" : `${growthPct.toFixed(0)}%`}</span>
+            <span class="crop-progress-percent">${instant ? "∞" : storageFull ? "Ⅱ" : `${growthPct.toFixed(0)}%`}</span>
           </div>
           <div class="crop-info">
             <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
             <div class="crop-meta-row">
               <span class="crop-category">${escapeHtml(category)}</span>
-              <span class="crop-auto-tag">Produção automática</span>
+              <span class="crop-auto-tag">${data.autoSell ? "Venda automática" : "Produção automática"}</span>
               ${resourceAmount("coins", price, { compact: true, title: "Valor por unidade" })}
             </div>
-            <div class="crop-cycle-status ${storageFull ? "storage-paused" : ""}">
-              <span>${storageFull ? "Celeiro cheio" : "Próximo ciclo"}</span>
-              <strong>${storageFull ? "Produção pausada" : engine.formatTime((1 - data.progress) * growthTime)}</strong>
+            <div class="crop-cycle-status ${storageFull ? "storage-paused" : ""} ${instant ? "instant-cycle" : ""}">
+              <span>${instant ? "Ciclo" : storageFull ? "Celeiro cheio" : "Próximo ciclo"}</span>
+              <strong>${cycleLabel}</strong>
             </div>
           </div>
         </div>
-        <div class="production-foot"><span>🧺 ${engine.formatNumber(data.stock)} desta cultura no estoque</span><span>${storageFull ? "Libere espaço para continuar" : "Gerando continuamente"}</span></div>
+        <div class="production-foot"><span>🧺 ${engine.formatNumber(data.stock)} desta cultura guardadas</span><span>${escapeHtml(routeMessage)}</span></div>
         <div class="crop-upgrade-panel">
           <div class="crop-upgrade-copy"><strong>Aprimorar plantação</strong><small>${affordableText}</small></div>
           <div class="crop-upgrade-actions">
-            <button class="button soft compact-button" type="button" data-action="upgrade-crop-once" data-crop="${crop.id}" ${engine.state.coins < nextCost ? "disabled" : ""}>+1 ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}</button>
-            <button class="button primary compact-button" type="button" data-action="upgrade-crop-max" data-crop="${crop.id}" ${affordable.levels < 1 ? "disabled" : ""}>Máximo${affordable.levels > 0 ? ` (+${affordable.levels})` : ""} ${affordable.levels > 0 ? resourceAmount("coins", -affordable.totalCost, { sign: true, compact: true }) : ""}</button>
+            <button class="button soft compact-button" type="button" data-action="upgrade-crop-once" data-crop="${crop.id}" ${maxed || engine.state.coins < nextCost ? "disabled" : ""}>${maxed ? "Máximo" : `+1 ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}`}</button>
+            <button class="button primary compact-button" type="button" data-action="upgrade-crop-max" data-crop="${crop.id}" ${maxed || affordable.levels < 1 ? "disabled" : ""}>${maxed ? "Nível 300" : `Máximo${affordable.levels > 0 ? ` (+${affordable.levels})` : ""} ${affordable.levels > 0 ? resourceAmount("coins", -affordable.totalCost, { sign: true, compact: true }) : ""}`}</button>
           </div>
         </div>
         <div class="crop-actions"><button class="button secondary" type="button" data-action="sell-crop" data-crop="${crop.id}" ${data.stock <= 0 ? "disabled" : ""}>Vender estoque</button></div>
@@ -325,6 +350,7 @@
     const storageAvailable = engine.getStorageRemaining();
     const storagePct = percent((storageUsed / totalCapacity) * 100);
     const totalValue = owned.reduce((sum, crop) => sum + engine.state.crops[crop.id].stock * engine.getSalePrice(crop.id), 0);
+    const autoSellCount = owned.filter(crop => engine.state.crops[crop.id].autoSell).length;
     const warehouse = engine.data.upgrades.find(item => item.id === "warehouse");
     const warehouseLevel = Number(engine.state.upgrades.warehouse || 0);
     const warehouseMaxed = warehouseLevel >= warehouse.max;
@@ -336,6 +362,7 @@
         <button class="button soft compact-button full" type="button" data-action="buy-upgrade" data-id="warehouse" ${warehouseMaxed || engine.state.coins < warehouseCost ? "disabled" : ""}>${warehouseMaxed ? "Capacidade máxima" : `Aumentar +100 · ${resourceAmount("coins", -warehouseCost, { sign: true, compact: true })}`}</button>
       </article>
       <article class="summary-card"><small>Espaço disponível</small><strong>${engine.formatNumber(storageAvailable)}</strong></article>
+      <article class="summary-card"><small>Venda automática</small><strong>${autoSellCount} cultura${autoSellCount === 1 ? "" : "s"}</strong></article>
       <article class="summary-card"><small>Valor estimado</small><strong>${resourceAmount("coins", totalValue)}</strong></article>
       <article class="summary-card"><small>Total vendido</small><strong>${engine.formatNumber(metrics.sold)}</strong></article>`;
 
@@ -348,8 +375,9 @@
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
       const share = storageUsed > 0 ? percent((data.stock / storageUsed) * 100) : 0;
+      const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount).length;
       return `
-        <article class="stock-card">
+        <article class="stock-card ${data.autoSell ? "auto-sell-card" : ""}">
           <div class="stock-head">
             <div class="stock-ident">
               <img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy">
@@ -357,6 +385,11 @@
             </div>
             ${resourceAmount("coins", price, { compact: true, title: "Valor por unidade" })}
           </div>
+          <button class="auto-sell-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}">
+            <span class="auto-sell-switch"><i></i></span>
+            <span><strong>Venda automática</strong><small>${data.autoSell ? "Ativa: novas unidades não entram no estoque" : "Desativada: novas unidades são armazenadas"}</small></span>
+          </button>
+          ${activeContracts ? `<div class="stock-contract-priority"><span>📑</span><p><strong>${activeContracts} contrato${activeContracts === 1 ? " ativo" : "s ativos"}</strong><small>A produção será enviada aos contratos antes da venda automática.</small></p></div>` : ""}
           <div class="stock-amount">
             <strong>${engine.formatNumber(data.stock)} unidades</strong>
             <small>${share.toFixed(0)}% do conteúdo atual do celeiro · ${resourceAmount("coins", price, { compact: true })} por unidade</small>
@@ -465,10 +498,11 @@
           const crop = engine.getCrop(contract.cropId);
           const company = engine.getCompany(contract.companyId);
           const progress = engine.getContractProgress(contract);
-          return `<button class="contract-dock-item" type="button" data-go-office-contracts title="Abrir contratos">
+          const urgent = contract.timeRemaining <= 30;
+          return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""}" type="button" data-go-office-contracts title="Abrir contratos">
             <img src="${crop.image}" alt="${escapeHtml(crop.name)}">
-            <span><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b><b class="available" style="width:${percent(progress.availablePercent)}%"></b></i></span>
-            <em class="${progress.readyToComplete ? "ready" : ""}">${Math.floor(progress.availablePercent)}%<small>${progress.readyToComplete ? "Pronto" : "com estoque"}</small></em>
+            <span><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b><b class="available" style="width:${percent(progress.availablePercent)}%"></b></i><u>${engine.formatTime(contract.timeRemaining)} restantes</u></span>
+            <em class="${progress.readyToComplete ? "ready" : ""}">${Math.floor(progress.availablePercent)}%<small>${progress.readyToComplete ? "Pronto" : "coberto"}</small></em>
           </button>`;
         }).join("")}
       </div>`;
@@ -497,33 +531,39 @@
     dom.activeContractList.innerHTML = active.length ? active.map(contract => {
       const crop = engine.getCrop(contract.cropId);
       const company = engine.getCompany(contract.companyId);
+      const difficulty = engine.getContractDifficulty(contract.difficulty);
       const progress = engine.getContractProgress(contract);
       const stock = Number(engine.state.crops[contract.cropId]?.stock || 0);
-      const deliverNow = Math.min(stock, progress.remaining);
+      const deliverNow = progress.availableNow;
+      const urgent = contract.timeRemaining <= 30;
       return `
-        <article class="contract-card active-contract-card">
+        <article class="contract-card active-contract-card ${urgent ? "contract-deadline-warning" : ""}">
           <div class="company-ribbon"><span>${company.icon}</span><div><small>Contrato com</small><strong>${escapeHtml(company.name)}</strong></div><em>${escapeHtml(company.specialty)}</em></div>
           <div class="contract-head">
             <div class="contract-crop"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Produto contratado</small><h3>${escapeHtml(crop.name)}</h3></div></div>
             <span class="status-tag active-tag">Ativo</span>
           </div>
+          <div class="contract-time-panel ${urgent ? "urgent" : ""}"><span>⏱️ <strong>${escapeHtml(difficulty.label)}</strong></span><b>${engine.formatTime(contract.timeRemaining)}</b></div>
           <div class="contract-progress-block">
             <div class="progress-label"><span>Já entregue</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)} · ${Math.floor(progress.percent)}%</strong></div>
             <div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span><span class="contract-available" style="width:${percent(progress.availablePercent)}%"></span></div>
             <div class="contract-readiness ${progress.readyToComplete ? "ready" : ""}"><span>${progress.readyToComplete ? "✓ O estoque já conclui este contrato" : "Cobertura considerando o estoque"}</span><strong>${Math.floor(progress.availablePercent)}%</strong></div>
           </div>
+          <div class="contract-routing-note"><span>↪</span><p><strong>Prioridade automática</strong><small>Enquanto este contrato estiver ativo, novas unidades de ${escapeHtml(crop.name.toLowerCase())} irão diretamente para ele.</small></p></div>
           <div class="contract-lines">
             <div class="contract-line"><span>Disponível no estoque</span><strong>${engine.formatNumber(stock)}</strong></div>
             <div class="contract-line"><span>Pagamento ao concluir</span><strong>${resourceAmount("coins", contract.rewardCoins, { sign: true })}</strong></div>
             <div class="contract-line"><span>Pesquisa adicional</span><strong>${contract.rewardResearch ? resourceAmount("research", contract.rewardResearch, { sign: true }) : "Sem bônus"}</strong></div>
           </div>
-          <button class="button primary full" type="button" data-action="deliver-contract" data-id="${contract.id}" ${deliverNow < 1 ? "disabled" : ""}>${deliverNow > 0 ? `Entregar ${engine.formatNumber(deliverNow)} disponível${deliverNow === progress.remaining ? " e concluir" : ""}` : `Faltam ${engine.formatNumber(progress.remaining)}`}</button>
+          <button class="button primary full" type="button" data-action="deliver-contract" data-id="${contract.id}" ${deliverNow < 1 ? "disabled" : ""}>${deliverNow > 0 ? `Entregar ${engine.formatNumber(deliverNow)} do estoque${deliverNow === progress.remaining ? " e concluir" : ""}` : `Produção direcionada automaticamente`}</button>
+          <small class="contract-loss-warning">Se o prazo terminar, tudo que já foi entregue será perdido e não haverá pagamento.</small>
         </article>`;
     }).join("") : `<div class="empty-state office-empty compact-empty">Nenhum contrato ativo. Escolha até duas propostas abaixo quando estiver pronto.</div>`;
 
     dom.contractOfferList.innerHTML = offers.map(contract => {
       const crop = engine.getCrop(contract.cropId);
       const company = engine.getCompany(contract.companyId);
+      const difficulty = engine.getContractDifficulty(contract.difficulty);
       return `
         <article class="contract-card contract-offer-card">
           <div class="company-ribbon offer-ribbon"><span>${company.icon}</span><div><small>Proposta de</small><strong>${escapeHtml(company.name)}</strong></div><em>${escapeHtml(company.specialty)}</em></div>
@@ -531,7 +571,8 @@
             <div class="contract-crop"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Solicitação empresarial</small><h3>${engine.formatNumber(contract.amount)} unidades de ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
             <span class="status-tag proposal-tag">Proposta</span>
           </div>
-          <p>A empresa deseja reservar esta quantidade da sua produção. As entregas poderão ser feitas em várias remessas após o aceite.</p>
+          <div class="contract-offer-meta"><span>⏱️ ${escapeHtml(difficulty.label)}</span><strong>${engine.formatTime(contract.durationSeconds)} após aceitar</strong></div>
+          <p>Ao aceitar, a produção desta cultura passa a abastecer o contrato antes do estoque e da venda automática.</p>
           <div class="contract-lines">
             <div class="contract-line"><span>Pagamento total</span><strong>${resourceAmount("coins", contract.rewardCoins, { sign: true })}</strong></div>
             <div class="contract-line"><span>Pesquisa adicional</span><strong>${contract.rewardResearch ? resourceAmount("research", contract.rewardResearch, { sign: true }) : "Sem bônus"}</strong></div>
@@ -669,6 +710,7 @@
       const amount = Math.max(1, Math.floor(stock * Number(button.dataset.fraction || 1)));
       act(engine.sellCrop(cropId, amount), result => `${engine.formatNumber(result.sold)} itens vendidos por ${engine.formatMoney(result.gain)}.`);
     }
+    if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId), result => `Venda automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
     if (action === "buy-upgrade") act(engine.buyUpgrade(id), "Infraestrutura aprimorada.");
     if (action === "buy-research") act(engine.buyResearch(id), "Nova etapa da pesquisa concluída.");
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id), "Legado permanente aprimorado.");
@@ -791,7 +833,23 @@
 
     window.addEventListener("beforeunload", () => engine.save());
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) engine.save();
+      if (document.hidden) {
+        engine.save();
+      } else {
+        const now = Date.now();
+        const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
+        if (elapsed > 0.05) {
+          const before = engine.state.stats.totalHarvested;
+          const failedBefore = engine.state.stats.contractsFailed;
+          engine.simulate(elapsed, true);
+          const harvested = Math.max(0, engine.state.stats.totalHarvested - before);
+          const expired = Math.max(0, engine.state.stats.contractsFailed - failedBefore);
+          if (elapsed >= 10 && harvested > 0) toast(`Enquanto a aba esteve em segundo plano, a fazenda produziu ${engine.formatNumber(harvested)} itens.`);
+          if (expired > 0) toast(`${expired} contrato${expired === 1 ? " expirou" : "s expiraram"} em segundo plano. As unidades entregues foram perdidas.`, "error");
+          engine.state.lastUpdate = now;
+          render(true);
+        }
+      }
       lastFrame = performance.now();
     });
   }

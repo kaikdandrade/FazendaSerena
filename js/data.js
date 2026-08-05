@@ -12,6 +12,17 @@ window.GameData = (() => {
     industry: "Culturas industriais"
   };
 
+  const categoryGrowth = {
+    root: 5,
+    leaf: 6,
+    fruit: 7,
+    grain: 8,
+    bush: 9,
+    tropical: 10,
+    industry: 11,
+    tree: 12
+  };
+
   const cropRows = [
     ["onion", "Cebola", "root", 0],
     ["carrot", "Cenoura", "root", 1],
@@ -76,7 +87,6 @@ window.GameData = (() => {
   ];
 
   const crops = cropRows.map(([id, name, category, imageIndex], index) => {
-    const band = Math.floor(index / 10);
     return {
       id,
       name,
@@ -86,8 +96,8 @@ window.GameData = (() => {
       unlockLevel: 1 + Math.floor(index * 0.58),
       cost: index === 0 ? 0 : Math.round(42 * Math.pow(1.43, index) + index * 18),
       basePrice: Math.max(2, Math.round(2.2 * Math.pow(1.205, index))),
-      baseGrowth: Number((5.2 + index * 0.52 + band * 0.9).toFixed(1)),
-      baseYield: 2 + Math.floor(index / 9)
+      baseGrowth: categoryGrowth[category] || 8,
+      baseYield: 2
     };
   });
 

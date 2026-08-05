@@ -2,10 +2,12 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 7;
+  static SAVE_VERSION = 8;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static BASE_STORAGE_CAPACITY = 200;
   static MAX_BATCH_UPGRADES = 1000;
+  static MAX_CROP_LEVEL = 300;
+  static INSTANT_GROWTH_LEVEL = 250;
 
   constructor(onEvent = () => {}) {
     this.data = window.GameData;
@@ -36,7 +38,9 @@ class GameEngine {
         progress: 0,
         stock: 0,
         totalHarvested: 0,
-        totalSold: 0
+        totalSold: 0,
+        autoSell: false,
+        productionBuffer: 0
       };
       orders[crop.id] = { tier: 0, delivered: 0 };
     });
@@ -69,6 +73,8 @@ class GameEngine {
         orderUnitsDelivered: 0,
         contractsCompleted: 0,
         lifetimeContractsCompleted: Number(permanent.lifetimeContractsCompleted || 0),
+        contractsFailed: 0,
+        lifetimeContractsFailed: Number(permanent.lifetimeContractsFailed || 0),
         contractUnitsDelivered: 0,
         runCoinsEarned: 0,
         lifetimeCoins: Number(permanent.lifetimeCoins || 0),
@@ -92,16 +98,20 @@ class GameEngine {
     const state = this.normalizeState(loaded || this.createState());
     this.state = state;
     this.ensureContractOffers();
+    this.expireContracts(true);
 
     const now = Date.now();
     const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
-    if (elapsed >= 10) {
+    if (elapsed > 0.05) {
       const before = state.stats.totalHarvested;
+      const failedBefore = state.stats.contractsFailed;
       this.simulate(elapsed, true);
       const harvested = Math.max(0, state.stats.totalHarvested - before);
-      if (harvested > 0) {
+      const expiredContracts = Math.max(0, state.stats.contractsFailed - failedBefore);
+      if (elapsed >= 10 && harvested > 0) {
         this.emit("offline", { seconds: elapsed, harvested });
       }
+      if (expiredContracts > 0) this.emit("contracts-expired-offline", { count: expiredContracts });
     }
     state.lastUpdate = now;
     return state;
@@ -119,6 +129,7 @@ class GameEngine {
       lifetimeSoldByCategory: input?.stats?.lifetimeSoldByCategory ?? input?.stats?.soldByCategory,
       lifetimeOrdersCompleted: input?.stats?.lifetimeOrdersCompleted ?? input?.stats?.ordersCompleted,
       lifetimeContractsCompleted: input?.stats?.lifetimeContractsCompleted ?? input?.stats?.contractsCompleted,
+      lifetimeContractsFailed: input?.stats?.lifetimeContractsFailed ?? input?.stats?.contractsFailed,
       settings: input?.settings
     };
     const base = this.createState(permanent);
@@ -142,11 +153,13 @@ class GameEngine {
       const previous = input.crops?.[crop.id] || {};
       merged.crops[crop.id] = {
         owned: Boolean(previous.owned ?? base.crops[crop.id].owned),
-        level: Math.max(0, Math.floor(Number(previous.level ?? previous.tier ?? base.crops[crop.id].level) || 0)),
+        level: Math.max(0, Math.min(GameEngine.MAX_CROP_LEVEL, Math.floor(Number(previous.level ?? previous.tier ?? base.crops[crop.id].level) || 0))),
         progress: Math.max(0, Math.min(0.999, Number(previous.progress) || 0)),
         stock: Math.max(0, Math.floor(Number(previous.stock) || 0)),
         totalHarvested: Math.max(0, Math.floor(Number(previous.totalHarvested) || 0)),
-        totalSold: Math.max(0, Math.floor(Number(previous.totalSold) || 0))
+        totalSold: Math.max(0, Math.floor(Number(previous.totalSold) || 0)),
+        autoSell: Boolean(previous.autoSell),
+        productionBuffer: Math.max(0, Number(previous.productionBuffer) || 0)
       };
       if (merged.crops[crop.id].owned && merged.crops[crop.id].level < 1) merged.crops[crop.id].level = 1;
       const previousOrder = input.orders?.[crop.id] || {};
@@ -194,6 +207,8 @@ class GameEngine {
     merged.stats.lifetimeOrdersCompleted = Math.max(merged.stats.ordersCompleted, Math.floor(Number(merged.stats.lifetimeOrdersCompleted) || 0));
     merged.stats.contractsCompleted = Math.max(0, Math.floor(Number(merged.stats.contractsCompleted) || 0));
     merged.stats.lifetimeContractsCompleted = Math.max(merged.stats.contractsCompleted, Math.floor(Number(merged.stats.lifetimeContractsCompleted) || 0));
+    merged.stats.contractsFailed = Math.max(0, Math.floor(Number(merged.stats.contractsFailed) || 0));
+    merged.stats.lifetimeContractsFailed = Math.max(merged.stats.contractsFailed, Math.floor(Number(merged.stats.lifetimeContractsFailed) || 0));
     merged.permanentBonuses.prestigeDouble = Boolean(merged.permanentBonuses.prestigeDouble);
     merged.farmLevel = Math.max(1, Math.floor(Number(merged.farmLevel) || 1));
     merged.farmXP = Math.max(0, Number(merged.farmXP) || 0);
@@ -247,46 +262,142 @@ class GameEngine {
 
   simulate(seconds, offline = false) {
     let remaining = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, Number(seconds) || 0));
+    this.expireContracts(offline);
+
     while (remaining > 0.0001) {
-      const step = Math.min(remaining, offline ? 60 : remaining);
+      const activeTimes = this.state.activeContracts
+        .map(contract => Math.max(0, Number(contract.timeRemaining) || 0))
+        .filter(time => time > 0);
+      const nearestDeadline = activeTimes.length ? Math.min(...activeTimes) : Infinity;
+      const normalStep = offline ? 60 : remaining;
+      const step = Math.min(remaining, normalStep, nearestDeadline);
+
+      if (!Number.isFinite(step) || step <= 0.0001) {
+        this.expireContracts(offline);
+        if (!this.state.activeContracts.length) continue;
+        break;
+      }
+
       this.produce(step, offline);
+      this.advanceContractTimers(step, offline);
       this.ensureContractOffers();
       remaining -= step;
     }
   }
 
   produce(seconds, offline) {
-    const capacity = this.getStorageCap();
-    let stored = this.getStorageUsed();
-
     for (const crop of this.data.crops) {
       const cropState = this.state.crops[crop.id];
       if (!cropState.owned || cropState.level <= 0) continue;
-      if (stored >= capacity) {
+
+      const directRoute = cropState.autoSell || this.hasActiveContractForCrop(crop.id);
+      if (!directRoute && this.getStorageRemaining() <= 0) {
         cropState.progress = Math.min(cropState.progress, 0.995);
         continue;
       }
 
-      cropState.progress += seconds / this.getGrowthTime(crop.id);
+      const growthTime = this.getGrowthTime(crop.id);
+      cropState.progress += growthTime <= 0
+        ? seconds * this.getInstantCyclesPerSecond(crop.id)
+        : seconds / growthTime;
+
       const cycles = Math.floor(cropState.progress);
       if (cycles < 1) continue;
 
       const perCycle = this.getYield(crop.id);
-      const amount = Math.max(1, Math.floor(cycles * perCycle));
-      const accepted = Math.max(0, Math.min(capacity - stored, amount));
-      if (accepted <= 0) continue;
-
-      cropState.stock += accepted;
-      stored += accepted;
       cropState.progress -= cycles;
-      cropState.totalHarvested += accepted;
-      this.state.stats.totalHarvested += accepted;
-      this.addFarmXP(Math.max(0.4, accepted * 0.22), offline);
+      cropState.productionBuffer = Math.max(0, Number(cropState.productionBuffer) || 0) + cycles * perCycle;
+      const requested = Math.floor(cropState.productionBuffer);
+      if (requested < 1) continue;
+      const routed = this.routeProducedCrop(crop.id, requested, offline);
+      cropState.productionBuffer = Math.max(0, cropState.productionBuffer - routed.accepted);
+      if (routed.accepted < 1) continue;
 
-      if (!offline && accepted >= Math.max(20, perCycle * 4) && Math.random() < 0.025) {
-        this.emit("toast", { message: `${crop.name} trouxe uma colheita especialmente bonita: +${this.formatNumber(accepted)}.` });
+      cropState.totalHarvested += routed.accepted;
+      this.state.stats.totalHarvested += routed.accepted;
+      this.addFarmXP(Math.max(0.4, routed.accepted * 0.22), offline);
+
+      if (!offline && routed.accepted >= Math.max(20, perCycle * 4) && Math.random() < 0.025) {
+        this.emit("toast", { message: `${crop.name} trouxe uma produção especialmente bonita: +${this.formatNumber(routed.accepted)}.` });
       }
     }
+  }
+
+  routeProducedCrop(cropId, amount, silent = false) {
+    const cropState = this.state.crops[cropId];
+    let remaining = Math.max(0, Math.floor(Number(amount) || 0));
+    let delivered = 0;
+    let autoSold = 0;
+    let stored = 0;
+    let gain = 0;
+
+    const contracts = this.state.activeContracts
+      .filter(contract => contract.cropId === cropId && contract.delivered < contract.amount)
+      .sort((a, b) => (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt));
+
+    for (const contract of contracts) {
+      if (remaining < 1) break;
+      const needed = Math.max(0, contract.amount - contract.delivered);
+      const sent = Math.min(remaining, needed);
+      if (sent < 1) continue;
+      contract.delivered += sent;
+      remaining -= sent;
+      delivered += sent;
+      this.state.stats.contractUnitsDelivered += sent;
+      if (contract.delivered >= contract.amount) this.completeContract(contract.id, silent, true);
+    }
+
+    if (remaining > 0 && cropState.autoSell) {
+      autoSold = remaining;
+      gain = Math.floor(autoSold * this.getSalePrice(cropId));
+      this.recordSale(cropId, autoSold, gain, silent);
+      remaining = 0;
+    }
+
+    if (remaining > 0) {
+      stored = Math.min(remaining, this.getStorageRemaining());
+      cropState.stock += stored;
+      remaining -= stored;
+    }
+
+    return {
+      accepted: Math.max(0, amount - remaining),
+      delivered,
+      autoSold,
+      stored,
+      gain,
+      blocked: remaining
+    };
+  }
+
+  hasActiveContractForCrop(cropId) {
+    return this.state.activeContracts.some(contract => contract.cropId === cropId && contract.delivered < contract.amount && contract.timeRemaining > 0);
+  }
+
+  advanceContractTimers(seconds, silent = false) {
+    const elapsed = Math.max(0, Number(seconds) || 0);
+    this.state.activeContracts.forEach(contract => {
+      contract.timeRemaining = Math.max(0, Number(contract.timeRemaining || 0) - elapsed);
+    });
+    this.expireContracts(silent);
+  }
+
+  expireContracts(silent = false) {
+    const expired = this.state.activeContracts.filter(contract => Number(contract.timeRemaining || 0) <= 0 && contract.delivered < contract.amount);
+    if (!expired.length) return [];
+    const ids = new Set(expired.map(contract => contract.id));
+    this.state.activeContracts = this.state.activeContracts.filter(contract => !ids.has(contract.id));
+    this.state.stats.contractsFailed += expired.length;
+    this.state.stats.lifetimeContractsFailed += expired.length;
+    if (!silent) {
+      expired.forEach(contract => {
+        const crop = this.getCrop(contract.cropId);
+        const company = this.getCompany(contract.companyId);
+        this.emit("toast", { message: `O prazo do contrato com ${company.name} terminou. ${this.formatNumber(contract.delivered)} unidades de ${crop.name.toLowerCase()} foram perdidas.` });
+      });
+    }
+    this.ensureContractOffers();
+    return expired;
   }
 
   addFarmXP(amount, silent = false) {
@@ -316,25 +427,43 @@ class GameEngine {
     return this.data.crops.filter(crop => this.state.crops[crop.id]?.owned);
   }
 
-  getGrowthTime(cropId) {
-    const crop = this.getCrop(cropId);
-    const cropState = this.state.crops[cropId];
+  getGlobalGrowthSpeed() {
     const irrigation = Number(this.state.upgrades.irrigation || 0);
     const hydro = Number(this.state.researchTechs.hydroponics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
-    const cropLevel = Math.max(0, cropState.level - 1);
-    const speed = 1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04 + cropLevel * 0.055;
-    return Math.max(1.1, crop.baseGrowth / speed);
+    return 1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04;
+  }
+
+  getGrowthTime(cropId) {
+    const crop = this.getCrop(cropId);
+    const cropState = this.state.crops[cropId];
+    if (!crop || !cropState) return Infinity;
+    const level = Math.max(1, Math.min(GameEngine.MAX_CROP_LEVEL, Number(cropState.level) || 1));
+    if (level >= GameEngine.INSTANT_GROWTH_LEVEL) return 0;
+
+    const levelProgress = Math.max(0, Math.min(1, (level - 1) / (GameEngine.INSTANT_GROWTH_LEVEL - 1)));
+    const levelAdjustedTime = crop.baseGrowth * (1 - levelProgress);
+    return Math.max(0.02, levelAdjustedTime / this.getGlobalGrowthSpeed());
+  }
+
+  getInstantCyclesPerSecond(cropId) {
+    const crop = this.getCrop(cropId);
+    if (!crop) return 0;
+    return Math.max(1, ((GameEngine.INSTANT_GROWTH_LEVEL - 1) * this.getGlobalGrowthSpeed()) / crop.baseGrowth);
   }
 
   getYield(cropId) {
     const crop = this.getCrop(cropId);
-    const cropState = this.state.crops[cropId];
     const fertilizer = Number(this.state.upgrades.fertilizer || 0);
     const genetics = Number(this.state.researchTechs.genetics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
-    const cropLevel = Math.max(0, cropState.level - 1);
-    return crop.baseYield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03 + cropLevel * 0.14);
+    return crop.baseYield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03);
+  }
+
+  getProductionRate(cropId) {
+    const growthTime = this.getGrowthTime(cropId);
+    const cyclesPerSecond = growthTime <= 0 ? this.getInstantCyclesPerSecond(cropId) : 1 / growthTime;
+    return Math.max(0, this.getYield(cropId) * cyclesPerSecond);
   }
 
   getStorageCap() {
@@ -372,6 +501,7 @@ class GameEngine {
   getCropUpgradeCost(cropId, levelOverride = null) {
     const crop = this.getCrop(cropId);
     const level = Math.max(1, Number(levelOverride ?? this.state.crops[cropId]?.level) || 1);
+    if (!crop || level >= GameEngine.MAX_CROP_LEVEL) return Infinity;
     return Math.ceil(Math.max(45, crop.cost * 0.48 + crop.basePrice * 28) * Math.pow(1.48, Math.max(0, level - 1)));
   }
 
@@ -386,7 +516,7 @@ class GameEngine {
     let simulatedLevel = cropState.level;
     const available = Math.max(0, Number(budget) || 0);
 
-    while (levels < GameEngine.MAX_BATCH_UPGRADES) {
+    while (levels < GameEngine.MAX_BATCH_UPGRADES && simulatedLevel < GameEngine.MAX_CROP_LEVEL) {
       const cost = this.getCropUpgradeCost(cropId, simulatedLevel);
       if (!Number.isFinite(cost) || totalCost + cost > available) break;
       totalCost += cost;
@@ -425,7 +555,8 @@ class GameEngine {
     const cropState = this.state.crops[cropId];
     if (!cropState?.owned) return { ok: false, message: "Compre a cultura primeiro." };
 
-    const target = Math.min(GameEngine.MAX_BATCH_UPGRADES, Math.max(1, Math.floor(Number(requestedLevels) || 1)));
+    if (cropState.level >= GameEngine.MAX_CROP_LEVEL) return { ok: false, message: "Esta plantação já alcançou o nível máximo 300." };
+    const target = Math.min(GameEngine.MAX_BATCH_UPGRADES, GameEngine.MAX_CROP_LEVEL - cropState.level, Math.max(1, Math.floor(Number(requestedLevels) || 1)));
     let purchased = 0;
     let totalCost = 0;
 
@@ -454,6 +585,21 @@ class GameEngine {
     return this.upgradeCrop(cropId, affordable.levels);
   }
 
+  recordSale(cropId, sold, gain, silent = false) {
+    const crop = this.getCrop(cropId);
+    const cropState = this.state.crops[cropId];
+    const amount = Math.max(0, Math.floor(Number(sold) || 0));
+    const coins = Math.max(0, Math.floor(Number(gain) || 0));
+    if (!crop || !cropState || amount < 1) return;
+    cropState.totalSold += amount;
+    this.state.stats.totalSold += amount;
+    this.state.stats.lifetimeSold += amount;
+    this.state.stats.soldByCategory[crop.category] = (this.state.stats.soldByCategory[crop.category] || 0) + amount;
+    this.state.stats.lifetimeSoldByCategory[crop.category] = (this.state.stats.lifetimeSoldByCategory[crop.category] || 0) + amount;
+    this.addCoins(coins);
+    this.addFarmXP(Math.max(1, amount * 0.08), silent);
+  }
+
   sellCrop(cropId, amount = Infinity) {
     const crop = this.getCrop(cropId);
     const cropState = this.state.crops[cropId];
@@ -462,13 +608,7 @@ class GameEngine {
     if (sold <= 0) return { ok: false, message: "Escolha uma quantidade válida." };
     const gain = Math.floor(sold * this.getSalePrice(cropId));
     cropState.stock -= sold;
-    cropState.totalSold += sold;
-    this.state.stats.totalSold += sold;
-    this.state.stats.lifetimeSold += sold;
-    this.state.stats.soldByCategory[crop.category] = (this.state.stats.soldByCategory[crop.category] || 0) + sold;
-    this.state.stats.lifetimeSoldByCategory[crop.category] = (this.state.stats.lifetimeSoldByCategory[crop.category] || 0) + sold;
-    this.addCoins(gain);
-    this.addFarmXP(Math.max(1, sold * 0.08));
+    this.recordSale(cropId, sold, gain);
     return { ok: true, sold, gain };
   }
 
@@ -485,6 +625,19 @@ class GameEngine {
       }
     }
     return totalSold > 0 ? { ok: true, sold: totalSold, gain: totalGain } : { ok: false, message: "O estoque ainda está vazio." };
+  }
+
+  setAutoSell(cropId, enabled) {
+    const crop = this.getCrop(cropId);
+    const cropState = this.state.crops[cropId];
+    if (!crop || !cropState?.owned) return { ok: false, message: "Compre a cultura antes de configurar a venda automática." };
+    cropState.autoSell = Boolean(enabled);
+    return { ok: true, crop, enabled: cropState.autoSell };
+  }
+
+  toggleAutoSell(cropId) {
+    const cropState = this.state.crops[cropId];
+    return this.setAutoSell(cropId, !cropState?.autoSell);
   }
 
   addCoins(value) {
@@ -542,6 +695,13 @@ class GameEngine {
       || this.data.companies[0];
     const amount = Math.max(1, Math.floor(Number(contract.amount) || 1));
     const delivered = active ? Math.max(0, Math.min(amount, Math.floor(Number(contract.delivered) || 0))) : 0;
+    const difficulty = ["calm", "standard", "urgent", "bulk"].includes(contract.difficulty) ? contract.difficulty : "standard";
+    const durationSeconds = Math.max(30, Math.floor(Number(contract.durationSeconds) || this.getContractDifficulty(difficulty).duration));
+    const legacyDeadline = Number(contract.deadlineAt || 0);
+    const legacyRemaining = legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : durationSeconds;
+    const timeRemaining = active
+      ? Math.max(0, Number.isFinite(Number(contract.timeRemaining)) ? Number(contract.timeRemaining) : legacyRemaining)
+      : durationSeconds;
     return {
       id: String(contract.id || `contract-${Date.now()}-${this.state?.contractSerial || 1}`),
       companyId: company.id,
@@ -550,9 +710,49 @@ class GameEngine {
       delivered,
       rewardCoins: Math.max(1, Math.floor(Number(contract.rewardCoins) || amount * (this.getCrop(contract.cropId)?.basePrice || 1))),
       rewardResearch: Math.max(0, Math.floor(Number(contract.rewardResearch) || 0)),
+      difficulty,
+      durationSeconds,
+      timeRemaining,
       createdAt: Number(contract.createdAt || Date.now()),
       acceptedAt: active ? Number(contract.acceptedAt || Date.now()) : 0
     };
+  }
+
+  getContractDifficulty(id) {
+    const profiles = {
+      calm: { id: "calm", label: "Prazo confortável", duration: 240, load: 0.55, reward: 1.42, research: 0.35 },
+      standard: { id: "standard", label: "Contrato comercial", duration: 160, load: 0.72, reward: 1.62, research: 0.52 },
+      urgent: { id: "urgent", label: "Entrega urgente", duration: 90, load: 0.90, reward: 1.95, research: 0.7 },
+      bulk: { id: "bulk", label: "Grande fornecimento", duration: 320, load: 0.82, reward: 1.78, research: 0.62 }
+    };
+    return profiles[id] || profiles.standard;
+  }
+
+  chooseContractCrop(owned, offerIndex = 0) {
+    if (owned.length <= 1) return owned[0];
+    const sorted = [...owned].sort((a, b) => a.index - b.index);
+    if (offerIndex === 0) {
+      const recentCount = Math.max(1, Math.ceil(sorted.length * 0.35));
+      const recent = sorted.slice(-recentCount);
+      return recent[Math.floor(Math.random() * recent.length)];
+    }
+    const maxIndex = Math.max(1, sorted.at(-1).index);
+    const weighted = sorted.map(crop => ({
+      crop,
+      weight: 1 + Math.pow(crop.index / maxIndex, 1.25) * 1.65 + (crop.unlockLevel >= this.state.farmLevel - 2 ? 0.45 : 0)
+    }));
+    let roll = Math.random() * weighted.reduce((sum, item) => sum + item.weight, 0);
+    for (const item of weighted) {
+      roll -= item.weight;
+      if (roll <= 0) return item.crop;
+    }
+    return sorted[0];
+  }
+
+  roundContractAmount(value) {
+    const amount = Math.max(5, Number(value) || 5);
+    const step = amount < 50 ? 5 : amount < 250 ? 10 : amount < 1000 ? 25 : amount < 5000 ? 100 : amount < 25000 ? 500 : 1000;
+    return Math.max(5, Math.round(amount / step) * step);
   }
 
   createContractOffers(count = 1) {
@@ -563,23 +763,32 @@ class GameEngine {
       ...(this.state.contractOffers || []).map(contract => contract.companyId),
       ...(this.state.activeContracts || []).map(contract => contract.companyId)
     ]);
+    const difficultyIds = ["calm", "standard", "urgent", "bulk"];
+    const averageLevel = owned.reduce((sum, crop) => sum + Math.max(1, Number(this.state.crops[crop.id]?.level || 1)), 0) / owned.length;
+    const progression = 1 + this.state.farmLevel * 0.006 + Math.log2(owned.length + 1) * 0.05 + Math.min(0.3, averageLevel / 1000);
+
     for (let i = 0; i < count; i += 1) {
-      const crop = owned[Math.floor(Math.random() * owned.length)];
+      const crop = this.chooseContractCrop(owned, i);
       const cropLevel = Math.max(1, Number(this.state.crops[crop.id]?.level || 1));
       const availableCompanies = this.data.companies.filter(company => !usedCompanies.has(company.id));
       const pool = availableCompanies.length ? availableCompanies : this.data.companies;
       const company = pool[Math.floor(Math.random() * pool.length)];
       usedCompanies.add(company.id);
-      const scale = 10 + this.state.farmLevel * 3.2 + cropLevel * 3.8;
-      const variation = 0.78 + Math.random() * 1.05;
-      const roughAmount = Math.max(5, scale * variation);
-      const step = roughAmount < 50 ? 5 : roughAmount < 200 ? 10 : roughAmount < 1000 ? 25 : 100;
-      const amount = Math.max(5, Math.round(roughAmount / step) * step);
+
+      const difficultyId = difficultyIds[Math.floor(Math.random() * difficultyIds.length)];
+      const difficulty = this.getContractDifficulty(difficultyId);
+      const rate = Math.max(0.08, this.getProductionRate(crop.id));
+      const variation = 0.84 + Math.random() * 0.3;
+      const minimumByProgress = 5 + this.state.farmLevel * 2 + owned.length * 2 + Math.floor(cropLevel / 12);
+      const roughAmount = Math.max(minimumByProgress, rate * difficulty.duration * difficulty.load * progression * variation);
+      const amount = this.roundContractAmount(roughAmount);
       const researchLevel = Number(this.state.researchTechs.contractAI || 0);
-      const multiplier = 1.45 + Math.random() * 0.6 + researchLevel * 0.08;
-      const rewardCoins = Math.max(1, Math.floor(amount * this.getSalePrice(crop.id) * multiplier));
-      const researchBase = amount >= 60 && Math.random() < 0.58 ? 1 + Math.floor(this.state.farmLevel / 10) : 0;
+      const rewardMultiplier = difficulty.reward + researchLevel * 0.08;
+      const rewardCoins = Math.max(1, Math.floor(amount * this.getSalePrice(crop.id) * rewardMultiplier));
+      const researchChance = difficulty.research + Math.min(0.2, this.state.farmLevel / 150);
+      const researchBase = amount >= 40 && Math.random() < researchChance ? 1 + Math.floor(Math.log10(amount + 1)) + Math.floor(this.state.farmLevel / 14) : 0;
       const researchBonus = 1 + Number(this.state.prestigeUpgrades.academyLegacy || 0) * 0.1;
+
       result.push({
         id: `contract-${Date.now()}-${this.state.contractSerial++}-${i}`,
         companyId: company.id,
@@ -588,6 +797,9 @@ class GameEngine {
         delivered: 0,
         rewardCoins,
         rewardResearch: Math.floor(researchBase * researchBonus),
+        difficulty: difficulty.id,
+        durationSeconds: difficulty.duration,
+        timeRemaining: difficulty.duration,
         createdAt: Date.now(),
         acceptedAt: 0
       });
@@ -624,7 +836,20 @@ class GameEngine {
     const delivered = Math.max(0, Math.min(amount, Number(contract?.delivered) || 0));
     const remaining = Math.max(0, amount - delivered);
     const stock = Math.max(0, Math.floor(Number(this.state.crops[contract?.cropId]?.stock) || 0));
-    const availableNow = Math.min(stock, remaining);
+    let stockPool = stock;
+    let availableNow = 0;
+    const queue = this.state.activeContracts
+      .filter(item => item.cropId === contract?.cropId && item.delivered < item.amount)
+      .sort((a, b) => (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt));
+    for (const queued of queue) {
+      const queuedRemaining = Math.max(0, queued.amount - queued.delivered);
+      const allocation = Math.min(stockPool, queuedRemaining);
+      if (queued.id === contract?.id) {
+        availableNow = allocation;
+        break;
+      }
+      stockPool -= allocation;
+    }
     const fulfillable = Math.min(amount, delivered + availableNow);
     return {
       delivered,
@@ -634,7 +859,7 @@ class GameEngine {
       fulfillable,
       percent: Math.max(0, Math.min(100, (delivered / amount) * 100)),
       availablePercent: Math.max(0, Math.min(100, (fulfillable / amount) * 100)),
-      readyToComplete: remaining > 0 && stock >= remaining
+      readyToComplete: remaining > 0 && availableNow >= remaining
     };
   }
 
@@ -644,7 +869,7 @@ class GameEngine {
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [offer] = this.state.contractOffers.splice(index, 1);
-    const contract = { ...offer, delivered: 0, acceptedAt: Date.now() };
+    const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), timeRemaining: offer.durationSeconds };
     this.state.activeContracts.push(contract);
     this.ensureContractOffers();
     return { ok: true, contract };
@@ -659,32 +884,47 @@ class GameEngine {
     return { ok: true, contract };
   }
 
+  completeContract(id, silent = false, automatic = false) {
+    const index = this.state.activeContracts.findIndex(contract => contract.id === id);
+    if (index < 0) return null;
+    const contract = this.state.activeContracts[index];
+    if (contract.delivered < contract.amount) return null;
+    this.state.activeContracts.splice(index, 1);
+    this.state.stats.contractsCompleted += 1;
+    this.state.stats.lifetimeContractsCompleted += 1;
+    this.addCoins(contract.rewardCoins);
+    this.state.research += contract.rewardResearch;
+    this.addFarmXP(contract.amount * 0.22 + 10, silent);
+    if (!silent && automatic) {
+      const crop = this.getCrop(contract.cropId);
+      const company = this.getCompany(contract.companyId);
+      this.emit("toast", { message: `Produção direcionada: contrato de ${crop.name.toLowerCase()} com ${company.name} concluído. +${this.formatMoney(contract.rewardCoins)}${contract.rewardResearch ? ` e +${contract.rewardResearch} pesquisa` : ""}.` });
+    }
+    this.ensureContractOffers();
+    return contract;
+  }
+
   deliverContract(id) {
     const index = this.state.activeContracts.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Contrato ativo não encontrado." };
     const contract = this.state.activeContracts[index];
+    if (contract.timeRemaining <= 0) {
+      this.expireContracts(false);
+      return { ok: false, message: "O prazo deste contrato terminou." };
+    }
     const crop = this.getCrop(contract.cropId);
     const cropState = this.state.crops[contract.cropId];
     const progress = this.getContractProgress(contract);
-    const delivered = Math.min(cropState.stock, progress.remaining);
+    const delivered = Math.min(cropState.stock, progress.availableNow, progress.remaining);
     if (delivered < 1) return { ok: false, message: `Produza ${crop.name.toLowerCase()} para continuar este contrato.` };
 
     cropState.stock -= delivered;
     contract.delivered += delivered;
     this.state.stats.contractUnitsDelivered += delivered;
     const completed = contract.delivered >= contract.amount;
-
-    if (completed) {
-      this.state.activeContracts.splice(index, 1);
-      this.state.stats.contractsCompleted += 1;
-      this.state.stats.lifetimeContractsCompleted += 1;
-      this.addCoins(contract.rewardCoins);
-      this.state.research += contract.rewardResearch;
-      this.addFarmXP(contract.amount * 0.22 + 10);
-    }
-
+    const completedContract = completed ? this.completeContract(contract.id, false, false) : null;
     this.ensureContractOffers();
-    return { ok: true, delivered, completed, contract };
+    return { ok: true, delivered, completed, contract: completedContract || contract };
   }
 
   getContractRerollCost() {
@@ -815,6 +1055,7 @@ class GameEngine {
       lifetimeSoldByCategory: { ...this.state.stats.lifetimeSoldByCategory },
       lifetimeOrdersCompleted: this.state.stats.lifetimeOrdersCompleted,
       lifetimeContractsCompleted: this.state.stats.lifetimeContractsCompleted,
+      lifetimeContractsFailed: this.state.stats.lifetimeContractsFailed,
       settings: { ...this.state.settings }
     };
     this.state = this.createState(permanent);
