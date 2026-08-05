@@ -1,7 +1,5 @@
-.firebase
-firestore.rules
-FIREBASE_SETUP.md
-ADSENSE_SETUP.md
+# Firebase CLI
+.firebase/
 
-CHANGELOG.md
+# Logs
 *.log
