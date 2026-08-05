@@ -194,10 +194,14 @@
 
 
   function revealTabHorizontally(container, tab, behavior = "smooth") {
-    if (!container || !tab || container.scrollWidth <= container.clientWidth) return;
-    const target = tab.offsetLeft - (container.clientWidth - tab.offsetWidth) / 2;
+    if (!container || !tab || !window.matchMedia("(max-width: 480px)").matches) return;
     const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
-    container.scrollTo({ left: Math.max(0, Math.min(maximum, target)), behavior });
+    if (maximum <= 1) return;
+    const target = tab.offsetLeft - (container.clientWidth - tab.offsetWidth) / 2;
+    container.scrollTo({
+      left: Math.max(0, Math.min(maximum, target)),
+      behavior
+    });
   }
 
   function setupDragNavigation(container) {
@@ -205,67 +209,57 @@
     container.dataset.dragNavigationReady = "true";
 
     const compactQuery = window.matchMedia("(max-width: 480px)");
-    let pointerId = null;
-    let startX = 0;
-    let startScrollLeft = 0;
-    let latestX = 0;
-    let moved = false;
-    let animationFrame = 0;
-    let suppressClickUntil = 0;
+    const drag = {
+      pointerId: null,
+      startX: 0,
+      startScrollLeft: 0,
+      moved: false,
+      suppressClickUntil: 0
+    };
 
-    const canDrag = () => compactQuery.matches && container.scrollWidth > container.clientWidth + 1;
+    const maximumScroll = () => Math.max(0, container.scrollWidth - container.clientWidth);
+    const canDrag = () => compactQuery.matches && maximumScroll() > 1 && !container.hidden;
+
     const refreshScrollableState = () => {
       const scrollable = canDrag();
       container.classList.toggle("is-drag-scrollable", scrollable);
-      if (!compactQuery.matches) container.scrollLeft = 0;
-      else {
-        const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
-        if (container.scrollLeft > maximum) container.scrollLeft = maximum;
+      if (!compactQuery.matches) {
+        container.scrollLeft = 0;
+        return;
       }
-    };
-
-    const applyDrag = () => {
-      animationFrame = 0;
-      if (pointerId === null || !moved) return;
-      container.scrollLeft = startScrollLeft - (latestX - startX);
+      container.scrollLeft = Math.min(container.scrollLeft, maximumScroll());
     };
 
     const finishDrag = event => {
-      if (pointerId === null) return;
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-        animationFrame = 0;
+      if (drag.pointerId === null) return;
+      if (event && container.hasPointerCapture?.(drag.pointerId)) {
+        try { container.releasePointerCapture(drag.pointerId); } catch (_) {}
       }
-      if (event && container.hasPointerCapture?.(pointerId)) {
-        try { container.releasePointerCapture(pointerId); } catch (_) {}
-      }
-      if (moved) suppressClickUntil = performance.now() + 320;
-      pointerId = null;
-      moved = false;
+      if (drag.moved) drag.suppressClickUntil = performance.now() + 280;
+      drag.pointerId = null;
+      drag.moved = false;
       container.classList.remove("is-dragging");
     };
 
     container.addEventListener("pointerdown", event => {
-      if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0) || !canDrag()) return;
-      pointerId = event.pointerId;
-      startX = event.clientX;
-      latestX = event.clientX;
-      startScrollLeft = container.scrollLeft;
-      moved = false;
-      try { container.setPointerCapture(pointerId); } catch (_) {}
+      if (!canDrag() || !event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+      drag.pointerId = event.pointerId;
+      drag.startX = event.clientX;
+      drag.startScrollLeft = container.scrollLeft;
+      drag.moved = false;
+      try { container.setPointerCapture(event.pointerId); } catch (_) {}
     });
 
     container.addEventListener("pointermove", event => {
-      if (event.pointerId !== pointerId) return;
-      latestX = event.clientX;
-      const delta = latestX - startX;
-      if (!moved && Math.abs(delta) >= 6) {
-        moved = true;
+      if (event.pointerId !== drag.pointerId) return;
+      const delta = event.clientX - drag.startX;
+      if (!drag.moved && Math.abs(delta) >= 5) {
+        drag.moved = true;
         container.classList.add("is-dragging");
       }
-      if (!moved) return;
+      if (!drag.moved) return;
       event.preventDefault();
-      if (!animationFrame) animationFrame = requestAnimationFrame(applyDrag);
+      container.scrollLeft = Math.max(0, Math.min(maximumScroll(), drag.startScrollLeft - delta));
     }, { passive: false });
 
     container.addEventListener("pointerup", finishDrag);
@@ -273,14 +267,21 @@
     container.addEventListener("lostpointercapture", finishDrag);
     container.addEventListener("dragstart", event => event.preventDefault());
     container.addEventListener("click", event => {
-      if (performance.now() < suppressClickUntil) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-      }
+      if (performance.now() >= drag.suppressClickUntil) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
     }, true);
 
     if (typeof ResizeObserver === "function") {
       new ResizeObserver(refreshScrollableState).observe(container);
+    }
+    if (typeof MutationObserver === "function") {
+      new MutationObserver(refreshScrollableState).observe(container, {
+        attributes: true,
+        attributeFilter: ["hidden", "class"],
+        childList: true,
+        subtree: true
+      });
     }
     compactQuery.addEventListener?.("change", refreshScrollableState);
     window.addEventListener("resize", refreshScrollableState, { passive: true });
