@@ -8848,3 +8848,348 @@ button:disabled .inline-resource img,
     text-align: left !important;
   }
 }
+
+/* ========================================================================== */
+/* REVISÃO 27 — consistência de XP, tabs, filtro e Configurações               */
+/* ========================================================================== */
+
+/* A barra de XP preserva a mesma espessura em todos os breakpoints. */
+.farm-progress .soft-progress,
+.app-header .farm-progress .soft-progress {
+  height: 8px !important;
+  min-height: 8px !important;
+  max-height: 8px !important;
+  flex: 0 0 8px !important;
+}
+
+/* Ícone sempre à esquerda e texto sempre à direita, inclusive no celular. */
+.navigation-stack > .main-nav .nav-tab,
+.navigation-stack > .context-nav-column .office-tab,
+.navigation-stack > .context-nav-column .evolution-tab {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-align: left !important;
+}
+.navigation-stack > .main-nav .nav-tab > .nav-tab-icon,
+.navigation-stack > .main-nav .nav-tab > .nav-tab-label,
+.navigation-stack > .context-nav-column .office-tab > span,
+.navigation-stack > .context-nav-column .evolution-tab > span {
+  position: static !important;
+  align-self: center !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+.navigation-stack > .main-nav .nav-tab > .nav-tab-icon {
+  order: 0 !important;
+  flex: 0 0 auto !important;
+}
+.navigation-stack > .main-nav .nav-tab > .nav-tab-label {
+  order: 1 !important;
+  display: inline-block !important;
+  flex: 0 0 auto !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* Em celular, a caixa pai das subabas fica realmente centralizada. */
+@media (max-width: 480px) {
+  .navigation-stack > .context-nav-column {
+    width: fit-content !important;
+    max-width: calc(100vw - 16px) !important;
+    justify-self: center !important;
+    align-self: center !important;
+    justify-content: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .navigation-stack > .context-nav-column .context-tabs,
+  .navigation-stack > .context-nav-column .office-tabs,
+  .navigation-stack > .context-nav-column .evolution-tabs {
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+  .navigation-stack > .main-nav .nav-tab {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Borda interna do Estoque: colada ao contorno e dois pixels mais espessa. */
+.main-nav .stock-nav-tab::before {
+  inset: 0 !important;
+  padding: 4px !important;
+  border-radius: inherit !important;
+}
+
+/* O divisor de Configurações é exatamente a mesma peça usada em Contratos. */
+.experience-divider.contract-section-divider {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: auto !important;
+  margin: 18px 2px 16px !important;
+  background: none !important;
+}
+.experience-divider.contract-section-divider::before,
+.experience-divider.contract-section-divider::after {
+  content: "" !important;
+  display: block !important;
+  flex: 1 1 auto !important;
+  width: auto !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.experience-divider.contract-section-divider::before {
+  background: linear-gradient(90deg, transparent, rgba(79,118,73,.22)) !important;
+}
+.experience-divider.contract-section-divider::after {
+  background: linear-gradient(90deg, rgba(79,118,73,.22), transparent) !important;
+}
+.experience-divider.contract-section-divider > span {
+  display: block !important;
+  flex: 0 0 7px !important;
+  width: 7px !important;
+  height: 7px !important;
+  border: 1px solid rgba(84,126,77,.25) !important;
+  border-radius: 50% !important;
+  background: rgba(238,246,231,.95) !important;
+  box-shadow: 0 0 0 4px rgba(244,248,239,.76) !important;
+}
+
+/* Áudio segue a mesma hierarquia e os mesmos controles de Experiência. */
+.experience-audio-heading {
+  display: block !important;
+  margin: 0 !important;
+}
+.experience-audio-heading h2 {
+  margin: 0 !important;
+  color: var(--ink) !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  letter-spacing: inherit !important;
+}
+.experience-audio-controls {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0 !important;
+  margin-top: 4px !important;
+}
+.experience-audio-controls > .range-setting,
+.experience-audio-controls > .audio-track-setting {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.experience-audio-controls > .range-setting {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(130px, 46%) !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+.experience-audio-controls > .range-setting > span strong {
+  font-size: inherit !important;
+}
+.experience-audio-controls > .audio-track-setting {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+.experience-audio-controls > .audio-track-setting select {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 480px) {
+  .experience-audio-controls > .range-setting {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+}
+
+/* Filtro especial existe apenas na Fazenda; o Estoque mantém suas categorias. */
+#categoryFilter option[value="available"] {
+  font-weight: 800;
+}
+
+/* Ajuste final: Áudio usa exatamente a hierarquia e o ritmo de Experiência. */
+.settings-card .experience-audio-heading h2 {
+  margin: 0 0 14px !important;
+  letter-spacing: -.035em !important;
+}
+.experience-audio-controls > .range-setting {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+  padding: 13px 0 !important;
+  border-top: 1px solid var(--line) !important;
+}
+.experience-audio-controls > .range-setting > span {
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 3px !important;
+  width: 100% !important;
+}
+.experience-audio-controls > .range-setting input {
+  width: 100% !important;
+}
+.experience-audio-controls > .audio-track-setting {
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: space-between !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding: 13px 0 !important;
+  border-top: 1px solid var(--line) !important;
+}
+.experience-audio-controls > .audio-track-setting > span {
+  width: 100% !important;
+}
+.experience-audio-controls > .audio-track-setting select {
+  width: 100% !important;
+  max-width: none !important;
+}
+.settings-card .experience-audio-heading h2 {
+  font-size: 1.5em !important;
+  font-weight: 700 !important;
+  line-height: normal !important;
+}
+
+/* ========================================================================== */
+/* REVISÃO 28 — navegação arrastável, atalho de contratos e novas trilhas     */
+/* ========================================================================== */
+
+/* O filtro especial segue exatamente a tipografia das demais categorias. */
+#categoryFilter option[value="locked"] {
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+
+/* O novo ícone substitui os caracteres de seta do atalho de contratos. */
+.contract-dock-collapse-toggle span {
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+}
+.contract-dock-collapse-toggle img {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain !important;
+  filter: opacity(.72) !important;
+  transform: rotate(180deg) !important;
+  transition: transform .2s ease, filter .2s ease !important;
+}
+.contract-dock-collapse-toggle:hover img {
+  filter: opacity(.92) !important;
+}
+.contract-dock.collapsed .contract-dock-collapse-toggle span {
+  transform: none !important;
+}
+.contract-dock.collapsed .contract-dock-collapse-toggle img {
+  transform: rotate(0deg) !important;
+}
+
+/* A rolagem dos tabs é manipulada por arraste, sem scrollbar visível. */
+.main-nav,
+.navigation-stack > .context-nav-column {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.main-nav::-webkit-scrollbar,
+.navigation-stack > .context-nav-column::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.main-nav.is-dragging,
+.navigation-stack > .context-nav-column.is-dragging {
+  cursor: grabbing !important;
+  user-select: none !important;
+}
+
+/* Celulares: mantém o mesmo porte visual do tablet e permite arrastar. */
+@media (max-width: 480px) {
+  .navigation-stack > .main-nav {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-x: contain !important;
+    cursor: grab !important;
+  }
+  .navigation-stack > .main-nav .nav-tab {
+    display: inline-flex !important;
+    flex: 0 0 144px !important;
+    width: 144px !important;
+    min-width: 144px !important;
+    max-width: 144px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding-inline: 12px !important;
+  }
+  .navigation-stack > .main-nav .nav-tab > .nav-tab-icon,
+  .navigation-stack > .main-nav .nav-tab > .nav-tab-label {
+    position: static !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    transform: none !important;
+  }
+  .navigation-stack > .main-nav .nav-tab > .nav-tab-icon {
+    flex: 0 0 auto !important;
+  }
+  .navigation-stack > .main-nav .nav-tab > .nav-tab-label {
+    flex: 0 0 auto !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  /* A caixa pai das subabas fica centralizada, mesmo quando precisa arrastar. */
+  .navigation-stack > .context-nav-column {
+    display: flex !important;
+    width: fit-content !important;
+    max-width: calc(100vw - 16px) !important;
+    justify-self: center !important;
+    align-self: center !important;
+    justify-content: flex-start !important;
+    margin-inline: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-x: contain !important;
+    cursor: grab !important;
+  }
+  .navigation-stack > .context-nav-column .context-tabs,
+  .navigation-stack > .context-nav-column .office-tabs,
+  .navigation-stack > .context-nav-column .evolution-tabs {
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+  }
+}

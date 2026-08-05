@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 27;
+  static SAVE_VERSION = 29;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -11,6 +11,11 @@ class GameEngine {
   static MAX_FARM_LEVEL = 1000;
   static INSTANT_GROWTH_LEVEL = 300;
   static MIN_INSTANT_GROWTH_LEVEL = 250;
+  static MUSIC_TRACKS = Object.freeze([
+    "betweenLightAndShadows", "pixelSprouts", "moonlitFields", "fieldRain",
+    "electricHarvest", "dirtRoad", "enchantedGreenhouse", "solarFarm",
+    "barnHay", "harvestFestival", "tropicalOrchard"
+  ]);
 
   constructor(onEvent = () => {}) {
     this.data = window.GameData;
@@ -30,7 +35,7 @@ class GameEngine {
       masterVolume: permanent.settings?.masterVolume ?? 100,
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
       musicVolume: permanent.settings?.musicVolume ?? 30,
-      musicTrack: ["farm", "violin"].includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "farm"
+      musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows"
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -190,7 +195,7 @@ class GameEngine {
     merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
     merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
     merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
-    merged.settings.musicTrack = ["farm", "violin"].includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "farm";
+    merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");

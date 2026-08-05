@@ -22,15 +22,24 @@ class SoundEngine {
 
   static DEFAULT_MAPPINGS = SoundEngine.FIXED_MAPPINGS;
   static MUSIC_SOURCES = Object.freeze({
-    farm: "assets/sounds/08_calm_farm_loop_32s.wav",
-    violin: "assets/sounds/08_calm_farm_loop_violin_piano_v2.wav"
+    betweenLightAndShadows: "assets/sounds/music/entre_luz_sombras.wav",
+    pixelSprouts: "assets/sounds/music/brotos_pixelados.wav",
+    moonlitFields: "assets/sounds/music/campos_ao_luar.wav",
+    fieldRain: "assets/sounds/music/chuva_no_campo.wav",
+    electricHarvest: "assets/sounds/music/colheita_eletrizante.wav",
+    dirtRoad: "assets/sounds/music/estrada_de_terra.wav",
+    enchantedGreenhouse: "assets/sounds/music/estufa_encantada.wav",
+    solarFarm: "assets/sounds/music/fazenda_solar.wav",
+    barnHay: "assets/sounds/music/feno_do_celeiro.wav",
+    harvestFestival: "assets/sounds/music/festa_da_colheita.wav",
+    tropicalOrchard: "assets/sounds/music/pomar_tropical.wav"
   });
 
   constructor() {
     this.effectChannel = new Audio();
     this.effectChannel.preload = "auto";
 
-    this.musicTrack = "farm";
+    this.musicTrack = "betweenLightAndShadows";
     this.musicChannel = new Audio(SoundEngine.MUSIC_SOURCES[this.musicTrack]);
     this.musicChannel.preload = "auto";
     this.musicChannel.loop = true;
@@ -47,7 +56,7 @@ class SoundEngine {
     this.effectVolume = SoundEngine.toVolume(settings.effectVolume ?? settings.soundVolume ?? 55);
     this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? 30);
 
-    const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "farm";
+    const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
     if (requestedTrack !== this.musicTrack) {
       this.musicTrack = requestedTrack;
       const absoluteSource = new URL(SoundEngine.MUSIC_SOURCES[this.musicTrack], document.baseURI).href;

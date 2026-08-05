@@ -182,7 +182,7 @@
     const options = Object.entries(engine.data.categories)
       .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`)
       .join("");
-    dom.categoryFilter.insertAdjacentHTML("beforeend", options);
+    dom.categoryFilter.insertAdjacentHTML("beforeend", `<option value="locked">Safras bloqueadas</option>${options}`);
     dom.stockCategoryFilter?.insertAdjacentHTML("beforeend", options);
   }
 
@@ -190,6 +190,63 @@
     const scrolled = window.scrollY > 180;
     document.body.classList.toggle("page-scrolled", scrolled);
     if (dom.backToTop) dom.backToTop.hidden = !scrolled;
+  }
+
+
+  function revealTabHorizontally(container, tab, behavior = "smooth") {
+    if (!container || !tab || container.scrollWidth <= container.clientWidth) return;
+    const target = tab.offsetLeft - (container.clientWidth - tab.offsetWidth) / 2;
+    const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
+    container.scrollTo({ left: Math.max(0, Math.min(maximum, target)), behavior });
+  }
+
+  function setupDragNavigation(container) {
+    if (!container || container.dataset.dragNavigationReady === "true") return;
+    container.dataset.dragNavigationReady = "true";
+    let pointerId = null;
+    let startX = 0;
+    let startScrollLeft = 0;
+    let moved = false;
+    let suppressClickUntil = 0;
+
+    const isMobileNavigation = () => window.matchMedia("(max-width: 480px)").matches;
+    const finishDrag = event => {
+      if (pointerId === null) return;
+      if (event && container.hasPointerCapture?.(pointerId)) {
+        try { container.releasePointerCapture(pointerId); } catch (_) {}
+      }
+      if (moved) suppressClickUntil = performance.now() + 260;
+      pointerId = null;
+      moved = false;
+      container.classList.remove("is-dragging");
+    };
+
+    container.addEventListener("pointerdown", event => {
+      if (!isMobileNavigation() || event.button !== 0 || container.scrollWidth <= container.clientWidth) return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startScrollLeft = container.scrollLeft;
+      moved = false;
+      container.classList.add("is-dragging");
+      try { container.setPointerCapture(pointerId); } catch (_) {}
+    });
+    container.addEventListener("pointermove", event => {
+      if (event.pointerId !== pointerId) return;
+      const delta = event.clientX - startX;
+      if (!moved && Math.abs(delta) >= 5) moved = true;
+      if (!moved) return;
+      container.scrollLeft = startScrollLeft - delta;
+      event.preventDefault();
+    }, { passive: false });
+    container.addEventListener("pointerup", finishDrag);
+    container.addEventListener("pointercancel", finishDrag);
+    container.addEventListener("lostpointercapture", finishDrag);
+    container.addEventListener("click", event => {
+      if (performance.now() < suppressClickUntil) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
   }
 
   function showView(viewId, updateHash = true) {
@@ -202,7 +259,8 @@
       else tab.removeAttribute("aria-current");
     });
     window.requestAnimationFrame(() => {
-      dom.tabs.find(tab => tab.dataset.view === activeView)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+      const activeTab = dom.tabs.find(tab => tab.dataset.view === activeView);
+      revealTabHorizontally(activeTab?.closest(".main-nav"), activeTab);
     });
     dom.contextNavBlocks.forEach(block => {
       const visible = block.dataset.contextFor === activeView;
@@ -233,7 +291,7 @@
     if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${settings.effectVolume ?? 55}%`;
     if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
     if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
-    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = ["farm", "violin"].includes(settings.musicTrack) ? settings.musicTrack : "farm";
+    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -420,6 +478,8 @@
   }
 
   function getCropUpgradeMode(cropId) {
+    const cropState = engine.state.crops[cropId];
+    if (cropState?.level >= GameEngine.MAX_CROP_LEVEL) return "max";
     return cropUpgradeModes.get(cropId) === "max" ? "max" : "one";
   }
 
@@ -445,7 +505,9 @@
     $$('[data-upgrade-mode]', card).forEach(button => {
       const active = button.dataset.upgradeMode === selection.mode;
       button.classList.toggle("active", active);
+      button.disabled = selection.maxed;
       button.setAttribute("aria-pressed", String(active));
+      button.setAttribute("aria-disabled", String(selection.maxed));
     });
     const summary = $('[data-crop-upgrade-summary]', card);
     const action = $('[data-crop-upgrade-action]', card);
@@ -516,8 +578,8 @@
         </div>
         <div class="crop-upgrade-panel crop-upgrade-redesign">
           <div class="upgrade-mode-selector" role="group" aria-label="Quantidade de aprimoramentos">
-            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}">+1</button>
-            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
+            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}" ${selection.maxed ? 'disabled aria-disabled="true"' : ""}>+1</button>
+            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}" ${selection.maxed ? 'disabled aria-disabled="true"' : ""}>Max</button>
           </div>
           <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "Máx." : `+${selection.mode === "max" ? selection.levels : 1}`}</strong></div>
           <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : `Aprimorar ${resourceAmount("coins", -selection.cost, { compact: true })}`}</button>
@@ -530,9 +592,13 @@
     const category = dom.categoryFilter.value;
     const visibleUnlockLevel = engine.state.farmLevel + 1;
     const list = engine.data.crops.filter(crop => {
+      const cropState = engine.state.crops[crop.id];
       const categoryName = engine.data.categories[crop.category];
-      const visibleByProgress = engine.state.crops[crop.id].owned || crop.unlockLevel <= visibleUnlockLevel;
-      return visibleByProgress && (category === "all" || crop.category === category) && (!term || normalize(`${crop.name} ${categoryName}`).includes(term));
+      const visibleByProgress = cropState.owned || crop.unlockLevel <= visibleUnlockLevel;
+      const matchesCategory = category === "locked"
+        ? !cropState.owned && crop.unlockLevel <= engine.state.farmLevel
+        : category === "all" || crop.category === category;
+      return visibleByProgress && matchesCategory && (!term || normalize(`${crop.name} ${categoryName}`).includes(term));
     }).sort((a, b) => a.index - b.index);
 
     dom.cropGrid.innerHTML = list.map(renderCropCard).join("");
@@ -635,9 +701,6 @@
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
     });
-    window.requestAnimationFrame(() => {
-      dom.evolutionTabs.find(tab => tab.dataset.evolutionTab === activeEvolutionTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-    });
     dom.evolutionPanels.forEach(panel => {
       const active = panel.dataset.evolutionPanel === activeEvolutionTab;
       panel.classList.toggle("active", active);
@@ -676,9 +739,6 @@
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
     });
-    window.requestAnimationFrame(() => {
-      dom.officeTabs.find(tab => tab.dataset.officeTab === activeOfficeTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-    });
     dom.officePanels.forEach(panel => {
       const active = panel.dataset.officePanel === activeOfficeTab;
       panel.classList.toggle("active", active);
@@ -696,7 +756,7 @@
     dom.contractDock.classList.add("visible");
     dom.contractDock.classList.toggle("collapsed", contractDockCollapsed);
     const toggleLabel = contractDockCollapsed ? "Expandir acompanhamento de contratos" : "Recolher acompanhamento de contratos";
-    const toggleIcon = contractDockCollapsed ? "⌃" : "⌄";
+    const toggleIcon = `<img src="assets/icons/contract-dock-arrow.png" alt="">`;
     if (contractDockCollapsed) {
       dom.contractDock.innerHTML = `<button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="false" aria-label="${toggleLabel}" title="${toggleLabel}"><span aria-hidden="true">${toggleIcon}</span></button>`;
       return;
@@ -1078,6 +1138,8 @@
   }
 
   function setupEvents() {
+    setupDragNavigation(document.querySelector(".main-nav"));
+    dom.contextNavBlocks.forEach(setupDragNavigation);
     dom.tabs.forEach(tab => tab.addEventListener("click", () => {
       soundEngine.playNavigation();
       showView(tab.dataset.view);
@@ -1085,11 +1147,13 @@
     dom.officeTabs.forEach(tab => tab.addEventListener("click", () => {
       soundEngine.playNavigation();
       showOfficeTab(tab.dataset.officeTab);
+      window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
     }));
     dom.evolutionTabs.forEach(tab => tab.addEventListener("click", () => {
       soundEngine.playNavigation();
       showEvolutionTab(tab.dataset.evolutionTab);
+      window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
     }));
     $$('[data-go-view]').forEach(link => link.addEventListener("click", event => {
