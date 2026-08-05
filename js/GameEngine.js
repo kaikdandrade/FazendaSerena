@@ -1,8 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 28;
+  static SAVE_VERSION = 33;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -11,11 +10,16 @@ class GameEngine {
   static MAX_FARM_LEVEL = 1000;
   static INSTANT_GROWTH_LEVEL = 300;
   static MIN_INSTANT_GROWTH_LEVEL = 250;
+  static MUSIC_TRACKS = Object.freeze([
+    "betweenLightAndShadows", "pixelSprouts", "moonlitFields", "fieldRain",
+    "electricHarvest", "dirtRoad", "enchantedGreenhouse", "solarFarm",
+    "barnHay", "harvestFestival", "tropicalOrchard"
+  ]);
 
-  constructor(onEvent = () => {}) {
+  constructor(onEvent = () => {}, initialState = null) {
     this.data = window.GameData;
     this.onEvent = onEvent;
-    this.state = this.load();
+    this.state = this.load(initialState);
   }
 
   createState(permanent = {}) {
@@ -24,13 +28,11 @@ class GameEngine {
     const prestiges = Number(permanent.prestiges || 0);
     const settings = {
       ambient: permanent.settings?.ambient ?? true,
-      reducedMotion: permanent.settings?.reducedMotion ?? false,
-      compactCards: true,
       uiScale: permanent.settings?.uiScale ?? 100,
       masterVolume: permanent.settings?.masterVolume ?? 100,
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
       musicVolume: permanent.settings?.musicVolume ?? 30,
-      musicTrack: ["farm", "violin"].includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "farm"
+      musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows"
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -106,35 +108,43 @@ class GameEngine {
     };
   }
 
-  load() {
-    let loaded = null;
-    try {
-      const raw = localStorage.getItem(GameEngine.STORAGE_KEY);
-      if (raw) loaded = JSON.parse(raw);
-    } catch (error) {
-      console.warn("Não foi possível ler o save:", error);
-    }
-
-    const state = this.normalizeState(loaded || this.createState());
+  load(initialState = null) {
+    const hasCloudState = Boolean(initialState && typeof initialState === "object");
+    const state = this.normalizeState(hasCloudState ? initialState : this.createState());
     this.state = state;
     this.ensureContractOffers();
     this.expireContracts(true);
 
     const now = Date.now();
-    const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
-    if (elapsed > 0.05) {
-      const before = state.stats.totalHarvested;
-      const failedBefore = state.stats.contractsFailed;
-      this.simulate(elapsed, true);
-      const harvested = Math.max(0, state.stats.totalHarvested - before);
-      const expiredContracts = Math.max(0, state.stats.contractsFailed - failedBefore);
-      if (elapsed >= 10 && harvested > 0) {
-        this.emit("offline", { seconds: elapsed, harvested });
-      }
-      if (expiredContracts > 0) this.emit("contracts-expired-offline", { count: expiredContracts });
+    if (hasCloudState) {
+      const elapsed = Math.max(0, Math.min(
+        GameEngine.MAX_OFFLINE_SECONDS,
+        (now - Number(state.lastUpdate || now)) / 1000
+      ));
+      if (elapsed > 0.05) this.simulate(elapsed, true);
     }
+
     state.lastUpdate = now;
     return state;
+  }
+
+  replaceState(input = null, { simulateOffline = false } = {}) {
+    const hasState = Boolean(input && typeof input === "object");
+    this.state = this.normalizeState(hasState ? input : this.createState());
+    this.ensureContractOffers();
+    this.expireContracts(true);
+
+    const now = Date.now();
+    if (hasState && simulateOffline) {
+      const elapsed = Math.max(0, Math.min(
+        GameEngine.MAX_OFFLINE_SECONDS,
+        (now - Number(this.state.lastUpdate || now)) / 1000
+      ));
+      if (elapsed > 0.05) this.simulate(elapsed, true);
+    }
+
+    this.state.lastUpdate = now;
+    return this.state;
   }
 
   normalizeState(input) {
@@ -183,14 +193,12 @@ class GameEngine {
       orders: {}
     };
 
-    merged.settings.reducedMotion = false;
-    merged.settings.compactCards = true;
     const legacyEffectsEnabled = merged.settings.soundEnabled !== false;
     const legacyMusicEnabled = merged.settings.musicEnabled !== false;
     merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
     merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
     merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
-    merged.settings.musicTrack = ["farm", "violin"].includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "farm";
+    merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");
@@ -392,33 +400,26 @@ class GameEngine {
 
   save() {
     this.state.lastUpdate = Date.now();
-    try {
-      localStorage.setItem(GameEngine.STORAGE_KEY, JSON.stringify(this.state));
-      return true;
-    } catch (error) {
-      console.warn("Não foi possível salvar:", error);
-      return false;
+    if (!window.FirebaseManager?.isAuthenticated()) {
+      return Promise.resolve({ ok: false, reason: "guest" });
     }
+    return window.FirebaseManager.saveGame(this.state);
   }
 
-  replaceState(input, { simulateOffline = true, persist = true } = {}) {
-    const state = this.normalizeState(input);
-    this.state = state;
-    this.ensureContractOffers();
-    this.expireContracts(true);
+  exportSave() {
+    this.state.lastUpdate = Date.now();
+    return JSON.stringify(this.state, null, 2);
+  }
 
-    const now = Date.now();
-    if (simulateOffline) {
-      const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
-      if (elapsed > 0.05) this.simulate(elapsed, true);
-    }
-    state.lastUpdate = now;
-    if (persist) this.save();
-    return state;
+  importSave(text) {
+    const parsed = JSON.parse(String(text || "").trim());
+    this.state = this.normalizeState(parsed);
+    this.ensureContractOffers();
+    this.save();
+    return this.state;
   }
 
   hardReset() {
-    localStorage.removeItem(GameEngine.STORAGE_KEY);
     this.state = this.createState();
     this.state.contractOffers = [];
     this.state.contractCooldowns = [];
@@ -495,10 +496,6 @@ class GameEngine {
       this.state.stats.lifetimeHarvested += routed.accepted;
       this.state.stats.maxStorageUsed = Math.max(this.state.stats.maxStorageUsed, this.getStorageUsed());
       this.addFarmXP(Math.max(0.4, routed.accepted * 0.22), offline);
-
-      if (!offline && routed.accepted >= Math.max(20, perCycle * 4) && Math.random() < 0.025) {
-        this.emit("toast", { message: `${crop.name} trouxe uma produção especialmente bonita: +${this.formatNumber(routed.accepted)}.` });
-      }
     }
   }
 
@@ -557,10 +554,6 @@ class GameEngine {
     return this.state.activeContracts.some(contract => contract.cropId === cropId && contract.delivered < contract.amount && !contract.completedAt && contract.timeRemaining > 0);
   }
 
-  hasActiveAutoOrderForCrop() {
-    return false;
-  }
-
   advanceContractTimers(seconds, silent = false) {
     const elapsed = Math.max(0, Number(seconds) || 0);
     this.state.activeContracts.forEach(contract => {
@@ -577,13 +570,6 @@ class GameEngine {
     this.state.activeContracts = this.state.activeContracts.filter(contract => !ids.has(contract.id));
     this.state.stats.contractsFailed += expired.length;
     this.state.stats.lifetimeContractsFailed += expired.length;
-    if (!silent) {
-      expired.forEach(contract => {
-        const crop = this.getCrop(contract.cropId);
-        const company = this.getCompany(contract.companyId);
-        this.emit("toast", { message: `O prazo do contrato com ${company.name} terminou. ${this.formatNumber(contract.delivered)} unidades de ${crop.name.toLowerCase()} foram perdidas.` });
-      });
-    }
     this.ensureContractOffers();
     return expired;
   }
@@ -693,11 +679,6 @@ class GameEngine {
     return Math.max(GameEngine.BASE_STORAGE_CAPACITY, percentageCapacity + directCapacity);
   }
 
-  getStorageUpgradePercent(id) {
-    const percentages = { reinforcedBarn: 20, coldChain: 20, endlessGranary: 60 };
-    return percentages[id] || 0;
-  }
-
   getDirectStorageExpansionCost() {
     const level = Math.max(0, Number(this.state.storageExpansions || 0));
     return Math.ceil(260 * Math.pow(1.52, level));
@@ -803,22 +784,6 @@ class GameEngine {
   }
 
 
-  getCropUpgradeToMaxCost(cropId) {
-    const cropState = this.state.crops[cropId];
-    if (!cropState?.owned || cropState.level >= GameEngine.MAX_CROP_LEVEL) {
-      return { levels: 0, totalCost: 0, targetLevel: GameEngine.MAX_CROP_LEVEL };
-    }
-    let totalCost = 0;
-    for (let level = cropState.level; level < GameEngine.MAX_CROP_LEVEL; level += 1) {
-      totalCost += this.getCropUpgradeCost(cropId, level);
-    }
-    return {
-      levels: GameEngine.MAX_CROP_LEVEL - cropState.level,
-      totalCost,
-      targetLevel: GameEngine.MAX_CROP_LEVEL
-    };
-  }
-
   isCropUnlocked(cropId) {
     const crop = this.getCrop(cropId);
     return Boolean(crop && this.state.farmLevel >= crop.unlockLevel);
@@ -837,7 +802,6 @@ class GameEngine {
     this.state.stats.maxCropsOwned = Math.max(this.state.stats.maxCropsOwned, this.getOwnedCrops().length);
     this.state.stats.maxCropLevel = Math.max(this.state.stats.maxCropLevel, 1);
     this.ensureContractOffers();
-    this.emit("toast", { message: `${crop.name} agora faz parte da fazenda e recebeu seu primeiro pedido.` });
     return { ok: true };
   }
 
@@ -875,15 +839,6 @@ class GameEngine {
       return { ok: false, message: "Ainda não há moedas suficientes para outro aprimoramento." };
     }
     return this.upgradeCrop(cropId, affordable.levels);
-  }
-
-  upgradeCropToMax(cropId) {
-    const plan = this.getCropUpgradeToMaxCost(cropId);
-    if (plan.levels < 1) return { ok: false, message: "Esta plantação já está no nível máximo." };
-    if (this.state.coins < plan.totalCost) {
-      return { ok: false, message: `Faltam ${this.formatMoney(plan.totalCost - this.state.coins)} para chegar ao nível 300.` };
-    }
-    return this.upgradeCrop(cropId, plan.levels);
   }
 
   recordSale(cropId, sold, gain, silent = false) {
@@ -1304,16 +1259,7 @@ class GameEngine {
     this.state.stats.contractsCompleted += 1;
     this.state.stats.lifetimeContractsCompleted += 1;
     this.addFarmXP(contract.amount * 0.22 + 10, silent);
-    if (!silent && automatic) {
-      const crop = this.getCrop(contract.cropId);
-      const company = this.getCompany(contract.companyId);
-      this.emit("toast", { message: `Contrato de ${crop.name.toLowerCase()} com ${company.name} concluído. A recompensa está pronta no Escritório.` });
-    }
     return contract;
-  }
-
-  completeContract(id, silent = false, automatic = false) {
-    return this.markContractComplete(id, silent, automatic);
   }
 
   claimContractReward(id) {
@@ -1326,26 +1272,6 @@ class GameEngine {
     this.state.research += contract.rewardResearch;
     this.ensureContractOffers();
     return { ok: true, contract };
-  }
-
-  deliverContract(id) {
-    const result = this.deliverStockToContract(id, false);
-    if (!result.contract) return { ok: false, message: "Contrato ativo não encontrado." };
-    if (result.delivered < 1) return { ok: false, message: "Não há unidades disponíveis no estoque para este contrato." };
-    return { ok: true, delivered: result.delivered, completed: result.completed, contract: result.contract };
-  }
-
-  getContractRerollCost() {
-    return Math.max(25, Math.floor(15 + this.state.farmLevel * 9));
-  }
-
-  rerollContracts() {
-    if (!this.getContractEligibleCrops().length) return { ok: false, message: "Evolua a fazenda para liberar culturas e novas propostas." };
-    const cost = this.getContractRerollCost();
-    if (this.state.coins < cost) return { ok: false, message: `Renovar todas as propostas custa ${this.formatMoney(cost)}.` };
-    this.state.coins -= cost;
-    this.state.contractOffers = this.createContractOffers(3);
-    return { ok: true, cost };
   }
 
   getReadyContractCount() {
@@ -1393,14 +1319,6 @@ class GameEngine {
     return { coins: order.rewardCoins, research: order.rewardResearch };
   }
 
-  claimOrderReward() {
-    return { ok: false, message: "Os pedidos agora são concluídos em uma única entrega." };
-  }
-
-  deliverUnitsToOrder() {
-    return { delivered: 0, readyToClaim: false, rewards: { coins: 0, research: 0 }, order: null };
-  }
-
   deliverOrder(cropId) {
     const order = this.getOrder(cropId);
     if (!order) return { ok: false, message: "Compre esta cultura para liberar seus pedidos." };
@@ -1414,14 +1332,6 @@ class GameEngine {
     const rewards = this.completeOrderStage(cropId, order, false);
     const nextOrder = this.getOrder(cropId);
     return { ok: true, delivered: order.amount, order, rewards, seriesComplete: Boolean(nextOrder?.complete), nextOrder };
-  }
-
-  setOrderAutoDelivery() {
-    return { ok: false, message: "A entrega automática de pedidos foi removida." };
-  }
-
-  toggleOrderAutoDelivery() {
-    return { ok: false, message: "A entrega automática de pedidos foi removida." };
   }
 
   getReadyOrderCount() {

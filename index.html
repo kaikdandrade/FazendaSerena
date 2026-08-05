@@ -9,14 +9,14 @@
 <title>Agricultura Industrial — Fazenda Serena</title>
 <link href="assets/icons/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="css/style.css" rel="stylesheet"/>
-<script src="js/firebase-config.js"></script>
-<script type="module" src="js/firebaseManager.js"></script>
+<script defer="" src="js/firebase-config.js"></script>
+<script defer="" src="js/firebaseManager.js"></script>
 <script defer="" src="js/data.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
 <script defer="" src="js/GameEngine.js"></script>
 <script defer="" src="js/main.js"></script>
 </head>
-<body>
+<body class="compact-cards">
 <div aria-hidden="true" class="ambient-layer">
 <span class="ambient-orb orb-one"></span>
 <span class="ambient-orb orb-two"></span>
@@ -65,7 +65,7 @@
 <button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/warehouse.png"/></span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
 <button class="nav-tab" data-view="evolveView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/tools.png"/></span><span class="nav-tab-label">Evoluções</span></button>
 <button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/clipboard.png"/></span><span class="nav-tab-label">Escritório</span></button>
-<button class="nav-tab profile-nav-tab" data-view="profileView" type="button"><span class="nav-tab-icon profile-nav-icon" aria-hidden="true">●</span><span class="nav-tab-label">Perfil</span></button>
+<button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
 
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
@@ -79,11 +79,6 @@
 <button aria-selected="true" class="office-tab active" data-office-tab="contracts" role="tab" type="button"><span><i><img alt="" src="assets/icons/commercial-contract.png"/></i> Contratos</span><b id="contractTabCount">0</b></button>
 <button aria-selected="false" class="office-tab" data-office-tab="orders" role="tab" type="button"><span><i><img alt="" src="assets/icons/package.png"/></i> Pedidos</span><b id="orderTabCount">0</b></button>
 <button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" type="button"><span><i><img alt="" src="assets/icons/graduation-cap.png"/></i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" type="button"><span><i><img alt="" src="assets/icons/field-map.png"/></i> Estatísticas</span></button>
-</nav>
-</aside><aside aria-label="Navegação do perfil" class="context-nav-column context-nav-block" data-context-for="profileView" hidden="">
-<nav aria-label="Seções do perfil" class="profile-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="profile-tab active" data-profile-tab="account" role="tab" type="button"><span><i class="profile-tab-person" aria-hidden="true">●</i> Perfil do jogador</span></button>
-<button aria-selected="false" class="profile-tab" data-profile-tab="settings" role="tab" type="button"><span><i><img alt="" src="assets/icons/settings.png"/></i> Configurações</span></button>
 </nav>
 </aside></aside>
 <main class="game-main">
@@ -231,69 +226,35 @@
 </section>
 </div></section></div>
 </section>
-<section class="view" data-view-panel="profileView" id="profileView">
-<div class="section-heading profile-heading">
+<section class="view" data-view-panel="settingsView" id="settingsView">
+<div class="section-heading">
 <div>
-<p class="eyebrow">sua conta na fazenda</p>
-<h1>Perfil</h1>
-<p class="section-copy">Entre para manter o progresso sincronizado pelo Firebase.</p>
+<p class="eyebrow">seu jeito de jogar</p>
+<h1>Configurações</h1>
 </div>
 </div>
-<div class="profile-workspace panel-card">
-<section class="profile-panel active" data-profile-panel="account" role="tabpanel">
-<div class="profile-account-layout">
-<article class="profile-identity-card">
-<div class="profile-avatar" id="profileAvatar" aria-hidden="true"><span>FS</span><img alt="" id="profileAvatarImage" hidden=""/></div>
-<div class="profile-identity-copy">
-<p class="eyebrow" id="profileIdentityEyebrow">jogador local</p>
-<h2 id="profileDisplayName">Fazendeiro visitante</h2>
-<p id="profileEmail">Entre para levar sua fazenda para outros dispositivos.</p>
+<div class="settings-grid">
+<article class="panel-card settings-card account-settings-card">
+<div class="account-settings-head">
+<div class="account-avatar-shell">
+<img alt="" id="accountAvatar" src="assets/logo.png"/>
 </div>
-<span class="cloud-status-badge" data-status="unconfigured" id="cloudStatusBadge">Firebase pendente</span>
-</article>
-
-<article class="profile-auth-card" id="loggedOutProfile">
-<div class="profile-card-heading">
-<div><p class="eyebrow">conta da fazenda</p><h2>Entrar ou criar conta</h2></div>
-<p>Use e-mail e senha ou continue com sua Conta Google.</p>
+<div class="account-identity">
+<p class="eyebrow">conta e nuvem</p>
+<h2 id="accountName">Visitante</h2>
+<p id="accountDescription">Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.</p>
 </div>
-<form class="profile-auth-form" id="emailAuthForm">
-<label><span>E-mail</span><input autocomplete="email" id="firebaseEmail" inputmode="email" placeholder="voce@exemplo.com" required="" type="email"/></label>
-<label><span>Senha</span><input autocomplete="current-password" id="firebasePassword" minlength="6" placeholder="Mínimo de 6 caracteres" required="" type="password"/></label>
-<div class="profile-auth-actions">
-<button class="button primary" id="emailSignIn" type="submit">Entrar</button>
-<button class="button secondary" id="emailSignUp" type="button">Criar conta</button>
+<span class="cloud-save-badge guest" id="cloudSaveBadge">Não salvo</span>
 </div>
-<button class="profile-password-reset" id="passwordReset" type="button">Esqueci minha senha</button>
-</form>
-<div class="auth-divider"><span>ou</span></div>
-<button class="button google-signin-button" id="googleSignIn" type="button"><b aria-hidden="true">G</b><span>Continuar com Google</span></button>
-</article>
-
-<article class="profile-auth-card signed-profile-card" id="loggedInProfile" hidden="">
-<div class="profile-card-heading">
-<div><p class="eyebrow">conta conectada</p><h2>Sincronização ativa</h2></div>
-<p>O progresso continua salvo localmente para uso offline e é enviado ao Firestore automaticamente.</p>
+<div class="account-save-status">
+<span aria-hidden="true"></span>
+<small id="cloudSaveStatus">Entre com o Google para ativar o save automático na nuvem.</small>
 </div>
-<div class="cloud-details">
-<div><small>Estado da nuvem</small><strong id="cloudStatusText">Preparando sincronização...</strong></div>
-<div><small>Última sincronização</small><strong id="cloudLastSync">Ainda não sincronizado</strong></div>
-</div>
-<div class="profile-auth-actions">
-<button class="button primary" id="syncCloudNow" type="button">Sincronizar agora</button>
-<button class="button secondary" id="firebaseSignOut" type="button">Sair da conta</button>
+<div class="button-row account-actions">
+<button class="button google-sign-in-button" id="googleSignIn" type="button"><span aria-hidden="true">G</span> Entrar com o Google</button>
+<button class="button secondary" hidden="" id="googleSignOut" type="button">Sair da conta</button>
 </div>
 </article>
-
-<p aria-live="polite" class="firebase-message" id="firebaseMessage">Carregando o Firebase...</p>
-</div>
-</section>
-
-<section class="profile-panel" data-profile-panel="settings" hidden="" role="tabpanel">
-<div class="section-heading compact-heading profile-settings-heading">
-<div><p class="eyebrow">seu jeito de jogar</p><h2>Configurações</h2></div>
-</div>
-<div class="settings-grid profile-settings-grid">
 <article class="panel-card settings-card experience-settings-card">
 <h2>Experiência</h2>
 <label class="setting-row">
@@ -305,19 +266,52 @@
 <input id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
 </label>
 <div class="contract-section-divider experience-divider" aria-hidden="true"><span></span></div>
-<div class="experience-audio-heading"><h2>Áudio</h2></div>
+<div class="experience-audio-heading">
+<h2>Áudio</h2>
+</div>
 <div class="experience-audio-controls">
-<label class="range-setting"><span><strong>Volume geral</strong><small id="masterVolumeText">100%</small></span><input id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/></label>
-<label class="range-setting"><span><strong>Volume dos efeitos</strong><small id="effectVolumeText">55%</small></span><input id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/></label>
-<label class="range-setting"><span><strong>Volume da música</strong><small id="musicVolumeText">30%</small></span><input id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/></label>
-<label class="setting-row audio-track-setting"><span><strong>Trilha sonora</strong><small>Escolha a música ambiente da fazenda.</small></span><select id="musicTrackSetting"><option value="farm">Fazenda Serena</option><option value="violin">Violino e piano</option></select></label>
+<label class="range-setting">
+<span><strong>Volume geral</strong><small id="masterVolumeText">100%</small></span>
+<input id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/>
+</label>
+<label class="range-setting">
+<span><strong>Volume dos efeitos</strong><small id="effectVolumeText">55%</small></span>
+<input id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
+</label>
+<label class="range-setting">
+<span><strong>Volume da música</strong><small id="musicVolumeText">30%</small></span>
+<input id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/>
+</label>
+<label class="setting-row audio-track-setting">
+<span><strong>Trilha sonora</strong><small>Escolha a música ambiente da fazenda.</small></span>
+<select id="musicTrackSetting">
+<option value="betweenLightAndShadows">Entre Luz e Sombras</option>
+<option value="pixelSprouts">Brotos Pixelados</option>
+<option value="moonlitFields">Campos ao Luar</option>
+<option value="fieldRain">Chuva no Campo</option>
+<option value="electricHarvest">Colheita Eletrizante</option>
+<option value="dirtRoad">Estrada de Terra</option>
+<option value="enchantedGreenhouse">Estufa Encantada</option>
+<option value="solarFarm">Fazenda Solar</option>
+<option value="barnHay">Feno do Celeiro</option>
+<option value="harvestFestival">Festa da Colheita</option>
+<option value="tropicalOrchard">Pomar Tropical</option>
+</select>
+</label>
 </div>
 </article>
-<article class="panel-card settings-card account-data-card">
-<h2>Dados da fazenda</h2>
-<p>O save é automático. Com uma conta conectada, o Firestore substitui a antiga transferência manual de arquivos.</p>
-<div class="account-data-status"><span aria-hidden="true">☁</span><div><strong id="settingsCloudTitle">Cópia local ativa</strong><small id="settingsCloudCopy">Entre no perfil para ativar a nuvem.</small></div></div>
+<article class="panel-card settings-card cloud-transfer-card">
+<h2>Save na nuvem e transferência</h2>
+<p id="cloudSaveDescription">Visitantes não possuem save persistente. Entre com o Google para salvar automaticamente no Firestore.</p>
+<div class="button-row">
+<button class="button primary" disabled="" id="saveNow" type="button">Salvar agora</button>
+<button class="button secondary" id="exportSave" type="button">Baixar save</button>
+</div>
+<textarea id="saveBox" placeholder="O save exportado aparece aqui. Também é possível colar um save para importá-lo."></textarea>
+<div class="button-row">
+<button class="button secondary" id="importSave" type="button">Importar texto</button>
 <button class="button danger" id="resetGame" type="button">Apagar progresso</button>
+</div>
 </article>
 <article class="panel-card settings-card guide-card">
 <div class="guide-heading"><div><p class="eyebrow">manual da fazenda</p><h2>Como jogar</h2></div><p>Um resumo visual do ciclo principal e das prioridades automáticas.</p></div>
@@ -329,8 +323,6 @@
 <section><span>05</span><div><h3>Use o escritório</h3><p>Escolha entre seis propostas, mantenha até três contratos ativos, avance pedidos permanentes e receba recompensas de missões em etapas.</p></div></section>
 <section><span>06</span><div><h3>Invista e prestigie</h3><p>Aprimoramentos usam moedas, pesquisas usam pontos de pesquisa e legados usam prestígio. O prestígio desbloqueia no nível 15 e inicia uma nova jornada.</p></div></section>
 </div></article>
-</div>
-</section>
 </div>
 </section>
 </main>
@@ -347,6 +339,5 @@
 </section>
 <button aria-label="Subir ao início da página" class="back-to-top" hidden="" id="backToTop" type="button"><strong>Subir</strong></button>
 <aside aria-label="Acompanhamento dos contratos ativos" class="contract-dock" id="contractDock"></aside>
-<div aria-atomic="true" aria-live="polite" class="toast-zone" id="toastZone"></div>
 </body>
 </html>

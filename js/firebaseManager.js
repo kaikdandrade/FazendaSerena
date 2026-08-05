@@ -1,322 +1,244 @@
-let initializeApp;
-let browserLocalPersistence;
-let createUserWithEmailAndPassword;
-let getAuth;
-let GoogleAuthProvider;
-let onAuthStateChanged;
-let sendPasswordResetEmail;
-let setPersistence;
-let signInWithEmailAndPassword;
-let signInWithPopup;
-let firebaseSignOut;
-let updateProfile;
-let deleteDoc;
-let doc;
-let getDoc;
-let getFirestore;
-let serverTimestamp;
-let setDoc;
+"use strict";
 
-async function loadFirebaseSdk() {
-  const [appSdk, authSdk, firestoreSdk] = await Promise.all([
-    import("https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js"),
-    import("https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js"),
-    import("https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js")
-  ]);
+/*
+ * Integração exclusiva com Firebase Authentication e Cloud Firestore.
+ * O jogo nunca grava progresso no localStorage. Visitantes jogam apenas em
+ * memória; usuários autenticados mantêm um único save privado na nuvem.
+ */
+class FirebaseManager {
+  static SDK_VERSION = "12.17.0";
+  static SAVE_COLLECTION = "players";
+  static SAVE_SUBCOLLECTION = "saves";
+  static SAVE_DOCUMENT = "main";
 
-  ({ initializeApp } = appSdk);
-  ({
-    browserLocalPersistence,
-    createUserWithEmailAndPassword,
-    getAuth,
-    GoogleAuthProvider,
-    onAuthStateChanged,
-    sendPasswordResetEmail,
-    setPersistence,
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut: firebaseSignOut,
-    updateProfile
-  } = authSdk);
-  ({ deleteDoc, doc, getDoc, getFirestore, serverTimestamp, setDoc } = firestoreSdk);
-}
-
-const FIREBASE_SAVE_COLLECTION = "players";
-const listeners = new Set();
-
-const state = {
-  configured: false,
-  ready: false,
-  busy: false,
-  user: null,
-  cloudStatus: "unconfigured",
-  message: "Adicione as chaves do Firebase para ativar a conta.",
-  lastSyncedAt: null
-};
-
-let app = null;
-let auth = null;
-let db = null;
-
-function publicUser(user) {
-  if (!user) return null;
-  return {
-    uid: user.uid,
-    displayName: user.displayName || "",
-    email: user.email || "",
-    photoURL: user.photoURL || "",
-    emailVerified: Boolean(user.emailVerified),
-    providerIds: (user.providerData || []).map(item => item.providerId).filter(Boolean)
-  };
-}
-
-function snapshot() {
-  return {
-    ...state,
-    user: state.user ? { ...state.user, providerIds: [...state.user.providerIds] } : null
-  };
-}
-
-function emit(patch = {}) {
-  Object.assign(state, patch);
-  const current = snapshot();
-  listeners.forEach(listener => {
-    try { listener(current); } catch (error) { console.warn("Falha ao atualizar a interface do Firebase:", error); }
-  });
-  window.dispatchEvent(new CustomEvent("fazenda-firebase-state", { detail: current }));
-}
-
-function isPlaceholder(value) {
-  const text = String(value || "").trim();
-  return !text || /COLE_|SEU_PROJETO|XXXXXXXX/i.test(text);
-}
-
-function hasValidConfig(config) {
-  return Boolean(config)
-    && !isPlaceholder(config.apiKey)
-    && !isPlaceholder(config.authDomain)
-    && !isPlaceholder(config.projectId)
-    && !isPlaceholder(config.appId);
-}
-
-function friendlyError(error) {
-  const code = String(error?.code || "");
-  const messages = {
-    "auth/invalid-email": "Digite um e-mail válido.",
-    "auth/invalid-credential": "E-mail ou senha incorretos.",
-    "auth/user-disabled": "Esta conta foi desativada.",
-    "auth/email-already-in-use": "Este e-mail já possui uma conta.",
-    "auth/weak-password": "Use uma senha com pelo menos 6 caracteres.",
-    "auth/popup-closed-by-user": "A janela de login foi fechada antes da conclusão.",
-    "auth/popup-blocked": "O navegador bloqueou a janela de login do Google.",
-    "auth/cancelled-popup-request": "Já existe uma tentativa de login em andamento.",
-    "auth/network-request-failed": "Não foi possível acessar o Firebase. Verifique a conexão.",
-    "auth/too-many-requests": "Muitas tentativas. Aguarde um pouco antes de tentar novamente.",
-    "permission-denied": "O Firestore recusou o acesso. Confira as regras de segurança.",
-    "failed-precondition": "O Firestore ainda não está configurado para este projeto."
-  };
-  return messages[code] || error?.message || "Não foi possível concluir a operação no Firebase.";
-}
-
-function requireConfigured() {
-  if (!state.configured || !auth || !db) {
-    throw new Error("O Firebase ainda não foi configurado em js/firebase-config.js.");
+  constructor() {
+    this.available = false;
+    this.currentUser = null;
+    this.initialAuthResolved = false;
+    this.authListeners = new Set();
+    this.saveQueue = Promise.resolve();
+    this.initialization = this.initialize();
   }
-}
 
-function requireUser() {
-  requireConfigured();
-  if (!auth.currentUser) throw new Error("Entre em uma conta para acessar o save na nuvem.");
-  return auth.currentUser;
-}
+  async initialize() {
+    try {
+      if (!window.FIREBASE_CONFIG) {
+        throw new Error("A configuração do Firebase não foi carregada.");
+      }
 
-function saveReference(uid) {
-  return doc(db, FIREBASE_SAVE_COLLECTION, uid);
-}
+      const version = FirebaseManager.SDK_VERSION;
+      const sdkImports = Promise.all([
+        import(`https://www.gstatic.com/firebasejs/${version}/firebase-app.js`),
+        import(`https://www.gstatic.com/firebasejs/${version}/firebase-auth.js`),
+        import(`https://www.gstatic.com/firebasejs/${version}/firebase-firestore.js`)
+      ]);
+      const importTimeout = new Promise((_, reject) => {
+        window.setTimeout(() => reject(new Error("O carregamento do SDK do Firebase excedeu o tempo limite.")), 8000);
+      });
+      const [appSdk, authSdk, firestoreSdk] = await Promise.race([sdkImports, importTimeout]);
 
-async function withBusy(task, startMessage) {
-  emit({ busy: true, message: startMessage || state.message });
-  try {
-    return await task();
-  } catch (error) {
-    const message = friendlyError(error);
-    emit({ cloudStatus: "error", message });
-    throw new Error(message, { cause: error });
-  } finally {
-    emit({ busy: false });
+      this.sdk = { ...appSdk, ...authSdk, ...firestoreSdk };
+      this.app = appSdk.initializeApp(window.FIREBASE_CONFIG);
+      this.auth = authSdk.getAuth(this.app);
+      this.db = firestoreSdk.getFirestore(this.app);
+
+      try {
+        await authSdk.setPersistence(this.auth, authSdk.indexedDBLocalPersistence);
+      } catch (indexedDbError) {
+        try {
+          await authSdk.setPersistence(this.auth, authSdk.browserLocalPersistence);
+        } catch (error) {
+          console.warn("Não foi possível manter a sessão do Firebase:", error);
+        }
+      }
+
+      const initialAuthState = new Promise(resolve => {
+        authSdk.onAuthStateChanged(
+          this.auth,
+          user => {
+            this.currentUser = user || null;
+            const firstResolution = !this.initialAuthResolved;
+            this.initialAuthResolved = true;
+            this.emitAuthState();
+            if (firstResolution) resolve(this.currentUser);
+          },
+          error => {
+            console.warn("Falha ao observar a autenticação:", error);
+            this.currentUser = null;
+            this.initialAuthResolved = true;
+            this.emitAuthState(error);
+            resolve(null);
+          }
+        );
+      });
+      await Promise.race([
+        initialAuthState,
+        new Promise(resolve => window.setTimeout(() => {
+          if (!this.initialAuthResolved) {
+            this.initialAuthResolved = true;
+            this.emitAuthState();
+          }
+          resolve(null);
+        }, 5000))
+      ]);
+
+      this.available = true;
+      return this.currentUser;
+    } catch (error) {
+      console.warn("Firebase indisponível:", error);
+      this.available = false;
+      this.currentUser = null;
+      this.initialAuthResolved = true;
+      this.emitAuthState(error);
+      return null;
+    }
   }
-}
 
-const FirebaseManager = {
-  getState: snapshot,
+  async ready() {
+    await this.initialization;
+    return this.currentUser;
+  }
 
-  subscribe(listener) {
+  isAvailable() {
+    return this.available;
+  }
+
+  isAuthenticated() {
+    return Boolean(this.currentUser);
+  }
+
+  getUser() {
+    return this.currentUser;
+  }
+
+  subscribeAuth(listener) {
     if (typeof listener !== "function") return () => {};
-    listeners.add(listener);
-    listener(snapshot());
-    return () => listeners.delete(listener);
-  },
+    this.authListeners.add(listener);
+    if (this.initialAuthResolved) {
+      queueMicrotask(() => listener(this.currentUser, null));
+    }
+    return () => this.authListeners.delete(listener);
+  }
 
-  async signInWithGoogle() {
-    requireConfigured();
-    return withBusy(async () => {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: "select_account" });
-      const credential = await signInWithPopup(auth, provider);
-      emit({ message: "Login com Google concluído." });
-      return publicUser(credential.user);
-    }, "Abrindo o login do Google...");
-  },
+  emitAuthState(error = null) {
+    this.authListeners.forEach(listener => {
+      try {
+        listener(this.currentUser, error);
+      } catch (listenerError) {
+        console.warn(listenerError);
+      }
+    });
+  }
 
-  async signInWithEmail(email, password) {
-    requireConfigured();
-    return withBusy(async () => {
-      const credential = await signInWithEmailAndPassword(auth, String(email || "").trim(), String(password || ""));
-      emit({ message: "Login concluído." });
-      return publicUser(credential.user);
-    }, "Entrando na conta...");
-  },
+  emitSaveStatus(status, extra = {}) {
+    window.dispatchEvent(new CustomEvent("firebase-save-status", {
+      detail: { status, ...extra }
+    }));
+  }
 
-  async createAccount(email, password) {
-    requireConfigured();
-    return withBusy(async () => {
-      const normalizedEmail = String(email || "").trim();
-      const credential = await createUserWithEmailAndPassword(auth, normalizedEmail, String(password || ""));
-      const suggestedName = normalizedEmail.split("@")[0].slice(0, 32);
-      if (suggestedName) await updateProfile(credential.user, { displayName: suggestedName });
-      emit({ user: publicUser(auth.currentUser), message: "Conta criada e conectada." });
-      return publicUser(auth.currentUser);
-    }, "Criando a conta...");
-  },
-
-  async resetPassword(email) {
-    requireConfigured();
-    const normalizedEmail = String(email || "").trim();
-    if (!normalizedEmail) throw new Error("Digite o e-mail da conta primeiro.");
-    return withBusy(async () => {
-      await sendPasswordResetEmail(auth, normalizedEmail);
-      emit({ message: "E-mail de recuperação enviado." });
-      return true;
-    }, "Enviando recuperação de senha...");
-  },
-
-  async signOut() {
-    requireConfigured();
-    return withBusy(async () => {
-      await firebaseSignOut(auth);
-      emit({ cloudStatus: "local", message: "Você saiu da conta. O jogo continua salvo neste navegador." });
-      return true;
-    }, "Saindo da conta...");
-  },
+  getSaveReference(user = this.currentUser) {
+    if (!user || !this.db || !this.sdk) return null;
+    return this.sdk.doc(
+      this.db,
+      FirebaseManager.SAVE_COLLECTION,
+      user.uid,
+      FirebaseManager.SAVE_SUBCOLLECTION,
+      FirebaseManager.SAVE_DOCUMENT
+    );
+  }
 
   async loadGame() {
-    const user = requireUser();
-    emit({ cloudStatus: "loading", message: "Buscando o progresso da conta..." });
+    await this.ready();
+    const user = this.currentUser;
+    const reference = this.getSaveReference(user);
+    if (!user || !reference) return null;
+
+    this.emitSaveStatus("loading");
     try {
-      const snapshotDoc = await getDoc(saveReference(user.uid));
-      if (!snapshotDoc.exists()) {
-        emit({ cloudStatus: "empty", message: "Esta conta ainda não possui progresso na nuvem." });
+      const snapshot = await this.sdk.getDoc(reference);
+      if (!snapshot.exists()) {
+        this.emitSaveStatus("empty");
         return null;
       }
-      const data = snapshotDoc.data() || {};
-      emit({
-        cloudStatus: "loaded",
-        message: "Progresso da nuvem encontrado.",
-        lastSyncedAt: Number(data.clientUpdatedAt || 0) || null
-      });
-      return {
-        save: data.save || null,
-        clientUpdatedAt: Number(data.clientUpdatedAt || 0) || null,
-        saveVersion: Number(data.saveVersion || data.save?.version || 0) || 0
-      };
-    } catch (error) {
-      const message = friendlyError(error);
-      emit({ cloudStatus: "error", message });
-      throw new Error(message, { cause: error });
-    }
-  },
 
-  async saveGame(gameState) {
-    const user = requireUser();
-    const cleanState = JSON.parse(JSON.stringify(gameState || {}));
-    const clientUpdatedAt = Date.now();
-    emit({ cloudStatus: "saving", message: "Sincronizando o progresso..." });
-    try {
-      await setDoc(saveReference(user.uid), {
-        save: cleanState,
-        saveVersion: Number(cleanState.version || 0),
-        clientUpdatedAt,
-        updatedAt: serverTimestamp(),
-        profile: {
-          displayName: user.displayName || "",
-          email: user.email || "",
-          photoURL: user.photoURL || ""
+      const data = snapshot.data();
+      const state = data?.state && typeof data.state === "object" ? data.state : null;
+      this.emitSaveStatus(state ? "loaded" : "empty", {
+        savedAt: data?.updatedAt?.toDate?.() || null
+      });
+      return state;
+    } catch (error) {
+      this.emitSaveStatus("error", { error });
+      throw error;
+    }
+  }
+
+  saveGame(state) {
+    const snapshot = JSON.parse(JSON.stringify(state || {}));
+
+    this.saveQueue = this.saveQueue
+      .catch(() => {})
+      .then(async () => {
+        await this.ready();
+        const user = this.currentUser;
+        const reference = this.getSaveReference(user);
+        if (!user || !reference) {
+          this.emitSaveStatus("guest");
+          return { ok: false, reason: "guest" };
         }
-      }, { merge: true });
-      emit({ cloudStatus: "synced", message: "Progresso sincronizado com a nuvem.", lastSyncedAt: clientUpdatedAt });
-      return true;
-    } catch (error) {
-      const message = friendlyError(error);
-      emit({ cloudStatus: "error", message });
-      throw new Error(message, { cause: error });
-    }
-  },
 
-  async deleteGame() {
-    const user = requireUser();
-    return withBusy(async () => {
-      await deleteDoc(saveReference(user.uid));
-      emit({ cloudStatus: "empty", message: "O progresso anterior foi removido da nuvem.", lastSyncedAt: null });
-      return true;
-    }, "Removendo o progresso da nuvem...");
-  }
-};
-
-window.FirebaseManager = FirebaseManager;
-window.dispatchEvent(new CustomEvent("fazenda-firebase-manager-ready", { detail: FirebaseManager }));
-
-async function initializeFirebase() {
-  const config = window.FIREBASE_CONFIG;
-  if (!hasValidConfig(config)) {
-    emit({
-      configured: false,
-      ready: true,
-      cloudStatus: "unconfigured",
-      message: "Firebase não configurado. Preencha js/firebase-config.js."
-    });
-    return;
-  }
-
-  try {
-    emit({ configured: true, ready: false, cloudStatus: "loading", message: "Carregando os serviços do Firebase..." });
-    await loadFirebaseSdk();
-    app = initializeApp(config);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    try {
-      await setPersistence(auth, browserLocalPersistence);
-    } catch (error) {
-      console.warn("A persistência local da sessão do Firebase não pôde ser ativada:", error);
-    }
-    emit({ configured: true, ready: true, cloudStatus: "local", message: "Firebase pronto. Entre para sincronizar sua fazenda." });
-
-    onAuthStateChanged(auth, user => {
-      emit({
-        user: publicUser(user),
-        cloudStatus: user ? "loading" : "local",
-        message: user ? "Conta conectada. Preparando a sincronização..." : "Entre para sincronizar o progresso entre dispositivos."
+        this.emitSaveStatus("saving");
+        try {
+          const savedAt = new Date();
+          await this.sdk.setDoc(reference, {
+            state: snapshot,
+            saveVersion: Number(snapshot.version || 0),
+            updatedAt: this.sdk.serverTimestamp(),
+            updatedAtClient: savedAt.getTime()
+          });
+          this.emitSaveStatus("saved", { savedAt });
+          return { ok: true, savedAt };
+        } catch (error) {
+          this.emitSaveStatus("error", { error });
+          console.warn("Não foi possível salvar no Firestore:", error);
+          return { ok: false, reason: "firestore", error };
+        }
       });
-    }, error => {
-      emit({ ready: true, cloudStatus: "error", message: friendlyError(error) });
-    });
-  } catch (error) {
-    emit({
-      configured: true,
-      ready: true,
-      cloudStatus: "error",
-      message: friendlyError(error)
-    });
+
+    return this.saveQueue;
+  }
+
+  async signInWithGoogle() {
+    await this.ready();
+    if (!this.available || !this.auth || !this.sdk) {
+      throw new Error("O Firebase não está disponível neste navegador.");
+    }
+
+    const provider = new this.sdk.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const credential = await this.sdk.signInWithPopup(this.auth, provider);
+    return credential.user;
+  }
+
+  async signOut() {
+    await this.ready();
+    if (!this.auth || !this.sdk) return;
+    await this.sdk.signOut(this.auth);
+  }
+
+  getFriendlyError(error) {
+    const code = String(error?.code || "");
+    const messages = {
+      "auth/popup-closed-by-user": "A janela de login foi fechada antes da conclusão.",
+      "auth/popup-blocked": "O navegador bloqueou a janela de login do Google.",
+      "auth/cancelled-popup-request": "Já existe uma tentativa de login em andamento.",
+      "auth/unauthorized-domain": "Este domínio ainda não foi autorizado no Firebase Authentication.",
+      "auth/network-request-failed": "Não foi possível alcançar o Firebase. Verifique a conexão.",
+      "permission-denied": "As regras do Firestore não permitiram acessar este save.",
+      "unavailable": "O Firestore está temporariamente indisponível."
+    };
+    return messages[code] || error?.message || "Não foi possível concluir a operação com o Firebase.";
   }
 }
 
-initializeFirebase();
+window.FirebaseManager = new FirebaseManager();

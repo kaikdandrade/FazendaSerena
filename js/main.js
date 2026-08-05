@@ -3,8 +3,6 @@
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-  const pendingEvents = [];
-  let engine = null;
   const soundEngine = new SoundEngine();
   let lastFrame = performance.now();
   let lastRender = 0;
@@ -12,20 +10,16 @@
   let lastCropControls = 0;
   let lastSave = 0;
   let activeView = "farmView";
+  let engine = null;
+  let currentAuthUid = null;
+  let authTransitionQueue = Promise.resolve();
   let activeOfficeTab = "contracts";
   let activeEvolutionTab = "upgrades";
-  let activeProfileTab = "account";
-  let firebaseManager = null;
-  let firebaseState = { configured: false, ready: false, busy: false, user: null, cloudStatus: "unconfigured", message: "Carregando o Firebase...", lastSyncedAt: null };
-  let firebaseHydratedUid = null;
-  let firebaseHydratingUid = null;
-  let firebaseHydrationPromise = null;
-  let cloudSyncPromise = null;
-  let lastCloudSave = 0;
   let showCompletedMissions = false;
   let contractDockCollapsed = false;
   const cropUpgradeModes = new Map();
 
+  // Elementos persistentes da interface.
   const dom = {
     tabs: $$(".nav-tab[data-view]"),
     views: $$("[data-view-panel]"),
@@ -42,7 +36,6 @@
     prestigeList: $("#prestigeList"),
     activeContractList: $("#activeContractList"),
     contractOfferList: $("#contractOfferList"),
-    contractCapacity: $("#contractCapacity"),
     contractDock: $("#contractDock"),
     orderList: $("#orderList"),
     completedOrderList: $("#completedOrderList"),
@@ -54,34 +47,11 @@
     officePanels: $$("[data-office-panel]"),
     evolutionTabs: $$("[data-evolution-tab]"),
     evolutionPanels: $$("[data-evolution-panel]"),
-    profileTabs: $$("[data-profile-tab]"),
-    profilePanels: $$("[data-profile-panel]"),
     contextNavBlocks: $$("[data-context-for]"),
     contractTabCount: $("#contractTabCount"),
     orderTabCount: $("#orderTabCount"),
     missionTabCount: $("#missionTabCount"),
-    toastZone: $("#toastZone"),
-    profileAvatar: $("#profileAvatar"),
-    profileAvatarImage: $("#profileAvatarImage"),
-    profileIdentityEyebrow: $("#profileIdentityEyebrow"),
-    profileDisplayName: $("#profileDisplayName"),
-    profileEmail: $("#profileEmail"),
-    cloudStatusBadge: $("#cloudStatusBadge"),
-    loggedOutProfile: $("#loggedOutProfile"),
-    loggedInProfile: $("#loggedInProfile"),
-    firebaseMessage: $("#firebaseMessage"),
-    firebaseEmail: $("#firebaseEmail"),
-    firebasePassword: $("#firebasePassword"),
-    emailAuthForm: $("#emailAuthForm"),
-    emailSignUp: $("#emailSignUp"),
-    passwordReset: $("#passwordReset"),
-    googleSignIn: $("#googleSignIn"),
-    firebaseSignOut: $("#firebaseSignOut"),
-    syncCloudNow: $("#syncCloudNow"),
-    cloudStatusText: $("#cloudStatusText"),
-    cloudLastSync: $("#cloudLastSync"),
-    settingsCloudTitle: $("#settingsCloudTitle"),
-    settingsCloudCopy: $("#settingsCloudCopy"),
+    saveBox: $("#saveBox"),
     coinsCounter: $("#coinsCounter"),
     researchCounter: $("#researchCounter"),
     prestigeCounter: $("#prestigeCounter"),
@@ -111,9 +81,19 @@
     musicVolumeSetting: $("#musicVolumeSetting"),
     musicVolumeText: $("#musicVolumeText"),
     musicTrackSetting: $("#musicTrackSetting"),
+    accountAvatar: $("#accountAvatar"),
+    accountName: $("#accountName"),
+    accountDescription: $("#accountDescription"),
+    cloudSaveBadge: $("#cloudSaveBadge"),
+    cloudSaveStatus: $("#cloudSaveStatus"),
+    cloudSaveDescription: $("#cloudSaveDescription"),
+    googleSignIn: $("#googleSignIn"),
+    googleSignOut: $("#googleSignOut"),
+    saveNow: $("#saveNow"),
     backToTop: $("#backToTop")
   };
 
+  // Utilitários de formatação e marcação segura.
   function escapeHtml(value) {
     return String(value)
       .replaceAll("&", "&amp;")
@@ -183,36 +163,194 @@
     return html;
   }
 
-  function toast(message, type = "") {
-    // Revisão 19: notificações visuais são exclusivas para o ganho de nível.
-    if (!message || type !== "level") return;
-    const item = document.createElement("div");
-    item.className = "toast success level-toast";
-    item.innerHTML = `<span aria-hidden="true">⬆</span><span>${enrichResourceText(message)}</span>`;
-    dom.toastZone.appendChild(item);
-    window.setTimeout(() => item.remove(), 3600);
-  }
 
   function handleEngineEvent(event) {
     if (!event) return;
     if (event.type === "level") {
       soundEngine.play("levelUp");
-      toast(`A fazenda alcançou o nível ${event.level} e recebeu ${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "level");
       window.setTimeout(() => render(true), 0);
     }
   }
 
-  engine = new GameEngine(event => {
-    if (!engine) pendingEvents.push(event);
-    else handleEngineEvent(event);
-  });
-  pendingEvents.splice(0).forEach(handleEngineEvent);
+  function cloneState(state) {
+    return JSON.parse(JSON.stringify(state || {}));
+  }
 
+  function formatCloudTime(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function setCloudSaveStatus(status, detail = {}) {
+    if (!dom.cloudSaveStatus || !dom.cloudSaveBadge) return;
+
+    const badgeClasses = ["guest", "saving", "saved", "error"];
+    dom.cloudSaveBadge.classList.remove(...badgeClasses);
+
+    if (status === "saving") {
+      dom.cloudSaveBadge.textContent = "Salvando";
+      dom.cloudSaveBadge.classList.add("saving");
+      dom.cloudSaveStatus.textContent = "Enviando o progresso para o Firestore...";
+      return;
+    }
+
+    if (status === "saved") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveBadge.textContent = "Na nuvem";
+      dom.cloudSaveBadge.classList.add("saved");
+      dom.cloudSaveStatus.textContent = time
+        ? `Progresso salvo na nuvem às ${time}.`
+        : "Progresso salvo na nuvem.";
+      return;
+    }
+
+    if (status === "loading") {
+      dom.cloudSaveBadge.textContent = "Carregando";
+      dom.cloudSaveBadge.classList.add("saving");
+      dom.cloudSaveStatus.textContent = "Buscando seu progresso no Firestore...";
+      return;
+    }
+
+    if (status === "loaded") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveBadge.textContent = "Na nuvem";
+      dom.cloudSaveBadge.classList.add("saved");
+      dom.cloudSaveStatus.textContent = time
+        ? `Save da nuvem carregado. Última gravação: ${time}.`
+        : "Save da nuvem carregado.";
+      return;
+    }
+
+    if (status === "empty") {
+      dom.cloudSaveBadge.textContent = "Novo save";
+      dom.cloudSaveBadge.classList.add("saving");
+      dom.cloudSaveStatus.textContent = "Nenhum save anterior foi encontrado. Esta sessão será o primeiro save da conta.";
+      return;
+    }
+
+    if (status === "error") {
+      dom.cloudSaveBadge.textContent = "Erro";
+      dom.cloudSaveBadge.classList.add("error");
+      dom.cloudSaveStatus.textContent = window.FirebaseManager.getFriendlyError(detail.error);
+      return;
+    }
+
+    dom.cloudSaveBadge.textContent = "Não salvo";
+    dom.cloudSaveBadge.classList.add("guest");
+    dom.cloudSaveStatus.textContent = window.FirebaseManager.isAvailable()
+      ? "Entre com o Google para ativar o save automático na nuvem."
+      : "O Firebase não pôde ser carregado. A sessão continuará como visitante.";
+  }
+
+  function updateAccountUI(user = window.FirebaseManager.getUser()) {
+    const signedIn = Boolean(user);
+    const firebaseAvailable = window.FirebaseManager.isAvailable();
+
+    if (dom.accountName) {
+      dom.accountName.textContent = signedIn
+        ? (user.displayName || user.email || "Jogador")
+        : "Visitante";
+    }
+
+    if (dom.accountDescription) {
+      dom.accountDescription.textContent = signedIn
+        ? `${user.email || "Conta Google conectada"}. Seu progresso é privado e salvo automaticamente na nuvem.`
+        : "Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.";
+    }
+
+    if (dom.accountAvatar) {
+      dom.accountAvatar.src = signedIn && user.photoURL ? user.photoURL : "assets/logo.png";
+      dom.accountAvatar.alt = signedIn ? `Foto de ${user.displayName || "jogador"}` : "";
+      dom.accountAvatar.classList.toggle("google-avatar", Boolean(signedIn && user.photoURL));
+    }
+
+    if (dom.googleSignIn) {
+      dom.googleSignIn.hidden = signedIn;
+      dom.googleSignIn.disabled = !firebaseAvailable;
+    }
+    if (dom.googleSignOut) {
+      dom.googleSignOut.hidden = !signedIn;
+      dom.googleSignOut.disabled = false;
+    }
+    if (dom.saveNow) {
+      dom.saveNow.disabled = !signedIn;
+      dom.saveNow.textContent = signedIn ? "Salvar agora" : "Entre para salvar";
+    }
+    if (dom.cloudSaveDescription) {
+      dom.cloudSaveDescription.textContent = signedIn
+        ? "O progresso é salvo automaticamente no Firestore a cada 15 segundos e ao sair da página."
+        : "Visitantes não possuem save persistente. Entre com o Google para salvar automaticamente no Firestore.";
+    }
+
+    if (!signedIn) setCloudSaveStatus("guest");
+  }
+
+  function setAuthBusy(busy) {
+    if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
+    if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
+    if (dom.saveNow) dom.saveNow.disabled = busy || !window.FirebaseManager.isAuthenticated();
+  }
+
+  async function applyAuthenticatedUser(user, authError = null) {
+    const nextUid = user?.uid || null;
+    if (!engine) {
+      currentAuthUid = nextUid;
+      updateAccountUI(user);
+      if (authError) setCloudSaveStatus("error", { error: authError });
+      return;
+    }
+
+    if (nextUid === currentAuthUid) {
+      updateAccountUI(user);
+      if (authError) setCloudSaveStatus("error", { error: authError });
+      return;
+    }
+
+    const previousUid = currentAuthUid;
+    const guestState = previousUid ? null : cloneState(engine.state);
+    currentAuthUid = nextUid;
+    setAuthBusy(true);
+
+    try {
+      if (user) {
+        let cloudState = null;
+        let loadFailed = false;
+        try {
+          cloudState = await window.FirebaseManager.loadGame();
+        } catch (error) {
+          loadFailed = true;
+          setCloudSaveStatus("error", { error });
+        }
+
+        if (cloudState) {
+          engine.replaceState(cloudState, { simulateOffline: true });
+        } else if (!loadFailed) {
+          engine.replaceState(guestState, { simulateOffline: false });
+          await engine.save();
+        }
+      } else {
+        engine.replaceState(null, { simulateOffline: false });
+        showView("farmView", false);
+      }
+
+      applySettings();
+      render(true);
+      lastSave = performance.now();
+    } finally {
+      updateAccountUI(user);
+      setAuthBusy(false);
+    }
+  }
+
+  // Navegação, responsividade e configurações.
   function setupCategoryFilter() {
     const options = Object.entries(engine.data.categories)
       .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`)
       .join("");
-    dom.categoryFilter.insertAdjacentHTML("beforeend", `<option value="available">Disponíveis para compra</option>${options}`);
+    dom.categoryFilter.insertAdjacentHTML("beforeend", `<option value="locked">Safras bloqueadas</option>${options}`);
     dom.stockCategoryFilter?.insertAdjacentHTML("beforeend", options);
   }
 
@@ -220,6 +358,93 @@
     const scrolled = window.scrollY > 180;
     document.body.classList.toggle("page-scrolled", scrolled);
     if (dom.backToTop) dom.backToTop.hidden = !scrolled;
+  }
+
+
+  function revealTabHorizontally(container, tab, behavior = "smooth") {
+    if (!container || !tab || container.scrollWidth <= container.clientWidth) return;
+    const target = tab.offsetLeft - (container.clientWidth - tab.offsetWidth) / 2;
+    const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
+    container.scrollTo({ left: Math.max(0, Math.min(maximum, target)), behavior });
+  }
+
+  function setupDragNavigation(container) {
+    if (!container || container.dataset.dragNavigationReady === "true") return;
+    container.dataset.dragNavigationReady = "true";
+
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let startScrollLeft = 0;
+    let moved = false;
+    let horizontalGesture = false;
+    let suppressClickUntil = 0;
+
+    const hasHorizontalOverflow = () => container.scrollWidth > container.clientWidth + 1;
+
+    const resetPointer = () => {
+      pointerId = null;
+      moved = false;
+      horizontalGesture = false;
+      container.classList.remove("is-dragging");
+    };
+
+    const finishDrag = event => {
+      if (pointerId === null) return;
+      if (event?.pointerId !== undefined && event.pointerId !== pointerId) return;
+
+      const activePointerId = pointerId;
+      if (moved) suppressClickUntil = performance.now() + 420;
+      if (container.hasPointerCapture?.(activePointerId)) {
+        try { container.releasePointerCapture(activePointerId); } catch (_) {}
+      }
+      resetPointer();
+    };
+
+    container.addEventListener("pointerdown", event => {
+      const touchLike = event.pointerType === "touch" || event.pointerType === "pen";
+      if (!touchLike && event.button !== 0) return;
+      if (!hasHorizontalOverflow()) return;
+
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      startScrollLeft = container.scrollLeft;
+      moved = false;
+      horizontalGesture = false;
+    }, { passive: true });
+
+    container.addEventListener("pointermove", event => {
+      if (event.pointerId !== pointerId) return;
+
+      const deltaX = event.clientX - startX;
+      const deltaY = event.clientY - startY;
+
+      if (!horizontalGesture && Math.max(Math.abs(deltaX), Math.abs(deltaY)) >= 6) {
+        if (Math.abs(deltaY) >= Math.abs(deltaX)) {
+          resetPointer();
+          return;
+        }
+
+        horizontalGesture = true;
+        moved = true;
+        container.classList.add("is-dragging");
+        try { container.setPointerCapture(pointerId); } catch (_) {}
+      }
+
+      if (!horizontalGesture || !hasHorizontalOverflow()) return;
+      container.scrollLeft = startScrollLeft - deltaX;
+      event.preventDefault();
+    }, { passive: false });
+
+    container.addEventListener("pointerup", finishDrag);
+    container.addEventListener("pointercancel", finishDrag);
+    container.addEventListener("lostpointercapture", finishDrag);
+    container.addEventListener("click", event => {
+      if (performance.now() >= suppressClickUntil) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, true);
   }
 
   function showView(viewId, updateHash = true) {
@@ -232,7 +457,8 @@
       else tab.removeAttribute("aria-current");
     });
     window.requestAnimationFrame(() => {
-      dom.tabs.find(tab => tab.dataset.view === activeView)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+      const activeTab = dom.tabs.find(tab => tab.dataset.view === activeView);
+      revealTabHorizontally(activeTab?.closest(".main-nav"), activeTab);
     });
     dom.contextNavBlocks.forEach(block => {
       const visible = block.dataset.contextFor === activeView;
@@ -248,8 +474,6 @@
   function applySettings() {
     const settings = engine.state.settings;
     document.body.dataset.ambient = String(Boolean(settings.ambient));
-    document.body.classList.remove("reduce-motion");
-    document.body.classList.add("compact-cards");
     document.documentElement.style.setProperty("--ui-scale", String(((Number(settings.uiScale) || 100) / 100) * 0.85));
 
     if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
@@ -263,251 +487,7 @@
     if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${settings.effectVolume ?? 55}%`;
     if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
     if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
-    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = ["farm", "violin"].includes(settings.musicTrack) ? settings.musicTrack : "farm";
-  }
-
-  const FIREBASE_SYNC_META_PREFIX = "fazenda-serena-cloud-sync:";
-  const CLOUD_SAVE_INTERVAL_MS = 60_000;
-
-  function showProfileTab(tabId) {
-    activeProfileTab = ["account", "settings"].includes(tabId) ? tabId : "account";
-    dom.profileTabs.forEach(tab => {
-      const active = tab.dataset.profileTab === activeProfileTab;
-      tab.classList.toggle("active", active);
-      tab.setAttribute("aria-selected", String(active));
-    });
-    window.requestAnimationFrame(() => {
-      dom.profileTabs.find(tab => tab.dataset.profileTab === activeProfileTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-    });
-    dom.profilePanels.forEach(panel => {
-      const active = panel.dataset.profilePanel === activeProfileTab;
-      panel.classList.toggle("active", active);
-      panel.hidden = !active;
-    });
-  }
-
-  function formatSyncTime(timestamp) {
-    const value = Number(timestamp || 0);
-    if (!value) return "Ainda não sincronizado";
-    try {
-      return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
-    } catch (_) {
-      return new Date(value).toLocaleString("pt-BR");
-    }
-  }
-
-  function hasMeaningfulLocalProgress(state = engine.state) {
-    if (!state) return false;
-    const owned = Object.values(state.crops || {}).some(crop => crop?.owned);
-    const progressedStats = Number(state.stats?.totalHarvested || 0) > 0
-      || Number(state.stats?.lifetimeHarvested || 0) > 0
-      || Number(state.stats?.prestiges || 0) > 0;
-    return owned
-      || progressedStats
-      || Number(state.farmLevel || 1) > 1
-      || Number(state.prestigePoints || 0) > 0
-      || Number(state.research || 0) > 0
-      || Number(state.coins ?? 2000) !== 2000;
-  }
-
-  function getCloudSyncMeta(uid) {
-    if (!uid) return null;
-    try {
-      return JSON.parse(localStorage.getItem(`${FIREBASE_SYNC_META_PREFIX}${uid}`) || "null");
-    } catch (_) {
-      return null;
-    }
-  }
-
-  function setCloudSyncMeta(uid, clientUpdatedAt) {
-    if (!uid || !clientUpdatedAt) return;
-    try {
-      localStorage.setItem(`${FIREBASE_SYNC_META_PREFIX}${uid}`, JSON.stringify({
-        uid,
-        clientUpdatedAt: Number(clientUpdatedAt),
-        savedAt: Date.now()
-      }));
-    } catch (_) {}
-  }
-
-  function firebaseStatusLabel(current) {
-    if (!current.configured) return "Firebase pendente";
-    if (current.busy) return "Processando";
-    if (!current.user) return "Somente local";
-    const labels = {
-      loading: "Carregando nuvem",
-      loaded: "Nuvem encontrada",
-      empty: "Nuvem vazia",
-      saving: "Sincronizando",
-      synced: "Sincronizado",
-      error: "Erro na nuvem",
-      local: "Conta conectada"
-    };
-    return labels[current.cloudStatus] || "Conta conectada";
-  }
-
-  function updateProfileUI() {
-    const current = firebaseState || {};
-    const user = current.user;
-    const configured = Boolean(current.configured);
-    const busy = Boolean(current.busy);
-    const authDisabled = !configured || !current.ready || busy;
-
-    if (dom.loggedOutProfile) dom.loggedOutProfile.hidden = Boolean(user);
-    if (dom.loggedInProfile) dom.loggedInProfile.hidden = !user;
-    if (dom.firebaseMessage) {
-      dom.firebaseMessage.textContent = current.message || (configured ? "Firebase pronto." : "Preencha js/firebase-config.js para ativar o login.");
-      dom.firebaseMessage.dataset.status = current.cloudStatus || "local";
-    }
-    if (dom.cloudStatusBadge) {
-      dom.cloudStatusBadge.textContent = firebaseStatusLabel(current);
-      dom.cloudStatusBadge.dataset.status = current.cloudStatus || (configured ? "local" : "unconfigured");
-    }
-
-    [dom.firebaseEmail, dom.firebasePassword, dom.emailSignUp, dom.passwordReset, dom.googleSignIn]
-      .filter(Boolean)
-      .forEach(control => { control.disabled = authDisabled; });
-    const submitButton = dom.emailAuthForm?.querySelector('[type="submit"]');
-    if (submitButton) submitButton.disabled = authDisabled;
-    if (dom.firebaseSignOut) dom.firebaseSignOut.disabled = busy;
-    if (dom.syncCloudNow) dom.syncCloudNow.disabled = busy || !user || firebaseHydratedUid !== user.uid;
-
-    if (user) {
-      const displayName = user.displayName || user.email?.split("@")[0] || "Fazendeiro";
-      const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "FS";
-      if (dom.profileDisplayName) dom.profileDisplayName.textContent = displayName;
-      if (dom.profileEmail) dom.profileEmail.textContent = user.email || "Conta Firebase conectada";
-      if (dom.profileIdentityEyebrow) dom.profileIdentityEyebrow.textContent = "jogador conectado";
-      if (dom.profileAvatar) dom.profileAvatar.querySelector("span").textContent = initials;
-      if (dom.profileAvatarImage) {
-        if (user.photoURL) {
-          dom.profileAvatarImage.src = user.photoURL;
-          dom.profileAvatarImage.alt = `Foto de ${displayName}`;
-          dom.profileAvatarImage.hidden = false;
-        } else {
-          dom.profileAvatarImage.removeAttribute("src");
-          dom.profileAvatarImage.hidden = true;
-        }
-      }
-      if (dom.cloudStatusText) dom.cloudStatusText.textContent = current.message || firebaseStatusLabel(current);
-      if (dom.cloudLastSync) dom.cloudLastSync.textContent = formatSyncTime(current.lastSyncedAt);
-      if (dom.settingsCloudTitle) dom.settingsCloudTitle.textContent = current.cloudStatus === "error" ? "Falha na sincronização" : "Firestore conectado";
-      if (dom.settingsCloudCopy) dom.settingsCloudCopy.textContent = current.cloudStatus === "error"
-        ? (current.message || "Confira a configuração e as regras do Firestore.")
-        : `Conta ${user.email || "Firebase"} · ${formatSyncTime(current.lastSyncedAt)}`;
-    } else {
-      if (dom.profileDisplayName) dom.profileDisplayName.textContent = "Fazendeiro visitante";
-      if (dom.profileEmail) dom.profileEmail.textContent = configured
-        ? "Entre para levar sua fazenda para outros dispositivos."
-        : "Configure o Firebase para ativar login e sincronização.";
-      if (dom.profileIdentityEyebrow) dom.profileIdentityEyebrow.textContent = "jogador local";
-      if (dom.profileAvatar) dom.profileAvatar.querySelector("span").textContent = "FS";
-      if (dom.profileAvatarImage) {
-        dom.profileAvatarImage.removeAttribute("src");
-        dom.profileAvatarImage.hidden = true;
-      }
-      if (dom.settingsCloudTitle) dom.settingsCloudTitle.textContent = configured ? "Cópia local ativa" : "Firebase não configurado";
-      if (dom.settingsCloudCopy) dom.settingsCloudCopy.textContent = configured
-        ? "Entre no perfil para ativar a nuvem."
-        : "Preencha js/firebase-config.js e publique as regras do Firestore.";
-    }
-  }
-
-  function showFirebaseMessage(message, status = "error") {
-    if (!dom.firebaseMessage) return;
-    dom.firebaseMessage.textContent = message;
-    dom.firebaseMessage.dataset.status = status;
-  }
-
-  async function syncCloudSave({ force = false } = {}) {
-    const user = firebaseState?.user;
-    if (!firebaseManager || !user || firebaseHydratedUid !== user.uid) return false;
-    const now = Date.now();
-    if (!force && now - lastCloudSave < CLOUD_SAVE_INTERVAL_MS) return false;
-    if (cloudSyncPromise) return cloudSyncPromise;
-
-    engine.save();
-    lastCloudSave = now;
-    cloudSyncPromise = firebaseManager.saveGame(engine.state)
-      .then(() => {
-        const managerState = firebaseManager.getState();
-        firebaseState = managerState;
-        setCloudSyncMeta(user.uid, managerState.lastSyncedAt || Date.now());
-        updateProfileUI();
-        return true;
-      })
-      .catch(error => {
-        console.warn("Não foi possível sincronizar o save com o Firestore:", error);
-        return false;
-      })
-      .finally(() => { cloudSyncPromise = null; });
-    return cloudSyncPromise;
-  }
-
-  async function hydrateFirebaseUser(user) {
-    if (!firebaseManager || !user?.uid || firebaseHydratingUid === user.uid || firebaseHydratedUid === user.uid) return;
-    firebaseHydratingUid = user.uid;
-    firebaseHydrationPromise = (async () => {
-      try {
-        const cloudRecord = await firebaseManager.loadGame();
-        if (!cloudRecord?.save) {
-          firebaseHydratedUid = user.uid;
-          await syncCloudSave({ force: true });
-          return;
-        }
-
-        const localProgress = hasMeaningfulLocalProgress(engine.state);
-        const syncMeta = getCloudSyncMeta(user.uid);
-        const cloudTimestamp = Number(cloudRecord.clientUpdatedAt || 0);
-        const sameKnownCloud = Boolean(syncMeta?.clientUpdatedAt && cloudTimestamp && Number(syncMeta.clientUpdatedAt) === cloudTimestamp);
-        let useCloud = !localProgress;
-
-        if (localProgress && !sameKnownCloud) {
-          useCloud = window.confirm(
-            "Encontramos progresso neste navegador e também na sua conta.\n\n" +
-            "Clique em OK para carregar o progresso da nuvem.\n" +
-            "Clique em Cancelar para manter este navegador e enviar o progresso local ao Firestore."
-          );
-        }
-
-        if (useCloud) {
-          engine.replaceState(cloudRecord.save, { simulateOffline: true, persist: true });
-          applySettings();
-          render(true);
-        }
-
-        firebaseHydratedUid = user.uid;
-        if (cloudTimestamp) setCloudSyncMeta(user.uid, cloudTimestamp);
-        await syncCloudSave({ force: true });
-      } catch (error) {
-        console.warn("Falha ao preparar o save da conta:", error);
-      } finally {
-        firebaseHydratingUid = null;
-        firebaseHydrationPromise = null;
-        updateProfileUI();
-      }
-    })();
-    return firebaseHydrationPromise;
-  }
-
-  function attachFirebaseManager(manager) {
-    if (!manager || firebaseManager === manager) return;
-    firebaseManager = manager;
-    manager.subscribe(current => {
-      const previousUid = firebaseState?.user?.uid || null;
-      firebaseState = current;
-      const nextUid = current.user?.uid || null;
-      if (!nextUid) {
-        firebaseHydratedUid = null;
-        firebaseHydratingUid = null;
-      } else if (nextUid !== previousUid) {
-        firebaseHydratedUid = null;
-      }
-      updateProfileUI();
-      if (current.user && firebaseHydratedUid !== current.user.uid && firebaseHydratingUid !== current.user.uid) {
-        hydrateFirebaseUser(current.user);
-      }
-    });
+    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -739,6 +719,7 @@
     }
   }
 
+  // Renderização das áreas do jogo.
   function renderCropCard(crop) {
     const data = engine.state.crops[crop.id];
     const category = engine.data.categories[crop.category];
@@ -811,7 +792,7 @@
       const cropState = engine.state.crops[crop.id];
       const categoryName = engine.data.categories[crop.category];
       const visibleByProgress = cropState.owned || crop.unlockLevel <= visibleUnlockLevel;
-      const matchesCategory = category === "available"
+      const matchesCategory = category === "locked"
         ? !cropState.owned && crop.unlockLevel <= engine.state.farmLevel
         : category === "all" || crop.category === category;
       return visibleByProgress && matchesCategory && (!term || normalize(`${crop.name} ${categoryName}`).includes(term));
@@ -864,14 +845,11 @@
     dom.stockGrid.innerHTML = owned.map(crop => {
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
-      const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === crop.id && contract.delivered < contract.amount && !contract.completedAt).length;
-      const priorityText = activeContracts ? `${activeContracts} contrato${activeContracts === 1 ? " ativo" : "s ativos"}` : "";
       return `
         <article class="stock-card normalized-stock-card ${data.autoSell ? "auto-sell-card" : ""}">
           <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div></div>
           <div class="stock-value-grid"><div><small>Quantidade</small><strong>${engine.formatNumber(data.stock)} <span>un.</span></strong></div><div><small>Valor unitário</small><strong>${resourceAmount("coins", price, { compact: true })}</strong></div><div><small>Valor guardado</small><strong>${resourceAmount("coins", data.stock * price, { compact: true })}</strong></div></div>
           <button class="auto-sell-toggle compact-auto-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}"><span><strong>Venda automática</strong><small>${data.autoSell ? "Ativada" : "Desativada"}</small></span><span class="auto-sell-switch"><i></i></span></button>
-          ${priorityText ? `<div class="stock-priority-note"><strong>${escapeHtml(priorityText)}</strong><small>Contratos têm prioridade; depois vem a venda automática e, por último, o estoque.</small></div>` : ""}
           <div class="stock-actions"><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>25%</button><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.5" ${data.stock <= 0 ? "disabled" : ""}>50%</button><button class="button primary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="1" ${data.stock <= 0 ? "disabled" : ""}>Vender tudo</button></div>
         </article>`;
     }).join("");
@@ -917,9 +895,6 @@
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
     });
-    window.requestAnimationFrame(() => {
-      dom.evolutionTabs.find(tab => tab.dataset.evolutionTab === activeEvolutionTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-    });
     dom.evolutionPanels.forEach(panel => {
       const active = panel.dataset.evolutionPanel === activeEvolutionTab;
       panel.classList.toggle("active", active);
@@ -958,9 +933,6 @@
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
     });
-    window.requestAnimationFrame(() => {
-      dom.officeTabs.find(tab => tab.dataset.officeTab === activeOfficeTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
-    });
     dom.officePanels.forEach(panel => {
       const active = panel.dataset.officePanel === activeOfficeTab;
       panel.classList.toggle("active", active);
@@ -978,7 +950,7 @@
     dom.contractDock.classList.add("visible");
     dom.contractDock.classList.toggle("collapsed", contractDockCollapsed);
     const toggleLabel = contractDockCollapsed ? "Expandir acompanhamento de contratos" : "Recolher acompanhamento de contratos";
-    const toggleIcon = contractDockCollapsed ? "⌃" : "⌄";
+    const toggleIcon = `<img src="assets/icons/contract-dock-arrow.png" alt="">`;
     if (contractDockCollapsed) {
       dom.contractDock.innerHTML = `<button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="false" aria-label="${toggleLabel}" title="${toggleLabel}"><span aria-hidden="true">${toggleIcon}</span></button>`;
       return;
@@ -1228,32 +1200,50 @@
       renderMissions();
       renderStats();
       showOfficeTab(activeOfficeTab);
-    } else if (activeView === "profileView") {
-      showProfileTab(activeProfileTab);
-      updateProfileUI();
     }
     updateLiveHeader(now);
     updateLiveFarmUI();
   }
 
-  function act(result, successMessage = "") {
+  function act(result) {
     if (!result?.ok) {
-      if (result?.message) toast(result.message, "error");
+      if (result?.message) console.warn(result.message);
       return false;
     }
-    if (successMessage) toast(typeof successMessage === "function" ? successMessage(result) : successMessage, "success");
     render(true);
     return true;
+  }
+
+  function getVisibleResourceCounter(type) {
+    const counters = {
+      coins: [dom.floatingCoinsCounter, dom.coinsCounter],
+      research: [dom.floatingResearchCounter, dom.researchCounter],
+      prestige: [dom.floatingPrestigeCounter, dom.prestigeCounter]
+    }[type] || [];
+
+    return counters.find(counter => {
+      if (!counter) return false;
+      const rect = counter.getBoundingClientRect();
+      const style = window.getComputedStyle(counter);
+      return style.visibility !== "hidden"
+        && style.display !== "none"
+        && rect.width > 0
+        && rect.height > 0
+        && rect.bottom > 0
+        && rect.top < window.innerHeight;
+    }) || counters.find(Boolean) || null;
   }
 
   function animateResourceReward(source, reward = {}) {
     if (!source) return;
     const sourceRect = source.getBoundingClientRect();
     const types = [
-      ["coins", reward.coins, dom.coinsCounter],
-      ["research", reward.research, dom.researchCounter],
-      ["prestige", reward.prestige, dom.prestigeCounter]
-    ].filter(([, value, target]) => Number(value) > 0 && target);
+      ["coins", reward.coins],
+      ["research", reward.research],
+      ["prestige", reward.prestige]
+    ].map(([type, value]) => [type, value, getVisibleResourceCounter(type)])
+      .filter(([, value, target]) => Number(value) > 0 && target);
+
     types.forEach(([type, value, target], typeIndex) => {
       const targetRect = target.getBoundingClientRect();
       const particles = Math.min(9, Math.max(4, Math.ceil(Math.log10(Number(value) + 1) * 3)));
@@ -1262,18 +1252,30 @@
         particle.className = `reward-particle reward-particle-${type}`;
         particle.src = resourceIcons[type];
         particle.alt = "";
+        particle.draggable = false;
         particle.style.left = `${sourceRect.left + sourceRect.width / 2 - 10}px`;
         particle.style.top = `${sourceRect.top + sourceRect.height / 2 - 10}px`;
         document.body.appendChild(particle);
+
         const spreadX = (Math.random() - .5) * 90;
         const spreadY = -30 - Math.random() * 55;
         const endX = targetRect.left + targetRect.width / 2 - sourceRect.left - sourceRect.width / 2;
         const endY = targetRect.top + targetRect.height / 2 - sourceRect.top - sourceRect.height / 2;
-        particle.animate([
+        const animation = particle.animate([
           { transform: "translate(0,0) scale(.65)", opacity: 0 },
           { transform: `translate(${spreadX}px, ${spreadY}px) scale(1.08)`, opacity: 1, offset: .28 },
           { transform: `translate(${endX}px, ${endY}px) scale(.5)`, opacity: .15 }
-        ], { duration: 720 + i * 45 + typeIndex * 80, delay: i * 35, easing: "cubic-bezier(.2,.75,.25,1)", fill: "forwards" }).finished.finally(() => particle.remove());
+        ], {
+          duration: 720 + i * 45 + typeIndex * 80,
+          delay: i * 35,
+          easing: "cubic-bezier(.2,.75,.25,1)",
+          fill: "forwards"
+        });
+
+        animation.finished
+          .then(() => soundEngine.playResourceCounterHit(type))
+          .catch(() => {})
+          .finally(() => particle.remove());
       }
     });
   }
@@ -1286,14 +1288,19 @@
     return "click";
   }
 
+  // Ações do jogador e eventos da interface.
   function handleAction(button) {
     const action = button.dataset.action;
     const cropId = button.dataset.crop;
     const id = button.dataset.id;
 
-    if (action !== "perform-prestige") soundEngine.play(getActionSound(action));
+    if (!["perform-prestige", "buy-crop"].includes(action)) soundEngine.play(getActionSound(action));
 
-    if (action === "buy-crop") act(engine.buyCrop(cropId));
+    if (action === "buy-crop") {
+      const result = engine.buyCrop(cropId);
+      if (result.ok) soundEngine.play("cropPurchase");
+      act(result);
+    }
     if (action === "select-upgrade-mode") {
       cropUpgradeModes.set(cropId, button.dataset.upgradeMode === "max" ? "max" : "one");
       const card = button.closest("[data-live-crop]");
@@ -1302,42 +1309,36 @@
     if (action === "upgrade-crop-selected") {
       const mode = getCropUpgradeMode(cropId);
       const result = mode === "max" ? engine.upgradeCropMax(cropId) : engine.upgradeCrop(cropId, 1);
-      act(result, value => mode === "max"
-        ? `${value.crop.name} recebeu ${value.purchased} aprimoramento${value.purchased === 1 ? "" : "s"} e chegou ao nível ${value.level}.`
-        : `${value.crop.name} foi aprimorada para o nível ${value.level}.`);
+      act(result);
     }
     if (action === "sell-fraction") {
       const stock = engine.state.crops[cropId]?.stock || 0;
       const amount = Math.max(1, Math.floor(stock * Number(button.dataset.fraction || 1)));
-      act(engine.sellCrop(cropId, amount), result => `${engine.formatNumber(result.sold)} itens vendidos por ${engine.formatMoney(result.gain)}.`);
+      act(engine.sellCrop(cropId, amount));
     }
-    if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId), result => `Venda automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
+    if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId));
     if (action === "toggle-all-auto-sell") {
       const owned = engine.data.crops.filter(crop => engine.state.crops[crop.id]?.owned);
       const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
-      act(engine.setAllAutoSell(!allEnabled), result => `Venda automática ${result.enabled ? "ativada" : "desativada"} para ${result.count} cultura${result.count === 1 ? "" : "s"}.`);
+      act(engine.setAllAutoSell(!allEnabled));
     }
-    if (action === "sell-all-stock") act(engine.sellAll(), result => `${engine.formatNumber(result.sold)} produtos vendidos por ${engine.formatMoney(result.gain)}.`);
-    if (action === "expand-storage") act(engine.expandStorage(), result => `Celeiro ampliado em +${result.added} espaços.`);
-    if (action === "buy-upgrade") act(engine.buyUpgrade(id), "Infraestrutura aprimorada.");
-    if (action === "buy-research") act(engine.buyResearch(id), "Nova etapa da pesquisa concluída.");
-    if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id), "Legado permanente aprimorado.");
-    if (action === "accept-contract") act(engine.acceptContract(id), result => `Contrato com ${engine.getCompany(result.contract.companyId).name} assinado.`);
-    if (action === "decline-contract") act(engine.declineContract(id), result => `Contrato recusado. Uma nova oportunidade chegará em até ${engine.formatTime(result.cooldownSeconds)}.`);
+    if (action === "sell-all-stock") act(engine.sellAll());
+    if (action === "expand-storage") act(engine.expandStorage());
+    if (action === "buy-upgrade") act(engine.buyUpgrade(id));
+    if (action === "buy-research") act(engine.buyResearch(id));
+    if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
+    if (action === "accept-contract") act(engine.acceptContract(id));
+    if (action === "decline-contract") act(engine.declineContract(id));
     if (action === "claim-contract") {
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch });
-      toast(`Recompensa recebida pelo contrato com ${engine.getCompany(result.contract.companyId).name}.`, "success");
       render(true);
     }
     if (action === "deliver-order") {
       const result = engine.deliverOrder(cropId);
       if (!result.ok) return act(result);
       animateResourceReward(button, result.rewards || {});
-      toast(result.seriesComplete
-        ? `Todos os pedidos de ${result.order.crop.name.toLowerCase()} foram finalizados.`
-        : `Pedido entregue e recompensa recebida. A próxima etapa de ${result.order.crop.name.toLowerCase()} foi liberada.`, "success");
       render(true);
     }
     if (action === "toggle-contract-dock") {
@@ -1348,21 +1349,26 @@
       const result = engine.claimMission(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, result.mission.reward || {});
-      toast("Etapa da missão concluída. A próxima etapa da série foi liberada.", "success");
       render(true);
     }
     if (action === "perform-prestige") {
       const gain = engine.getPrestigeEstimate();
-      if (engine.state.farmLevel < 15) return toast("O prestígio fica disponível no nível 15 da fazenda.", "error");
-      if (gain < 1) return toast("Fortaleça mais esta jornada antes de prestigiar.", "error");
+      if (engine.state.farmLevel < 15) return;
+      if (gain < 1) return;
       if (!window.confirm("Prestigiar agora reiniciará os recursos e o progresso desta jornada. Continuar?")) return;
       const result = engine.performPrestige();
       if (result.ok) soundEngine.play("prestige");
-      act(result, value => `Nova jornada iniciada com ${value.gain} ${value.gain === 1 ? "ponto de prestígio" : "pontos de prestígio"}.`);
+      act(result);
     }
   }
 
   function setupEvents() {
+    document.addEventListener("dragstart", event => {
+      if (event.target?.closest?.("img")) event.preventDefault();
+    }, true);
+
+    setupDragNavigation(document.querySelector(".main-nav"));
+    dom.contextNavBlocks.forEach(setupDragNavigation);
     dom.tabs.forEach(tab => tab.addEventListener("click", () => {
       soundEngine.playNavigation();
       showView(tab.dataset.view);
@@ -1370,17 +1376,14 @@
     dom.officeTabs.forEach(tab => tab.addEventListener("click", () => {
       soundEngine.playNavigation();
       showOfficeTab(tab.dataset.officeTab);
+      window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
     }));
     dom.evolutionTabs.forEach(tab => tab.addEventListener("click", () => {
       soundEngine.playNavigation();
       showEvolutionTab(tab.dataset.evolutionTab);
+      window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
-    }));
-    dom.profileTabs.forEach(tab => tab.addEventListener("click", () => {
-      soundEngine.playNavigation();
-      showProfileTab(tab.dataset.profileTab);
-      updateProfileUI();
     }));
     $$('[data-go-view]').forEach(link => link.addEventListener("click", event => {
       event.preventDefault();
@@ -1409,86 +1412,85 @@
       renderMissions();
     });
 
-    dom.emailAuthForm?.addEventListener("submit", async event => {
-      event.preventDefault();
-      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
-      try {
-        await firebaseManager.signInWithEmail(dom.firebaseEmail?.value, dom.firebasePassword?.value);
-        if (dom.firebasePassword) dom.firebasePassword.value = "";
-      } catch (error) {
-        console.warn(error);
-        showFirebaseMessage(error.message);
+    dom.saveNow?.addEventListener("click", async () => {
+      if (!window.FirebaseManager.isAuthenticated()) {
+        setCloudSaveStatus("guest");
+        return;
       }
-    });
-
-    dom.emailSignUp?.addEventListener("click", async () => {
-      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
+      setAuthBusy(true);
       try {
-        await firebaseManager.createAccount(dom.firebaseEmail?.value, dom.firebasePassword?.value);
-        if (dom.firebasePassword) dom.firebasePassword.value = "";
-      } catch (error) {
-        console.warn(error);
-        showFirebaseMessage(error.message);
-      }
-    });
-
-    dom.passwordReset?.addEventListener("click", async () => {
-      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
-      try {
-        await firebaseManager.resetPassword(dom.firebaseEmail?.value);
-      } catch (error) {
-        console.warn(error);
-        showFirebaseMessage(error.message);
+        await engine.save();
+        lastSave = performance.now();
+      } finally {
+        setAuthBusy(false);
       }
     });
 
     dom.googleSignIn?.addEventListener("click", async () => {
-      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
+      setAuthBusy(true);
       try {
-        await firebaseManager.signInWithGoogle();
+        await window.FirebaseManager.signInWithGoogle();
       } catch (error) {
-        console.warn(error);
-        showFirebaseMessage(error.message);
+        setCloudSaveStatus("error", { error });
+      } finally {
+        setAuthBusy(false);
       }
     });
 
-    dom.syncCloudNow?.addEventListener("click", async () => {
-      const saved = await syncCloudSave({ force: true });
-      if (!saved) showFirebaseMessage("Não foi possível sincronizar agora. Confira a conta e a conexão.");
-    });
-
-    dom.firebaseSignOut?.addEventListener("click", async () => {
-      if (!firebaseManager) return;
+    dom.googleSignOut?.addEventListener("click", async () => {
+      setAuthBusy(true);
       try {
-        await syncCloudSave({ force: true });
-        await firebaseManager.signOut();
-        firebaseHydratedUid = null;
+        await engine.save();
+        await window.FirebaseManager.signOut();
       } catch (error) {
-        console.warn(error);
-        showFirebaseMessage(error.message);
+        setCloudSaveStatus("error", { error });
+      } finally {
+        setAuthBusy(false);
       }
     });
 
-    $("#resetGame")?.addEventListener("click", async () => {
-      if (!window.confirm("Apagar todo o progresso, inclusive prestígio e legados? Esta ação não pode ser desfeita.")) return;
-      const resetButton = $("#resetGame");
-      if (resetButton) resetButton.disabled = true;
+    window.addEventListener("firebase-save-status", event => {
+      setCloudSaveStatus(event.detail?.status || "guest", event.detail || {});
+    });
+
+    window.FirebaseManager.subscribeAuth((user, error) => {
+      authTransitionQueue = authTransitionQueue
+        .catch(() => {})
+        .then(() => applyAuthenticatedUser(user, error));
+    });
+
+    $("#exportSave").addEventListener("click", () => {
+      const content = engine.exportSave();
+      dom.saveBox.value = content;
+      const blob = new Blob([content], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `agricultura-industrial-save-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    $("#importSave").addEventListener("click", () => {
+      const text = dom.saveBox.value.trim();
+      if (!text) return;
+      if (!window.confirm("Importar este save substituirá o progresso atual. Continuar?")) return;
       try {
-        if (firebaseManager && firebaseState?.user) await firebaseManager.deleteGame();
-        engine.hardReset();
+        engine.importSave(text);
         applySettings();
         render(true);
-        if (firebaseManager && firebaseState?.user) {
-          firebaseHydratedUid = firebaseState.user.uid;
-          await syncCloudSave({ force: true });
-        }
-        showView("farmView");
       } catch (error) {
         console.warn(error);
-        showFirebaseMessage("Não foi possível apagar o progresso da nuvem. O save local foi mantido.");
-      } finally {
-        if (resetButton) resetButton.disabled = false;
       }
+    });
+
+    $("#resetGame").addEventListener("click", () => {
+      if (!window.confirm("Apagar todo o progresso, inclusive prestígio e legados? Esta ação não pode ser desfeita.")) return;
+      engine.hardReset();
+      applySettings();
+      showView("farmView");
     });
 
     dom.ambientSetting.addEventListener("change", () => {
@@ -1532,27 +1534,19 @@
     dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     syncScrollUI();
 
-    window.addEventListener("beforeunload", () => {
-      engine.save();
-      void syncCloudSave({ force: true });
+    window.addEventListener("pagehide", () => {
+      if (window.FirebaseManager.isAuthenticated()) engine.save();
     });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         engine.save();
-        void syncCloudSave({ force: true });
         soundEngine.pauseMusic();
       } else {
         soundEngine.resumeMusic();
         const now = Date.now();
         const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
         if (elapsed > 0.05) {
-          const before = engine.state.stats.totalHarvested;
-          const failedBefore = engine.state.stats.contractsFailed;
           engine.simulate(elapsed, true);
-          const harvested = Math.max(0, engine.state.stats.totalHarvested - before);
-          const expired = Math.max(0, engine.state.stats.contractsFailed - failedBefore);
-          if (elapsed >= 10 && harvested > 0) toast(`Enquanto a aba esteve em segundo plano, a fazenda produziu ${engine.formatNumber(harvested)} itens.`);
-          if (expired > 0) toast(`${expired} contrato${expired === 1 ? " expirou" : "s expiraram"} em segundo plano. As unidades entregues foram perdidas.`, "error");
           engine.state.lastUpdate = now;
           render(true);
         }
@@ -1561,6 +1555,7 @@
     });
   }
 
+  // Ciclo principal e inicialização.
   function gameLoop(now) {
     const dt = Math.max(0, Math.min(2, (now - lastFrame) / 1000));
     lastFrame = now;
@@ -1573,32 +1568,44 @@
       engine.save();
       lastSave = now;
     }
-    if (firebaseState?.user && Date.now() - lastCloudSave >= CLOUD_SAVE_INTERVAL_MS) {
-      void syncCloudSave();
-    }
     requestAnimationFrame(gameLoop);
   }
 
-  function boot() {
-    window.addEventListener("fazenda-firebase-manager-ready", event => attachFirebaseManager(event.detail));
-    if (window.FirebaseManager) attachFirebaseManager(window.FirebaseManager);
+  async function boot() {
+    let initialUser = null;
+    let initialState = null;
+    let cloudLoadFailed = false;
 
+    try {
+      initialUser = await window.FirebaseManager.ready();
+      currentAuthUid = initialUser?.uid || null;
+      if (initialUser) initialState = await window.FirebaseManager.loadGame();
+    } catch (error) {
+      cloudLoadFailed = true;
+      setCloudSaveStatus("error", { error });
+    }
+
+    engine = new GameEngine(handleEngineEvent, initialState);
     setupCategoryFilter();
     setupEvents();
+
     const hashView = location.hash.replace("#", "");
-    if (hashView === "settingsView") {
-      activeView = "profileView";
-      activeProfileTab = "settings";
-    } else if (hashView && dom.views.some(view => view.id === hashView)) {
-      activeView = hashView;
-    }
+    if (hashView && dom.views.some(view => view.id === hashView)) activeView = hashView;
     showView(activeView, false);
-    showProfileTab(activeProfileTab);
     applySettings();
-    updateProfileUI();
+    updateAccountUI(initialUser);
+    if (initialUser && initialState) setCloudSaveStatus("loaded");
     render(true);
+
+    if (initialUser && !initialState && !cloudLoadFailed) {
+      await engine.save();
+    }
+
+    lastSave = performance.now();
     requestAnimationFrame(gameLoop);
   }
 
-  boot();
+  boot().catch(error => {
+    console.error("Não foi possível iniciar o jogo:", error);
+  });
 })();
