@@ -1,226 +1,229 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fazenda Industrial SVG</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#eef4e8">
+  <meta name="description" content="Um jogo idle sereno sobre cultivar, pesquisar e construir uma fazenda próspera.">
+  <title>Agricultura Industrial — Fazenda Serena</title>
+  <link rel="shortcut icon" href="img/icons/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/data.js" defer></script>
+  <script src="js/GameEngine.js" defer></script>
+  <script src="js/main.js" defer></script>
 </head>
-
 <body>
-  <div class="app" id="app">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 80 80" role="img">
-            <defs>
-              <linearGradient id="brandLeaf" x1="0" x2="1" y1="0" y2="1">
-                <stop offset="0" stop-color="#d8ff8f" />
-                <stop offset="1" stop-color="#1f9f63" />
-              </linearGradient>
-            </defs>
-            <path d="M40 72C22 62 12 50 12 35 12 18 25 8 43 8c13 0 24 6 29 17-15-1-27 6-36 18 10-7 21-9 32-5-4 18-16 30-28 34Z" fill="url(#brandLeaf)" />
-            <path d="M17 63c13-15 26-27 46-40" fill="none" stroke="#113d2c" stroke-width="5" stroke-linecap="round" />
-          </svg>
+  <div class="ambient-layer" aria-hidden="true">
+    <span class="ambient-orb orb-one"></span>
+    <span class="ambient-orb orb-two"></span>
+    <span class="floating-leaf leaf-one">🍃</span>
+    <span class="floating-leaf leaf-two">🌿</span>
+    <span class="floating-leaf leaf-three">🍂</span>
+  </div>
+
+  <div class="app-shell">
+    <header class="app-header">
+      <a class="brand" href="#farmView" data-go-view="farmView" aria-label="Ir para a fazenda">
+        <img src="img/logo.png" alt="Folha com as quatro estações" class="brand-logo">
+        <span class="brand-copy">
+          <small>fazenda serena</small>
+          <strong>Agricultura Industrial</strong>
         </span>
-        <div>
-          <p class="eyebrow">idle / agricultura / indústria</p>
-          <h1>Fazenda Industrial SVG</h1>
+      </a>
+
+      <section class="farm-progress" aria-label="Nível da fazenda">
+        <div class="farm-progress-head">
+          <span>Nível da fazenda</span>
+          <strong id="farmLevelLabel">1</strong>
         </div>
-      </div>
+        <div class="soft-progress" role="progressbar" aria-label="Experiência da fazenda">
+          <span id="farmXPBar"></span>
+        </div>
+        <small id="farmXPText">0 / 68 XP</small>
+      </section>
 
       <section class="resource-strip" aria-label="Recursos do jogo">
-        <article class="resource-card">
-          <span class="mini-svg coin-svg" aria-hidden="true"></span>
-          <div>
-            <small>Moedas</small>
-            <strong data-counter="coins">0</strong>
-          </div>
+        <article class="resource-pill">
+          <img src="img/icons/coin.png" alt="">
+          <span><small>Moedas</small><strong id="coinsCounter">0</strong></span>
         </article>
-        <article class="resource-card">
-          <span class="mini-svg research-svg" aria-hidden="true"></span>
-          <div>
-            <small>Pesquisa</small>
-            <strong data-counter="research">0</strong>
-          </div>
+        <article class="resource-pill">
+          <img src="img/icons/potion.png" alt="">
+          <span><small>Pesquisa</small><strong id="researchCounter">0</strong></span>
         </article>
-        <article class="resource-card">
-          <span class="mini-svg rep-svg" aria-hidden="true"></span>
-          <div>
-            <small>Reputação</small>
-            <strong data-counter="reputation">0</strong>
-          </div>
-        </article>
-        <article class="resource-card prestige-resource">
-          <span class="mini-svg prestige-svg" aria-hidden="true"></span>
-          <div>
-            <small>Prestígio</small>
-            <strong data-counter="prestigePoints">0</strong>
-          </div>
+        <article class="resource-pill prestige-resource">
+          <img src="img/icons/prestige.png" alt="">
+          <span><small>Prestígio</small><strong id="prestigeCounter">0</strong></span>
         </article>
       </section>
     </header>
 
-    <nav class="view-tabs" aria-label="Navegação do jogo">
-      <button class="tab active" type="button" data-view="farmView">Fazenda</button>
-      <button class="tab" type="button" data-view="industryView">Indústria</button>
-      <button class="tab" type="button" data-view="upgradeView">Upgrades</button>
-      <button class="tab" type="button" data-view="missionView">Missões</button>
-      <button class="tab" type="button" data-view="prestigeView">Prestígio</button>
-      <button class="tab" type="button" data-view="settingsView">Config</button>
+    <nav class="main-nav" aria-label="Áreas do jogo">
+      <button class="nav-tab active" type="button" data-view="farmView"><span>🌱</span> Fazenda</button>
+      <button class="nav-tab" type="button" data-view="stockView"><span>🧺</span> Estoque <b id="stockNavBadge">0</b></button>
+      <button class="nav-tab" type="button" data-view="evolveView"><span>🛠️</span> Evoluções</button>
+      <button class="nav-tab" type="button" data-view="officeView"><span>📋</span> Escritório <b id="officeNavBadge">0</b></button>
+      <button class="nav-tab" type="button" data-view="settingsView"><span>⚙️</span> Configurações</button>
     </nav>
 
-    <main class="layout">
-      <aside class="left-panel">
-        <section class="season-card" id="seasonCard">
-          <div class="season-head">
-            <span class="season-icon" data-season-icon></span>
-            <div>
-              <small>Estação atual</small>
-              <h2 data-season-name>Primavera</h2>
-            </div>
+    <main>
+      <section class="view active" id="farmView" data-view-panel="farmView">
+        <div class="farm-hero panel-card">
+          <div class="hero-copy">
+            <p class="eyebrow">seu refúgio produtivo</p>
+            <h1>Plante devagar. Cresça sempre.</h1>
+            <p>As culturas trabalham no próprio ritmo, inclusive enquanto você está longe. Cuide delas, amplie o domínio e deixe a fazenda florescer.</p>
+            <div class="mini-metrics" id="farmMetrics"></div>
           </div>
-          <p data-season-description>Produção equilibrada.</p>
-          <div class="season-progress" aria-hidden="true"><span data-season-progress></span></div>
-          <div class="season-mini-stats">
-            <span data-season-time>00s</span>
-            <span data-season-bonus>+0%</span>
+          <article class="season-panel" id="seasonPanel" aria-label="Estação atual"></article>
+        </div>
+
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">área de cultivo</p>
+            <h2>Seus canteiros</h2>
           </div>
-        </section>
-
-        <section class="panel-card compact-stats">
-          <h2>Resumo</h2>
-          <div class="stat-line"><span>Plantas compradas</span><strong data-stat="owned">0</strong></div>
-          <div class="stat-line"><span>Estoque total</span><strong data-stat="stock">0</strong></div>
-          <div class="stat-line"><span>Contratos feitos</span><strong data-stat="contracts">0</strong></div>
-          <div class="stat-line"><span>Total vendido</span><strong data-stat="sold">0</strong></div>
-          <div class="stat-line"><span>Prestígios feitos</span><strong data-stat="prestiges">0</strong></div>
-        </section>
-
-        <section class="panel-card log-card">
-          <h2>Eventos</h2>
-          <div class="log-list" id="logList"></div>
-        </section>
-      </aside>
-
-      <section class="content">
-        <section class="view active" id="farmView">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">plantas, produção e venda rápida</p>
-              <h2>Campo de cultivo</h2>
-            </div>
-            <div class="toolbar">
-              <input id="searchCrop" type="search" placeholder="Buscar planta..." autocomplete="off" />
-              <select id="categoryFilter" aria-label="Filtrar por categoria">
-                <option value="all">Todas</option>
-              </select>
-              <select id="sortMode" aria-label="Ordenar plantas">
-                <option value="progression">Progressão</option>
-                <option value="price">Maior preço</option>
-                <option value="stock">Maior estoque</option>
-                <option value="level">Maior nível</option>
-              </select>
-            </div>
+          <div class="toolbar">
+            <label class="search-field">
+              <span aria-hidden="true">⌕</span>
+              <input id="searchCrop" type="search" placeholder="Buscar cultura..." autocomplete="off">
+            </label>
+            <select id="categoryFilter" aria-label="Filtrar por categoria">
+              <option value="all">Todas as categorias</option>
+            </select>
+            <select id="sortCrops" aria-label="Ordenar culturas">
+              <option value="default">Ordem natural</option>
+              <option value="owned">Compradas primeiro</option>
+              <option value="stock">Maior estoque</option>
+              <option value="mastery">Maior domínio</option>
+              <option value="price">Maior valor</option>
+            </select>
           </div>
-          <div class="crop-grid" id="cropGrid"></div>
-        </section>
+        </div>
+        <div class="crop-grid" id="cropGrid"></div>
+        <div class="empty-state hidden" id="cropEmpty">Nenhuma cultura corresponde a essa busca.</div>
+      </section>
 
-        <section class="view" id="industryView">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">contratos, pedidos e bônus</p>
-              <h2>Venda para a indústria</h2>
-            </div>
-            <div class="toolbar">
-              <button class="secondary" type="button" id="sellAllUnlocked">Vender estoque comum</button>
-              <button class="primary" type="button" id="rerollContracts">Novos contratos</button>
-            </div>
+      <section class="view" id="stockView" data-view-panel="stockView">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">produção guardada</p>
+            <h1>Estoque da fazenda</h1>
+            <p class="section-copy">Venda em pequenas quantidades ou esvazie o celeiro de uma vez. Os preços variam suavemente com as estações e sua reputação.</p>
           </div>
-          <div class="industry-board" id="contractList"></div>
-        </section>
+          <button class="button primary" id="sellAllStock" type="button">Vender todo o estoque</button>
+        </div>
+        <div class="stock-summary" id="stockSummary"></div>
+        <div class="stock-grid" id="stockGrid"></div>
+      </section>
 
-        <section class="view" id="upgradeView">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">melhorias permanentes</p>
-              <h2>Centro de upgrades</h2>
+      <section class="view" id="evolveView" data-view-panel="evolveView">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">melhorias para toda a fazenda</p>
+            <h1>Centro de evoluções</h1>
+            <p class="section-copy">Aprimoramentos acumulativos tornam cada retorno mais recompensador, sem exigir pressa.</p>
+          </div>
+        </div>
+
+        <h2 class="subsection-title">Infraestrutura</h2>
+        <div class="upgrade-grid" id="upgradeList"></div>
+
+        <div class="section-divider"></div>
+        <h2 class="subsection-title">Centro de pesquisa</h2>
+        <p class="section-copy">Pontos de pesquisa chegam principalmente por contratos e missões.</p>
+        <div class="upgrade-grid" id="researchList"></div>
+
+        <div class="section-divider"></div>
+        <div class="prestige-hero panel-card" id="prestigeDashboard"></div>
+        <h2 class="subsection-title">Legados permanentes</h2>
+        <div class="upgrade-grid prestige-grid" id="prestigeList"></div>
+      </section>
+
+      <section class="view" id="officeView" data-view-panel="officeView">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">parcerias e recompensas</p>
+            <h1>Escritório da cooperativa</h1>
+            <p class="section-copy">Entregue pedidos industriais por valores melhores e construa uma reputação que libera novas sementes.</p>
+          </div>
+          <button class="button secondary" id="rerollContracts" type="button">Renovar contratos</button>
+        </div>
+        <div class="contract-grid" id="contractList"></div>
+
+        <div class="section-divider"></div>
+        <div class="section-heading compact-heading">
+          <div>
+            <p class="eyebrow">metas sem prazo</p>
+            <h2>Missões da fazenda</h2>
+          </div>
+        </div>
+        <div class="mission-grid" id="missionList"></div>
+      </section>
+
+      <section class="view" id="settingsView" data-view-panel="settingsView">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">seu jeito de jogar</p>
+            <h1>Configurações</h1>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <article class="panel-card settings-card">
+            <h2>Experiência</h2>
+            <label class="setting-row">
+              <span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span>
+              <input id="ambientSetting" type="checkbox">
+            </label>
+            <label class="setting-row">
+              <span><strong>Reduzir movimentos</strong><small>Desativa animações que não são essenciais.</small></span>
+              <input id="reducedMotionSetting" type="checkbox">
+            </label>
+            <label class="setting-row">
+              <span><strong>Cards compactos</strong><small>Exibe mais culturas ao mesmo tempo.</small></span>
+              <input id="compactCardsSetting" type="checkbox">
+            </label>
+            <label class="range-setting">
+              <span><strong>Escala da interface</strong><small id="uiScaleText">100%</small></span>
+              <input id="uiScaleSetting" type="range" min="85" max="115" step="5" value="100">
+            </label>
+          </article>
+
+          <article class="panel-card settings-card">
+            <h2>Salvar e transferir</h2>
+            <p>O progresso é salvo automaticamente no navegador a cada 15 segundos.</p>
+            <div class="button-row">
+              <button class="button primary" id="saveNow" type="button">Salvar agora</button>
+              <button class="button secondary" id="exportSave" type="button">Baixar save</button>
             </div>
-          </div>
-          <h3 class="subsection-title">Infraestrutura da fazenda</h3>
-          <div class="upgrade-grid" id="upgradeList"></div>
-
-          <h3 class="subsection-title">Centro de pesquisa</h3>
-          <p class="subsection-copy">Use os pontos de pesquisa dos contratos e missões para liberar tecnologias que mudam a progressão do jogo.</p>
-          <div class="research-grid" id="researchTechList"></div>
-        </section>
-
-        <section class="view" id="missionView">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">objetivos e recompensas</p>
-              <h2>Missões da fazenda</h2>
+            <textarea id="saveBox" placeholder="O save exportado aparece aqui. Também é possível colar um save para importá-lo."></textarea>
+            <div class="button-row">
+              <button class="button secondary" id="importSave" type="button">Importar texto</button>
+              <button class="button danger" id="resetGame" type="button">Apagar progresso</button>
             </div>
-          </div>
-          <div class="mission-list" id="missionList"></div>
-        </section>
+          </article>
 
-
-        <section class="view" id="prestigeView">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">renascimento, legado e avanço permanente</p>
-              <h2>Sistema de prestígio</h2>
-            </div>
-          </div>
-          <div class="prestige-dashboard" id="prestigeDashboard"></div>
-          <h3 class="subsection-title">Loja de prestígio</h3>
-          <p class="subsection-copy">Pontos de prestígio são permanentes. Ao prestigiar, a fazenda reinicia, mas seu legado continua mais forte.</p>
-          <div class="prestige-grid" id="prestigeUpgradeList"></div>
-        </section>
-
-        <section class="view" id="settingsView">
-          <div class="section-head">
-            <div>
-              <p class="eyebrow">salvamento local</p>
-              <h2>Configurações</h2>
-            </div>
-          </div>
-          <div class="settings-grid">
-            <article class="panel-card">
-              <h3>Salvar / carregar</h3>
-              <p>O jogo salva automaticamente no navegador. Você também pode exportar o save para guardar em outro lugar.</p>
-              <div class="stack-actions">
-                <button class="primary" type="button" id="saveNow">Salvar agora</button>
-                <button class="secondary" type="button" id="exportSave">Exportar save</button>
-              </div>
-              <textarea id="saveBox" placeholder="O save exportado aparece aqui. Para importar, cole um save e clique em Importar."></textarea>
-              <div class="stack-actions">
-                <button class="secondary" type="button" id="importSave">Importar save</button>
-                <button class="danger" type="button" id="resetGame">Resetar jogo</button>
-              </div>
-            </article>
-
-            <article class="panel-card">
-              <h3>Como jogar</h3>
-              <ul class="tips">
-                <li>Compre plantas para liberar a produção automática.</li>
-                <li>Cada estação altera velocidade, rendimento e preço de venda.</li>
-                <li>Venda produtos comuns ou complete contratos industriais por bônus.</li>
-                <li>Use pesquisa para tecnologias avançadas de genética, mercado, indústria e prestígio.</li>
-                <li>Quando sua fazenda estiver forte, faça prestígio para ganhar pontos permanentes.</li>
-                <li>Todas as plantas usam imagens SVG próprias na pasta img, com artes individuais por cultura.</li>
-              </ul>
-            </article>
-          </div>
-        </section>
+          <article class="panel-card settings-card guide-card">
+            <h2>Como jogar</h2>
+            <ol>
+              <li>Comece cuidando da cebola e venda as primeiras colheitas.</li>
+              <li>Novas culturas são liberadas com nível da fazenda e reputação.</li>
+              <li>A barra verde de cada card mostra a próxima colheita; a barra dourada mostra o domínio da cultura.</li>
+              <li>Contratos concedem pesquisa e reputação, enquanto missões não expiram.</li>
+              <li>O prestígio reinicia a fazenda, mas preserva pontos e legados permanentes.</li>
+            </ol>
+          </article>
+        </div>
       </section>
     </main>
+
+    <footer class="app-footer">
+      <span>Agricultura Industrial</span>
+      <span>Seu progresso é salvo localmente.</span>
+    </footer>
   </div>
 
-  <div class="toast-zone" id="toastZone" aria-live="polite"></div>
-  <script src="main.js"></script>
+  <div class="toast-zone" id="toastZone" aria-live="polite" aria-atomic="true"></div>
 </body>
-
 </html>
