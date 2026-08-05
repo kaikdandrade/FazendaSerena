@@ -4821,3 +4821,429 @@ body {
     width: 100%;
   }
 }
+
+/* ========================================================================== */
+/* REVISÃO 10 — normalização visual definitiva                               */
+/* ========================================================================== */
+
+:root {
+  --space-1: .35rem;
+  --space-2: .55rem;
+  --space-3: .8rem;
+  --space-4: 1rem;
+  --space-5: 1.3rem;
+  --control-height: 2.45rem;
+  --card-radius: 1rem;
+  --card-border: 1px solid rgba(63, 101, 72, .13);
+}
+
+/* Navegação principal à esquerda e contextual à direita, na mesma linha. */
+.navigation-stack {
+  position: sticky !important;
+  top: 5.9rem !important;
+  z-index: 25 !important;
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: var(--space-3) !important;
+  width: 100% !important;
+  margin: .55rem 0 1rem !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.main-nav,
+.context-nav-column {
+  position: static !important;
+  display: flex !important;
+  align-items: center !important;
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: .3rem !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  border: 1px solid rgba(255,255,255,.78) !important;
+  border-radius: 1rem !important;
+  background: rgba(252,252,247,.94) !important;
+  box-shadow: 0 .4rem 1.2rem rgba(48,72,55,.08) !important;
+  scrollbar-width: none;
+}
+
+.main-nav { justify-content: flex-start !important; }
+.context-nav-column { justify-content: flex-end !important; margin-left: auto !important; }
+.context-nav-column[hidden] { display: none !important; }
+
+.main-nav::-webkit-scrollbar,
+.context-nav-column::-webkit-scrollbar,
+.context-tabs::-webkit-scrollbar { display: none; }
+
+.context-tabs,
+.office-tabs,
+.evolution-tabs {
+  display: flex !important;
+  align-items: center !important;
+  gap: .25rem !important;
+  width: max-content !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.nav-tab,
+.office-tab,
+.evolution-tab {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  min-height: var(--control-height) !important;
+  padding: 0 .78rem !important;
+  gap: .4rem !important;
+  border-radius: .75rem !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+}
+
+.nav-tab-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+  font-size: .95rem !important;
+}
+
+.nav-tab-icon img { width: 1.1rem !important; height: 1.1rem !important; }
+.nav-tab-label { font-size: .72rem !important; font-weight: 900 !important; }
+.office-tab > span,
+.evolution-tab > span { display: inline-flex !important; align-items: center !important; gap: .35rem !important; }
+.evolution-tab small { display: none !important; }
+
+/* O estoque usa o próprio tab como indicador circular, sem texto percentual. */
+.stock-nav-tab { isolation: isolate; overflow: visible !important; }
+.stock-nav-tab::before {
+  inset: -.12rem !important;
+  padding: .13rem !important;
+  border-radius: .85rem !important;
+  background: conic-gradient(from -90deg, var(--stock-ring-color, #69a95d) var(--stock-progress), rgba(72,105,78,.14) 0) !important;
+}
+.stock-nav-tab > * { position: relative; z-index: 2; }
+.stock-nav-tab.stock-full,
+.stock-nav-tab.stock-full.active {
+  --stock-ring-color: #bc5b55;
+  color: #873f3a !important;
+  background: #f7d8d5 !important;
+}
+
+/* Botões indisponíveis nunca parecem compráveis. */
+.button:disabled,
+.button.primary:disabled,
+.button.gold:disabled,
+.button.secondary:disabled,
+.crop-upgrade-cta:disabled,
+.upgrade-card .button:disabled {
+  opacity: 1 !important;
+  color: #829087 !important;
+  border-color: #d9dfda !important;
+  background: #e9eeea !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.normalized-upgrade-card.unaffordable {
+  border-color: rgba(91,108,97,.12) !important;
+  background: linear-gradient(145deg, rgba(249,250,247,.92), rgba(239,242,238,.86)) !important;
+}
+
+/* Recursos sempre alinhados em uma única linha. */
+.resource-amount,
+.inline-resource {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: .22rem !important;
+  vertical-align: middle !important;
+  line-height: 1 !important;
+}
+.resource-amount img,
+.inline-resource img { flex: 0 0 auto; align-self: center !important; }
+.resource-sign,
+.resource-amount b,
+.inline-resource b {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 1em;
+  line-height: 1 !important;
+}
+.resource-sign { transform: translateY(0) !important; }
+
+/* Cards e grids usam espaçamento, altura e raios consistentes. */
+.crop-grid,
+.stock-grid,
+.upgrade-grid,
+.contract-grid,
+.active-contract-grid,
+.order-grid,
+.mission-grid,
+.achievement-grid {
+  align-items: stretch !important;
+  gap: .75rem !important;
+}
+
+.crop-card,
+.stock-card,
+.upgrade-card,
+.contract-card,
+.order-card,
+.mission-card,
+.summary-card {
+  min-width: 0;
+  border: var(--card-border) !important;
+  border-radius: var(--card-radius) !important;
+  box-shadow: 0 .55rem 1.35rem rgba(52,76,59,.075) !important;
+}
+
+.crop-card,
+.normalized-stock-card,
+.normalized-upgrade-card,
+.normalized-contract-card,
+.normalized-order-card {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: .65rem !important;
+  padding: .75rem !important;
+}
+
+/* Aprimoramento: uma escolha clara e custo coerente com o modo selecionado. */
+.crop-upgrade-redesign {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: .45rem !important;
+  margin-top: auto;
+  padding: .55rem !important;
+  border-radius: .8rem !important;
+  background: #f2f7ef !important;
+}
+.upgrade-mode-selector {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: .25rem !important;
+  padding: .2rem !important;
+  border-radius: .65rem !important;
+}
+.upgrade-mode-option {
+  min-height: 2rem !important;
+  padding: 0 .45rem !important;
+  font-size: .62rem !important;
+  border-radius: .5rem !important;
+}
+.crop-upgrade-summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: .45rem !important;
+  min-height: 1.8rem;
+  padding: 0 .2rem !important;
+}
+.crop-upgrade-summary > span { font-size: .61rem !important; white-space: normal !important; }
+.crop-upgrade-cta { grid-column: auto !important; min-height: 2.2rem !important; }
+.route-order { color: #64528a !important; background: rgba(169,146,202,.17) !important; }
+
+/* Estoque: dois resumos equilibrados e cards compactos. */
+#stockView .stock-toolbar { display: flex !important; justify-content: flex-end !important; }
+#stockView .stock-toolbar select { width: min(16rem,100%) !important; min-width: 0 !important; }
+.stock-summary {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: .75rem !important;
+  margin-bottom: 1rem !important;
+}
+.normalized-summary-card {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: .65rem !important;
+  min-height: 9rem !important;
+  padding: .9rem !important;
+  background: rgba(255,255,252,.82) !important;
+}
+.summary-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .7rem;
+}
+.summary-card-heading small { display: block; color: var(--ink-soft); font-size: .62rem; font-weight: 850; }
+.summary-card-heading strong { display: block; margin-top: .1rem; font-size: 1.1rem; }
+.summary-status {
+  padding: .25rem .5rem;
+  border-radius: 999px;
+  color: var(--green-deep);
+  font-size: .58rem;
+  font-weight: 900;
+  background: rgba(109,168,92,.12);
+}
+.summary-status.full { color: #8b403a; background: rgba(184,93,89,.13); }
+.stock-sale-summary p { color: var(--ink-soft); font-size: .7rem; }
+
+.stock-grid { grid-template-columns: repeat(auto-fill, minmax(17.5rem,1fr)) !important; }
+.normalized-stock-card { justify-content: flex-start; }
+.stock-head { min-height: 3.1rem; }
+.stock-ident { align-items: center !important; }
+.stock-ident img { width: 3.1rem !important; height: 3.1rem !important; border-radius: .75rem !important; }
+.stock-value-grid {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: .35rem;
+}
+.stock-value-grid > div {
+  min-width: 0;
+  padding: .5rem;
+  border-radius: .7rem;
+  background: #f3f7f0;
+}
+.stock-value-grid small { display: block; color: var(--ink-soft); font-size: .55rem; font-weight: 850; }
+.stock-value-grid strong { display: flex; align-items: center; min-height: 1.55rem; margin-top: .14rem; font-size: .72rem; }
+.stock-value-grid strong > span { margin-left: .15rem; color: var(--ink-soft); font-size: .58rem; }
+.compact-auto-toggle,
+.order-auto-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: .7rem !important;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: .5rem .65rem !important;
+  border: 1px solid rgba(70,104,73,.12) !important;
+  border-radius: .75rem !important;
+  color: var(--ink) !important;
+  text-align: left;
+  background: #f5f7f2 !important;
+  cursor: pointer;
+}
+.compact-auto-toggle.active,
+.order-auto-toggle.active { border-color: rgba(92,147,80,.28) !important; background: #e9f4e4 !important; }
+.compact-auto-toggle > span:first-child,
+.order-auto-toggle > span:first-child { display: grid; gap: .1rem; }
+.compact-auto-toggle strong,
+.order-auto-toggle strong { font-size: .68rem; }
+.compact-auto-toggle small,
+.order-auto-toggle small { color: var(--ink-soft); font-size: .56rem; }
+.stock-priority-note {
+  display: grid;
+  gap: .12rem;
+  padding: .5rem .6rem;
+  border-radius: .7rem;
+  color: #66572d;
+  background: #faf1d8;
+}
+.stock-priority-note strong { font-size: .64rem; }
+.stock-priority-note small { font-size: .55rem; }
+.stock-actions { display: grid !important; grid-template-columns: .75fr .75fr 1.2fr !important; gap: .35rem !important; margin-top: auto; }
+.stock-actions .button { min-width: 0 !important; min-height: 2.15rem !important; padding: 0 .35rem !important; }
+
+/* Evoluções e prestígio. */
+.normalized-upgrade-card { height: 100%; }
+.normalized-upgrade-card .button { margin-top: auto; }
+.normalized-prestige-card { padding: 1rem !important; }
+.normalized-prestige-requirements { padding: .85rem !important; }
+.prestige-driver-grid { grid-template-columns: repeat(4,minmax(0,1fr)) !important; }
+.prestige-driver-grid article {
+  display: block !important;
+  padding: .7rem !important;
+  border: 1px solid rgba(79,110,82,.09);
+  background: #f3f6f1 !important;
+}
+.prestige-driver-grid article.ready { border-color: rgba(93,153,80,.21); background: #edf6e9 !important; }
+.prestige-driver-grid article > div { display: grid; gap: .2rem; }
+.prestige-driver-grid article strong { margin: 0 !important; }
+.prestige-locked { filter: saturate(.78); }
+
+/* Contratos sem ícones decorativos e com uma única área de recompensa. */
+.contract-capacity { display: none !important; }
+.contract-section-icon,
+.company-ribbon > span,
+.contract-complete-celebration,
+.immediate-stock-note,
+.contract-routing-note,
+.automatic-contract-note { display: none !important; }
+.contract-section-head > div { align-items: flex-start !important; }
+.text-only-ribbon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: .65rem !important;
+  min-height: 2.6rem;
+  padding: .55rem .65rem !important;
+}
+.text-only-ribbon div { min-width: 0; }
+.text-only-ribbon em { margin-left: auto; text-align: right; }
+.normalized-contract-card { height: 100%; }
+.contract-reward-unified {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+  padding: .6rem .7rem;
+  border-radius: .75rem;
+  background: #f4f7f1;
+}
+.contract-reward-unified > span { color: var(--ink-soft); font-size: .62rem; font-weight: 900; }
+.contract-reward-unified .resource-reward-group { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
+.contract-loss-warning { margin-top: auto; }
+.contract-cooldown-card {
+  display: grid !important;
+  align-content: center;
+  gap: .65rem !important;
+  min-height: 14rem;
+  padding: 1rem !important;
+  border-style: dashed !important;
+  background: rgba(247,248,244,.82) !important;
+}
+.contract-cooldown-card h3 { margin-top: .15rem; font-size: .95rem; }
+.contract-cooldown-card p { margin-top: .2rem; color: var(--ink-soft); font-size: .68rem; }
+.contract-cooldown-card > strong { color: var(--green-deep); font-size: 1.2rem; }
+
+/* Pedidos: entrega manual simples e automática com prioridade correta. */
+.normalized-order-card { height: 100%; }
+.normalized-order-card .order-auto-toggle { margin-top: auto; }
+.auto-order-enabled { border-color: rgba(111,85,151,.23) !important; }
+.order-card .button:disabled { color: #849089 !important; background: #e8ece8 !important; }
+
+/* Responsividade: quando não houver espaço, cada bloco de navegação ocupa uma linha inteira. */
+@media (max-width: 1080px) {
+  .navigation-stack {
+    position: static !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .main-nav,
+  .context-nav-column {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+  }
+  .main-nav { justify-content: flex-start !important; }
+  .context-nav-column { justify-content: flex-end !important; }
+  .prestige-driver-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+}
+
+@media (max-width: 720px) {
+  .navigation-stack { gap: .35rem !important; }
+  .main-nav,
+  .context-nav-column { padding: .22rem !important; border-radius: .8rem !important; }
+  .nav-tab,
+  .office-tab,
+  .evolution-tab { min-height: 2.2rem !important; padding: 0 .62rem !important; }
+  .stock-summary { grid-template-columns: 1fr !important; }
+  .stock-value-grid { grid-template-columns: 1fr 1fr !important; }
+  .stock-value-grid > div:first-child { grid-column: 1 / -1; }
+  .stock-actions { grid-template-columns: repeat(3,minmax(0,1fr)) !important; }
+  .prestige-driver-grid { grid-template-columns: 1fr !important; }
+  .contract-reward-unified { align-items: flex-start; flex-direction: column; }
+  .contract-reward-unified .resource-reward-group { justify-content: flex-start; }
+}

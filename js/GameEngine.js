@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 11;
+  static SAVE_VERSION = 12;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -43,7 +43,7 @@ class GameEngine {
         autoSell: false,
         productionBuffer: 0
       };
-      orders[crop.id] = { tier: 0, delivered: 0 };
+      orders[crop.id] = { tier: 0, delivered: 0, autoDeliver: false };
     });
 
     return {
@@ -61,6 +61,7 @@ class GameEngine {
       permanentBonuses: { prestigeDouble: Boolean(permanent.permanentBonuses?.prestigeDouble) },
       cropsDiscovered: { ...(permanent.cropsDiscovered || {}) },
       contractOffers: [],
+      contractCooldowns: [],
       activeContracts: [],
       contractSerial: 1,
       missionsClaimed: { ...(permanent.missionsClaimed || {}) },
@@ -174,6 +175,12 @@ class GameEngine {
       orders: {}
     };
 
+    // Na Revisão 10, a antiga escala visual de 85% passou a ser o novo 100%.
+    // Preserva a aparência de quem havia escolhido explicitamente 85% antes da migração.
+    if (Number(input.version || 0) < 12 && Number(input.settings?.uiScale) === 85) {
+      merged.settings.uiScale = 100;
+    }
+
     this.data.crops.forEach(crop => {
       const previous = input.crops?.[crop.id] || {};
       merged.crops[crop.id] = {
@@ -190,7 +197,8 @@ class GameEngine {
       const previousOrder = input.orders?.[crop.id] || {};
       merged.orders[crop.id] = {
         tier: Math.max(0, Math.min(this.data.orderSteps.length, Math.floor(Number(previousOrder.tier) || 0))),
-        delivered: Math.max(0, Math.floor(Number(previousOrder.delivered) || 0))
+        delivered: Math.max(0, Math.floor(Number(previousOrder.delivered) || 0)),
+        autoDeliver: Boolean(previousOrder.autoDeliver)
       };
       const step = this.data.orderSteps[merged.orders[crop.id].tier];
       if (step) merged.orders[crop.id].delivered = Math.min(step.amount, merged.orders[crop.id].delivered);
@@ -208,7 +216,7 @@ class GameEngine {
       && Number(input.stats?.contractsCompleted || 0) === 0;
     if (untouchedRevisionFive) {
       Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
-      merged.orders.onion = { tier: 0, delivered: 0 };
+      merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
       merged.coins = 100 + Number(merged.prestigeUpgrades.seedCapital || 0) * 250;
     } else if (Number(input.version || 0) < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
       merged.coins = Math.min(merged.coins, 100 + Number(merged.prestigeUpgrades.seedCapital || 0) * 250);
@@ -222,13 +230,17 @@ class GameEngine {
       && Number(input.stats?.contractsCompleted || 0) === 0;
     if (legacyStarterOnly) {
       Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
-      merged.orders.onion = { tier: 0, delivered: 0 };
+      merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
     }
 
     const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
     const rawOffers = Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts;
     const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
     merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, 6);
+    merged.contractCooldowns = (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : [])
+      .map(value => this.normalizeContractCooldown(value))
+      .filter(Boolean)
+      .slice(0, 6);
     merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
     Reflect.deleteProperty(merged, "contracts");
     merged.version = GameEngine.SAVE_VERSION;
@@ -301,6 +313,7 @@ class GameEngine {
     localStorage.removeItem(GameEngine.STORAGE_KEY);
     this.state = this.createState();
     this.state.contractOffers = [];
+    this.state.contractCooldowns = [];
     this.state.activeContracts = [];
     this.save();
   }
@@ -346,7 +359,7 @@ class GameEngine {
       const cropState = this.state.crops[crop.id];
       if (!cropState.owned || cropState.level <= 0) continue;
 
-      const directRoute = cropState.autoSell || this.hasActiveContractForCrop(crop.id);
+      const directRoute = cropState.autoSell || this.hasActiveContractForCrop(crop.id) || this.hasActiveAutoOrderForCrop(crop.id);
       if (!directRoute && this.getStorageRemaining() <= 0) {
         cropState.progress = Math.min(cropState.progress, 0.995);
         continue;
@@ -406,6 +419,13 @@ class GameEngine {
       if (contract.delivered >= contract.amount) this.markContractComplete(contract.id, silent, true);
     }
 
+    let orderDelivered = 0;
+    if (remaining > 0 && this.hasActiveAutoOrderForCrop(cropId)) {
+      const orderResult = this.deliverUnitsToOrder(cropId, remaining, silent, true);
+      orderDelivered = orderResult.delivered;
+      remaining -= orderDelivered;
+    }
+
     if (remaining > 0 && cropState.autoSell) {
       autoSold = remaining;
       gain = Math.floor(autoSold * this.getSalePrice(cropId));
@@ -422,6 +442,7 @@ class GameEngine {
     return {
       accepted: Math.max(0, amount - remaining),
       delivered,
+      orderDelivered,
       autoSold,
       stored,
       gain,
@@ -431,6 +452,12 @@ class GameEngine {
 
   hasActiveContractForCrop(cropId) {
     return this.state.activeContracts.some(contract => contract.cropId === cropId && contract.delivered < contract.amount && !contract.completedAt && contract.timeRemaining > 0);
+  }
+
+  hasActiveAutoOrderForCrop(cropId) {
+    const orderState = this.state.orders[cropId];
+    const order = this.getOrder(cropId);
+    return Boolean(orderState?.autoDeliver && order && !order.complete);
   }
 
   advanceContractTimers(seconds, silent = false) {
@@ -932,8 +959,23 @@ class GameEngine {
     return result;
   }
 
+
+  normalizeContractCooldown(value, now = Date.now()) {
+    const rawAvailableAt = typeof value === "object" && value !== null ? value.availableAt : value;
+    const availableAt = Math.floor(Number(rawAvailableAt) || 0);
+    if (availableAt <= now) return null;
+    const remainingSeconds = Math.max(1, Math.ceil((availableAt - now) / 1000));
+    const rawDuration = typeof value === "object" && value !== null ? value.durationSeconds : remainingSeconds;
+    const durationSeconds = Math.max(remainingSeconds, Math.min(120, Math.max(1, Math.floor(Number(rawDuration) || remainingSeconds))));
+    const startedAt = typeof value === "object" && value !== null
+      ? Math.floor(Number(value.startedAt) || (availableAt - durationSeconds * 1000))
+      : availableAt - durationSeconds * 1000;
+    return { availableAt, startedAt, durationSeconds };
+  }
+
   ensureContractOffers() {
     if (!Array.isArray(this.state.contractOffers)) this.state.contractOffers = [];
+    if (!Array.isArray(this.state.contractCooldowns)) this.state.contractCooldowns = [];
     if (!Array.isArray(this.state.activeContracts)) this.state.activeContracts = [];
     this.state.contractOffers = this.state.contractOffers
       .map(contract => this.normalizeContract(contract, false))
@@ -943,13 +985,26 @@ class GameEngine {
       .map(contract => this.normalizeContract(contract, true))
       .filter(Boolean)
       .slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
+
+    const now = Date.now();
+    const normalizedCooldowns = this.state.contractCooldowns.map(value => this.normalizeContractCooldown(value, now));
+    const expiredCooldowns = normalizedCooldowns.filter(value => !value).length;
+    this.state.contractCooldowns = normalizedCooldowns.filter(Boolean).slice(0, 6);
+
     if (!this.getOwnedCrops().length) {
       this.state.contractOffers = [];
+      this.state.contractCooldowns = [];
       return;
     }
-    if (this.state.contractOffers.length < 6) {
-      this.state.contractOffers.push(...this.createContractOffers(6 - this.state.contractOffers.length));
+
+    if (expiredCooldowns > 0) {
+      this.state.contractOffers.push(...this.createContractOffers(Math.min(expiredCooldowns, 6 - this.state.contractOffers.length)));
     }
+    const occupiedSlots = this.state.contractOffers.length + this.state.contractCooldowns.length;
+    if (occupiedSlots < 6) {
+      this.state.contractOffers.push(...this.createContractOffers(6 - occupiedSlots));
+    }
+    this.state.contractOffers = this.state.contractOffers.slice(0, Math.max(0, 6 - this.state.contractCooldowns.length));
   }
 
   getCompany(companyId) {
@@ -1011,8 +1066,15 @@ class GameEngine {
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [contract] = this.state.contractOffers.splice(index, 1);
+    const cooldownSeconds = 60 + Math.floor(Math.random() * 61);
+    const startedAt = Date.now();
+    this.state.contractCooldowns.push({
+      startedAt,
+      availableAt: startedAt + cooldownSeconds * 1000,
+      durationSeconds: cooldownSeconds
+    });
     this.ensureContractOffers();
-    return { ok: true, contract };
+    return { ok: true, contract, cooldownSeconds };
   }
 
   deliverStockToContract(id, silent = false) {
@@ -1114,32 +1176,89 @@ class GameEngine {
     };
   }
 
+  completeOrderStage(cropId, order, silent = false, automatic = false) {
+    this.state.orders[cropId].tier += 1;
+    this.state.orders[cropId].delivered = 0;
+    if (this.state.orders[cropId].tier >= this.data.orderSteps.length) this.state.stats.completedOrderSeries += 1;
+    this.state.stats.ordersCompleted += 1;
+    this.state.stats.lifetimeOrdersCompleted += 1;
+    this.addCoins(order.rewardCoins);
+    this.state.research += order.rewardResearch;
+    this.addFarmXP(order.amount * 0.16 + 8, silent);
+    if (automatic && !silent) {
+      this.emit("toast", { message: `Pedido automático de ${order.crop.name.toLowerCase()} concluído. A recompensa foi recebida.` });
+    }
+    return { coins: order.rewardCoins, research: order.rewardResearch };
+  }
+
+  deliverUnitsToOrder(cropId, amount, silent = false, automatic = false) {
+    let remaining = Math.max(0, Math.floor(Number(amount) || 0));
+    let delivered = 0;
+    let completedOrders = 0;
+    const rewards = { coins: 0, research: 0 };
+    let lastOrder = null;
+
+    while (remaining > 0) {
+      const order = this.getOrder(cropId);
+      if (!order || order.complete) break;
+      lastOrder = order;
+      const sent = Math.min(remaining, order.remaining);
+      if (sent < 1) break;
+      this.state.orders[cropId].delivered += sent;
+      this.state.stats.orderUnitsDelivered += sent;
+      this.state.stats.lifetimeOrderUnitsDelivered += sent;
+      remaining -= sent;
+      delivered += sent;
+
+      if (this.state.orders[cropId].delivered >= order.amount) {
+        const reward = this.completeOrderStage(cropId, order, silent, automatic);
+        rewards.coins += reward.coins;
+        rewards.research += reward.research;
+        completedOrders += 1;
+      }
+    }
+
+    return { delivered, completedOrders, rewards, order: lastOrder };
+  }
+
   deliverOrder(cropId) {
     const order = this.getOrder(cropId);
     if (!order) return { ok: false, message: "Compre esta cultura para liberar seus pedidos." };
     if (order.complete) return { ok: false, message: "Todos os pedidos desta cultura já foram concluídos." };
     const cropState = this.state.crops[cropId];
-    const delivered = Math.min(cropState.stock, order.remaining);
-    if (delivered < 1) return { ok: false, message: `Produza ${order.crop.name.toLowerCase()} para continuar este pedido.` };
+    const available = Math.min(cropState.stock, order.remaining);
+    if (available < 1) return { ok: false, message: `Produza ${order.crop.name.toLowerCase()} antes de realizar uma entrega.` };
 
-    cropState.stock -= delivered;
-    this.state.orders[cropId].delivered += delivered;
-    this.state.stats.orderUnitsDelivered += delivered;
-    this.state.stats.lifetimeOrderUnitsDelivered += delivered;
-    const completed = this.state.orders[cropId].delivered >= order.amount;
+    cropState.stock -= available;
+    const result = this.deliverUnitsToOrder(cropId, available, false, false);
+    return {
+      ok: result.delivered > 0,
+      delivered: result.delivered,
+      completed: result.completedOrders > 0,
+      order,
+      rewards: result.rewards
+    };
+  }
 
-    if (completed) {
-      this.state.orders[cropId].tier += 1;
-      this.state.orders[cropId].delivered = 0;
-      if (this.state.orders[cropId].tier >= this.data.orderSteps.length) this.state.stats.completedOrderSeries += 1;
-      this.state.stats.ordersCompleted += 1;
-      this.state.stats.lifetimeOrdersCompleted += 1;
-      this.addCoins(order.rewardCoins);
-      this.state.research += order.rewardResearch;
-      this.addFarmXP(order.amount * 0.16 + 8);
+  setOrderAutoDelivery(cropId, enabled) {
+    const crop = this.getCrop(cropId);
+    const cropState = this.state.crops[cropId];
+    const orderState = this.state.orders[cropId];
+    if (!crop || !cropState?.owned || !orderState) return { ok: false, message: "Compre esta cultura antes de configurar os pedidos." };
+    const order = this.getOrder(cropId);
+    if (!order || order.complete) return { ok: false, message: "A série de pedidos desta cultura já foi concluída." };
+    orderState.autoDeliver = Boolean(enabled);
+
+    let routed = { delivered: 0, completedOrders: 0, rewards: { coins: 0, research: 0 } };
+    if (orderState.autoDeliver && cropState.stock > 0) {
+      routed = this.deliverUnitsToOrder(cropId, cropState.stock, false, true);
+      cropState.stock = Math.max(0, cropState.stock - routed.delivered);
     }
+    return { ok: true, crop, enabled: orderState.autoDeliver, ...routed };
+  }
 
-    return { ok: true, delivered, completed, order };
+  toggleOrderAutoDelivery(cropId) {
+    return this.setOrderAutoDelivery(cropId, !this.state.orders[cropId]?.autoDeliver);
   }
 
   getReadyOrderCount() {
@@ -1199,6 +1318,7 @@ class GameEngine {
   }
 
   getPrestigeEstimate() {
+    if (this.state.farmLevel < 15) return 0;
     const owned = Object.values(this.state.crops).filter(item => item.owned).length;
     const score = Math.sqrt(Math.max(0, this.state.stats.runCoinsEarned) / 42000) + owned / 9 + this.state.farmLevel / 9 + this.state.stats.contractsCompleted / 7 - 3.2;
     const theory = 1 + Number(this.state.researchTechs.prestigeTheory || 0) * 0.08;
@@ -1207,6 +1327,7 @@ class GameEngine {
   }
 
   performPrestige() {
+    if (this.state.farmLevel < 15) return { ok: false, message: "O prestígio fica disponível no nível 15 da fazenda." };
     const gain = this.getPrestigeEstimate();
     if (gain < 1) return { ok: false, message: "Fortaleça mais a fazenda antes de prestigiar." };
     const permanent = {
@@ -1237,6 +1358,7 @@ class GameEngine {
     };
     this.state = this.createState(permanent);
     this.state.contractOffers = [];
+    this.state.contractCooldowns = [];
     this.state.activeContracts = [];
     this.save();
     return { ok: true, gain };
