@@ -1,7 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 41;
+  static SAVE_VERSION = 42;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -45,7 +45,8 @@ class GameEngine {
       musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows",
       numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian",
       playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
-      playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48)
+      playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
+      playerRankingOptOut: Boolean(permanent.settings?.playerRankingOptOut)
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -222,6 +223,14 @@ class GameEngine {
     merged.settings.numberFormat = merged.settings.numberFormat === "international" ? "international" : "brazilian";
     merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
     merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+    merged.settings.playerRankingOptOut = Boolean(merged.settings.playerRankingOptOut);
+    if (Number(input.version || 0) < 42) {
+      const legacyAvatarMap = { frog_1: "chameleon", frog_2: "frog_1", frog_3: "frog_2", owl: "hawk" };
+      merged.settings.playerAvatar = legacyAvatarMap[merged.settings.playerAvatar] || merged.settings.playerAvatar;
+    }
+    if (Array.isArray(window.AvatarData) && !window.AvatarData.some(avatar => avatar.id === merged.settings.playerAvatar)) {
+      merged.settings.playerAvatar = "";
+    }
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");

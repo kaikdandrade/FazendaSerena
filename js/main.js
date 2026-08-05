@@ -103,6 +103,7 @@
     playerNicknameSetting: $("#playerNicknameSetting"),
     playerAvatarPicker: $("#playerAvatarPicker"),
     playerAvatarSetting: $("#playerAvatarSetting"),
+    playerRankingOptOut: $("#playerRankingOptOut"),
     selectedAvatarPreview: $("#selectedAvatarPreview"),
     selectedAvatarImage: $("#selectedAvatarImage"),
     selectedAvatarName: $("#selectedAvatarName"),
@@ -361,6 +362,7 @@
     const storedNickname = sanitizeNickname(engine?.state?.settings?.playerNickname);
     const storedAvatarId = getAvatarEntry(engine?.state?.settings?.playerAvatar)?.id || "";
     const profileComplete = signedIn && hasCompletePlayerProfile();
+    const rankingOptOut = Boolean(engine?.state?.settings?.playerRankingOptOut);
     const profileDirty = dom.playerProfileForm?.dataset.dirty === "true";
 
     if (dom.accountName) {
@@ -408,6 +410,7 @@
       const googleSuggestion = signedIn ? sanitizeNickname(user.displayName || "") : "";
       if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = storedNickname || (googleSuggestion.length >= 4 ? googleSuggestion : "");
       if (dom.playerAvatarSetting) dom.playerAvatarSetting.value = storedAvatarId;
+      if (dom.playerRankingOptOut) dom.playerRankingOptOut.checked = rankingOptOut;
       setProfileFeedback("");
     }
 
@@ -418,6 +421,7 @@
       dom.playerNicknameSetting.placeholder = signedIn ? "Seu apelido no ranking" : "Entre com o Google para definir";
     }
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = !signedIn;
+    if (dom.playerRankingOptOut) dom.playerRankingOptOut.disabled = !signedIn;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = !signedIn;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = !signedIn;
     if (!signedIn && dom.avatarPickerPanel) {
@@ -426,16 +430,13 @@
     }
 
     if (dom.profileCompletionBadge) {
-      dom.profileCompletionBadge.textContent = profileComplete ? "Perfil completo" : "Incompleto";
-      dom.profileCompletionBadge.classList.toggle("complete", profileComplete);
+      dom.profileCompletionBadge.textContent = profileComplete ? (rankingOptOut ? "Fora do ranking" : "Salvo") : "Incompleto";
+      dom.profileCompletionBadge.classList.toggle("complete", profileComplete && !rankingOptOut);
+      dom.profileCompletionBadge.classList.toggle("opted-out", profileComplete && rankingOptOut);
     }
     if (dom.profileRankingNotice) {
-      dom.profileRankingNotice.classList.toggle("complete", profileComplete);
-      dom.profileRankingNotice.textContent = !signedIn
-        ? "Entre com o Google, escolha um apelido e um avatar para poder participar do ranking global."
-        : profileComplete
-          ? "Perfil completo: sua fazenda participa do ranking global. As cinco melhores aparecem no topo e sua posição pessoal também é mostrada nas Estatísticas."
-          : "Somente jogadores conectados com apelido e avatar salvos participam do ranking global.";
+      dom.profileRankingNotice.classList.remove("complete");
+      dom.profileRankingNotice.textContent = "Somente jogadores conectados com apelido e avatar salvos participam do ranking global.";
     }
 
     if (!signedIn) setCloudSaveStatus("guest");
@@ -448,6 +449,7 @@
     if (dom.resetProgressButton) dom.resetProgressButton.disabled = busy;
     if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
+    if (dom.playerRankingOptOut) dom.playerRankingOptOut.disabled = profileDisabled;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = profileDisabled;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
     $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
@@ -1018,6 +1020,11 @@
     const categoryFilter = dom.stockCategoryFilter?.value || "all";
     const allOwned = engine.data.crops.filter(crop => engine.state.crops[crop.id].owned);
     const owned = allOwned.filter(crop => categoryFilter === "all" || crop.category === categoryFilter);
+    const upcomingLocked = engine.data.crops
+      .filter(crop => !engine.state.crops[crop.id].owned && crop.unlockLevel > engine.state.farmLevel)
+      .sort((cropA, cropB) => (cropA.unlockLevel - cropB.unlockLevel) || (cropA.index - cropB.index))
+      .slice(0, 3)
+      .filter(crop => categoryFilter === "all" || crop.category === categoryFilter);
     const totalCapacity = engine.getStorageCap();
     const storageUsed = engine.getStorageUsed();
     const storagePct = percent((storageUsed / totalCapacity) * 100);
@@ -1045,16 +1052,7 @@
         <button class="auto-sell-toggle global-auto-sell-toggle ${allAutoSellEnabled ? "active" : ""}" type="button" data-action="toggle-all-auto-sell" aria-pressed="${String(allAutoSellEnabled)}" ${allOwned.length ? "" : "disabled"}><span><strong>${allAutoSellEnabled ? "Desativar todas" : "Ativar todas"}</strong><small>${allAutoSellEnabled ? "Todas as vendas estão ativas" : enabledAutoSellCount ? "Ativar as vendas restantes" : "Nenhuma venda automática ativa"}</small></span><span class="auto-sell-switch"><i></i></span></button>
       </article>`;
 
-    if (!allOwned.length) {
-      dom.stockGrid.innerHTML = `<div class="empty-state">Compre sua primeira cultura para começar a encher o celeiro.</div>`;
-      return;
-    }
-    if (!owned.length) {
-      dom.stockGrid.innerHTML = `<div class="empty-state">Nenhum item pertence à categoria selecionada.</div>`;
-      return;
-    }
-
-    dom.stockGrid.innerHTML = owned.map(crop => {
+    const ownedCards = owned.map(crop => {
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
       return `
@@ -1064,7 +1062,18 @@
           <button class="auto-sell-toggle compact-auto-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}"><span><strong>Venda automática</strong><small>${data.autoSell ? "Ativada" : "Desativada"}</small></span><span class="auto-sell-switch"><i></i></span></button>
           <div class="stock-actions"><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>25%</button><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.5" ${data.stock <= 0 ? "disabled" : ""}>50%</button><button class="button primary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="1" ${data.stock <= 0 ? "disabled" : ""}>Vender tudo</button></div>
         </article>`;
-    }).join("");
+    });
+    const lockedCards = upcomingLocked.map(crop => `
+      <article class="stock-card normalized-stock-card stock-card-locked" title="${escapeHtml(crop.name)} será desbloqueada no nível ${crop.unlockLevel}">
+        <span class="stock-lock-icon" aria-hidden="true"></span>
+        <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div></div>
+        <div class="stock-locked-copy"><small>Próxima cultura</small><strong>Desbloqueia no nível ${crop.unlockLevel}</strong><p>Ela aparecerá no estoque depois que for liberada e comprada na Fazenda.</p></div>
+      </article>`);
+
+    const cards = [...ownedCards, ...lockedCards];
+    dom.stockGrid.innerHTML = cards.length
+      ? cards.join("")
+      : `<div class="empty-state">Nenhum item pertence à categoria selecionada.</div>`;
   }
 
   function featureGateMarkup({ eyebrow, title, description, level }) {
@@ -1865,6 +1874,11 @@
       setProfileFeedback("Alterações ainda não salvas.", "pending");
     });
 
+    dom.playerRankingOptOut?.addEventListener("change", () => {
+      if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
+      setProfileFeedback("Alterações ainda não salvas.", "pending");
+    });
+
     dom.toggleAvatarPicker?.addEventListener("click", () => {
       if (!dom.avatarPickerPanel) return;
       const willOpen = dom.avatarPickerPanel.hidden;
@@ -1899,6 +1913,7 @@
 
       const nickname = sanitizeNickname(dom.playerNicknameSetting?.value);
       const avatar = getAvatarEntry(dom.playerAvatarSetting?.value);
+      const rankingOptOut = Boolean(dom.playerRankingOptOut?.checked);
       if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = nickname;
 
       if (nickname.length < 4) {
@@ -1920,6 +1935,7 @@
       try {
         engine.setSetting("playerNickname", nickname);
         engine.setSetting("playerAvatar", avatar.id);
+        engine.setSetting("playerRankingOptOut", rankingOptOut);
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
         leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
         const saveResult = await engine.save();
@@ -1927,7 +1943,7 @@
         updateAccountUI();
         if (dom.avatarPickerPanel) dom.avatarPickerPanel.hidden = true;
         if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.setAttribute("aria-expanded", "false");
-        setProfileFeedback("Perfil salvo na nuvem. Sua fazenda já participa do ranking global.", "success");
+        setProfileFeedback(rankingOptOut ? "Perfil salvo na nuvem. Sua fazenda não será exibida no ranking global." : "Perfil salvo na nuvem e publicado no ranking global.", "success");
         if (activeView === "officeView" && activeOfficeTab === "stats") await refreshPrestigeLeaderboard(true);
       } catch (error) {
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";

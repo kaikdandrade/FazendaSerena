@@ -169,7 +169,8 @@ class FirebaseManager {
   hasCompleteLeaderboardProfile(state) {
     const nickname = this.normalizeNickname(state?.settings?.playerNickname);
     const avatar = this.getAvatarEntry(state?.settings?.playerAvatar);
-    return nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
+    const rankingOptOut = Boolean(state?.settings?.playerRankingOptOut);
+    return !rankingOptOut && nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
   }
 
   buildLeaderboardEntry(state, user = this.currentUser) {

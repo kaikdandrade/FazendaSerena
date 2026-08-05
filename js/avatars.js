@@ -2,174 +2,6 @@
 
 window.AvatarData = Object.freeze([
   {
-    "id": "avatar_1",
-    "label": "Avatar 1",
-    "type": "human",
-    "src": "assets/avatars/avatar_1.png"
-  },
-  {
-    "id": "avatar_2",
-    "label": "Avatar 2",
-    "type": "human",
-    "src": "assets/avatars/avatar_2.png"
-  },
-  {
-    "id": "avatar_3",
-    "label": "Avatar 3",
-    "type": "human",
-    "src": "assets/avatars/avatar_3.png"
-  },
-  {
-    "id": "avatar_4",
-    "label": "Avatar 4",
-    "type": "human",
-    "src": "assets/avatars/avatar_4.png"
-  },
-  {
-    "id": "avatar_5",
-    "label": "Avatar 5",
-    "type": "human",
-    "src": "assets/avatars/avatar_5.png"
-  },
-  {
-    "id": "avatar_6",
-    "label": "Avatar 6",
-    "type": "human",
-    "src": "assets/avatars/avatar_6.png"
-  },
-  {
-    "id": "avatar_7",
-    "label": "Avatar 7",
-    "type": "human",
-    "src": "assets/avatars/avatar_7.png"
-  },
-  {
-    "id": "avatar_8",
-    "label": "Avatar 8",
-    "type": "human",
-    "src": "assets/avatars/avatar_8.png"
-  },
-  {
-    "id": "avatar_9",
-    "label": "Avatar 9",
-    "type": "human",
-    "src": "assets/avatars/avatar_9.png"
-  },
-  {
-    "id": "avatar_10",
-    "label": "Avatar 10",
-    "type": "human",
-    "src": "assets/avatars/avatar_10.png"
-  },
-  {
-    "id": "avatar_11",
-    "label": "Avatar 11",
-    "type": "human",
-    "src": "assets/avatars/avatar_11.png"
-  },
-  {
-    "id": "avatar_12",
-    "label": "Avatar 12",
-    "type": "human",
-    "src": "assets/avatars/avatar_12.png"
-  },
-  {
-    "id": "avatar_13",
-    "label": "Avatar 13",
-    "type": "human",
-    "src": "assets/avatars/avatar_13.png"
-  },
-  {
-    "id": "avatar_14",
-    "label": "Avatar 14",
-    "type": "human",
-    "src": "assets/avatars/avatar_14.png"
-  },
-  {
-    "id": "avatar_15",
-    "label": "Avatar 15",
-    "type": "human",
-    "src": "assets/avatars/avatar_15.png"
-  },
-  {
-    "id": "avatar_16",
-    "label": "Avatar 16",
-    "type": "human",
-    "src": "assets/avatars/avatar_16.png"
-  },
-  {
-    "id": "avatar_17",
-    "label": "Avatar 17",
-    "type": "human",
-    "src": "assets/avatars/avatar_17.png"
-  },
-  {
-    "id": "avatar_18",
-    "label": "Avatar 18",
-    "type": "human",
-    "src": "assets/avatars/avatar_18.png"
-  },
-  {
-    "id": "avatar_19",
-    "label": "Avatar 19",
-    "type": "human",
-    "src": "assets/avatars/avatar_19.png"
-  },
-  {
-    "id": "avatar_20",
-    "label": "Avatar 20",
-    "type": "human",
-    "src": "assets/avatars/avatar_20.png"
-  },
-  {
-    "id": "avatar_21",
-    "label": "Avatar 21",
-    "type": "human",
-    "src": "assets/avatars/avatar_21.png"
-  },
-  {
-    "id": "avatar_22",
-    "label": "Avatar 22",
-    "type": "human",
-    "src": "assets/avatars/avatar_22.png"
-  },
-  {
-    "id": "avatar_23",
-    "label": "Avatar 23",
-    "type": "human",
-    "src": "assets/avatars/avatar_23.png"
-  },
-  {
-    "id": "avatar_24",
-    "label": "Avatar 24",
-    "type": "human",
-    "src": "assets/avatars/avatar_24.png"
-  },
-  {
-    "id": "avatar_25",
-    "label": "Avatar 25",
-    "type": "human",
-    "src": "assets/avatars/avatar_25.png"
-  },
-  {
-    "id": "avatar_26",
-    "label": "Avatar 26",
-    "type": "human",
-    "src": "assets/avatars/avatar_26.png"
-  },
-  {
-    "id": "avatar_27",
-    "label": "Avatar 27",
-    "type": "human",
-    "src": "assets/avatars/avatar_27.png"
-  },
-  {
-    "id": "avatar_28",
-    "label": "Avatar 28",
-    "type": "human",
-    "src": "assets/avatars/avatar_28.png"
-  },
-  {
     "id": "dog_1",
     "label": "Cachorro 1",
     "type": "animal",
@@ -266,10 +98,10 @@ window.AvatarData = Object.freeze([
     "src": "assets/avatars/rabbit.png"
   },
   {
-    "id": "frog_1",
-    "label": "Sapo 1",
+    "id": "chameleon",
+    "label": "Camaleão",
     "type": "animal",
-    "src": "assets/avatars/frog_1.png"
+    "src": "assets/avatars/chameleon.png"
   },
   {
     "id": "antelope",
@@ -338,10 +170,10 @@ window.AvatarData = Object.freeze([
     "src": "assets/avatars/zebra.png"
   },
   {
-    "id": "owl",
-    "label": "Coruja",
+    "id": "hawk",
+    "label": "Gavião",
     "type": "animal",
-    "src": "assets/avatars/owl.png"
+    "src": "assets/avatars/hawk.png"
   },
   {
     "id": "lemur",
@@ -398,15 +230,15 @@ window.AvatarData = Object.freeze([
     "src": "assets/avatars/macaw_2.png"
   },
   {
+    "id": "frog_1",
+    "label": "Sapo 1",
+    "type": "animal",
+    "src": "assets/avatars/frog_1.png"
+  },
+  {
     "id": "frog_2",
     "label": "Sapo 2",
     "type": "animal",
     "src": "assets/avatars/frog_2.png"
-  },
-  {
-    "id": "frog_3",
-    "label": "Sapo 3",
-    "type": "animal",
-    "src": "assets/avatars/frog_3.png"
   }
 ].map(Object.freeze));

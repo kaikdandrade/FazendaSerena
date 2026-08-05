@@ -7685,3 +7685,121 @@ body {
   .crop-mastery-badge img { height: 16px; width: 16px; }
 
 }
+
+
+/* ========================================================================== */
+/* Revisão 42 — privacidade do ranking, avatares animais e bloqueios limpos   */
+/* ========================================================================== */
+.profile-ranking-choice {
+  background: rgba(241,245,237,.72);
+  border: 1px solid rgba(68,105,66,.12);
+  border-radius: 14px;
+  margin: 0 !important;
+  min-height: 58px;
+  padding: 10px 12px !important;
+}
+
+.profile-ranking-choice > span { display: grid; gap: 3px; }
+.profile-ranking-choice strong { color: var(--ink); font-size: .76rem; }
+.profile-ranking-choice small { color: var(--ink-soft); font-size: .6rem; line-height: 1.4; }
+
+.profile-completion-badge.opted-out {
+  background: rgba(83,106,124,.09);
+  border-color: rgba(57,82,101,.16);
+  color: #526878;
+}
+
+.player-profile-fields { --profile-control-height: 54px; }
+.profile-nickname-field input,
+.selected-avatar-preview,
+.avatar-picker-toggle {
+  height: var(--profile-control-height) !important;
+  min-height: var(--profile-control-height) !important;
+}
+.avatar-picker-toggle { align-self: stretch; }
+
+/* O cadeado já comunica o bloqueio: sem bolha branca, borda ou sombra. */
+.nav-tab.feature-preview::after,
+.office-tab.feature-preview::after,
+.evolution-tab.feature-preview::after,
+.upgrade-card-preview::after,
+.crop-card.level-locked .locked-art::after {
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 2px 2px rgba(16,47,66,.18));
+  z-index: 30 !important;
+}
+
+.nav-tab.feature-preview::after,
+.office-tab.feature-preview::after,
+.evolution-tab.feature-preview::after {
+  background-size: contain !important;
+  height: 27px !important;
+  right: 7px !important;
+  top: 6px !important;
+  width: 27px !important;
+}
+
+.upgrade-card-preview::after {
+  background-size: contain !important;
+  height: 34px !important;
+  right: 11px !important;
+  top: 10px !important;
+  width: 34px !important;
+}
+
+.crop-card.level-locked .locked-art::after {
+  background-size: contain !important;
+  height: 43px !important;
+  width: 43px !important;
+}
+
+.stock-card-locked {
+  background: linear-gradient(145deg, rgba(246,248,242,.9), rgba(239,244,236,.86)) !important;
+  border-style: dashed !important;
+  min-height: 205px;
+  overflow: hidden;
+  position: relative;
+}
+
+.stock-card-locked .stock-ident img {
+  filter: grayscale(.65) opacity(.58);
+}
+
+.stock-card-locked .stock-head,
+.stock-card-locked .stock-locked-copy { position: relative; z-index: 1; }
+
+.stock-lock-icon {
+  background: url("../assets/icons/feature-lock.png") center / contain no-repeat;
+  filter: drop-shadow(0 3px 3px rgba(16,47,66,.2));
+  height: 44px;
+  pointer-events: none;
+  position: absolute;
+  right: 13px;
+  top: 12px;
+  width: 44px;
+  z-index: 30;
+}
+
+.stock-locked-copy {
+  background: rgba(255,255,255,.48);
+  border-radius: 13px;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+.stock-locked-copy small { color: var(--green); font-size: .57rem; font-weight: 950; text-transform: uppercase; }
+.stock-locked-copy strong { color: var(--green-deep); font-size: .82rem; }
+.stock-locked-copy p { color: var(--ink-soft); font-size: .62rem; line-height: 1.45; margin: 0; }
+
+@media (max-width: 768px) {
+  .profile-ranking-choice { align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .player-profile-fields { --profile-control-height: 52px; }
+  .profile-ranking-choice { align-items: flex-start; }
+  .stock-lock-icon { height: 40px; width: 40px; }
+}
