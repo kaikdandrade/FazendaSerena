@@ -65,50 +65,66 @@ const SEASONS = [
 ];
 
 const CROPS = [
-  { id: 'folha', name: 'Folha', type: 'leaf', industry: 'Hortifruti Verde', color: '#55c863', accent: '#d7ffd7', basePrice: 2, baseGrowth: 5.2, baseYield: 3, best: ['spring', 'winter'] },
-  { id: 'cebola', name: 'Cebola', type: 'root', industry: 'Conservas Raiz Forte', color: '#d9b57c', accent: '#fff0c8', basePrice: 4, baseGrowth: 6.3, baseYield: 2, best: ['spring', 'autumn'] },
-  { id: 'batata', name: 'Batata', type: 'root', industry: 'Fábrica de Chips', color: '#c89b61', accent: '#ffe0a1', basePrice: 5, baseGrowth: 6.8, baseYield: 2, best: ['autumn'] },
-  { id: 'batata-doce', name: 'Batata Doce', type: 'root', industry: 'Doces da Terra', color: '#b9697f', accent: '#ffd1dd', basePrice: 6, baseGrowth: 7.2, baseYield: 2, best: ['spring', 'autumn'] },
-  { id: 'cenoura', name: 'Cenoura', type: 'root', industry: 'Sopas Industriais', color: '#ff8f2c', accent: '#bcff71', basePrice: 7, baseGrowth: 7.8, baseYield: 2, best: ['spring'] },
-  { id: 'tomate', name: 'Tomate', type: 'vine', industry: 'Molhos Rubi', color: '#ed3939', accent: '#7ce06d', basePrice: 9, baseGrowth: 8.2, baseYield: 2, best: ['spring', 'summer'] },
-  { id: 'alho', name: 'Alho', type: 'root', industry: 'Temperos Finos', color: '#ece3d0', accent: '#b9e27a', basePrice: 10, baseGrowth: 8.5, baseYield: 2, best: ['autumn'] },
-  { id: 'pimentao', name: 'Pimentão', type: 'fruit', industry: 'Legumes Selecionados', color: '#2dbb63', accent: '#f24949', basePrice: 12, baseGrowth: 9.0, baseYield: 2, best: ['summer'] },
-  { id: 'banana', name: 'Banana', type: 'tropical', industry: 'Vitaminas Tropicais', color: '#ffe257', accent: '#2faa67', basePrice: 14, baseGrowth: 9.7, baseYield: 2, best: ['summer'] },
-  { id: 'melao', name: 'Melão', type: 'vine', industry: 'Sucos Claros', color: '#d4e56b', accent: '#79c25d', basePrice: 16, baseGrowth: 10.2, baseYield: 2, best: ['summer'] },
-  { id: 'melancia', name: 'Melancia', type: 'vine', industry: 'Refrescos Gigantes', color: '#2ca85f', accent: '#ff4e66', basePrice: 18, baseGrowth: 10.8, baseYield: 2, best: ['summer'] },
-  { id: 'maca', name: 'Maçã', type: 'tree', industry: 'Compotas de Pomares', color: '#dd2525', accent: '#7bd36e', basePrice: 20, baseGrowth: 11.5, baseYield: 2, best: ['autumn'] },
-  { id: 'limao', name: 'Limão', type: 'tree', industry: 'Citrus Lab', color: '#cbf246', accent: '#5ab84e', basePrice: 22, baseGrowth: 12.2, baseYield: 2, best: ['summer'] },
-  { id: 'caju', name: 'Caju', type: 'tropical', industry: 'Polpas Tropicais', color: '#ff9a39', accent: '#b54b2a', basePrice: 24, baseGrowth: 12.7, baseYield: 2, best: ['summer'] },
-  { id: 'pepino', name: 'Pepino', type: 'vine', industry: 'Pickles Premium', color: '#57b557', accent: '#d7ff90', basePrice: 26, baseGrowth: 13.2, baseYield: 2, best: ['spring', 'summer'] },
-  { id: 'alface', name: 'Alface', type: 'leaf', industry: 'Saladas Prontas', color: '#8be36b', accent: '#d7ffd1', basePrice: 28, baseGrowth: 13.8, baseYield: 2, best: ['spring', 'winter'] },
-  { id: 'berinjela', name: 'Berinjela', type: 'fruit', industry: 'Antepastos Roxos', color: '#6834a1', accent: '#b990ff', basePrice: 32, baseGrowth: 14.4, baseYield: 2, best: ['summer', 'autumn'] },
-  { id: 'maracuja', name: 'Maracujá', type: 'tropical', industry: 'Sucos Ácidos', color: '#ffd34e', accent: '#7b42b3', basePrice: 35, baseGrowth: 15.0, baseYield: 2, best: ['summer'] },
-  { id: 'pimenta', name: 'Pimenta', type: 'fruit', industry: 'Molhos Ardentes', color: '#e32727', accent: '#74d16b', basePrice: 38, baseGrowth: 15.5, baseYield: 2, best: ['summer'] },
-  { id: 'cereja', name: 'Cereja', type: 'tree', industry: 'Doceria Cereja Real', color: '#b91037', accent: '#7cd65b', basePrice: 42, baseGrowth: 16.2, baseYield: 2, best: ['spring'] },
-  { id: 'uva', name: 'Uva', type: 'vine', industry: 'Sucos de Parreira', color: '#7138d4', accent: '#9be06c', basePrice: 46, baseGrowth: 16.8, baseYield: 2, best: ['autumn'] },
-  { id: 'morango', name: 'Morango', type: 'bush', industry: 'Geleias Vermelhas', color: '#ef3152', accent: '#9fe65b', basePrice: 50, baseGrowth: 17.4, baseYield: 2, best: ['spring'] },
-  { id: 'kiwi', name: 'Kiwi', type: 'vine', industry: 'Vitaminas Verdes', color: '#78b84a', accent: '#e4d0a2', basePrice: 55, baseGrowth: 18.1, baseYield: 2, best: ['autumn'] },
-  { id: 'abacate', name: 'Abacate', type: 'tree', industry: 'Cremes Naturais', color: '#4a9b48', accent: '#ffe084', basePrice: 60, baseGrowth: 18.8, baseYield: 2, best: ['summer'] },
-  { id: 'mamao', name: 'Mamão', type: 'tropical', industry: 'Polpas Doces', color: '#ff9d3e', accent: '#58b46c', basePrice: 66, baseGrowth: 19.6, baseYield: 2, best: ['summer'] },
-  { id: 'abobora', name: 'Abóbora', type: 'vine', industry: 'Sopas Douradas', color: '#f1892d', accent: '#72bc52', basePrice: 72, baseGrowth: 20.3, baseYield: 2, best: ['autumn'] },
-  { id: 'beterraba', name: 'Beterraba', type: 'root', industry: 'Corantes Naturais', color: '#a51f51', accent: '#7fdd5a', basePrice: 79, baseGrowth: 21.1, baseYield: 2, best: ['winter', 'autumn'] },
-  { id: 'laranja', name: 'Laranja', type: 'tree', industry: 'Citrus Lab', color: '#ff9b2f', accent: '#6ccf57', basePrice: 86, baseGrowth: 22.0, baseYield: 2, best: ['summer'] },
-  { id: 'mirtilo', name: 'Mirtilo', type: 'bush', industry: 'Geleias Nobres', color: '#445fd8', accent: '#8be282', basePrice: 94, baseGrowth: 22.8, baseYield: 2, best: ['spring'] },
-  { id: 'pera', name: 'Pera', type: 'tree', industry: 'Compotas de Pomares', color: '#b9d957', accent: '#65b252', basePrice: 103, baseGrowth: 23.7, baseYield: 2, best: ['autumn'] },
-  { id: 'pitaya', name: 'Pitaya', type: 'tropical', industry: 'Frutas Exóticas', color: '#ff4da6', accent: '#f4f4f4', basePrice: 113, baseGrowth: 24.6, baseYield: 2, best: ['summer'] },
-  { id: 'carambola', name: 'Carambola', type: 'tree', industry: 'Frutas Estrela', color: '#e4d947', accent: '#6bc261', basePrice: 124, baseGrowth: 25.6, baseYield: 2, best: ['summer'] },
-  { id: 'pessego', name: 'Pêssego', type: 'tree', industry: 'Doces Aveludados', color: '#ffad7d', accent: '#76cf61', basePrice: 136, baseGrowth: 26.6, baseYield: 2, best: ['spring', 'summer'] },
-  { id: 'abacaxi', name: 'Abacaxi', type: 'tropical', industry: 'Sucos Tropicais', color: '#e9bc38', accent: '#3fad5b', basePrice: 149, baseGrowth: 27.6, baseYield: 2, best: ['summer'] },
-  { id: 'coco', name: 'Coco', type: 'tropical', industry: 'Águas Naturais', color: '#93643e', accent: '#f5f1df', basePrice: 164, baseGrowth: 28.8, baseYield: 2, best: ['summer'] },
-  { id: 'goiaba', name: 'Goiaba', type: 'tree', industry: 'Goiabadas', color: '#77ba58', accent: '#ff8195', basePrice: 180, baseGrowth: 30.0, baseYield: 2, best: ['summer'] },
-  { id: 'manga', name: 'Manga', type: 'tropical', industry: 'Polpas Tropicais', color: '#ffbd3d', accent: '#e85a3b', basePrice: 198, baseGrowth: 31.2, baseYield: 2, best: ['summer'] },
-  { id: 'amora', name: 'Amora', type: 'bush', industry: 'Geleias Nobres', color: '#512070', accent: '#9b67d8', basePrice: 217, baseGrowth: 32.4, baseYield: 2, best: ['spring'] },
-  { id: 'milho', name: 'Milho', type: 'grain', industry: 'Cereal & Ração', color: '#ffd957', accent: '#73bf4d', basePrice: 238, baseGrowth: 33.7, baseYield: 2, best: ['autumn', 'winter'] },
-  { id: 'guarana', name: 'Guaraná', type: 'beverage', industry: 'Bebidas Energéticas', color: '#ca3044', accent: '#f2e6c8', basePrice: 262, baseGrowth: 35.2, baseYield: 2, best: ['summer'] },
-  { id: 'cafe', name: 'Café', type: 'beverage', industry: 'Torrefação Premium', color: '#7a4a2a', accent: '#65b95a', basePrice: 288, baseGrowth: 36.7, baseYield: 2, best: ['autumn'] },
-  { id: 'arroz', name: 'Arroz', type: 'grain', industry: 'Grãos Selecionados', color: '#f4ead0', accent: '#86d472', basePrice: 316, baseGrowth: 38.2, baseYield: 2, best: ['spring', 'autumn'] },
-  { id: 'feijao', name: 'Feijão', type: 'grain', industry: 'Grãos Selecionados', color: '#8f4a32', accent: '#71c65b', basePrice: 347, baseGrowth: 39.8, baseYield: 2, best: ['autumn'] },
-  { id: 'algodao', name: 'Algodão', type: 'fiber', industry: 'Indústria Têxtil', color: '#f8f8f0', accent: '#97d58b', basePrice: 382, baseGrowth: 41.4, baseYield: 2, best: ['winter', 'summer'] }
+{ id: 'folha', name: 'Folha', type: 'leaf', industry: 'Hortifruti Verde', color: '#55c863', accent: '#d7ffd7', basePrice: 2, baseGrowth: 5.2, baseYield: 3, best: ['spring', 'winter'] },
+{ id: 'cebola', name: 'Cebola', type: 'root', industry: 'Conservas Raiz Forte', color: '#d9b57c', accent: '#fff0c8', basePrice: 4, baseGrowth: 6.3, baseYield: 2, best: ['spring', 'autumn'] },
+{ id: 'batata', name: 'Batata', type: 'root', industry: 'Fábrica de Chips', color: '#c89b61', accent: '#ffe0a1', basePrice: 5, baseGrowth: 6.8, baseYield: 2, best: ['autumn'] },
+{ id: 'batata-doce', name: 'Batata Doce', type: 'root', industry: 'Doces da Terra', color: '#b9697f', accent: '#ffd1dd', basePrice: 6, baseGrowth: 7.2, baseYield: 2, best: ['spring', 'autumn'] },
+{ id: 'cenoura', name: 'Cenoura', type: 'root', industry: 'Sopas Industriais', color: '#ff8f2c', accent: '#bcff71', basePrice: 7, baseGrowth: 7.8, baseYield: 2, best: ['spring'] },
+{ id: 'tomate', name: 'Tomate', type: 'vine', industry: 'Molhos Rubi', color: '#ed3939', accent: '#7ce06d', basePrice: 9, baseGrowth: 8.2, baseYield: 2, best: ['spring', 'summer'] },
+{ id: 'alho', name: 'Alho', type: 'root', industry: 'Temperos Finos', color: '#ece3d0', accent: '#b9e27a', basePrice: 10, baseGrowth: 8.5, baseYield: 2, best: ['autumn'] },
+{ id: 'pimentao', name: 'Pimentão', type: 'fruit', industry: 'Legumes Selecionados', color: '#2dbb63', accent: '#f24949', basePrice: 12, baseGrowth: 9.0, baseYield: 2, best: ['summer'] },
+{ id: 'banana', name: 'Banana', type: 'tropical', industry: 'Vitaminas Tropicais', color: '#ffe257', accent: '#2faa67', basePrice: 14, baseGrowth: 9.7, baseYield: 2, best: ['summer'] },
+{ id: 'melao', name: 'Melão', type: 'vine', industry: 'Sucos Claros', color: '#d4e56b', accent: '#79c25d', basePrice: 16, baseGrowth: 10.2, baseYield: 2, best: ['summer'] },
+{ id: 'melancia', name: 'Melancia', type: 'vine', industry: 'Refrescos Gigantes', color: '#2ca85f', accent: '#ff4e66', basePrice: 18, baseGrowth: 10.8, baseYield: 2, best: ['summer'] },
+{ id: 'maca', name: 'Maçã', type: 'tree', industry: 'Compotas de Pomares', color: '#dd2525', accent: '#7bd36e', basePrice: 20, baseGrowth: 11.5, baseYield: 2, best: ['autumn'] },
+{ id: 'limao', name: 'Limão', type: 'tree', industry: 'Citrus Lab', color: '#cbf246', accent: '#5ab84e', basePrice: 22, baseGrowth: 12.2, baseYield: 2, best: ['summer'] },
+{ id: 'caju', name: 'Caju', type: 'tropical', industry: 'Polpas Tropicais', color: '#ff9a39', accent: '#b54b2a', basePrice: 24, baseGrowth: 12.7, baseYield: 2, best: ['summer'] },
+{ id: 'pepino', name: 'Pepino', type: 'vine', industry: 'Pickles Premium', color: '#57b557', accent: '#d7ff90', basePrice: 26, baseGrowth: 13.2, baseYield: 2, best: ['spring', 'summer'] },
+{ id: 'alface', name: 'Alface', type: 'leaf', industry: 'Saladas Prontas', color: '#8be36b', accent: '#d7ffd1', basePrice: 28, baseGrowth: 13.8, baseYield: 2, best: ['spring', 'winter'] },
+{ id: 'berinjela', name: 'Berinjela', type: 'fruit', industry: 'Antepastos Roxos', color: '#6834a1', accent: '#b990ff', basePrice: 32, baseGrowth: 14.4, baseYield: 2, best: ['summer', 'autumn'] },
+{ id: 'maracuja', name: 'Maracujá', type: 'tropical', industry: 'Sucos Ácidos', color: '#ffd34e', accent: '#7b42b3', basePrice: 35, baseGrowth: 15.0, baseYield: 2, best: ['summer'] },
+{ id: 'pimenta', name: 'Pimenta', type: 'fruit', industry: 'Molhos Ardentes', color: '#e32727', accent: '#74d16b', basePrice: 38, baseGrowth: 15.5, baseYield: 2, best: ['summer'] },
+{ id: 'cereja', name: 'Cereja', type: 'tree', industry: 'Doceria Cereja Real', color: '#b91037', accent: '#7cd65b', basePrice: 42, baseGrowth: 16.2, baseYield: 2, best: ['spring'] },
+{ id: 'uva', name: 'Uva', type: 'vine', industry: 'Sucos de Parreira', color: '#7138d4', accent: '#9be06c', basePrice: 46, baseGrowth: 16.8, baseYield: 2, best: ['autumn'] },
+{ id: 'morango', name: 'Morango', type: 'bush', industry: 'Geleias Vermelhas', color: '#ef3152', accent: '#9fe65b', basePrice: 50, baseGrowth: 17.4, baseYield: 2, best: ['spring'] },
+{ id: 'kiwi', name: 'Kiwi', type: 'vine', industry: 'Vitaminas Verdes', color: '#78b84a', accent: '#e4d0a2', basePrice: 55, baseGrowth: 18.1, baseYield: 2, best: ['autumn'] },
+{ id: 'abacate', name: 'Abacate', type: 'tree', industry: 'Cremes Naturais', color: '#4a9b48', accent: '#ffe084', basePrice: 60, baseGrowth: 18.8, baseYield: 2, best: ['summer'] },
+{ id: 'mamao', name: 'Mamão', type: 'tropical', industry: 'Polpas Doces', color: '#ff9d3e', accent: '#58b46c', basePrice: 66, baseGrowth: 19.6, baseYield: 2, best: ['summer'] },
+{ id: 'abobora', name: 'Abóbora', type: 'vine', industry: 'Sopas Douradas', color: '#f1892d', accent: '#72bc52', basePrice: 72, baseGrowth: 20.3, baseYield: 2, best: ['autumn'] },
+{ id: 'beterraba', name: 'Beterraba', type: 'root', industry: 'Corantes Naturais', color: '#a51f51', accent: '#7fdd5a', basePrice: 79, baseGrowth: 21.1, baseYield: 2, best: ['winter', 'autumn'] },
+{ id: 'laranja', name: 'Laranja', type: 'tree', industry: 'Citrus Lab', color: '#ff9b2f', accent: '#6ccf57', basePrice: 86, baseGrowth: 22.0, baseYield: 2, best: ['summer'] },
+{ id: 'mirtilo', name: 'Mirtilo', type: 'bush', industry: 'Geleias Nobres', color: '#445fd8', accent: '#8be282', basePrice: 94, baseGrowth: 22.8, baseYield: 2, best: ['spring'] },
+{ id: 'pera', name: 'Pera', type: 'tree', industry: 'Compotas de Pomares', color: '#b9d957', accent: '#65b252', basePrice: 103, baseGrowth: 23.7, baseYield: 2, best: ['autumn'] },
+{ id: 'pitaya', name: 'Pitaya', type: 'tropical', industry: 'Frutas Exóticas', color: '#ff4da6', accent: '#f4f4f4', basePrice: 113, baseGrowth: 24.6, baseYield: 2, best: ['summer'] },
+{ id: 'carambola', name: 'Carambola', type: 'tree', industry: 'Frutas Estrela', color: '#e4d947', accent: '#6bc261', basePrice: 124, baseGrowth: 25.6, baseYield: 2, best: ['summer'] },
+{ id: 'pessego', name: 'Pêssego', type: 'tree', industry: 'Doces Aveludados', color: '#ffad7d', accent: '#76cf61', basePrice: 136, baseGrowth: 26.6, baseYield: 2, best: ['spring', 'summer'] },
+{ id: 'abacaxi', name: 'Abacaxi', type: 'tropical', industry: 'Sucos Tropicais', color: '#e9bc38', accent: '#3fad5b', basePrice: 149, baseGrowth: 27.6, baseYield: 2, best: ['summer'] },
+{ id: 'coco', name: 'Coco', type: 'tropical', industry: 'Águas Naturais', color: '#93643e', accent: '#f5f1df', basePrice: 164, baseGrowth: 28.8, baseYield: 2, best: ['summer'] },
+{ id: 'goiaba', name: 'Goiaba', type: 'tree', industry: 'Goiabadas', color: '#77ba58', accent: '#ff8195', basePrice: 180, baseGrowth: 30.0, baseYield: 2, best: ['summer'] },
+{ id: 'manga', name: 'Manga', type: 'tropical', industry: 'Polpas Tropicais', color: '#ffbd3d', accent: '#e85a3b', basePrice: 198, baseGrowth: 31.2, baseYield: 2, best: ['summer'] },
+{ id: 'amora', name: 'Amora', type: 'bush', industry: 'Geleias Nobres', color: '#512070', accent: '#9b67d8', basePrice: 217, baseGrowth: 32.4, baseYield: 2, best: ['spring'] },
+{ id: 'milho', name: 'Milho', type: 'grain', industry: 'Cereal & Ração', color: '#ffd957', accent: '#73bf4d', basePrice: 238, baseGrowth: 33.7, baseYield: 2, best: ['autumn', 'winter'] },
+{ id: 'guarana', name: 'Guaraná', type: 'beverage', industry: 'Bebidas Energéticas', color: '#ca3044', accent: '#f2e6c8', basePrice: 262, baseGrowth: 35.2, baseYield: 2, best: ['summer'] },
+{ id: 'cafe', name: 'Café', type: 'beverage', industry: 'Torrefação Premium', color: '#7a4a2a', accent: '#65b95a', basePrice: 288, baseGrowth: 36.7, baseYield: 2, best: ['autumn'] },
+{ id: 'arroz', name: 'Arroz', type: 'grain', industry: 'Grãos Selecionados', color: '#f4ead0', accent: '#86d472', basePrice: 316, baseGrowth: 38.2, baseYield: 2, best: ['spring', 'autumn'] },
+{ id: 'feijao', name: 'Feijão', type: 'grain', industry: 'Grãos Selecionados', color: '#8f4a32', accent: '#71c65b', basePrice: 347, baseGrowth: 39.8, baseYield: 2, best: ['autumn'] },
+{ id: 'algodao', name: 'Algodão', type: 'fiber', industry: 'Indústria Têxtil', color: '#f8f8f0', accent: '#97d58b', basePrice: 382, baseGrowth: 41.4, baseYield: 2, best: ['winter', 'summer'] },
+  { id: 'repolho', name: 'Repolho', type: 'leaf', industry: 'Conservas Verdes', color: '#8fdc73', accent: '#dfffd1', basePrice: 420, baseGrowth: 42.8, baseYield: 2, best: ['winter', 'autumn'] },
+  { id: 'espinafre', name: 'Espinafre', type: 'leaf', industry: 'Mix Nutritivo', color: '#2b9a52', accent: '#b9f1a7', basePrice: 462, baseGrowth: 44.2, baseYield: 2, best: ['winter', 'spring'] },
+  { id: 'couve', name: 'Couve', type: 'leaf', industry: 'Verdes Funcionais', color: '#3ba85a', accent: '#c9ffa0', basePrice: 508, baseGrowth: 45.8, baseYield: 2, best: ['winter', 'autumn'] },
+  { id: 'brocolis', name: 'Brócolis', type: 'leaf', industry: 'Legumes Premium', color: '#4ea64e', accent: '#bce685', basePrice: 559, baseGrowth: 47.3, baseYield: 2, best: ['winter', 'autumn'] },
+  { id: 'couve-flor', name: 'Couve-flor', type: 'leaf', industry: 'Congelados Nobres', color: '#f2efe2', accent: '#8ad067', basePrice: 615, baseGrowth: 49.0, baseYield: 2, best: ['winter'] },
+  { id: 'mandioca', name: 'Mandioca', type: 'root', industry: 'Farinhas da Roça', color: '#c49d73', accent: '#9fd46b', basePrice: 677, baseGrowth: 50.8, baseYield: 2, best: ['summer', 'autumn'] },
+  { id: 'rabanete', name: 'Rabanete', type: 'root', industry: 'Conservas Crocantes', color: '#db4a74', accent: '#7ed95f', basePrice: 744, baseGrowth: 52.6, baseYield: 2, best: ['spring', 'winter'] },
+  { id: 'ervilha', name: 'Ervilha', type: 'vine', industry: 'Vegetais Enlatados', color: '#5fba57', accent: '#d8ff8a', basePrice: 818, baseGrowth: 54.5, baseYield: 2, best: ['spring', 'winter'] },
+  { id: 'soja', name: 'Soja', type: 'grain', industry: 'Proteína Vegetal', color: '#dfcf7b', accent: '#85c765', basePrice: 900, baseGrowth: 56.5, baseYield: 2, best: ['summer', 'autumn'] },
+  { id: 'trigo', name: 'Trigo', type: 'grain', industry: 'Moinhos Dourados', color: '#efc95a', accent: '#88c567', basePrice: 990, baseGrowth: 58.6, baseYield: 2, best: ['autumn', 'winter'] },
+  { id: 'aveia', name: 'Aveia', type: 'grain', industry: 'Cereais Matinais', color: '#d7c07f', accent: '#95cf74', basePrice: 1089, baseGrowth: 60.8, baseYield: 2, best: ['winter'] },
+  { id: 'tangerina', name: 'Tangerina', type: 'tree', industry: 'Cítricos Doces', color: '#ff9d42', accent: '#72c85a', basePrice: 1198, baseGrowth: 63.2, baseYield: 2, best: ['winter', 'summer'] },
+  { id: 'acerola', name: 'Acerola', type: 'bush', industry: 'Vitaminas Naturais', color: '#df3340', accent: '#82d95b', basePrice: 1318, baseGrowth: 65.7, baseYield: 2, best: ['spring', 'summer'] },
+  { id: 'figo', name: 'Figo', type: 'tree', industry: 'Doces Artesanais', color: '#7f3f95', accent: '#7ec36f', basePrice: 1450, baseGrowth: 68.3, baseYield: 2, best: ['summer', 'autumn'] },
+  { id: 'ameixa', name: 'Ameixa', type: 'tree', industry: 'Compotas Roxas', color: '#7f2d80', accent: '#9fd66b', basePrice: 1595, baseGrowth: 71.0, baseYield: 2, best: ['spring', 'autumn'] },
+  { id: 'framboesa', name: 'Framboesa', type: 'bush', industry: 'Geleias Finas', color: '#d93c74', accent: '#94dd68', basePrice: 1755, baseGrowth: 73.8, baseYield: 2, best: ['spring', 'winter'] }
 ].map((crop, index) => ({
   ...crop,
   index,
@@ -126,6 +142,28 @@ const GLOBAL_UPGRADES = [
   { id: 'lab', name: 'Laboratório de sementes', desc: 'Reduz custo de compra e upgrade das plantas.', max: 18, baseCost: 4, growth: 1.66, currency: 'research' },
   { id: 'contracts', name: 'Negociação industrial', desc: '+9% bônus nos contratos por nível.', max: 18, baseCost: 5, growth: 1.74, currency: 'research' },
   { id: 'greenhouse', name: 'Estufa climatizada', desc: 'Diminui penalidades de estação e fortalece plantas fora de época.', max: 15, baseCost: 7, growth: 1.82, currency: 'research' }
+];
+
+const RESEARCH_TECHS = [
+  { id: 'genetics', name: 'Genética de sementes', desc: '+7% produção por colheita por nível.', max: 16, baseCost: 2, growth: 1.48 },
+  { id: 'hydroponics', name: 'Hidroponia modular', desc: '+6% velocidade de crescimento por nível.', max: 16, baseCost: 2, growth: 1.52 },
+  { id: 'seedBank', name: 'Banco de germoplasma', desc: 'Reduz custo de compra e upgrade das plantas.', max: 14, baseCost: 3, growth: 1.58 },
+  { id: 'seasonalAnalytics', name: 'Mapeamento sazonal', desc: 'Melhora safras fortes e suaviza penalidades fora de época.', max: 12, baseCost: 3, growth: 1.62 },
+  { id: 'marketData', name: 'Análise de mercado', desc: '+4% preço de venda por nível.', max: 18, baseCost: 4, growth: 1.55 },
+  { id: 'contractAI', name: 'IA de contratos', desc: 'Aumenta valor e recompensas dos contratos industriais.', max: 14, baseCost: 5, growth: 1.66 },
+  { id: 'storageScience', name: 'Ciência de armazenamento', desc: '+40 de estoque máximo por planta por nível.', max: 15, baseCost: 4, growth: 1.57 },
+  { id: 'prestigeTheory', name: 'Teoria de prestígio', desc: '+8% pontos de prestígio estimados por nível.', max: 12, baseCost: 7, growth: 1.74 }
+];
+
+const PRESTIGE_UPGRADES = [
+  { id: 'seedCapital', name: 'Capital ancestral', desc: '+250 moedas iniciais após cada prestígio por nível.', max: 20, baseCost: 1, growth: 1.45 },
+  { id: 'rootMemory', name: 'Memória das raízes', desc: 'Começa cada ciclo com +1 planta inicial comprada por nível.', max: 12, baseCost: 2, growth: 1.62 },
+  { id: 'greenLegacy', name: 'Legado verde', desc: '+4% crescimento e +3% produção por nível.', max: 20, baseCost: 1, growth: 1.58 },
+  { id: 'merchantCrown', name: 'Coroa mercante', desc: '+5% valor de venda comum e industrial por nível.', max: 18, baseCost: 2, growth: 1.64 },
+  { id: 'industrySeal', name: 'Selo industrial', desc: '+6% multiplicador de contratos por nível.', max: 16, baseCost: 2, growth: 1.68 },
+  { id: 'academyLegacy', name: 'Academia permanente', desc: '+10% pesquisa recebida em contratos por nível e +1 pesquisa inicial.', max: 12, baseCost: 3, growth: 1.72 },
+  { id: 'seasonCrown', name: 'Coroa das estações', desc: 'Suaviza penalidades sazonais e amplia safras fortes.', max: 12, baseCost: 3, growth: 1.7 },
+  { id: 'storageLegacy', name: 'Celeiro eterno', desc: '+50 de limite de estoque por planta por nível.', max: 18, baseCost: 2, growth: 1.58 }
 ];
 
 const MISSIONS = [
@@ -146,6 +184,9 @@ const ui = {
   cropGrid: $('#cropGrid'),
   contractList: $('#contractList'),
   upgradeList: $('#upgradeList'),
+  researchTechList: $('#researchTechList'),
+  prestigeDashboard: $('#prestigeDashboard'),
+  prestigeUpgradeList: $('#prestigeUpgradeList'),
   missionList: $('#missionList'),
   logList: $('#logList'),
   toastZone: $('#toastZone'),
@@ -177,10 +218,15 @@ function createState() {
     coins: 120,
     research: 0,
     reputation: 0,
+    prestigePoints: 0,
+    lifetimePrestigePoints: 0,
+    totalPrestiges: 0,
     seasonIndex: 0,
     seasonTime: 0,
     crops: Object.fromEntries(CROPS.map((crop, index) => [crop.id, defaultCropState(crop, index)])),
     upgrades: Object.fromEntries(GLOBAL_UPGRADES.map(up => [up.id, 0])),
+    researchTechs: Object.fromEntries(RESEARCH_TECHS.map(up => [up.id, 0])),
+    prestigeUpgrades: Object.fromEntries(PRESTIGE_UPGRADES.map(up => [up.id, 0])),
     contracts: [],
     claimedMissions: [],
     stats: {
@@ -211,6 +257,11 @@ function loadState() {
     ...parsed,
     crops: { ...fresh.crops, ...(parsed.crops || {}) },
     upgrades: { ...fresh.upgrades, ...(parsed.upgrades || {}) },
+    researchTechs: { ...fresh.researchTechs, ...(parsed.researchTechs || {}) },
+    prestigeUpgrades: { ...fresh.prestigeUpgrades, ...(parsed.prestigeUpgrades || {}) },
+    prestigePoints: Number(parsed.prestigePoints || 0),
+    lifetimePrestigePoints: Number(parsed.lifetimePrestigePoints || 0),
+    totalPrestiges: Number(parsed.totalPrestiges || 0),
     stats: { ...fresh.stats, ...(parsed.stats || {}) },
     logs: Array.isArray(parsed.logs) ? parsed.logs.slice(0, 16) : fresh.logs,
     contracts: Array.isArray(parsed.contracts) ? parsed.contracts : []
@@ -313,14 +364,16 @@ function rerollMarketDemand(targetState) {
 function getSeasonEffect(crop, targetState = state) {
   const season = currentSeason(targetState);
   const greenhouse = targetState.upgrades.greenhouse || 0;
-  const softener = Math.min(0.22, greenhouse * 0.018);
+  const seasonalAnalytics = getResearchLevel('seasonalAnalytics', targetState);
+  const seasonCrown = getPrestigeLevel('seasonCrown', targetState);
+  const softener = Math.min(0.42, greenhouse * 0.018 + seasonalAnalytics * 0.018 + seasonCrown * 0.022);
   let speed = 1;
   let yieldBonus = 1;
   let label = 'Neutro';
 
   if (crop.best.includes(season.id) || season.goodTypes.includes(crop.type)) {
-    speed += 0.20 + greenhouse * 0.006;
-    yieldBonus += 0.18 + greenhouse * 0.004;
+    speed += 0.20 + greenhouse * 0.006 + seasonalAnalytics * 0.008 + seasonCrown * 0.01;
+    yieldBonus += 0.18 + greenhouse * 0.004 + seasonalAnalytics * 0.006 + seasonCrown * 0.008;
     label = 'Safra forte';
   } else if (season.weakTypes.includes(crop.type)) {
     speed -= Math.max(0.04, 0.24 - softener);
@@ -335,8 +388,10 @@ function getGrowthTime(crop, targetState = state) {
   const data = targetState.crops[crop.id];
   const seasonEffect = getSeasonEffect(crop, targetState);
   const irrigation = targetState.upgrades.irrigation || 0;
+  const hydroponics = getResearchLevel('hydroponics', targetState);
+  const greenLegacy = getPrestigeLevel('greenLegacy', targetState);
   const levelSpeed = Math.max(0, data.level - 1) * 0.055;
-  const speed = seasonEffect.speed + irrigation * 0.08 + levelSpeed;
+  const speed = seasonEffect.speed + irrigation * 0.08 + hydroponics * 0.06 + greenLegacy * 0.04 + levelSpeed;
   return Math.max(1.2, crop.baseGrowth / speed);
 }
 
@@ -344,39 +399,83 @@ function getYield(crop, targetState = state) {
   const data = targetState.crops[crop.id];
   const seasonEffect = getSeasonEffect(crop, targetState);
   const fertilizer = targetState.upgrades.fertilizer || 0;
+  const genetics = getResearchLevel('genetics', targetState);
+  const greenLegacy = getPrestigeLevel('greenLegacy', targetState);
   const levelYield = Math.max(0, data.level - 1) * 0.18;
-  return crop.baseYield * seasonEffect.yieldBonus * (1 + fertilizer * 0.10 + levelYield);
+  return crop.baseYield * seasonEffect.yieldBonus * (1 + fertilizer * 0.10 + genetics * 0.07 + greenLegacy * 0.03 + levelYield);
 }
 
 function getStorageCap(cropId, targetState = state) {
   const warehouse = targetState.upgrades.warehouse || 0;
-  return 90 + warehouse * 70 + Math.max(0, targetState.crops[cropId].level - 1) * 9;
+  const storageScience = getResearchLevel('storageScience', targetState);
+  const storageLegacy = getPrestigeLevel('storageLegacy', targetState);
+  return 90 + warehouse * 70 + storageScience * 40 + storageLegacy * 50 + Math.max(0, targetState.crops[cropId].level - 1) * 9;
 }
 
 function getSalePrice(crop, targetState = state) {
   const season = currentSeason(targetState);
   const logistics = targetState.upgrades.logistics || 0;
+  const marketData = getResearchLevel('marketData', targetState);
+  const merchantCrown = getPrestigeLevel('merchantCrown', targetState);
   const demand = targetState.crops[crop.id].demand || 1;
   const seasonPrice = season.priceTypes[crop.type] || 1;
   const repBonus = 1 + Math.min(0.3, targetState.reputation * 0.004);
-  return crop.basePrice * demand * seasonPrice * (1 + logistics * 0.07) * repBonus;
+  return crop.basePrice * demand * seasonPrice * (1 + logistics * 0.07 + marketData * 0.04 + merchantCrown * 0.05) * repBonus;
 }
 
 function getBuyCost(crop, targetState = state) {
   const lab = targetState.upgrades.lab || 0;
-  return Math.max(0, Math.ceil(crop.cost * (1 - Math.min(0.38, lab * 0.018))));
+  const seedBank = getResearchLevel('seedBank', targetState);
+  return Math.max(0, Math.ceil(crop.cost * (1 - Math.min(0.52, lab * 0.018 + seedBank * 0.02))));
 }
 
 function getCropUpgradeCost(crop, targetState = state) {
   const level = targetState.crops[crop.id].level;
   const lab = targetState.upgrades.lab || 0;
+  const seedBank = getResearchLevel('seedBank', targetState);
   const base = Math.max(35, crop.cost + crop.basePrice * 18);
-  return Math.ceil(base * Math.pow(1.38, Math.max(0, level - 1)) * (1 - Math.min(0.35, lab * 0.016)));
+  return Math.ceil(base * Math.pow(1.38, Math.max(0, level - 1)) * (1 - Math.min(0.48, lab * 0.016 + seedBank * 0.018)));
 }
 
 function getGlobalUpgradeCost(upgrade, targetState = state) {
   const level = targetState.upgrades[upgrade.id] || 0;
   return Math.ceil(upgrade.baseCost * Math.pow(upgrade.growth, level));
+}
+
+function getResearchLevel(id, targetState = state) {
+  return Number(targetState.researchTechs?.[id] || 0);
+}
+
+function getPrestigeLevel(id, targetState = state) {
+  return Number(targetState.prestigeUpgrades?.[id] || 0);
+}
+
+function getResearchTechCost(tech, targetState = state) {
+  const level = getResearchLevel(tech.id, targetState);
+  return Math.ceil(tech.baseCost * Math.pow(tech.growth, level));
+}
+
+function getPrestigeUpgradeCost(upgrade, targetState = state) {
+  const level = getPrestigeLevel(upgrade.id, targetState);
+  return Math.ceil(upgrade.baseCost * Math.pow(upgrade.growth, level));
+}
+
+function getPrestigeEstimate(targetState = state) {
+  const metrics = getMetrics(targetState);
+  const coinScore = Math.sqrt(Math.max(0, targetState.stats.coinsEarned || 0) / 24000);
+  const plantScore = metrics.ownedCount / 8;
+  const contractScore = (targetState.stats.contractsCompleted || 0) / 7;
+  const levelScore = metrics.maxCropLevel / 11;
+  const harvestScore = Math.sqrt(Math.max(0, targetState.stats.totalHarvested || 0) / 900);
+  const theoryBonus = 1 + getResearchLevel('prestigeTheory', targetState) * 0.08;
+  const raw = Math.max(0, coinScore + plantScore + contractScore + levelScore + harvestScore - 2.5);
+  const gain = Math.floor(raw * theoryBonus);
+  return {
+    gain,
+    raw,
+    theoryBonus,
+    nextHint: Math.max(24000, Math.pow(Math.ceil(raw + 1) + 2.5, 2) * 24000)
+  };
 }
 
 function canUnlockCrop(crop) {
@@ -472,6 +571,77 @@ function buyGlobalUpgrade(upgradeId) {
   render(true);
 }
 
+function buyResearchTech(techId) {
+  const tech = RESEARCH_TECHS.find(item => item.id === techId);
+  if (!tech) return;
+  const level = getResearchLevel(tech.id);
+  if (level >= tech.max) return toast(`${tech.name} já está no nível máximo.`);
+
+  const cost = getResearchTechCost(tech);
+  if (state.research < cost) return toast(`Pesquisa insuficiente para ${tech.name}.`);
+
+  state.research -= cost;
+  state.researchTechs[tech.id] = level + 1;
+  addLog(`Pesquisa concluída: ${tech.name} nível ${level + 1}.`);
+  toast(`${tech.name} pesquisada!`);
+  render(true);
+}
+
+function buyPrestigeUpgrade(upgradeId) {
+  const upgrade = PRESTIGE_UPGRADES.find(item => item.id === upgradeId);
+  if (!upgrade) return;
+  const level = getPrestigeLevel(upgrade.id);
+  if (level >= upgrade.max) return toast(`${upgrade.name} já está no nível máximo.`);
+
+  const cost = getPrestigeUpgradeCost(upgrade);
+  if (state.prestigePoints < cost) return toast(`Pontos de prestígio insuficientes para ${upgrade.name}.`);
+
+  state.prestigePoints -= cost;
+  state.prestigeUpgrades[upgrade.id] = level + 1;
+  addLog(`Legado aprimorado: ${upgrade.name} nível ${level + 1}.`);
+  toast(`${upgrade.name} comprado!`);
+  render(true);
+}
+
+function performPrestige() {
+  const estimate = getPrestigeEstimate();
+  if (estimate.gain < 1) return toast('Sua fazenda ainda não gera prestígio. Expanda, venda e complete contratos.');
+
+  const ok = confirm(`Realizar prestígio agora e ganhar ${estimate.gain} ponto(s)? A fazenda reinicia, mas os upgrades de prestígio permanecem.`);
+  if (!ok) return;
+
+  const prestigeUpgrades = { ...state.prestigeUpgrades };
+  const totalPrestiges = (state.totalPrestiges || 0) + 1;
+  const prestigePoints = (state.prestigePoints || 0) + estimate.gain;
+  const lifetimePrestigePoints = (state.lifetimePrestigePoints || 0) + estimate.gain;
+  const seedCapital = Number(prestigeUpgrades.seedCapital || 0);
+  const rootMemory = Number(prestigeUpgrades.rootMemory || 0);
+  const academyLegacy = Number(prestigeUpgrades.academyLegacy || 0);
+
+  const fresh = createState();
+  fresh.prestigeUpgrades = prestigeUpgrades;
+  fresh.prestigePoints = prestigePoints;
+  fresh.lifetimePrestigePoints = lifetimePrestigePoints;
+  fresh.totalPrestiges = totalPrestiges;
+  fresh.coins = 120 + seedCapital * 250;
+  fresh.research = academyLegacy;
+  fresh.stats.coinsEarned = fresh.coins;
+  fresh.logs = [`Prestígio ${totalPrestiges} realizado! Legado recebido: +${estimate.gain} ponto(s).`];
+
+  const remembered = Math.min(CROPS.length, 1 + rootMemory);
+  for (let i = 0; i < remembered; i++) {
+    const crop = CROPS[i];
+    fresh.crops[crop.id].owned = true;
+    fresh.crops[crop.id].level = 1;
+  }
+
+  fresh.contracts = createContracts(fresh, 5);
+  state = fresh;
+  saveState(false);
+  toast(`Prestígio realizado: +${estimate.gain} ponto(s)!`);
+  render(true);
+}
+
 function createContracts(targetState = state, amount = 5) {
   const owned = CROPS.filter(crop => targetState.crops[crop.id]?.owned);
   const pool = owned.length ? owned : [CROPS[0]];
@@ -481,9 +651,13 @@ function createContracts(targetState = state, amount = 5) {
     const crop = weightedPick(pool);
     const level = targetState.crops[crop.id].level || 1;
     const qty = Math.max(8, Math.floor((8 + Math.random() * 24) * (1 + Math.min(7, level) * 0.12)));
-    const multiplier = Number((1.22 + Math.random() * 0.58 + (targetState.upgrades.contracts || 0) * 0.09).toFixed(2));
-    const value = Math.floor(qty * getSalePrice(crop, targetState) * multiplier);
+    const contractAI = getResearchLevel('contractAI', targetState);
+    const industrySeal = getPrestigeLevel('industrySeal', targetState);
+    const merchantCrown = getPrestigeLevel('merchantCrown', targetState);
+    const multiplier = Number((1.22 + Math.random() * 0.58 + (targetState.upgrades.contracts || 0) * 0.09 + contractAI * 0.08 + industrySeal * 0.06).toFixed(2));
+    const value = Math.floor(qty * getSalePrice(crop, targetState) * multiplier * (1 + merchantCrown * 0.02));
     const buyer = crop.industry;
+    const researchReward = Math.max(1, Math.floor((1 + Math.floor(Math.random() * 2)) * (1 + contractAI * 0.08 + getPrestigeLevel('academyLegacy', targetState) * 0.10)));
     contracts.push({
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
       cropId: crop.id,
@@ -491,8 +665,8 @@ function createContracts(targetState = state, amount = 5) {
       multiplier,
       value,
       buyer,
-      research: 1 + Math.floor(Math.random() * 2),
-      reputation: Math.random() > .55 ? 1 : 0,
+      research: researchReward,
+      reputation: Math.random() > .55 ? 1 + Math.floor(contractAI / 6) : 0,
       timeLeft: 120 + Math.floor(Math.random() * 180)
     });
   }
@@ -563,14 +737,14 @@ function getMissionProgress(mission) {
   };
 }
 
-function getMetrics() {
-  const cropStates = CROPS.map(crop => state.crops[crop.id]);
+function getMetrics(targetState = state) {
+  const cropStates = CROPS.map(crop => targetState.crops[crop.id]);
   return {
     ownedCount: cropStates.filter(item => item.owned).length,
     totalStock: cropStates.reduce((sum, item) => sum + item.stock, 0),
-    contractsCompleted: state.stats.contractsCompleted,
+    contractsCompleted: targetState.stats.contractsCompleted,
     maxCropLevel: Math.max(...cropStates.map(item => item.level || 0)),
-    coinsEarned: state.stats.coinsEarned
+    coinsEarned: targetState.stats.coinsEarned
   };
 }
 
@@ -599,13 +773,16 @@ function render(force = false) {
   renderCropGrid();
   renderContracts();
   renderUpgrades();
+  renderResearchTechs();
   renderMissions();
+  renderPrestige();
 }
 
 function updateCounters() {
   $('[data-counter="coins"]').textContent = formatNumber(state.coins);
   $('[data-counter="research"]').textContent = formatNumber(state.research);
   $('[data-counter="reputation"]').textContent = formatNumber(state.reputation);
+  $('[data-counter="prestigePoints"]').textContent = formatNumber(state.prestigePoints || 0);
 }
 
 function renderSeason() {
@@ -627,6 +804,7 @@ function renderStats() {
   $('[data-stat="stock"]').textContent = formatNumber(metrics.totalStock);
   $('[data-stat="contracts"]').textContent = formatNumber(state.stats.contractsCompleted);
   $('[data-stat="sold"]').textContent = formatNumber(state.stats.totalSold);
+  $('[data-stat="prestiges"]').textContent = formatNumber(state.totalPrestiges || 0);
 }
 
 function renderLogs() {
@@ -678,7 +856,7 @@ function cropCard(crop) {
   return `
     <article class="crop-card ${owned ? '' : 'locked'}" style="--crop-color:${cropColor};--crop-soft:${cropSoft}">
       <div class="crop-top">
-        <div class="crop-icon" aria-hidden="true">${plantSvg(crop)}</div>
+        <div class="crop-icon" aria-hidden="true">${cropImage(crop)}</div>
         <div>
           <div class="crop-title">
             <h3>${crop.name}</h3>
@@ -767,6 +945,70 @@ function renderUpgrades() {
   }).join('');
 }
 
+function renderResearchTechs() {
+  ui.researchTechList.innerHTML = RESEARCH_TECHS.map(tech => {
+    const level = getResearchLevel(tech.id);
+    const cost = getResearchTechCost(tech);
+    const maxed = level >= tech.max;
+    const canBuy = !maxed && state.research >= cost;
+
+    return `
+      <article class="research-card">
+        <div class="upgrade-head">
+          <div>
+            <h3>${tech.name}</h3>
+            <p>${tech.desc}</p>
+          </div>
+          <span class="badge ${maxed ? 'good' : ''}">Nv. ${level}/${tech.max}</span>
+        </div>
+        <div class="upgrade-lines">
+          <div class="upgrade-line"><span>Custo</span><strong>${maxed ? 'Máximo' : `${formatNumber(cost)} pesquisa`}</strong></div>
+        </div>
+        <button class="secondary" type="button" data-action="buy-research-tech" data-tech="${tech.id}" ${canBuy ? '' : 'disabled'}>${maxed ? 'Pesquisada' : 'Pesquisar'}</button>
+      </article>`;
+  }).join('');
+}
+
+function renderPrestige() {
+  const estimate = getPrestigeEstimate();
+  const metrics = getMetrics();
+  ui.prestigeDashboard.innerHTML = `
+    <article class="prestige-panel prestige-hero">
+      <div>
+        <p class="eyebrow">legado atual</p>
+        <h3>${formatNumber(state.prestigePoints || 0)} ponto(s) disponíveis</h3>
+        <p>Ao prestigiar, moedas, plantas, upgrades comuns, pesquisas, missões e contratos reiniciam. Seus pontos e upgrades de prestígio ficam para sempre.</p>
+      </div>
+      <button class="prestige-button" type="button" data-action="perform-prestige" ${estimate.gain > 0 ? '' : 'disabled'}>Prestigiar +${formatNumber(estimate.gain)}</button>
+    </article>
+    <article class="prestige-panel"><span>Ganho estimado</span><strong>+${formatNumber(estimate.gain)}</strong><small>Teoria: x${estimate.theoryBonus.toFixed(2)}</small></article>
+    <article class="prestige-panel"><span>Prestígios</span><strong>${formatNumber(state.totalPrestiges || 0)}</strong><small>Total vitalício: ${formatNumber(state.lifetimePrestigePoints || 0)} pts</small></article>
+    <article class="prestige-panel"><span>Base atual</span><strong>${formatNumber(metrics.ownedCount)}/${CROPS.length}</strong><small>${formatNumber(state.stats.contractsCompleted)} contratos · nível máx. ${formatNumber(metrics.maxCropLevel)}</small></article>
+  `;
+
+  ui.prestigeUpgradeList.innerHTML = PRESTIGE_UPGRADES.map(upgrade => {
+    const level = getPrestigeLevel(upgrade.id);
+    const cost = getPrestigeUpgradeCost(upgrade);
+    const maxed = level >= upgrade.max;
+    const canBuy = !maxed && (state.prestigePoints || 0) >= cost;
+
+    return `
+      <article class="prestige-upgrade-card">
+        <div class="upgrade-head">
+          <div>
+            <h3>${upgrade.name}</h3>
+            <p>${upgrade.desc}</p>
+          </div>
+          <span class="badge ${maxed ? 'good' : 'prestige-badge'}">Nv. ${level}/${upgrade.max}</span>
+        </div>
+        <div class="upgrade-lines">
+          <div class="upgrade-line"><span>Custo</span><strong>${maxed ? 'Máximo' : `${formatNumber(cost)} prestígio`}</strong></div>
+        </div>
+        <button class="prestige-action" type="button" data-action="buy-prestige-upgrade" data-prestige="${upgrade.id}" ${canBuy ? '' : 'disabled'}>${maxed ? 'Eterno' : 'Comprar legado'}</button>
+      </article>`;
+  }).join('');
+}
+
 function renderMissions() {
   ui.missionList.innerHTML = MISSIONS.map(mission => {
     const progress = getMissionProgress(mission);
@@ -790,82 +1032,226 @@ function renderMissions() {
   }).join('');
 }
 
+
+function cropImage(crop) {
+  const label = escapeHtml(crop.name);
+  return `<img src="img/${crop.id}.svg" alt="${label}" loading="lazy" width="80" height="80">`;
+}
+
 function plantSvg(crop) {
   const c = crop.color;
   const a = crop.accent;
-  const dark = shade(c, -22);
-  const light = shade(c, 20);
-  const seed = Math.abs(hashCode(crop.id));
-  const rotate = (seed % 17) - 8;
+  const dark = shade(c, -28);
+  const darker = shade(c, -42);
+  const light = shade(c, 24);
+  const accentDark = shade(a, -30);
+  const accentLight = shade(a, 18);
+  const uid = `plant-${crop.id.replace(/[^a-z0-9-]/gi, '')}`;
+  const defs = `
+    <defs>
+      <linearGradient id="${uid}-body" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="${light}"/>
+        <stop offset=".48" stop-color="${c}"/>
+        <stop offset="1" stop-color="${dark}"/>
+      </linearGradient>
+      <linearGradient id="${uid}-accent" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="${accentLight}"/>
+        <stop offset="1" stop-color="${a}"/>
+      </linearGradient>
+      <radialGradient id="${uid}-shine" cx="35%" cy="28%" r="62%">
+        <stop offset="0" stop-color="#ffffff" stop-opacity=".72"/>
+        <stop offset=".42" stop-color="#ffffff" stop-opacity=".18"/>
+        <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="${uid}-shadow" x="-20%" y="-20%" width="140%" height="150%">
+        <feDropShadow dx="0" dy="5" stdDeviation="3" flood-color="#03130b" flood-opacity=".35"/>
+      </filter>
+    </defs>`;
 
-  if (crop.type === 'root') {
-    return `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">
-      <ellipse cx="50" cy="78" rx="28" ry="8" fill="rgba(0,0,0,.18)" />
-      <path d="M50 23c-9 11-21 21-21 40 0 17 10 27 21 27s21-10 21-27c0-19-12-29-21-40Z" fill="${c}" stroke="${dark}" stroke-width="3" />
-      <path d="M50 31c-7 11-12 20-10 34 2 11 7 17 10 19" fill="none" stroke="${light}" stroke-width="3" stroke-linecap="round" opacity=".55" />
-      <path d="M50 28c-4-13-16-13-25-10 7 2 11 7 14 13-8-7-18-7-26-3 9 3 17 9 23 17" fill="${a}" stroke="${shade(a, -18)}" stroke-width="2" stroke-linejoin="round" />
-      <path d="M51 28c6-13 18-13 27-9-8 2-13 7-16 14 8-7 18-7 27-1-10 2-18 8-24 16" fill="${shade(a, -8)}" stroke="${shade(a, -26)}" stroke-width="2" stroke-linejoin="round" />
-    </svg>`;
+  const wrap = body => `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">${defs}<ellipse cx="50" cy="86" rx="31" ry="7" fill="rgba(0,0,0,.22)"/>${body}</svg>`;
+  const veins = (x1 = 50, y1 = 22, x2 = 50, y2 = 76) => `<path d="M${x1} ${y1}C${x1 - 7} ${y1 + 20} ${x2 + 7} ${y2 - 20} ${x2} ${y2}" fill="none" stroke="${darker}" stroke-width="2.3" stroke-linecap="round" opacity=".55"/>`;
+  const leaves = `<g filter="url(#${uid}-shadow)">
+    <path d="M45 39C20 34 13 18 21 8c19 2 30 13 33 31-2 2-5 2-9 0Z" fill="url(#${uid}-accent)" stroke="${accentDark}" stroke-width="2.4"/>
+    <path d="M55 41C80 35 87 20 79 10c-19 1-31 12-35 30 3 2 7 3 11 1Z" fill="${accentLight}" stroke="${accentDark}" stroke-width="2.4"/>
+    <path d="M50 50c-13-13-25-25-31-36M51 49c13-14 23-25 30-36" fill="none" stroke="${accentDark}" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+  </g>`;
+  const fruitStem = `<path d="M50 36c3-9 9-15 18-18" fill="none" stroke="#6f4c25" stroke-width="5" stroke-linecap="round"/>`;
+  const seedDots = (points, color = '#fff7c9', opacity = '.75') => points.map(([x, y, r = 1.5]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${color}" opacity="${opacity}"/>`).join('');
+
+  switch (crop.id) {
+    case 'folha':
+    case 'alface':
+      return wrap(`<g filter="url(#${uid}-shadow)">
+        <path d="M50 84c-16-4-27-17-25-34 12-1 21 5 27 18 5-17 17-27 33-26 2 19-11 35-32 42Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <path d="M49 83c-19-6-35-20-35-42 18-1 31 12 39 37" fill="${accentLight}" stroke="${accentDark}" stroke-width="2.6" opacity=".88"/>
+        <path d="M53 82c18-7 31-22 32-43-17 1-30 14-36 38" fill="${c}" stroke="${dark}" stroke-width="2.6" opacity=".9"/>
+        ${veins(50, 43, 50, 82)}
+      </g>`);
+
+    case 'cebola':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M50 30c-14 13-24 25-24 41 0 14 10 21 24 21s24-7 24-21c0-16-10-28-24-41Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <path d="M37 53c-3 12-1 25 5 33M50 38c-4 15-4 34 0 50M63 53c3 12 1 25-5 33" fill="none" stroke="#fff7da" stroke-width="2" opacity=".52"/>
+      </g>`);
+
+    case 'alho':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M32 52c-8 13-5 32 8 37 5-11 5-26-8-37Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="2.6"/>
+        <path d="M50 39c-13 14-16 37 0 51 16-14 13-37 0-51Z" fill="${light}" stroke="${dark}" stroke-width="2.6"/>
+        <path d="M68 52c8 13 5 32-8 37-5-11-5-26 8-37Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="2.6"/>
+        <path d="M50 47v38" stroke="#fff" stroke-width="2" opacity=".45"/>
+      </g>`);
+
+    case 'cenoura':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M50 31c-12 9-21 20-17 36l14 25c2 4 5 4 7 0l14-25c4-16-5-27-18-36Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <path d="M40 56h18M42 68h13M45 79h8" stroke="${darker}" stroke-width="2.2" stroke-linecap="round" opacity=".45"/>
+      </g>`);
+
+    case 'batata':
+    case 'batata-doce':
+    case 'beterraba':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M30 59c2-17 16-25 31-20 15 5 22 20 14 34-8 15-31 21-45 9-7-6-8-15 0-23Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <circle cx="45" cy="57" r="2.4" fill="${darker}" opacity=".35"/><circle cx="60" cy="69" r="2" fill="${darker}" opacity=".35"/><circle cx="39" cy="76" r="1.8" fill="${darker}" opacity=".35"/>
+        ${crop.id === 'beterraba' ? '<path d="M49 41c-5 13-4 27 3 42" fill="none" stroke="#ffd6e6" stroke-width="2" opacity=".55"/>' : ''}
+      </g>`);
+
+    case 'tomate':
+    case 'pimentao':
+    case 'pimenta':
+    case 'berinjela':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M50 30v15" stroke="#5d7f36" stroke-width="5" stroke-linecap="round"/>
+        ${crop.id === 'pimenta'
+          ? `<path d="M47 42c20 9 22 27 2 45-7-15-13-31-2-45Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>`
+          : crop.id === 'berinjela'
+            ? `<path d="M52 40c18 13 18 41-2 49-21-8-21-36 2-49Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/><ellipse cx="45" cy="54" rx="5" ry="10" fill="url(#${uid}-shine)"/>`
+            : crop.id === 'pimentao'
+              ? `<path d="M50 41c18 0 27 14 23 29-4 14-16 20-23 15-7 5-19-1-23-15-4-15 5-29 23-29Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/><path d="M50 43c-7 13-7 27 0 41" fill="none" stroke="${darker}" stroke-width="2" opacity=".4"/>`
+              : `<circle cx="50" cy="64" r="22" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/><path d="M34 53c10-4 22-4 32 0" stroke="${darker}" stroke-width="2" opacity=".25"/>`}
+      </g>`);
+
+    case 'banana':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)" stroke="${dark}" stroke-width="3" stroke-linecap="round">
+        <path d="M35 43c-3 21 7 37 29 43-17-18-21-34-14-48" fill="url(#${uid}-body)"/>
+        <path d="M44 39c-1 20 9 33 28 39-13-16-15-30-7-42" fill="${light}"/>
+        <path d="M28 48c0 18 11 33 31 40-14-18-17-31-9-43" fill="${shade(c, -5)}"/>
+      </g>`);
+
+    case 'melao':
+    case 'melancia':
+    case 'abobora':
+    case 'pepino':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M23 65c0-16 12-28 28-28s28 12 28 28-12 25-28 25-28-9-28-25Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        ${crop.id === 'pepino' ? `<ellipse cx="51" cy="64" rx="16" ry="28" transform="rotate(75 51 64)" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>` : ''}
+        <path d="M38 40c-9 15-9 32 0 47M51 37c-5 17-5 35 0 52M64 42c8 14 8 29 0 44" fill="none" stroke="${crop.id === 'melancia' ? '#123d24' : darker}" stroke-width="2.3" opacity=".45"/>
+        ${crop.id === 'melancia' ? `<path d="M31 68c12 7 28 8 43 1" stroke="${a}" stroke-width="5" stroke-linecap="round" opacity=".7"/>` : ''}
+      </g>`);
+
+    case 'uva':
+    case 'mirtilo':
+    case 'amora':
+    case 'cereja':
+    case 'morango':
+      if (crop.id === 'morango') {
+        return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+          <path d="M50 41c19 0 27 15 17 31L51 92 34 72c-10-16-3-31 16-31Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+          ${seedDots([[43,56,1.4],[55,56,1.4],[38,68,1.3],[50,70,1.3],[62,68,1.3],[46,80,1.2],[56,81,1.2]], '#ffe98b', '.9')}
+        </g>`);
+      }
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <path d="M50 30c5 14-4 24-13 33" fill="none" stroke="#6f4c25" stroke-width="4" stroke-linecap="round"/>
+        <g stroke="${dark}" stroke-width="2.3">
+          <circle cx="42" cy="47" r="9" fill="url(#${uid}-body)"/><circle cx="55" cy="47" r="9" fill="${light}"/><circle cx="35" cy="61" r="9" fill="${shade(c, -4)}"/><circle cx="50" cy="62" r="10" fill="url(#${uid}-body)"/><circle cx="64" cy="62" r="9" fill="${light}"/><circle cx="43" cy="77" r="9" fill="${shade(c, -6)}"/><circle cx="57" cy="77" r="9" fill="url(#${uid}-body)"/>
+        </g>
+        ${crop.id === 'cereja' ? `<path d="M42 47C38 33 49 27 56 22M55 47c2-14 11-18 18-20" fill="none" stroke="#6f4c25" stroke-width="3"/>` : ''}
+      </g>`);
+
+    case 'kiwi':
+    case 'limao':
+    case 'laranja':
+    case 'maca':
+    case 'pera':
+    case 'pessego':
+    case 'goiaba':
+    case 'manga':
+    case 'abacate':
+    case 'caju':
+    case 'carambola':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        ${fruitStem}
+        ${crop.id === 'pera'
+          ? `<path d="M50 38c15 10 20 36 5 50-17 8-34-5-31-23 1-10 8-16 15-20 2-4 5-6 11-7Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>`
+          : crop.id === 'carambola'
+            ? `<path d="M50 36 58 53l19 2-14 13 4 19-17-9-17 9 4-19-14-13 19-2 8-17Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>`
+            : crop.id === 'caju'
+              ? `<path d="M47 38c17 8 23 27 11 42-16 16-37 5-34-14 1-14 10-23 23-28Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/><path d="M64 74c8 1 12 8 8 14-8 4-17 0-19-8 2-4 5-6 11-6Z" fill="${a}" stroke="${accentDark}" stroke-width="3"/>`
+              : crop.id === 'abacate'
+                ? `<path d="M50 35c19 12 23 38 6 52-18 10-35-3-31-23 2-12 11-23 25-29Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/><circle cx="50" cy="67" r="9" fill="${a}" stroke="${accentDark}" stroke-width="2"/>`
+                : crop.id === 'kiwi'
+                  ? `<circle cx="50" cy="64" r="25" fill="${a}" stroke="${accentDark}" stroke-width="3"/><circle cx="50" cy="64" r="18" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="2"/>${seedDots([[50,45,1],[61,50,1],[68,62,1],[63,75,1],[50,82,1],[37,76,1],[32,63,1],[38,50,1]], '#1d2617', '.85')}`
+                  : `<circle cx="50" cy="64" r="24" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>`}
+        <ellipse cx="42" cy="55" rx="7" ry="11" fill="url(#${uid}-shine)"/>
+      </g>`);
+
+    case 'maracuja':
+    case 'pitaya':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <circle cx="50" cy="64" r="25" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        ${crop.id === 'pitaya'
+          ? `<path d="M29 54 16 46l13-3M72 54l13-8-12-4M37 84l-5 13 12-7M64 83l7 12 4-14" fill="${a}" stroke="${accentDark}" stroke-width="2" stroke-linejoin="round"/>`
+          : `<circle cx="50" cy="64" r="15" fill="${a}" stroke="${accentDark}" stroke-width="2"/>${seedDots([[45,59,1.6],[54,59,1.6],[50,67,1.6],[43,70,1.2],[58,70,1.2]], '#2a1735', '.9')}`}
+      </g>`);
+
+    case 'abacaxi':
+      return wrap(`<g filter="url(#${uid}-shadow)">
+        <path d="M50 39C35 24 31 12 38 6c8 7 11 16 12 28 3-14 10-25 20-27 4 13-3 25-20 32Z" fill="url(#${uid}-accent)" stroke="${accentDark}" stroke-width="2.5"/>
+        <path d="M31 51c0-15 9-23 20-23s20 8 20 23v19c0 14-9 22-20 22s-20-8-20-22V51Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <path d="M34 48h34M32 60h38M34 72h34M39 37l26 48M63 37 37 85" stroke="${darker}" stroke-width="2" opacity=".42"/>
+      </g>`);
+
+    case 'coco':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)">
+        <circle cx="50" cy="65" r="25" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <circle cx="43" cy="58" r="3" fill="${darker}"/><circle cx="55" cy="58" r="3" fill="${darker}"/><circle cx="50" cy="68" r="3" fill="${darker}"/>
+        <path d="M33 77c10 8 25 8 35 0" stroke="${light}" stroke-width="3" opacity=".45" fill="none"/>
+      </g>`);
+
+    case 'milho':
+      return wrap(`<g filter="url(#${uid}-shadow)">
+        <path d="M50 84V19" stroke="${accentDark}" stroke-width="6" stroke-linecap="round"/>
+        <path d="M49 77C27 67 24 45 35 28c15 8 20 26 14 49Z" fill="url(#${uid}-accent)" stroke="${accentDark}" stroke-width="3"/>
+        <path d="M53 78c22-10 25-32 14-49-15 8-20 26-14 49Z" fill="${accentLight}" stroke="${accentDark}" stroke-width="3"/>
+        <path d="M50 23c13 11 18 34 7 58H43c-11-24-6-47 7-58Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/>
+        <path d="M43 39h14M41 51h18M42 63h16M47 29v50M54 31v47" stroke="${darker}" stroke-width="1.8" opacity=".38"/>
+      </g>`);
+
+    case 'guarana':
+    case 'cafe':
+    case 'feijao':
+      return wrap(`${leaves}<g filter="url(#${uid}-shadow)" stroke="${dark}" stroke-width="2.6">
+        <ellipse cx="39" cy="57" rx="12" ry="17" transform="rotate(-23 39 57)" fill="url(#${uid}-body)"/>
+        <ellipse cx="60" cy="57" rx="12" ry="17" transform="rotate(23 60 57)" fill="${light}"/>
+        <ellipse cx="50" cy="74" rx="13" ry="18" fill="${shade(c, -4)}"/>
+        <path d="M39 45c4 7 4 16 0 25M60 45c-4 7-4 16 0 25M50 61c4 7 4 16 0 25" fill="none" stroke="${darker}" stroke-width="2" opacity=".55"/>
+        ${crop.id === 'guarana' ? `<circle cx="39" cy="56" r="5" fill="#f8efe0"/><circle cx="39" cy="56" r="2.5" fill="#1f1715"/>` : ''}
+      </g>`);
+
+    case 'arroz':
+    case 'algodao':
+      return wrap(`<g filter="url(#${uid}-shadow)">
+        <path d="M49 86c0-35 0-51 1-72" stroke="${accentDark}" stroke-width="5" stroke-linecap="round"/>
+        <path d="M50 39c-17-7-25-18-22-31 15 2 24 11 28 30" fill="url(#${uid}-accent)" stroke="${accentDark}" stroke-width="2.4"/>
+        <path d="M53 48c18-5 27-16 25-30-16 1-26 11-31 29" fill="${accentLight}" stroke="${accentDark}" stroke-width="2.4"/>
+        ${crop.id === 'algodao'
+          ? `<circle cx="38" cy="52" r="13" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="2.5"/><circle cx="56" cy="45" r="14" fill="${light}" stroke="${dark}" stroke-width="2.5"/><circle cx="64" cy="62" r="12" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="2.5"/>`
+          : `<path d="M42 31c-8 12-6 24 5 34 8-12 6-25-5-34ZM59 39c9 11 9 24-1 35-9-11-9-24 1-35ZM43 59c-8 11-6 22 4 31 8-10 6-22-4-31Z" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="2.4"/>`}
+      </g>`);
   }
 
-  if (crop.type === 'leaf') {
-    return `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">
-      <ellipse cx="50" cy="82" rx="30" ry="7" fill="rgba(0,0,0,.18)" />
-      <path d="M50 83V44" stroke="${dark}" stroke-width="7" stroke-linecap="round" />
-      <path d="M47 50C23 44 15 29 21 15c19 0 30 11 34 33-2 2-4 2-8 2Z" fill="${c}" stroke="${dark}" stroke-width="3" />
-      <path d="M55 56c24-6 32-21 26-35-19 0-31 11-35 33 2 2 5 3 9 2Z" fill="${light}" stroke="${dark}" stroke-width="3" />
-      <path d="M50 78c-19-5-28-17-26-31 17-1 27 8 33 26-2 3-4 4-7 5Z" fill="${shade(c, 8)}" stroke="${dark}" stroke-width="3" />
-    </svg>`;
-  }
-
-  if (crop.type === 'grain' || crop.type === 'fiber') {
-    const cotton = crop.type === 'fiber';
-    return `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">
-      <ellipse cx="50" cy="84" rx="28" ry="8" fill="rgba(0,0,0,.18)" />
-      <path d="M50 84c0-30 0-48 1-68" stroke="${shade(a, -25)}" stroke-width="6" stroke-linecap="round" />
-      ${cotton
-        ? `<circle cx="39" cy="37" r="13" fill="${c}" stroke="${shade(c, -12)}" stroke-width="3"/><circle cx="57" cy="29" r="14" fill="${shade(c, 10)}" stroke="${shade(c, -12)}" stroke-width="3"/><circle cx="62" cy="49" r="13" fill="${c}" stroke="${shade(c, -12)}" stroke-width="3"/>`
-        : `<path d="M51 19c-15 9-17 23-11 34 14-7 18-21 11-34Z" fill="${c}" stroke="${dark}" stroke-width="3"/><path d="M54 30c17 5 22 18 18 31-16-4-23-17-18-31Z" fill="${shade(c, 10)}" stroke="${dark}" stroke-width="3"/><path d="M46 49c-15 6-21 18-17 30 15-4 22-16 17-30Z" fill="${shade(c, -4)}" stroke="${dark}" stroke-width="3"/>`}
-      <path d="M52 51c-13 4-20 13-22 25" stroke="${shade(a, -25)}" stroke-width="4" stroke-linecap="round" />
-      <path d="M52 44c15 4 22 13 24 26" stroke="${shade(a, -25)}" stroke-width="4" stroke-linecap="round" />
-    </svg>`;
-  }
-
-  if (crop.type === 'tree' || crop.type === 'tropical' || crop.type === 'beverage') {
-    return `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">
-      <ellipse cx="51" cy="83" rx="30" ry="8" fill="rgba(0,0,0,.18)" />
-      <path d="M50 84c-3-17-1-34 5-51" stroke="#7b4c2b" stroke-width="9" stroke-linecap="round" />
-      <path d="M54 46c-14-19-33-17-44-5 15 8 29 9 44 5Z" fill="${a}" stroke="${shade(a, -24)}" stroke-width="3" />
-      <path d="M56 39c10-22 31-22 41-10-12 11-26 16-41 10Z" fill="${shade(a, -5)}" stroke="${shade(a, -26)}" stroke-width="3" />
-      <g transform="rotate(${rotate} 50 55)">
-        <circle cx="50" cy="55" r="17" fill="${c}" stroke="${dark}" stroke-width="3" />
-        <ellipse cx="43" cy="49" rx="6" ry="9" fill="${light}" opacity=".45" />
-        ${crop.type === 'beverage' ? `<circle cx="57" cy="59" r="5" fill="${shade(c, -30)}" opacity=".75" />` : ''}
-      </g>
-    </svg>`;
-  }
-
-  if (crop.type === 'bush') {
-    return `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">
-      <ellipse cx="50" cy="83" rx="31" ry="8" fill="rgba(0,0,0,.18)" />
-      <path d="M49 80V43" stroke="${shade(a, -35)}" stroke-width="6" stroke-linecap="round" />
-      <circle cx="35" cy="52" r="18" fill="${a}" stroke="${shade(a, -25)}" stroke-width="3" />
-      <circle cx="58" cy="43" r="22" fill="${shade(a, -6)}" stroke="${shade(a, -25)}" stroke-width="3" />
-      <circle cx="66" cy="64" r="17" fill="${a}" stroke="${shade(a, -25)}" stroke-width="3" />
-      <circle cx="42" cy="51" r="6" fill="${c}" stroke="${dark}" stroke-width="2" />
-      <circle cx="59" cy="39" r="6" fill="${shade(c, 8)}" stroke="${dark}" stroke-width="2" />
-      <circle cx="68" cy="64" r="6" fill="${shade(c, -4)}" stroke="${dark}" stroke-width="2" />
-    </svg>`;
-  }
-
-  return `<svg viewBox="0 0 100 100" role="img" aria-label="${crop.name}">
-    <ellipse cx="50" cy="82" rx="30" ry="8" fill="rgba(0,0,0,.18)" />
-    <path d="M50 81c0-24 0-39 1-58" stroke="${shade(a, -28)}" stroke-width="7" stroke-linecap="round" />
-    <path d="M50 58c-20 0-28-16-22-31 18 0 29 12 22 31Z" fill="${a}" stroke="${shade(a, -25)}" stroke-width="3" />
-    <path d="M53 52c20 0 28-16 22-31-18 0-29 12-22 31Z" fill="${shade(a, -8)}" stroke="${shade(a, -25)}" stroke-width="3" />
-    <circle cx="52" cy="58" r="18" fill="${c}" stroke="${dark}" stroke-width="3" />
-    <ellipse cx="46" cy="51" rx="6" ry="9" fill="${light}" opacity=".45" />
-  </svg>`;
+  return wrap(`${leaves}<g filter="url(#${uid}-shadow)">${fruitStem}<circle cx="50" cy="64" r="24" fill="url(#${uid}-body)" stroke="${dark}" stroke-width="3"/><ellipse cx="42" cy="55" rx="7" ry="11" fill="url(#${uid}-shine)"/></g>`);
 }
 
 function seasonSvg(type, color) {
@@ -885,6 +1271,7 @@ function renderStaticIcons() {
   $('.coin-svg').innerHTML = `<svg viewBox="0 0 64 64"><ellipse cx="32" cy="47" rx="22" ry="8" fill="#b87819"/><ellipse cx="32" cy="39" rx="22" ry="8" fill="#f2a529"/><ellipse cx="32" cy="31" rx="22" ry="8" fill="#ffcc61"/><path d="M23 30c5 4 13 4 18 0" fill="none" stroke="#7c4a0e" stroke-width="4" stroke-linecap="round"/></svg>`;
   $('.research-svg').innerHTML = `<svg viewBox="0 0 64 64"><path d="M25 8h14v22l13 20c3 5 0 9-6 9H18c-6 0-9-4-6-9l13-20V8Z" fill="#65d9ff" stroke="#184a5a" stroke-width="4"/><path d="M21 45h22" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".7"/></svg>`;
   $('.rep-svg').innerHTML = `<svg viewBox="0 0 64 64"><path d="m32 6 8 16 18 3-13 12 3 18-16-8-16 8 3-18L6 25l18-3 8-16Z" fill="#ffdf6e" stroke="#7a4b12" stroke-width="4"/></svg>`;
+  $('.prestige-svg').innerHTML = `<svg viewBox="0 0 64 64"><defs><linearGradient id="prestigeMini" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset=".45" stop-color="#d99cff"/><stop offset="1" stop-color="#6de7ff"/></linearGradient></defs><path d="M32 5 45 25l14 7-14 7-13 20-13-20-14-7 14-7L32 5Z" fill="url(#prestigeMini)" stroke="#4b2673" stroke-width="4"/><circle cx="32" cy="32" r="7" fill="#fff" opacity=".8"/></svg>`;
 }
 
 function setupFilters() {
@@ -913,6 +1300,9 @@ function setupEvents() {
     if (action === 'sell-crop') sellCrop(button.dataset.crop, 1);
     if (action === 'complete-contract') completeContract(button.dataset.contract);
     if (action === 'buy-global-upgrade') buyGlobalUpgrade(button.dataset.upgrade);
+    if (action === 'buy-research-tech') buyResearchTech(button.dataset.tech);
+    if (action === 'buy-prestige-upgrade') buyPrestigeUpgrade(button.dataset.prestige);
+    if (action === 'perform-prestige') performPrestige();
     if (action === 'claim-mission') claimMission(button.dataset.mission);
   });
 

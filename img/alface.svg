@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Alface">
+  <defs>
+    <linearGradient id="alface-body" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#a4e98b"/>
+      <stop offset="0.55" stop-color="#8be36b"/>
+      <stop offset="1" stop-color="#64a34d"/>
+    </linearGradient>
+    <linearGradient id="alface-accent" x1="0" x2="0.9" y1="0" y2="1">
+      <stop offset="0" stop-color="#dfffda"/>
+      <stop offset="1" stop-color="#d7ffd1"/>
+    </linearGradient>
+    <radialGradient id="alface-shine" cx="30%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="alface-glow" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#9fe885" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#dbffd5" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="alface-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="alface-shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#alface-glow)" filter="url(#alface-blur)"/>
+  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
+  
+  <g filter="url(#alface-shadow)">
+    
+    <path d="M256 418c-102-23-170-101-149-177 21-77 111-128 149-154 40 25 131 77 150 154 18 75-48 153-150 177Z" fill="url(#alface-body)" stroke="#64a34d" stroke-width="16"/>
+    <path d="M256 419c-53-20-93-57-118-112 48 18 82 30 118 35 35-4 70-16 117-35-24 55-64 91-117 112Z" fill="#9fe885" opacity=".38"/>
+    <path d="M256 142c-12 90-12 188 0 268" fill="none" stroke="#50833e" stroke-width="12" stroke-linecap="round" opacity=".56"/>
+    <path d="M255 244c-56-17-96-46-127-92M257 247c54-18 92-47 122-92M254 300c-55 15-94 43-120 83M258 300c53 14 92 41 118 83" fill="none" stroke="#568c42" stroke-width="8" stroke-linecap="round" opacity=".38"/>
+    <ellipse cx="212" cy="198" rx="52" ry="82" transform="rotate(-20 212 198)" fill="url(#alface-shine)" opacity=".3"/>
+  </g>
+</svg>

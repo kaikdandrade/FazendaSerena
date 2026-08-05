@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Abacaxi">
+  <defs>
+    <linearGradient id="abacaxi-body" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#edca63"/>
+      <stop offset="0.55" stop-color="#e9bc38"/>
+      <stop offset="1" stop-color="#a78728"/>
+    </linearGradient>
+    <linearGradient id="abacaxi-accent" x1="0" x2="0.9" y1="0" y2="1">
+      <stop offset="0" stop-color="#65bd7b"/>
+      <stop offset="1" stop-color="#3fad5b"/>
+    </linearGradient>
+    <radialGradient id="abacaxi-shine" cx="30%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="abacaxi-glow" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#ecc85b" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#52b56b" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="abacaxi-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="abacaxi-shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#abacaxi-glow)" filter="url(#abacaxi-blur)"/>
+  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
+  
+  <g filter="url(#abacaxi-shadow)">
+    <path d="M256 198C197 142 178 89 206 52c36 24 49 58 50 109 18-53 49-91 96-105 17 51-10 101-96 142Z" fill="url(#abacaxi-accent)" stroke="#2d7c41" stroke-width="14" stroke-linejoin="round"/>
+    <path d="M170 257c0-67 38-103 86-103s86 36 86 103v95c0 63-38 102-86 102s-86-39-86-102v-95Z" fill="url(#abacaxi-body)" stroke="#a78728" stroke-width="16"/>
+    <path d="M181 247h150M174 299h164M183 352h146M205 191l99 219M307 191 208 410" stroke="#8b7021" stroke-width="9" opacity=".42" stroke-linecap="round"/>
+  </g>
+</svg>

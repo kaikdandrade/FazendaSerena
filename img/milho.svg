@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Milho">
+  <defs>
+    <linearGradient id="milho-body" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffe17b"/>
+      <stop offset="0.55" stop-color="#ffd957"/>
+      <stop offset="1" stop-color="#b79c3e"/>
+    </linearGradient>
+    <linearGradient id="milho-accent" x1="0" x2="0.9" y1="0" y2="1">
+      <stop offset="0" stop-color="#8fcb70"/>
+      <stop offset="1" stop-color="#73bf4d"/>
+    </linearGradient>
+    <radialGradient id="milho-shine" cx="30%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="milho-glow" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#ffdf75" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#81c55e" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="milho-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="milho-shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#milho-glow)" filter="url(#milho-blur)"/>
+  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
+  
+  <g filter="url(#milho-shadow)">
+    <path d="M256 422V105" stroke="#528937" stroke-width="20" stroke-linecap="round"/>
+    <path d="M245 378C140 332 126 229 176 146c73 42 95 126 69 232Z" fill="url(#milho-accent)" stroke="#528937" stroke-width="16"/>
+    <path d="M267 382c105-46 118-149 68-232-73 42-95 126-68 232Z" fill="#8cca6d" stroke="#528937" stroke-width="16"/>
+    <path d="M256 145c58 46 79 133 30 255h-60c-49-122-28-209 30-255Z" fill="url(#milho-body)" stroke="#b79c3e" stroke-width="16"/>
+    <path d="M226 208h60M219 260h74M224 313h64M241 172v220M272 177v210" stroke="#937d32" stroke-width="7" opacity=".35" stroke-linecap="round"/>
+  </g>
+</svg>

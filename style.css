@@ -160,7 +160,7 @@ h3 {
 
 .resource-strip {
   display: grid;
-  grid-template-columns: repeat(3, minmax(126px, 1fr));
+  grid-template-columns: repeat(4, minmax(126px, 1fr));
   gap: 12px;
   align-items: stretch;
 }
@@ -506,10 +506,12 @@ textarea {
   border: 1px solid rgba(255, 255, 255, .16);
 }
 
-.crop-icon svg {
-  width: 70px;
-  height: 70px;
-  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .28));
+.crop-icon svg,
+.crop-icon img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, .32));
 }
 
 .crop-title {
@@ -837,6 +839,9 @@ textarea {
   .crop-grid,
   .industry-board,
   .upgrade-grid,
+  .research-grid,
+  .prestige-grid,
+  .prestige-dashboard,
   .mission-list {
     grid-template-columns: 1fr;
   }
@@ -854,8 +859,177 @@ textarea {
     height: 70px;
   }
 
-  .crop-icon svg {
+  .crop-icon svg,
+  .crop-icon img {
     width: 62px;
     height: 62px;
+  }
+}
+
+/* ===== Atualização: pesquisa + prestígio ===== */
+.subsection-title {
+  margin: 22px 0 8px;
+  font-size: 1.05rem;
+  letter-spacing: .02em;
+}
+
+.subsection-copy {
+  max-width: 780px;
+  margin: 0 0 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.research-grid,
+.prestige-grid,
+.prestige-dashboard {
+  display: grid;
+  gap: 14px;
+}
+
+.research-grid,
+.prestige-grid {
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+}
+
+.research-card,
+.prestige-upgrade-card,
+.prestige-panel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .12);
+  backdrop-filter: blur(16px);
+}
+
+.research-card {
+  padding: 16px;
+  background:
+    radial-gradient(circle at right top, rgba(101, 217, 255, .17), transparent 48%),
+    linear-gradient(160deg, rgba(255, 255, 255, .105), rgba(255, 255, 255, .045));
+}
+
+.prestige-dashboard {
+  grid-template-columns: minmax(280px, 1.45fr) repeat(3, minmax(180px, .65fr));
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.prestige-panel,
+.prestige-upgrade-card {
+  padding: 16px;
+  background:
+    radial-gradient(circle at 85% 10%, rgba(217, 156, 255, .22), transparent 42%),
+    radial-gradient(circle at 12% 100%, rgba(109, 231, 255, .16), transparent 42%),
+    linear-gradient(160deg, rgba(255, 255, 255, .12), rgba(255, 255, 255, .05));
+}
+
+.prestige-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.prestige-panel h3,
+.prestige-panel p,
+.prestige-panel strong,
+.prestige-panel span,
+.prestige-panel small {
+  display: block;
+  margin: 0;
+}
+
+.prestige-panel h3 {
+  margin: 3px 0 8px;
+  font-size: 1.55rem;
+}
+
+.prestige-panel p,
+.research-card p,
+.prestige-upgrade-card p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.prestige-panel > span {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.prestige-panel > strong {
+  margin: 7px 0 4px;
+  font-size: 1.65rem;
+  background: linear-gradient(135deg, #fff2a8, #d99cff, #6de7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.prestige-panel > small {
+  color: var(--muted);
+}
+
+.prestige-button,
+.prestige-action {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 16px;
+  color: #170828;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff2a8, #d99cff 48%, #6de7ff);
+  box-shadow: 0 14px 34px rgba(217, 156, 255, .23);
+  cursor: pointer;
+}
+
+.prestige-button:hover,
+.prestige-action:hover {
+  transform: translateY(-2px);
+}
+
+.prestige-button:disabled,
+.prestige-action:disabled {
+  cursor: not-allowed;
+  filter: grayscale(.5);
+  opacity: .55;
+}
+
+.prestige-badge {
+  color: #170828;
+  background: linear-gradient(135deg, #fff2a8, #d99cff, #6de7ff);
+}
+
+.prestige-resource {
+  border-color: rgba(217, 156, 255, .38);
+  background:
+    radial-gradient(circle at 10% 20%, rgba(255, 242, 168, .14), transparent 50%),
+    radial-gradient(circle at 92% 10%, rgba(109, 231, 255, .16), transparent 48%),
+    rgba(255, 255, 255, .09);
+}
+
+.crop-icon svg,
+.crop-icon img {
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .24));
+}
+
+@media (max-width: 1180px) {
+  .prestige-dashboard {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .prestige-hero {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .research-grid,
+  .prestige-grid,
+  .prestige-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .prestige-hero {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Arroz">
+  <defs>
+    <linearGradient id="arroz-body" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f6eeda"/>
+      <stop offset="0.55" stop-color="#f4ead0"/>
+      <stop offset="1" stop-color="#afa895"/>
+    </linearGradient>
+    <linearGradient id="arroz-accent" x1="0" x2="0.9" y1="0" y2="1">
+      <stop offset="0" stop-color="#9edc8e"/>
+      <stop offset="1" stop-color="#86d472"/>
+    </linearGradient>
+    <radialGradient id="arroz-shine" cx="30%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="arroz-glow" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#f5edd8" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#92d880" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="arroz-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="arroz-shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#arroz-glow)" filter="url(#arroz-blur)"/>
+  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
+  
+  <g filter="url(#arroz-shadow)">
+    <path d="M255 434c0-166 0-231 4-325" stroke="#609852" stroke-width="18" stroke-linecap="round"/>
+    <path d="M251 202c-71-26-104-78-92-142 59 8 98 47 117 128" fill="url(#arroz-accent)" stroke="#609852" stroke-width="12"/>
+    <path d="M271 239c79-18 118-69 108-132-66 6-107 46-131 126" fill="#9bdb8b" stroke="#609852" stroke-width="12"/>
+    <path d="M210 170c-28 40-20 84 15 112 27-39 20-82-15-112Z" fill="url(#arroz-body)" stroke="#afa895" stroke-width="10"/><path d="M280 205c-28 40-20 84 15 112 27-39 20-82-15-112Z" fill="url(#arroz-body)" stroke="#afa895" stroke-width="10"/><path d="M210 286c-28 40-20 84 15 112 27-39 20-82-15-112Z" fill="url(#arroz-body)" stroke="#afa895" stroke-width="10"/>
+  </g>
+</svg>

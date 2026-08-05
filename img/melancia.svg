@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Melancia">
+  <defs>
+    <linearGradient id="melancia-body" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#5abb82"/>
+      <stop offset="0.55" stop-color="#2ca85f"/>
+      <stop offset="1" stop-color="#1f7844"/>
+    </linearGradient>
+    <linearGradient id="melancia-accent" x1="0" x2="0.9" y1="0" y2="1">
+      <stop offset="0" stop-color="#ff7184"/>
+      <stop offset="1" stop-color="#ff4e66"/>
+    </linearGradient>
+    <radialGradient id="melancia-shine" cx="30%" cy="22%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="melancia-glow" cx="50%" cy="50%" r="55%">
+      <stop offset="0" stop-color="#51b77b" stop-opacity="0.48"/>
+      <stop offset="1" stop-color="#ff5f75" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="melancia-blur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="melancia-shadow" x="-25%" y="-25%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#melancia-glow)" filter="url(#melancia-blur)"/>
+  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
+  
+  <g filter="url(#melancia-shadow)">
+    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#melancia-accent)" stroke="#b73849" stroke-width="14" stroke-linejoin="round"/>
+    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#ff788a" stroke="#b73849" stroke-width="14" stroke-linejoin="round"/>
+    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#b73849" stroke-width="10" stroke-linecap="round" opacity=".55"/>
+  </g><g filter="url(#melancia-shadow)"><path d="M126 334c0-68 58-118 130-118s130 50 130 118-58 103-130 103-130-35-130-103Z" fill="url(#melancia-body)" stroke="#1f7844" stroke-width="16"/><path d="M198 233c-29 57-29 129 0 192M256 216c-16 67-16 144 0 219M314 233c29 57 29 129 0 192" fill="none" stroke="#133f28" stroke-width="9" opacity=".38" stroke-linecap="round"/><path d="M175 349c55 31 120 38 174 6" stroke="#ff4e66" stroke-width="18" stroke-linecap="round" opacity=".7" fill="none"/></g>
+</svg>

@@ -52,6 +52,13 @@
             <strong data-counter="reputation">0</strong>
           </div>
         </article>
+        <article class="resource-card prestige-resource">
+          <span class="mini-svg prestige-svg" aria-hidden="true"></span>
+          <div>
+            <small>Prestígio</small>
+            <strong data-counter="prestigePoints">0</strong>
+          </div>
+        </article>
       </section>
     </header>
 
@@ -60,6 +67,7 @@
       <button class="tab" type="button" data-view="industryView">Indústria</button>
       <button class="tab" type="button" data-view="upgradeView">Upgrades</button>
       <button class="tab" type="button" data-view="missionView">Missões</button>
+      <button class="tab" type="button" data-view="prestigeView">Prestígio</button>
       <button class="tab" type="button" data-view="settingsView">Config</button>
     </nav>
 
@@ -87,6 +95,7 @@
           <div class="stat-line"><span>Estoque total</span><strong data-stat="stock">0</strong></div>
           <div class="stat-line"><span>Contratos feitos</span><strong data-stat="contracts">0</strong></div>
           <div class="stat-line"><span>Total vendido</span><strong data-stat="sold">0</strong></div>
+          <div class="stat-line"><span>Prestígios feitos</span><strong data-stat="prestiges">0</strong></div>
         </section>
 
         <section class="panel-card log-card">
@@ -139,7 +148,12 @@
               <h2>Centro de upgrades</h2>
             </div>
           </div>
+          <h3 class="subsection-title">Infraestrutura da fazenda</h3>
           <div class="upgrade-grid" id="upgradeList"></div>
+
+          <h3 class="subsection-title">Centro de pesquisa</h3>
+          <p class="subsection-copy">Use os pontos de pesquisa dos contratos e missões para liberar tecnologias que mudam a progressão do jogo.</p>
+          <div class="research-grid" id="researchTechList"></div>
         </section>
 
         <section class="view" id="missionView">
@@ -150,6 +164,20 @@
             </div>
           </div>
           <div class="mission-list" id="missionList"></div>
+        </section>
+
+
+        <section class="view" id="prestigeView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">renascimento, legado e avanço permanente</p>
+              <h2>Sistema de prestígio</h2>
+            </div>
+          </div>
+          <div class="prestige-dashboard" id="prestigeDashboard"></div>
+          <h3 class="subsection-title">Loja de prestígio</h3>
+          <p class="subsection-copy">Pontos de prestígio são permanentes. Ao prestigiar, a fazenda reinicia, mas seu legado continua mais forte.</p>
+          <div class="prestige-grid" id="prestigeUpgradeList"></div>
         </section>
 
         <section class="view" id="settingsView">
@@ -180,8 +208,9 @@
                 <li>Compre plantas para liberar a produção automática.</li>
                 <li>Cada estação altera velocidade, rendimento e preço de venda.</li>
                 <li>Venda produtos comuns ou complete contratos industriais por bônus.</li>
-                <li>Use pesquisa e moedas para destravar melhorias globais.</li>
-                <li>Todos os ícones das plantas são SVGs gerados pelo próprio jogo.</li>
+                <li>Use pesquisa para tecnologias avançadas de genética, mercado, indústria e prestígio.</li>
+                <li>Quando sua fazenda estiver forte, faça prestígio para ganhar pontos permanentes.</li>
+                <li>Todas as plantas usam imagens SVG próprias na pasta img, com artes individuais por cultura.</li>
               </ul>
             </article>
           </div>
