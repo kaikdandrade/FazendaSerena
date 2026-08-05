@@ -1,4 +1,1 @@
-# Google AdSense
-# Substitua a linha de exemplo abaixo pela linha EXATA fornecida em AdSense > Sites > ads.txt.
-# Depois remova o caractere # do início da linha e publique novamente.
-# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+google.com, pub-4578037304455366, DIRECT, f08c47fec0942fa0

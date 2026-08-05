@@ -13,7 +13,7 @@
  * carregado e o jogo continuará funcionando normalmente.
  */
 window.ADSENSE_CONFIG = Object.freeze({
-  publisherId: "",
+  publisherId: "ca-pub-4578037304455366",
   autoAds: true,
   slots: Object.freeze({
     footer: ""
