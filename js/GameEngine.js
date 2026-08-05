@@ -1,7 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 38;
+  static SAVE_VERSION = 39;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -9,6 +9,9 @@ class GameEngine {
   static MAX_ACTIVE_CONTRACTS = 7;
   static CONTRACT_OFFER_COUNT = 6;
   static CONTRACT_COOLDOWN_SECONDS = 5 * 60;
+  // Revisão 39: 30% menos tempo em relação à revisão 38 (0,72 × 0,70).
+  static CONTRACT_DURATION_FACTOR = 0.504;
+  static CONTRACT_REWARD_FACTOR = 1.10;
   static BASE_STARTING_COINS = 120;
   static TREASURY_COINS_PER_LEVEL = 5000;
   static BASE_STORAGE_CAPACITY = 200;
@@ -370,6 +373,27 @@ class GameEngine {
         contract.rewardCoins = Math.max(1, Math.floor(contract.amount * salePrice * difficulty.reward * rewardBonus));
         contract.rewardResearch = this.getContractResearchReward(contract.difficulty, contract.amount, merged);
       });
+    }
+
+    // Revisão 39: propostas e contratos existentes recebem o mesmo ajuste dos
+    // novos contratos, sem aplicar novamente após o save já estar na versão 39.
+    if (Number(input.version || 0) < 39) {
+      const migrateContractBalance = (contract, active = false) => {
+        const previousDuration = Math.max(1, Number(contract.durationSeconds) || 1);
+        contract.durationSeconds = Math.max(22, Math.round(previousDuration * 0.70));
+        if (active && !contract.defaultedAt && !contract.completedAt) {
+          contract.timeRemaining = Math.max(0, Math.min(
+            contract.durationSeconds,
+            Number(contract.timeRemaining || 0) * 0.70
+          ));
+        } else if (!active) {
+          contract.timeRemaining = contract.durationSeconds;
+        }
+        contract.rewardCoins = Math.max(1, Math.floor(Number(contract.rewardCoins || 1) * GameEngine.CONTRACT_REWARD_FACTOR));
+        if (contract.defaultedAt) contract.penaltyCoins = Math.max(1, Math.ceil(contract.rewardCoins * 1.20));
+      };
+      merged.contractOffers.forEach(contract => migrateContractBalance(contract, false));
+      merged.activeContracts.forEach(contract => migrateContractBalance(contract, true));
     }
     Reflect.deleteProperty(merged, "contracts");
 
@@ -960,12 +984,16 @@ class GameEngine {
       return { ok: false, message: `Faltam ${this.formatMoney(nextCost - this.state.coins)}.` };
     }
 
+    const previousLevel = cropState.level;
     this.state.coins -= totalCost;
     cropState.level += purchased;
     this.state.stats.lifetimeCropUpgrades += purchased;
     this.addFarmXPPercent(0.017, purchased);
+    const reachedCropPrestige = previousLevel < GameEngine.MAX_CROP_LEVEL
+      && cropState.level >= GameEngine.MAX_CROP_LEVEL;
+    if (reachedCropPrestige) this.addFarmXPPercent(0.10);
     this.state.stats.maxCropLevel = Math.max(this.state.stats.maxCropLevel, cropState.level);
-    return { ok: true, purchased, totalCost, level: cropState.level, crop };
+    return { ok: true, purchased, totalCost, level: cropState.level, crop, reachedCropPrestige, masteryXpRate: reachedCropPrestige ? 0.10 : 0 };
   }
 
   upgradeCropMax(cropId) {
@@ -1101,7 +1129,7 @@ class GameEngine {
     const amount = Math.max(1, Math.floor(Number(contract.amount) || 1));
     const delivered = active ? Math.max(0, Math.min(amount, Math.floor(Number(contract.delivered) || 0))) : 0;
     const difficulty = ["calm", "standard", "urgent", "bulk"].includes(contract.difficulty) ? contract.difficulty : "standard";
-    const durationSeconds = Math.max(30, Math.floor(Number(contract.durationSeconds) || this.getContractDifficulty(difficulty).duration * 0.72));
+    const durationSeconds = Math.max(22, Math.floor(Number(contract.durationSeconds) || this.getContractDifficulty(difficulty).duration * GameEngine.CONTRACT_DURATION_FACTOR));
     const legacyDeadline = Number(contract.deadlineAt || 0);
     const legacyRemaining = legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : durationSeconds;
     const completedAt = active && (Number(contract.completedAt || 0) > 0 || delivered >= amount)
@@ -1225,7 +1253,7 @@ class GameEngine {
         + Number(this.state.upgrades.expressPacking || 0) * 0.05
         + Number(this.state.researchTechs.logisticsSimulation || 0) * 0.06
         + Number(this.state.prestigeUpgrades.sovereignNetwork || 0) * 0.10;
-      const durationSeconds = Math.max(32, Math.round(difficulty.duration * durationMultiplier * 0.72));
+      const durationSeconds = Math.max(22, Math.round(difficulty.duration * durationMultiplier * GameEngine.CONTRACT_DURATION_FACTOR));
       const rate = Math.max(0.08, this.getProductionRate(crop.id));
       const variation = 0.88 + Math.random() * 0.24;
       const minimumByProgress = 8 + this.state.farmLevel * 2.4 + eligible.length * 1.35 + Math.floor(cropLevel / 10);
@@ -1238,7 +1266,8 @@ class GameEngine {
       const progressionReward = 1 + this.state.farmLevel * 0.012 + crop.index * 0.025 + averageLevel * 0.0015;
       const rewardMultiplier = difficulty.reward
         * (1 + researchLevel * 0.08 + officeLevel * 0.08 + sovereignLevel * 0.20)
-        * progressionReward;
+        * progressionReward
+        * GameEngine.CONTRACT_REWARD_FACTOR;
       const rewardCoins = Math.max(1, Math.floor(amount * this.getSalePrice(crop.id) * rewardMultiplier));
       const rewardResearch = this.getContractResearchReward(difficulty.id, amount);
 

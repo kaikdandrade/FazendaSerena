@@ -829,7 +829,7 @@
         ? `Necessário: Fazenda nível ${crop.unlockLevel}`
         : `Comprar ${resourceAmount("coins", -buyCost, { compact: true })}`;
       return `
-        <article class="crop-card locked ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
+        <article class="crop-card locked ${!unlocked ? "level-locked" : ""} ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
           <div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span></div>
           <div class="crop-head">
             <div class="crop-art locked-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
@@ -854,7 +854,7 @@
 
     return `
       <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip" ${speedMaxed ? 'title="Velocidade máxima; os níveis restantes continuam valorizando esta cultura"' : ""}>
+        <div class="crop-level-strip" title="${data.level >= GameEngine.MAX_CROP_LEVEL ? "Prestígio da cultura concluído: bônus de 10% de XP recebido" : speedMaxed ? "Velocidade máxima; ao alcançar o nível 300 esta cultura concede 10% de XP" : "Ao alcançar o nível 300 esta cultura concede 10% de XP"}">
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
         </div>
         <div class="crop-head">
@@ -1563,7 +1563,7 @@
     const cropId = button.dataset.crop;
     const id = button.dataset.id;
 
-    if (!["perform-prestige", "buy-crop"].includes(action)) soundEngine.play(getActionSound(action));
+    if (!["perform-prestige", "buy-crop", "accept-contract", "decline-contract", "break-contract"].includes(action)) soundEngine.play(getActionSound(action));
 
     if (action === "buy-crop") {
       const result = engine.buyCrop(cropId);
@@ -1607,15 +1607,25 @@
     if (action === "buy-upgrade") act(engine.buyUpgrade(id));
     if (action === "buy-research") act(engine.buyResearch(id));
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
-    if (action === "accept-contract") act(engine.acceptContract(id));
-    if (action === "decline-contract") act(engine.declineContract(id));
+    if (action === "accept-contract") {
+      const result = engine.acceptContract(id);
+      if (result.ok) soundEngine.play("contractSignature");
+      act(result);
+    }
+    if (action === "decline-contract") {
+      const result = engine.declineContract(id);
+      if (result.ok) soundEngine.play("contractRefusal");
+      act(result);
+    }
     if (action === "break-contract") {
       const contract = engine.state.activeContracts.find(item => item.id === id);
       if (!contract) return;
       const fine = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
       const confirmation = `Quebrar este contrato custará ${engine.formatNumber(fine)} moedas e cancelará qualquer recompensa. Sujeito a multa ao quebrar contrato. Continuar?`;
       if (!window.confirm(confirmation)) return;
-      act(engine.breakContract(id));
+      const result = engine.breakContract(id);
+      if (result.ok) soundEngine.play("contractRefusal");
+      act(result);
     }
     if (action === "refresh-leaderboard") refreshPrestigeLeaderboard(true);
     if (action === "claim-contract") {

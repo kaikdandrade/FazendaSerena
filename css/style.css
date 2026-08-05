@@ -5401,18 +5401,12 @@ body {
   border-color: rgba(55,70,60,.25) !important;
 }
 
-.google-sign-in-button > span {
-  align-items: center;
-  background: linear-gradient(135deg, #4285f4 0 25%, #34a853 25% 50%, #fbbc05 50% 75%, #ea4335 75%);
-  border-radius: 50%;
-  color: #fff;
-  display: inline-flex;
-  font-family: Arial, sans-serif;
-  font-size: .72rem;
-  font-weight: 900;
+.google-sign-in-button > img {
+  display: block;
+  flex: 0 0 auto;
   height: 22px;
-  justify-content: center;
   margin-right: 7px;
+  object-fit: contain;
   width: 22px;
 }
 
@@ -6035,14 +6029,16 @@ body {
 }
 
 .feature-gate-card::after {
-  color: rgba(79,125,70,.08);
-  content: "◆";
-  font-size: 6rem;
-  line-height: 1;
+  background: url("../assets/icons/feature-lock.png") center / contain no-repeat;
+  content: "";
+  filter: grayscale(.15);
+  height: 86px;
+  opacity: .075;
   pointer-events: none;
   position: absolute;
-  right: -8px;
-  top: -23px;
+  right: -5px;
+  top: -9px;
+  width: 86px;
 }
 
 .feature-gate-copy { min-width: 0; position: relative; z-index: 1; }
@@ -6091,17 +6087,53 @@ body {
 .nav-tab.feature-preview::after,
 .office-tab.feature-preview::after,
 .evolution-tab.feature-preview::after {
-  background: #e0b43f;
-  border: 2px solid rgba(255,255,255,.9);
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(91,69,18,.22);
+  background: rgba(255,255,255,.94) url("../assets/icons/feature-lock.png") center / 15px 15px no-repeat;
+  border: 1px solid rgba(13,55,81,.2);
+  border-radius: 8px;
+  box-shadow: 0 2px 7px rgba(20,54,70,.2);
   content: "";
-  height: 8px;
+  height: 21px;
   pointer-events: none;
   position: absolute;
-  right: 7px;
-  top: 6px;
-  width: 8px;
+  right: 5px;
+  top: 4px;
+  width: 21px;
+}
+
+.upgrade-card-preview,
+.crop-card.level-locked .locked-art {
+  position: relative;
+}
+
+.upgrade-card-preview::after {
+  background: rgba(255,255,255,.94) url("../assets/icons/feature-lock.png") center / 18px 18px no-repeat;
+  border: 1px solid rgba(13,55,81,.18);
+  border-radius: 9px;
+  box-shadow: 0 3px 9px rgba(20,54,70,.17);
+  content: "";
+  height: 27px;
+  pointer-events: none;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 27px;
+  z-index: 4;
+}
+
+.crop-card.level-locked .locked-art::after {
+  background: rgba(255,255,255,.9) url("../assets/icons/feature-lock.png") center / 20px 20px no-repeat;
+  border: 1px solid rgba(13,55,81,.16);
+  border-radius: 10px;
+  box-shadow: 0 3px 9px rgba(20,54,70,.16);
+  content: "";
+  height: 30px;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  z-index: 3;
 }
 
 .nickname-setting {
@@ -6610,7 +6642,7 @@ body {
 
   .crop-upgrade-cta { grid-column: 1 !important; }
 
-  .active-contract-grid { grid-template-columns: 1fr !important; }
+  .active-contract-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 
   .contract-offer-grid { grid-template-columns: 1fr !important; }
 
@@ -7056,6 +7088,8 @@ body {
 /* Até 480px */
 /* ========================================================================== */
 @media (max-width: 480px) {
+  .active-contract-grid { grid-template-columns: minmax(0, 1fr) !important; }
+
   .account-settings-card { gap: 14px; }
 
   .account-settings-head { align-items: start; gap: 12px; }

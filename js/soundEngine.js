@@ -19,6 +19,8 @@ class SoundEngine {
     reward: "assets/sounds/reward_claim.wav",
     sell: "assets/sounds/stock_sale.wav",
     prestige: "assets/sounds/prestige_activation.wav",
+    contractSignature: "assets/sounds/contract_signature.wav",
+    contractRefusal: "assets/sounds/contract_refusal.wav",
     levelUp: "assets/sounds/level_up.wav",
     coinCounterHit: "assets/sounds/coin_counter_hit.wav",
     researchCounterHit: "assets/sounds/research_counter_hit.wav",
