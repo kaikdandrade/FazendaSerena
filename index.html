@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fazenda Industrial SVG</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 80 80" role="img">
+            <defs>
+              <linearGradient id="brandLeaf" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#d8ff8f" />
+                <stop offset="1" stop-color="#1f9f63" />
+              </linearGradient>
+            </defs>
+            <path d="M40 72C22 62 12 50 12 35 12 18 25 8 43 8c13 0 24 6 29 17-15-1-27 6-36 18 10-7 21-9 32-5-4 18-16 30-28 34Z" fill="url(#brandLeaf)" />
+            <path d="M17 63c13-15 26-27 46-40" fill="none" stroke="#113d2c" stroke-width="5" stroke-linecap="round" />
+          </svg>
+        </span>
+        <div>
+          <p class="eyebrow">idle / agricultura / indústria</p>
+          <h1>Fazenda Industrial SVG</h1>
+        </div>
+      </div>
+
+      <section class="resource-strip" aria-label="Recursos do jogo">
+        <article class="resource-card">
+          <span class="mini-svg coin-svg" aria-hidden="true"></span>
+          <div>
+            <small>Moedas</small>
+            <strong data-counter="coins">0</strong>
+          </div>
+        </article>
+        <article class="resource-card">
+          <span class="mini-svg research-svg" aria-hidden="true"></span>
+          <div>
+            <small>Pesquisa</small>
+            <strong data-counter="research">0</strong>
+          </div>
+        </article>
+        <article class="resource-card">
+          <span class="mini-svg rep-svg" aria-hidden="true"></span>
+          <div>
+            <small>Reputação</small>
+            <strong data-counter="reputation">0</strong>
+          </div>
+        </article>
+      </section>
+    </header>
+
+    <nav class="view-tabs" aria-label="Navegação do jogo">
+      <button class="tab active" type="button" data-view="farmView">Fazenda</button>
+      <button class="tab" type="button" data-view="industryView">Indústria</button>
+      <button class="tab" type="button" data-view="upgradeView">Upgrades</button>
+      <button class="tab" type="button" data-view="missionView">Missões</button>
+      <button class="tab" type="button" data-view="settingsView">Config</button>
+    </nav>
+
+    <main class="layout">
+      <aside class="left-panel">
+        <section class="season-card" id="seasonCard">
+          <div class="season-head">
+            <span class="season-icon" data-season-icon></span>
+            <div>
+              <small>Estação atual</small>
+              <h2 data-season-name>Primavera</h2>
+            </div>
+          </div>
+          <p data-season-description>Produção equilibrada.</p>
+          <div class="season-progress" aria-hidden="true"><span data-season-progress></span></div>
+          <div class="season-mini-stats">
+            <span data-season-time>00s</span>
+            <span data-season-bonus>+0%</span>
+          </div>
+        </section>
+
+        <section class="panel-card compact-stats">
+          <h2>Resumo</h2>
+          <div class="stat-line"><span>Plantas compradas</span><strong data-stat="owned">0</strong></div>
+          <div class="stat-line"><span>Estoque total</span><strong data-stat="stock">0</strong></div>
+          <div class="stat-line"><span>Contratos feitos</span><strong data-stat="contracts">0</strong></div>
+          <div class="stat-line"><span>Total vendido</span><strong data-stat="sold">0</strong></div>
+        </section>
+
+        <section class="panel-card log-card">
+          <h2>Eventos</h2>
+          <div class="log-list" id="logList"></div>
+        </section>
+      </aside>
+
+      <section class="content">
+        <section class="view active" id="farmView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">plantas, produção e venda rápida</p>
+              <h2>Campo de cultivo</h2>
+            </div>
+            <div class="toolbar">
+              <input id="searchCrop" type="search" placeholder="Buscar planta..." autocomplete="off" />
+              <select id="categoryFilter" aria-label="Filtrar por categoria">
+                <option value="all">Todas</option>
+              </select>
+              <select id="sortMode" aria-label="Ordenar plantas">
+                <option value="progression">Progressão</option>
+                <option value="price">Maior preço</option>
+                <option value="stock">Maior estoque</option>
+                <option value="level">Maior nível</option>
+              </select>
+            </div>
+          </div>
+          <div class="crop-grid" id="cropGrid"></div>
+        </section>
+
+        <section class="view" id="industryView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">contratos, pedidos e bônus</p>
+              <h2>Venda para a indústria</h2>
+            </div>
+            <div class="toolbar">
+              <button class="secondary" type="button" id="sellAllUnlocked">Vender estoque comum</button>
+              <button class="primary" type="button" id="rerollContracts">Novos contratos</button>
+            </div>
+          </div>
+          <div class="industry-board" id="contractList"></div>
+        </section>
+
+        <section class="view" id="upgradeView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">melhorias permanentes</p>
+              <h2>Centro de upgrades</h2>
+            </div>
+          </div>
+          <div class="upgrade-grid" id="upgradeList"></div>
+        </section>
+
+        <section class="view" id="missionView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">objetivos e recompensas</p>
+              <h2>Missões da fazenda</h2>
+            </div>
+          </div>
+          <div class="mission-list" id="missionList"></div>
+        </section>
+
+        <section class="view" id="settingsView">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">salvamento local</p>
+              <h2>Configurações</h2>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <article class="panel-card">
+              <h3>Salvar / carregar</h3>
+              <p>O jogo salva automaticamente no navegador. Você também pode exportar o save para guardar em outro lugar.</p>
+              <div class="stack-actions">
+                <button class="primary" type="button" id="saveNow">Salvar agora</button>
+                <button class="secondary" type="button" id="exportSave">Exportar save</button>
+              </div>
+              <textarea id="saveBox" placeholder="O save exportado aparece aqui. Para importar, cole um save e clique em Importar."></textarea>
+              <div class="stack-actions">
+                <button class="secondary" type="button" id="importSave">Importar save</button>
+                <button class="danger" type="button" id="resetGame">Resetar jogo</button>
+              </div>
+            </article>
+
+            <article class="panel-card">
+              <h3>Como jogar</h3>
+              <ul class="tips">
+                <li>Compre plantas para liberar a produção automática.</li>
+                <li>Cada estação altera velocidade, rendimento e preço de venda.</li>
+                <li>Venda produtos comuns ou complete contratos industriais por bônus.</li>
+                <li>Use pesquisa e moedas para destravar melhorias globais.</li>
+                <li>Todos os ícones das plantas são SVGs gerados pelo próprio jogo.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-zone" id="toastZone" aria-live="polite"></div>
+  <script src="main.js"></script>
+</body>
+
+</html>
