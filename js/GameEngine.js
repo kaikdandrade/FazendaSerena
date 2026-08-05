@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 15;
+  static SAVE_VERSION = 16;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -222,6 +222,12 @@ class GameEngine {
       Reflect.deleteProperty(merged.researchTechs, "autonomousMarket");
       Reflect.deleteProperty(merged.researchTechs, "prestigeMathematics");
     }
+    if (Number(input?.version || 0) < 16) {
+      // Revisão 15: propostas antigas são recriadas pelo novo sistema de equilíbrio.
+      merged.contractOffers = [];
+      merged.contractCooldowns = [];
+    }
+
     this.data.upgrades.forEach(item => {
       merged.upgrades[item.id] = Math.max(0, Math.min(item.max, Math.floor(Number(merged.upgrades[item.id]) || 0)));
     });
@@ -291,10 +297,10 @@ class GameEngine {
     }
 
     const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
-    const rawOffers = Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts;
+    const rawOffers = Number(input.version || 0) < 16 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
     const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
     merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, 6);
-    merged.contractCooldowns = (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : [])
+    merged.contractCooldowns = (Number(input.version || 0) < 16 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
       .map(value => this.normalizeContractCooldown(value))
       .filter(Boolean)
       .slice(0, 6);
@@ -514,7 +520,7 @@ class GameEngine {
   hasActiveAutoOrderForCrop(cropId) {
     const orderState = this.state.orders[cropId];
     const order = this.getOrder(cropId);
-    return Boolean(orderState?.autoDeliver && order && !order.complete);
+    return Boolean(orderState?.autoDeliver && order && !order.complete && !order.readyToClaim);
   }
 
   advanceContractTimers(seconds, silent = false) {
@@ -966,27 +972,31 @@ class GameEngine {
 
   getContractDifficulty(id) {
     const profiles = {
-      calm: { id: "calm", label: "Prazo confortável", duration: 600, load: 0.32, reward: 1.35, research: 0.32 },
-      standard: { id: "standard", label: "Contrato comercial", duration: 360, load: 0.44, reward: 1.58, research: 0.48 },
-      urgent: { id: "urgent", label: "Entrega urgente", duration: 180, load: 0.62, reward: 1.88, research: 0.66 },
-      bulk: { id: "bulk", label: "Grande fornecimento", duration: 720, load: 0.50, reward: 1.72, research: 0.58 }
+      calm: { id: "calm", label: "Prazo confortável", duration: 540, load: 0.26, reward: 1.48, research: 0.30 },
+      standard: { id: "standard", label: "Entrega comercial", duration: 360, load: 0.36, reward: 1.72, research: 0.46 },
+      urgent: { id: "urgent", label: "Entrega emergencial", duration: 150, load: 0.54, reward: 2.28, research: 0.68 },
+      bulk: { id: "bulk", label: "Grande fornecimento", duration: 720, load: 0.44, reward: 1.88, research: 0.58 }
     };
     return profiles[id] || profiles.standard;
   }
 
-  chooseContractCrop(owned, offerIndex = 0) {
-    if (owned.length <= 1) return owned[0];
-    const sorted = [...owned].sort((a, b) => a.index - b.index);
-    if (offerIndex === 0) {
-      const recentCount = Math.max(1, Math.ceil(sorted.length * 0.35));
-      const recent = sorted.slice(-recentCount);
-      return recent[Math.floor(Math.random() * recent.length)];
-    }
+  getContractEligibleCrops() {
+    return this.data.crops.filter(crop => crop.unlockLevel <= this.state.farmLevel);
+  }
+
+  chooseContractCrop(crops, offerIndex = 0, excluded = new Set()) {
+    if (!crops.length) return null;
+    const uniquePool = crops.filter(crop => !excluded.has(crop.id));
+    const pool = uniquePool.length ? uniquePool : crops;
+    if (pool.length === 1) return pool[0];
+    const sorted = [...pool].sort((a, b) => a.index - b.index);
     const maxIndex = Math.max(1, sorted.at(-1).index);
-    const weighted = sorted.map(crop => ({
-      crop,
-      weight: 1 + Math.pow(crop.index / maxIndex, 1.25) * 1.65 + (crop.unlockLevel >= this.state.farmLevel - 2 ? 0.45 : 0)
-    }));
+    const weighted = sorted.map(crop => {
+      const owned = this.state.crops[crop.id]?.owned ? 1 : 0;
+      const recentUnlock = crop.unlockLevel >= Math.max(1, this.state.farmLevel - 4) ? 0.55 : 0;
+      const varietyBoost = offerIndex === 0 && crop.index >= maxIndex * 0.65 ? 0.45 : 0;
+      return { crop, weight: 1 + (crop.index / maxIndex) * 0.85 + recentUnlock + varietyBoost + owned * 0.18 };
+    });
     let roll = Math.random() * weighted.reduce((sum, item) => sum + item.weight, 0);
     for (const item of weighted) {
       roll -= item.weight;
@@ -1002,44 +1012,58 @@ class GameEngine {
   }
 
   createContractOffers(count = 1) {
+    const eligible = this.getContractEligibleCrops();
+    if (!eligible.length) return [];
     const owned = this.getOwnedCrops();
-    if (!owned.length) return [];
     const result = [];
     const usedCompanies = new Set([
       ...(this.state.contractOffers || []).map(contract => contract.companyId),
       ...(this.state.activeContracts || []).map(contract => contract.companyId)
     ]);
-    const difficultyIds = ["calm", "standard", "urgent", "bulk"];
-    const averageLevel = owned.reduce((sum, crop) => sum + Math.max(1, Number(this.state.crops[crop.id]?.level || 1)), 0) / owned.length;
-    const progression = 1 + this.state.farmLevel * 0.006 + Math.log2(owned.length + 1) * 0.05 + Math.min(0.3, averageLevel / 1000);
+    const usedCrops = new Set([
+      ...(this.state.contractOffers || []).map(contract => contract.cropId),
+      ...(this.state.activeContracts || []).map(contract => contract.cropId)
+    ]);
+    const difficultyCycle = ["urgent", "standard", "calm", "bulk", "standard", "urgent"];
+    const difficultyOffset = this.state.contractSerial % difficultyCycle.length;
+    const averageLevel = owned.length
+      ? owned.reduce((sum, crop) => sum + Math.max(1, Number(this.state.crops[crop.id]?.level || 1)), 0) / owned.length
+      : 1;
+    const journeyScale = 1 + Math.min(0.7, this.state.farmLevel * 0.009) + Math.min(0.35, averageLevel / 700);
+    const deadlineScale = 1 + Math.min(0.42, this.state.farmLevel / 120);
+    const earlySupport = 1 + Math.max(0, 12 - this.state.farmLevel) * 0.035;
 
     for (let i = 0; i < count; i += 1) {
-      const crop = this.chooseContractCrop(owned, i);
-      const cropLevel = Math.max(1, Number(this.state.crops[crop.id]?.level || 1));
+      const crop = this.chooseContractCrop(eligible, i, usedCrops);
+      if (!crop) break;
+      usedCrops.add(crop.id);
+      const cropState = this.state.crops[crop.id];
+      const cropLevel = Math.max(1, Number(cropState?.level || 1));
       const availableCompanies = this.data.companies.filter(company => !usedCompanies.has(company.id));
       const pool = availableCompanies.length ? availableCompanies : this.data.companies;
       const company = pool[Math.floor(Math.random() * pool.length)];
       usedCompanies.add(company.id);
 
-      const difficultyId = difficultyIds[Math.floor(Math.random() * difficultyIds.length)];
+      const difficultyId = difficultyCycle[(difficultyOffset + i) % difficultyCycle.length];
       const difficulty = this.getContractDifficulty(difficultyId);
-      const durationMultiplier = 1
+      const durationMultiplier = deadlineScale
         + Number(this.state.upgrades.expressPacking || 0) * 0.05
         + Number(this.state.researchTechs.logisticsSimulation || 0) * 0.06
         + Number(this.state.prestigeUpgrades.sovereignNetwork || 0) * 0.10;
-      const durationSeconds = Math.max(30, Math.round(difficulty.duration * durationMultiplier));
+      const durationSeconds = Math.max(45, Math.round(difficulty.duration * durationMultiplier));
       const rate = Math.max(0.08, this.getProductionRate(crop.id));
-      const variation = 0.84 + Math.random() * 0.3;
-      const minimumByProgress = 5 + this.state.farmLevel * 2 + owned.length * 2 + Math.floor(cropLevel / 12);
-      const roughAmount = Math.max(minimumByProgress, rate * durationSeconds * difficulty.load * progression * variation);
+      const variation = 0.88 + Math.random() * 0.24;
+      const minimumByProgress = 8 + this.state.farmLevel * 2.4 + eligible.length * 1.35 + Math.floor(cropLevel / 10);
+      const urgencyVolume = difficultyId === "urgent" ? 1.14 : 1;
+      const roughAmount = Math.max(minimumByProgress, rate * durationSeconds * difficulty.load * journeyScale * variation) * urgencyVolume;
       const amount = this.roundContractAmount(roughAmount);
       const researchLevel = Number(this.state.researchTechs.negotiationModels || 0);
       const officeLevel = Number(this.state.upgrades.contractBureau || 0);
       const sovereignLevel = Number(this.state.prestigeUpgrades.sovereignNetwork || 0);
-      const rewardMultiplier = difficulty.reward * (1 + researchLevel * 0.08 + officeLevel * 0.08 + sovereignLevel * 0.20);
+      const rewardMultiplier = difficulty.reward * earlySupport * (1 + researchLevel * 0.08 + officeLevel * 0.08 + sovereignLevel * 0.20);
       const rewardCoins = Math.max(1, Math.floor(amount * this.getSalePrice(crop.id) * rewardMultiplier));
-      const researchChance = difficulty.research + Math.min(0.2, this.state.farmLevel / 150);
-      const researchBase = amount >= 40 && Math.random() < researchChance ? 1 + Math.floor(Math.log10(amount + 1)) + Math.floor(this.state.farmLevel / 14) : 0;
+      const researchChance = difficulty.research + Math.min(0.22, this.state.farmLevel / 140);
+      const researchBase = amount >= 35 && Math.random() < researchChance ? 1 + Math.floor(Math.log10(amount + 1)) + Math.floor(this.state.farmLevel / 13) : 0;
       const researchBonus = 1 + Number(this.state.prestigeUpgrades.immortalAcademy || 0) * 0.25;
 
       result.push({
@@ -1059,7 +1083,6 @@ class GameEngine {
     }
     return result;
   }
-
 
   normalizeContractCooldown(value, now = Date.now()) {
     const rawAvailableAt = typeof value === "object" && value !== null ? value.availableAt : value;
@@ -1092,7 +1115,7 @@ class GameEngine {
     const expiredCooldowns = normalizedCooldowns.filter(value => !value).length;
     this.state.contractCooldowns = normalizedCooldowns.filter(Boolean).slice(0, 6);
 
-    if (!this.getOwnedCrops().length) {
+    if (!this.getContractEligibleCrops().length) {
       this.state.contractOffers = [];
       this.state.contractCooldowns = [];
       return;
@@ -1244,7 +1267,7 @@ class GameEngine {
   }
 
   rerollContracts() {
-    if (!this.getOwnedCrops().length) return { ok: false, message: "Compre uma cultura antes de buscar propostas." };
+    if (!this.getContractEligibleCrops().length) return { ok: false, message: "Evolua a fazenda para liberar culturas e novas propostas." };
     const cost = this.getContractRerollCost();
     if (this.state.coins < cost) return { ok: false, message: `Renovar todas as propostas custa ${this.formatMoney(cost)}.` };
     this.state.coins -= cost;
@@ -1267,20 +1290,22 @@ class GameEngine {
     const analyticsBonus = Number(this.state.researchTechs.orderOptimization || 0) * 0.08;
     const sovereignBonus = Number(this.state.prestigeUpgrades.sovereignNetwork || 0) * 0.20;
     const rewardCoins = Math.max(1, Math.floor(step.amount * crop.basePrice * step.rewardMultiplier * (1 + counterBonus + analyticsBonus + sovereignBonus)));
+    const delivered = Math.min(step.amount, orderState.delivered);
     return {
       crop,
       complete: false,
+      readyToClaim: delivered >= step.amount,
       tier: orderState.tier,
       totalTiers: this.data.orderSteps.length,
       amount: step.amount,
-      delivered: Math.min(step.amount, orderState.delivered),
-      remaining: Math.max(0, step.amount - orderState.delivered),
+      delivered,
+      remaining: Math.max(0, step.amount - delivered),
       rewardCoins,
       rewardResearch: Math.floor(step.research * (1 + Number(this.state.prestigeUpgrades.immortalAcademy || 0) * 0.25))
     };
   }
 
-  completeOrderStage(cropId, order, silent = false, automatic = false) {
+  completeOrderStage(cropId, order, silent = false) {
     this.state.orders[cropId].tier += 1;
     this.state.orders[cropId].delivered = 0;
     if (this.state.orders[cropId].tier >= this.data.orderSteps.length) this.state.stats.completedOrderSeries += 1;
@@ -1289,46 +1314,46 @@ class GameEngine {
     this.addCoins(order.rewardCoins);
     this.state.research += order.rewardResearch;
     this.addFarmXP(order.amount * 0.16 + 8, silent);
-    if (automatic && !silent) {
-      this.emit("toast", { message: `Pedido automático de ${order.crop.name.toLowerCase()} concluído. A recompensa foi recebida.` });
-    }
     return { coins: order.rewardCoins, research: order.rewardResearch };
   }
 
-  deliverUnitsToOrder(cropId, amount, silent = false, automatic = false) {
-    let remaining = Math.max(0, Math.floor(Number(amount) || 0));
-    let delivered = 0;
-    let completedOrders = 0;
-    const rewards = { coins: 0, research: 0 };
-    let lastOrder = null;
-
-    while (remaining > 0) {
-      const order = this.getOrder(cropId);
-      if (!order || order.complete) break;
-      lastOrder = order;
-      const sent = Math.min(remaining, order.remaining);
-      if (sent < 1) break;
-      this.state.orders[cropId].delivered += sent;
-      this.state.stats.orderUnitsDelivered += sent;
-      this.state.stats.lifetimeOrderUnitsDelivered += sent;
-      remaining -= sent;
-      delivered += sent;
-
-      if (this.state.orders[cropId].delivered >= order.amount) {
-        const reward = this.completeOrderStage(cropId, order, silent, automatic);
-        rewards.coins += reward.coins;
-        rewards.research += reward.research;
-        completedOrders += 1;
-      }
+  claimOrderReward(cropId) {
+    const order = this.getOrder(cropId);
+    if (!order || order.complete) return { ok: false, message: "Este pedido já foi finalizado." };
+    if (!order.readyToClaim) return { ok: false, message: "Complete a entrega antes de receber a recompensa." };
+    const rewards = this.completeOrderStage(cropId, order, false);
+    let nextOrder = this.getOrder(cropId);
+    let autoDelivered = 0;
+    if (nextOrder && !nextOrder.complete && this.state.orders[cropId].autoDeliver && this.state.crops[cropId].stock > 0) {
+      const routed = this.deliverUnitsToOrder(cropId, this.state.crops[cropId].stock, false, true);
+      autoDelivered = routed.delivered;
+      this.state.crops[cropId].stock = Math.max(0, this.state.crops[cropId].stock - autoDelivered);
+      nextOrder = this.getOrder(cropId);
     }
+    return { ok: true, order, rewards, autoDelivered, seriesComplete: Boolean(nextOrder?.complete), nextOrder };
+  }
 
-    return { delivered, completedOrders, rewards, order: lastOrder };
+  deliverUnitsToOrder(cropId, amount, silent = false, automatic = false) {
+    const order = this.getOrder(cropId);
+    if (!order || order.complete || order.readyToClaim) return { delivered: 0, readyToClaim: Boolean(order?.readyToClaim), rewards: { coins: 0, research: 0 }, order };
+    const requested = Math.max(0, Math.floor(Number(amount) || 0));
+    const sent = Math.min(requested, order.remaining);
+    if (sent < 1) return { delivered: 0, readyToClaim: false, rewards: { coins: 0, research: 0 }, order };
+    this.state.orders[cropId].delivered += sent;
+    this.state.stats.orderUnitsDelivered += sent;
+    this.state.stats.lifetimeOrderUnitsDelivered += sent;
+    const updated = this.getOrder(cropId);
+    if (updated?.readyToClaim && automatic && !silent) {
+      this.emit("toast", { message: `Pedido de ${updated.crop.name.toLowerCase()} completo. Receba a recompensa no Escritório.` });
+    }
+    return { delivered: sent, readyToClaim: Boolean(updated?.readyToClaim), rewards: { coins: 0, research: 0 }, order: updated || order };
   }
 
   deliverOrder(cropId) {
     const order = this.getOrder(cropId);
     if (!order) return { ok: false, message: "Compre esta cultura para liberar seus pedidos." };
     if (order.complete) return { ok: false, message: "Todos os pedidos desta cultura já foram concluídos." };
+    if (order.readyToClaim) return { ok: false, message: "A recompensa deste estágio já está pronta." };
     const cropState = this.state.crops[cropId];
     const available = Math.min(cropState.stock, order.remaining);
     if (available < 1) return { ok: false, message: `Produza ${order.crop.name.toLowerCase()} antes de realizar uma entrega.` };
@@ -1338,9 +1363,8 @@ class GameEngine {
     return {
       ok: result.delivered > 0,
       delivered: result.delivered,
-      completed: result.completedOrders > 0,
-      order,
-      rewards: result.rewards
+      readyToClaim: result.readyToClaim,
+      order: result.order
     };
   }
 
@@ -1368,7 +1392,7 @@ class GameEngine {
   getReadyOrderCount() {
     return this.getOwnedCrops().filter(crop => {
       const order = this.getOrder(crop.id);
-      return order && !order.complete && this.state.crops[crop.id].stock >= order.remaining;
+      return order && !order.complete && (order.readyToClaim || this.state.crops[crop.id].stock >= order.remaining);
     }).length;
   }
 

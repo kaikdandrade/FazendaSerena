@@ -6127,3 +6127,233 @@ body.page-scrolled .floating-resource-strip { display: grid !important; }
     min-height: 0 !important;
   }
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 15 — evolução compacta, escritório amigável e fluxos explícitos    */
+/* ========================================================================== */
+
+/* Badges fora do fluxo: ícone e título sobem sem perder a leitura do nível. */
+#evolveView .redesigned-evolution-card {
+  position: relative !important;
+  grid-template-rows: auto minmax(34px, auto) auto !important;
+  gap: 7px !important;
+  min-height: 184px !important;
+  padding: 13px !important;
+}
+#evolveView .upgrade-level-badge {
+  position: absolute !important;
+  z-index: 2;
+  top: 11px;
+  right: 11px;
+  justify-self: auto !important;
+  max-width: calc(100% - 22px);
+  white-space: nowrap;
+}
+#evolveView .upgrade-card-identity {
+  min-height: 45px;
+  padding-right: 78px;
+}
+#evolveView .normalized-upgrade-card .upgrade-description {
+  margin-bottom: 1px !important;
+  line-height: 1.38;
+}
+#evolveView .redesigned-evolution-card .button {
+  margin-top: 2px !important;
+}
+
+/* Cabeçalhos do escritório mais leves e sem blocos de texto comprimidos. */
+#officeView .office-heading,
+#officeView .office-panel-heading {
+  margin-bottom: 12px !important;
+}
+#officeView .office-panel-heading .section-copy,
+#officeView .office-heading .section-copy {
+  max-width: 680px;
+  line-height: 1.45;
+}
+#officeView .contract-section-head {
+  margin: 16px 0 9px !important;
+  padding: 0 2px !important;
+}
+#officeView .contract-section-head h3 { margin-bottom: 2px !important; }
+#officeView .contract-section-head p { margin: 0 !important; font-size: .75rem; }
+
+.contract-dashboard-strip {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.contract-dashboard-strip > span {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "icon label" "icon value";
+  column-gap: 9px;
+  align-items: center;
+  min-height: 58px;
+  padding: 9px 11px;
+  border: 1px solid rgba(72,111,67,.10);
+  border-radius: 14px;
+  background: rgba(250,252,247,.86);
+}
+.contract-dashboard-strip i { grid-area: icon; font-style: normal; font-size: 1.15rem; }
+.contract-dashboard-strip small { grid-area: label; color: var(--ink-soft); font-size: .65rem; font-weight: 800; }
+.contract-dashboard-strip strong { grid-area: value; font-size: .92rem; color: var(--green-deep); }
+
+#officeView .active-contract-grid,
+#officeView .contract-offer-grid {
+  align-items: stretch;
+  gap: 11px !important;
+}
+#officeView .friendly-contract-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0 !important;
+  padding: 13px !important;
+  overflow: hidden;
+}
+.friendly-contract-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.contract-company-mark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.contract-company-mark > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: rgba(229,239,223,.82);
+  font-size: 1rem;
+}
+.contract-company-mark div { min-width: 0; }
+.contract-company-mark small,
+.contract-product-focus small,
+.contract-insight-row small { display:block; color:var(--ink-soft); font-size:.62rem; font-weight:800; }
+.contract-company-mark strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.76rem; }
+.contract-clock-badge,
+.contract-ready-mark {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid rgba(87,116,70,.13);
+  border-radius: 999px;
+  background: rgba(244,248,239,.95);
+  color: var(--green-deep);
+  font-size: .66rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.contract-clock-badge.urgent { background:rgba(255,235,225,.95); color:#9b432d; }
+.contract-ready-mark { background:rgba(255,245,196,.9); color:#7a611c; }
+.contract-product-focus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px;
+  border-radius: 14px;
+  background: rgba(244,248,239,.72);
+}
+.contract-product-focus img { width:48px; height:48px; object-fit:contain; flex:0 0 auto; }
+.contract-product-focus h3 { margin:2px 0 0; font-size:.9rem; line-height:1.2; }
+.contract-insight-row {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.contract-insight-row > span {
+  min-width:0;
+  padding:8px 9px;
+  border:1px solid rgba(72,111,67,.09);
+  border-radius:11px;
+  background:rgba(255,255,255,.7);
+}
+.contract-insight-row strong { display:block; margin-top:2px; font-size:.7rem; line-height:1.25; }
+.contract-crop-advisory {
+  padding:8px 9px;
+  border-radius:10px;
+  background:rgba(255,246,214,.78);
+  color:#705c25;
+  font-size:.67rem;
+  font-weight:750;
+  line-height:1.35;
+}
+#officeView .friendly-contract-card .contract-reward-unified { margin-top:auto; }
+#officeView .contract-offer-actions { margin-top:0 !important; }
+.cooldown-friendly { display:flex; align-items:center; gap:10px; }
+.cooldown-friendly > span { font-size:1.3rem; }
+.cooldown-friendly h3 { margin:2px 0 0; font-size:.82rem; }
+.compact-office-empty { min-height: 96px !important; }
+
+/* Pedidos: recompensa manual, histórico recolhível e estados inequívocos. */
+.order-history-toggle,
+.mission-history-toggle {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid rgba(72,111,67,.10);
+}
+.order-history-toggle small,
+.mission-history-toggle small { color:var(--ink-soft); font-size:.68rem; font-weight:700; }
+.order-reward-ready { border-color:rgba(196,157,39,.35) !important; box-shadow:0 10px 25px rgba(139,109,25,.09); }
+.order-finished-state {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:auto;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(229,239,223,.72);
+}
+.order-finished-state > span { display:grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--green-deep); color:white; font-weight:900; }
+.order-finished-state strong,.order-finished-state small { display:block; }
+.order-finished-state small { margin-top:2px; color:var(--ink-soft); font-size:.66rem; }
+.stage-continuity-note { display:block; margin-top:5px; color:var(--ink-soft); font-size:.62rem; font-weight:700; line-height:1.35; }
+
+/* Missões sem badges redundantes. */
+#officeView .mission-head { padding-right:0 !important; }
+#officeView .mission-head > div { width:100%; }
+
+@media (max-width: 760px) {
+  .contract-dashboard-strip { grid-template-columns:1fr; }
+  .contract-dashboard-strip > span { min-height:50px; }
+  .friendly-contract-top { align-items:flex-start; }
+  .contract-clock-badge { min-height:26px; padding:0 7px; font-size:.62rem; }
+  .order-history-toggle,.mission-history-toggle { align-items:flex-start; flex-direction:column; }
+}
+
+@media (max-width: 420px) {
+  #evolveView .upgrade-card-identity { padding-right:70px; }
+  #evolveView .upgrade-level-badge { top:10px; right:10px; padding:0 7px; font-size:.59rem; }
+  .contract-insight-row { grid-template-columns:1fr; }
+  .contract-product-focus img { width:42px; height:42px; }
+}
+
+/* A faixa compacta substitui o antigo bloco de capacidade ocultado. */
+#officeView .contract-capacity {
+  display: block !important;
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#toggleCompletedOrders[hidden],
+.order-history-toggle[hidden] {
+  display: none !important;
+}

@@ -147,9 +147,9 @@
 <section class="view" data-view-panel="officeView" id="officeView">
 <div class="section-heading office-heading">
 <div>
-<p class="eyebrow">organização e metas</p>
-<h1>Escritório da fazenda</h1>
-<p class="section-copy">Acompanhe contratos, pedidos, missões e todo o histórico permanente da sua fazenda.</p>
+<p class="eyebrow">gestão da fazenda</p>
+<h1>Escritório</h1>
+<p class="section-copy">Negocie entregas, acompanhe encomendas e receba recompensas por suas metas.</p>
 </div>
 </div>
 
@@ -157,37 +157,41 @@
 <section class="office-panel active" data-office-panel="contracts" role="tabpanel">
 <div class="section-heading compact-heading office-panel-heading">
 <div>
-<p class="eyebrow">negociações empresariais</p>
-<h2>Central de contratos</h2>
-<p class="section-copy">Empresas enviam propostas com culturas, quantidades e pagamentos diferentes. Aceite somente o que fizer sentido para sua produção.</p>
+<p class="eyebrow">oportunidades comerciais</p>
+<h2>Contratos</h2>
+<p class="section-copy">Escolha entregas compatíveis com o ritmo da sua fazenda.</p>
 </div>
 </div>
 <div class="contract-capacity" id="contractCapacity"></div>
 <div class="contract-section-head">
-<div><div><h3>Contratos ativos</h3><p>A produção correspondente é direcionada automaticamente. No máximo três contratos podem ficar ativos ao mesmo tempo.</p></div></div>
+<div><div><h3>Em produção</h3><p>Até três entregas ao mesmo tempo.</p></div></div>
 </div>
 <div class="active-contract-grid" id="activeContractList"></div>
 <div class="contract-section-head proposals-heading">
-<div><div><h3>Propostas recebidas</h3><p>Compare seis propostas disponíveis. Aceite até três contratos e recuse livremente as demais.</p></div></div>
+<div><div><h3>Novas oportunidades</h3><p>Compare prazo, volume e recompensa.</p></div></div>
 </div>
 <div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
 </section>
 <section class="office-panel" data-office-panel="orders" hidden="" role="tabpanel">
 <div class="section-heading compact-heading office-panel-heading">
 <div>
-<p class="eyebrow">encomendas permanentes</p>
-<h2>Pedidos das culturas</h2>
-<p class="section-copy">Cada cultura comprada recebe uma sequência fixa de pedidos. Entregas podem ser parciais e o progresso nunca expira.</p>
+<p class="eyebrow">entregas por cultura</p>
+<h2>Pedidos</h2>
+<p class="section-copy">Complete cada etapa, colete a recompensa e avance para a próxima.</p>
 </div>
 </div>
 <div class="order-grid" id="orderList"></div>
+<div class="order-history-toggle">
+<button aria-expanded="false" class="button secondary" id="toggleCompletedOrders" type="button">Mostrar pedidos finalizados</button>
+<small id="completedOrderCount">Nenhum pedido finalizado ainda.</small>
+</div>
 </section>
 <section class="office-panel" data-office-panel="missions" hidden="" role="tabpanel">
 <div class="section-heading compact-heading office-panel-heading">
 <div>
-<p class="eyebrow">conquistas sem prazo</p>
-<h2>Missões da fazenda</h2>
-<p class="section-copy">Objetivos de mercado, contratos, pedidos, crescimento e prestígio. Missões concluídas permanecem registradas entre jornadas.</p>
+<p class="eyebrow">metas da jornada</p>
+<h2>Missões</h2>
+<p class="section-copy">Avance em séries contínuas e receba recompensas proporcionais ao desafio.</p>
 </div>
 </div>
 <div class="mission-grid" id="missionList"></div><div class="mission-history-toggle">

@@ -168,51 +168,56 @@ window.GameData = (() => {
   ];
 
   const missions = [
-    { id: "sellRoots100", series: "rootsMarket", stage: 1, title: "Raízes na feira I", desc: "Venda 100 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 100, reward: { coins: 700 } },
-    { id: "sellRoots300", series: "rootsMarket", stage: 2, title: "Raízes na feira II", desc: "Venda 300 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 300, reward: { coins: 1800, research: 2 } },
-    { id: "sellRoots1000", series: "rootsMarket", stage: 3, title: "Raízes na feira III", desc: "Venda 1.000 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 1000, reward: { coins: 5200, research: 5 } },
-    { id: "sellRoots3000", series: "rootsMarket", stage: 4, title: "Raízes na feira IV", desc: "Venda 3.000 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 3000, reward: { prestige: 1, research: 10 } },
+    { id: "sellRoots100", series: "rootsMarket", stage: 1, title: "Raízes na feira I", desc: "Venda 150 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 150, reward: { coins: 900 } },
+    { id: "sellRoots300", series: "rootsMarket", stage: 2, title: "Raízes na feira II", desc: "Venda 500 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 500, reward: { coins: 2400, research: 2 } },
+    { id: "sellRoots1000", series: "rootsMarket", stage: 3, title: "Raízes na feira III", desc: "Venda 1.800 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 1800, reward: { coins: 6800, research: 6 } },
+    { id: "sellRoots3000", series: "rootsMarket", stage: 4, title: "Raízes na feira IV", desc: "Venda 6.000 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 6000, reward: { prestige: 2, research: 14 } },
+    { id: "sellRoots15000", series: "rootsMarket", stage: 5, title: "Raízes na feira V", desc: "Venda 15.000 raízes e tubérculos no mercado.", metric: "categorySold", category: "root", target: 15000, reward: { prestige: 5, research: 28 } },
 
-    { id: "orders3", series: "orders", stage: 1, title: "Caderno de encomendas I", desc: "Conclua 3 pedidos permanentes.", metric: "orders", target: 3, reward: { research: 3 } },
-    { id: "orders15", series: "orders", stage: 2, title: "Caderno de encomendas II", desc: "Conclua 15 pedidos permanentes.", metric: "orders", target: 15, reward: { coins: 8500, research: 8 } },
-    { id: "orders50", series: "orders", stage: 3, title: "Caderno de encomendas III", desc: "Conclua 50 pedidos permanentes ao longo das jornadas.", metric: "orders", target: 50, reward: { prestige: 3, research: 20 } },
-    { id: "orders120", series: "orders", stage: 4, title: "Caderno de encomendas IV", desc: "Conclua 120 pedidos permanentes ao longo das jornadas.", metric: "orders", target: 120, reward: { prestige: 7, research: 45 } },
+    { id: "orders3", series: "orders", stage: 1, title: "Caderno de encomendas I", desc: "Conclua 5 pedidos permanentes.", metric: "orders", target: 5, reward: { research: 4 } },
+    { id: "orders15", series: "orders", stage: 2, title: "Caderno de encomendas II", desc: "Conclua 20 pedidos permanentes.", metric: "orders", target: 20, reward: { coins: 10500, research: 9 } },
+    { id: "orders50", series: "orders", stage: 3, title: "Caderno de encomendas III", desc: "Conclua 60 pedidos permanentes ao longo das jornadas.", metric: "orders", target: 60, reward: { prestige: 3, research: 22 } },
+    { id: "orders120", series: "orders", stage: 4, title: "Caderno de encomendas IV", desc: "Conclua 150 pedidos permanentes ao longo das jornadas.", metric: "orders", target: 150, reward: { prestige: 7, research: 48 } },
+    { id: "orders350", series: "orders", stage: 5, title: "Caderno de encomendas V", desc: "Conclua 350 pedidos permanentes ao longo das jornadas.", metric: "orders", target: 350, reward: { prestige: 14, research: 90 } },
 
-    { id: "contracts3", series: "contracts", stage: 1, title: "Acordos empresariais I", desc: "Conclua 3 contratos empresariais.", metric: "contracts", target: 3, reward: { coins: 1400, research: 2 } },
-    { id: "contracts10", series: "contracts", stage: 2, title: "Acordos empresariais II", desc: "Conclua 10 contratos empresariais.", metric: "contracts", target: 10, reward: { coins: 6000, research: 6 } },
-    { id: "contracts25", series: "contracts", stage: 3, title: "Acordos empresariais III", desc: "Conclua 25 contratos empresariais.", metric: "contracts", target: 25, reward: { coins: 18000, research: 12 } },
-    { id: "contracts60", series: "contracts", stage: 4, title: "Acordos empresariais IV", desc: "Conclua 60 contratos empresariais.", metric: "contracts", target: 60, reward: { prestige: 5, research: 30 } },
+    { id: "contracts3", series: "contracts", stage: 1, title: "Acordos empresariais I", desc: "Conclua 5 contratos empresariais.", metric: "contracts", target: 5, reward: { coins: 2000, research: 3 } },
+    { id: "contracts10", series: "contracts", stage: 2, title: "Acordos empresariais II", desc: "Conclua 15 contratos empresariais.", metric: "contracts", target: 15, reward: { coins: 8000, research: 7 } },
+    { id: "contracts25", series: "contracts", stage: 3, title: "Acordos empresariais III", desc: "Conclua 40 contratos empresariais.", metric: "contracts", target: 40, reward: { coins: 23000, research: 15 } },
+    { id: "contracts60", series: "contracts", stage: 4, title: "Acordos empresariais IV", desc: "Conclua 90 contratos empresariais.", metric: "contracts", target: 90, reward: { prestige: 6, research: 34 } },
+    { id: "contracts180", series: "contracts", stage: 5, title: "Acordos empresariais V", desc: "Conclua 180 contratos empresariais.", metric: "contracts", target: 180, reward: { prestige: 12, research: 68 } },
 
-    { id: "own5", series: "collection", stage: 1, title: "Horta variada I", desc: "Compre 5 culturas diferentes em uma jornada.", metric: "owned", target: 5, reward: { research: 4 } },
-    { id: "own20", series: "collection", stage: 2, title: "Horta variada II", desc: "Compre 20 culturas diferentes em uma jornada.", metric: "owned", target: 20, reward: { coins: 12000, research: 10 } },
-    { id: "own40", series: "collection", stage: 3, title: "Horta variada III", desc: "Compre 40 culturas diferentes em uma jornada.", metric: "owned", target: 40, reward: { prestige: 3, research: 20 } },
+    { id: "own5", series: "collection", stage: 1, title: "Horta variada I", desc: "Compre 8 culturas diferentes em uma jornada.", metric: "owned", target: 8, reward: { research: 5 } },
+    { id: "own20", series: "collection", stage: 2, title: "Horta variada II", desc: "Compre 25 culturas diferentes em uma jornada.", metric: "owned", target: 25, reward: { coins: 15000, research: 12 } },
+    { id: "own40", series: "collection", stage: 3, title: "Horta variada III", desc: "Compre 45 culturas diferentes em uma jornada.", metric: "owned", target: 45, reward: { prestige: 4, research: 24 } },
     { id: "own60", series: "collection", stage: 4, title: "Catálogo completo", desc: "Compre todas as 60 culturas em uma jornada.", metric: "owned", target: 60, reward: { prestige: 10, research: 50 } },
 
-    { id: "cropLevels20", series: "cropLevels", stage: 1, title: "Canteiros experientes I", desc: "Some 20 níveis entre as plantações.", metric: "cropLevels", target: 20, reward: { coins: 3500 } },
-    { id: "cropLevels200", series: "cropLevels", stage: 2, title: "Canteiros experientes II", desc: "Some 200 níveis entre as plantações.", metric: "cropLevels", target: 200, reward: { coins: 18000, research: 10 } },
-    { id: "cropLevels1000", series: "cropLevels", stage: 3, title: "Canteiros experientes III", desc: "Some 1.000 níveis entre as plantações.", metric: "cropLevels", target: 1000, reward: { prestige: 4, research: 25 } },
+    { id: "cropLevels20", series: "cropLevels", stage: 1, title: "Canteiros experientes I", desc: "Some 50 níveis entre as plantações.", metric: "cropLevels", target: 50, reward: { coins: 4800 } },
+    { id: "cropLevels200", series: "cropLevels", stage: 2, title: "Canteiros experientes II", desc: "Some 400 níveis entre as plantações.", metric: "cropLevels", target: 400, reward: { coins: 23000, research: 12 } },
+    { id: "cropLevels1000", series: "cropLevels", stage: 3, title: "Canteiros experientes III", desc: "Some 1.500 níveis entre as plantações.", metric: "cropLevels", target: 1500, reward: { prestige: 5, research: 30 } },
+    { id: "cropLevels5000", series: "cropLevels", stage: 4, title: "Canteiros experientes IV", desc: "Some 5.000 níveis entre as plantações.", metric: "cropLevels", target: 5000, reward: { prestige: 12, research: 70 } },
 
-    { id: "sellFruit500", series: "fruitMarket", stage: 1, title: "Banca colorida I", desc: "Venda 500 frutos no mercado.", metric: "categorySold", category: "fruit", target: 500, reward: { research: 7 } },
-    { id: "sellFruit2000", series: "fruitMarket", stage: 2, title: "Banca colorida II", desc: "Venda 2.000 frutos no mercado.", metric: "categorySold", category: "fruit", target: 2000, reward: { coins: 15000, research: 15 } },
-    { id: "sellFruit8000", series: "fruitMarket", stage: 3, title: "Banca colorida III", desc: "Venda 8.000 frutos no mercado.", metric: "categorySold", category: "fruit", target: 8000, reward: { prestige: 4, research: 30 } },
+    { id: "sellFruit500", series: "fruitMarket", stage: 1, title: "Banca colorida I", desc: "Venda 800 frutos no mercado.", metric: "categorySold", category: "fruit", target: 800, reward: { research: 8 } },
+    { id: "sellFruit2000", series: "fruitMarket", stage: 2, title: "Banca colorida II", desc: "Venda 3.000 frutos no mercado.", metric: "categorySold", category: "fruit", target: 3000, reward: { coins: 19000, research: 17 } },
+    { id: "sellFruit8000", series: "fruitMarket", stage: 3, title: "Banca colorida III", desc: "Venda 10.000 frutos no mercado.", metric: "categorySold", category: "fruit", target: 10000, reward: { prestige: 5, research: 34 } },
 
-    { id: "sellGrain1500", series: "grainMarket", stage: 1, title: "Safra de grãos I", desc: "Venda 1.500 grãos no mercado.", metric: "categorySold", category: "grain", target: 1500, reward: { prestige: 1, research: 12 } },
-    { id: "sellGrain6000", series: "grainMarket", stage: 2, title: "Safra de grãos II", desc: "Venda 6.000 grãos no mercado.", metric: "categorySold", category: "grain", target: 6000, reward: { prestige: 4, research: 28 } },
+    { id: "sellGrain1500", series: "grainMarket", stage: 1, title: "Safra de grãos I", desc: "Venda 2.000 grãos no mercado.", metric: "categorySold", category: "grain", target: 2000, reward: { prestige: 1, research: 14 } },
+    { id: "sellGrain6000", series: "grainMarket", stage: 2, title: "Safra de grãos II", desc: "Venda 8.000 grãos no mercado.", metric: "categorySold", category: "grain", target: 8000, reward: { prestige: 5, research: 32 } },
 
-    { id: "stock1000", series: "storage", stage: 1, title: "Celeiro movimentado I", desc: "Mantenha 1.000 produtos ao mesmo tempo no estoque.", metric: "stock", target: 1000, reward: { research: 10 } },
-    { id: "stock5000", series: "storage", stage: 2, title: "Celeiro movimentado II", desc: "Mantenha 5.000 produtos ao mesmo tempo no estoque.", metric: "stock", target: 5000, reward: { prestige: 3, research: 25 } },
+    { id: "stock1000", series: "storage", stage: 1, title: "Celeiro movimentado I", desc: "Mantenha 1.500 produtos ao mesmo tempo no estoque.", metric: "stock", target: 1500, reward: { research: 12 } },
+    { id: "stock5000", series: "storage", stage: 2, title: "Celeiro movimentado II", desc: "Mantenha 6.500 produtos ao mesmo tempo no estoque.", metric: "stock", target: 6500, reward: { prestige: 4, research: 30 } },
 
-    { id: "farm20", series: "farmLevel", stage: 1, title: "Fazenda consolidada I", desc: "Alcance o nível 20 da fazenda.", metric: "farmLevel", target: 20, reward: { coins: 30000, research: 15 } },
-    { id: "farm35", series: "farmLevel", stage: 2, title: "Fazenda consolidada II", desc: "Alcance o nível 35 da fazenda.", metric: "farmLevel", target: 35, reward: { prestige: 4, research: 25 } },
-    { id: "farm50", series: "farmLevel", stage: 3, title: "Fazenda consolidada III", desc: "Alcance o nível 50 da fazenda.", metric: "farmLevel", target: 50, reward: { prestige: 8, research: 50 } },
+    { id: "farm20", series: "farmLevel", stage: 1, title: "Fazenda consolidada I", desc: "Alcance o nível 20 da fazenda.", metric: "farmLevel", target: 20, reward: { coins: 34000, research: 17 } },
+    { id: "farm35", series: "farmLevel", stage: 2, title: "Fazenda consolidada II", desc: "Alcance o nível 35 da fazenda.", metric: "farmLevel", target: 35, reward: { prestige: 5, research: 28 } },
+    { id: "farm50", series: "farmLevel", stage: 3, title: "Fazenda consolidada III", desc: "Alcance o nível 50 da fazenda.", metric: "farmLevel", target: 50, reward: { prestige: 9, research: 55 } },
 
     { id: "prestige1", series: "prestige", stage: 1, title: "Um novo começo", desc: "Realize seu primeiro prestígio.", metric: "prestiges", target: 1, reward: { prestige: 2 } },
-    { id: "prestige2", series: "prestige", stage: 2, title: "Prestígio dos prestígios", desc: "Realize 2 prestígios e dobre permanentemente os pontos dos próximos prestígios.", metric: "prestiges", target: 2, reward: { permanent: "prestigeDouble" } },
-    { id: "prestige5", series: "prestige", stage: 3, title: "Ciclos da terra", desc: "Realize 5 prestígios.", metric: "prestiges", target: 5, reward: { prestige: 8 } },
-    { id: "prestige10", series: "prestige", stage: 4, title: "Legado de muitas safras", desc: "Realize 10 prestígios.", metric: "prestiges", target: 10, reward: { prestige: 20 } },
+    { id: "prestige2", series: "prestige", stage: 2, title: "Prestígio dos prestígios", desc: "Realize 3 prestígios e dobre permanentemente os pontos dos próximos prestígios.", metric: "prestiges", target: 3, reward: { permanent: "prestigeDouble" } },
+    { id: "prestige5", series: "prestige", stage: 3, title: "Ciclos da terra", desc: "Realize 7 prestígios.", metric: "prestiges", target: 7, reward: { prestige: 9 } },
+    { id: "prestige10", series: "prestige", stage: 4, title: "Legado de muitas safras", desc: "Realize 15 prestígios.", metric: "prestiges", target: 15, reward: { prestige: 22 } },
 
-    { id: "market10000", series: "market", stage: 1, title: "Referência regional I", desc: "Venda 10.000 produtos no mercado ao longo das jornadas.", metric: "sold", target: 10000, reward: { prestige: 5, research: 30 } },
-    { id: "market50000", series: "market", stage: 2, title: "Referência regional II", desc: "Venda 50.000 produtos no mercado ao longo das jornadas.", metric: "sold", target: 50000, reward: { prestige: 12, research: 70 } }
+    { id: "market10000", series: "market", stage: 1, title: "Referência regional I", desc: "Venda 15.000 produtos no mercado ao longo das jornadas.", metric: "sold", target: 15000, reward: { prestige: 6, research: 34 } },
+    { id: "market50000", series: "market", stage: 2, title: "Referência regional II", desc: "Venda 75.000 produtos no mercado ao longo das jornadas.", metric: "sold", target: 75000, reward: { prestige: 14, research: 78 } },
+    { id: "market250000", series: "market", stage: 3, title: "Referência regional III", desc: "Venda 250.000 produtos no mercado ao longo das jornadas.", metric: "sold", target: 250000, reward: { prestige: 28, research: 150 } }
   ];
 
   return { categories, crops, upgrades, research, prestigeUpgrades, companies, orderSteps, missions };
