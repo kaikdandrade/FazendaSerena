@@ -6757,3 +6757,125 @@ button:disabled .inline-resource img,
     width: calc(100vw - 20px) !important;
   }
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 19 — prioridade de pedidos, separação e atalho persistente         */
+/* ========================================================================== */
+
+/* Uma pausa visual elegante separa o trabalho assinado das novas propostas. */
+.contract-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 28px 4px 24px;
+}
+.contract-section-divider::before,
+.contract-section-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(79,118,73,.22));
+}
+.contract-section-divider::after {
+  background: linear-gradient(90deg, rgba(79,118,73,.22), transparent);
+}
+.contract-section-divider > span {
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(84,126,77,.25);
+  border-radius: 50%;
+  background: rgba(238,246,231,.95);
+  box-shadow: 0 0 0 4px rgba(244,248,239,.76);
+}
+#activeContractList:empty + .contract-section-divider { display: none; }
+
+/* O atalho expandido tem uma aba discreta; recolhido, vira um controle compacto
+   no mesmo canto e nunca desaparece da tela. */
+.contract-dock { overflow: visible !important; transition: width .2s ease, height .2s ease, padding .2s ease, background .2s ease; }
+.contract-dock-collapse-toggle {
+  position: absolute !important;
+  top: -15px !important;
+  left: 50% !important;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 29px;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.92) !important;
+  border-radius: 999px !important;
+  color: #4e7650 !important;
+  cursor: pointer;
+  background: rgba(248,251,244,.98) !important;
+  box-shadow: 0 8px 22px rgba(43,72,47,.18) !important;
+  backdrop-filter: blur(14px);
+  transform: translateX(-50%) !important;
+}
+.contract-dock-collapse-toggle span {
+  display: block;
+  font-size: 1rem;
+  font-weight: 950;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+.contract-dock-collapse-toggle:hover {
+  color: #315b38 !important;
+  background: #f1f7eb !important;
+  transform: translateX(-50%) translateY(-1px) !important;
+}
+.contract-dock.collapsed {
+  display: grid !important;
+  place-items: center;
+  width: 46px !important;
+  height: 46px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,.88) !important;
+  border-radius: 16px !important;
+  background: rgba(249,251,244,.96) !important;
+  box-shadow: 0 13px 34px rgba(43,72,47,.22) !important;
+  backdrop-filter: blur(14px) !important;
+}
+.contract-dock.collapsed .contract-dock-collapse-toggle {
+  position: static !important;
+  width: 100%;
+  height: 100%;
+  border: 0 !important;
+  border-radius: inherit !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.contract-dock.collapsed .contract-dock-collapse-toggle:hover { transform: none !important; }
+.contract-dock.collapsed .contract-dock-collapse-toggle span { transform: translateY(-2px); }
+.contract-dock.collapsed .contract-dock-panel { display: none !important; }
+
+/* A descrição do Tesouro comunica o valor atual e mostra a moeda visualmente. */
+.treasury-description {
+  display: grid !important;
+  gap: .28rem !important;
+}
+.treasury-current-value,
+.treasury-next-value {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+.treasury-current-value { color: var(--ink); font-weight: 760; }
+.treasury-next-value { color: var(--ink-soft); font-size: .68rem; font-weight: 720; }
+.treasury-description .resource-amount { justify-content: flex-start !important; }
+
+.level-toast { border-color: rgba(100,157,82,.23) !important; }
+
+@media (max-width: 760px) {
+  .contract-section-divider { margin: 23px 2px 20px; }
+  .contract-dock-collapse-toggle { top: -14px !important; }
+  .contract-dock.collapsed {
+    right: 10px !important;
+    bottom: 10px !important;
+    width: 44px !important;
+    height: 44px !important;
+  }
+}

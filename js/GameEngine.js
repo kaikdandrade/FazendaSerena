@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 19;
+  static SAVE_VERSION = 20;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -49,7 +49,7 @@ class GameEngine {
 
     return {
       version: GameEngine.SAVE_VERSION,
-      coins: 2000 + royalTreasury * 2000,
+      coins: 2000 + Math.min(9, Math.max(0, royalTreasury)) * 2000,
       research: immortalAcademy * 3,
       prestigePoints,
       farmLevel: 1,
@@ -291,9 +291,9 @@ class GameEngine {
     if (untouchedRevisionFive) {
       Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
       merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
-      merged.coins = 2000 + Number(merged.prestigeUpgrades.royalTreasury || 0) * 2000;
+      merged.coins = 2000 + Math.min(9, Math.max(0, Number(merged.prestigeUpgrades.royalTreasury || 0))) * 2000;
     } else if (Number(input.version || 0) < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
-      merged.coins = Math.min(merged.coins, 2000 + Number(merged.prestigeUpgrades.royalTreasury || 0) * 2000);
+      merged.coins = Math.min(merged.coins, 2000 + Math.min(9, Math.max(0, Number(merged.prestigeUpgrades.royalTreasury || 0))) * 2000);
     }
 
     const legacyStarterOnly = Number(input.version || 0) < 5

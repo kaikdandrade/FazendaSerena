@@ -135,23 +135,21 @@
   }
 
   function toast(message, type = "") {
-    if (!message) return;
+    // Revisão 19: notificações visuais são exclusivas para o ganho de nível.
+    if (!message || type !== "level") return;
     const item = document.createElement("div");
-    item.className = `toast ${type}`.trim();
-    item.innerHTML = `<span aria-hidden="true">${type === "error" ? "!" : type === "success" ? "✓" : "🍃"}</span><span>${enrichResourceText(message)}</span>`;
+    item.className = "toast success level-toast";
+    item.innerHTML = `<span aria-hidden="true">⬆</span><span>${enrichResourceText(message)}</span>`;
     dom.toastZone.appendChild(item);
     window.setTimeout(() => item.remove(), 3600);
   }
 
   function handleEngineEvent(event) {
     if (!event) return;
-    if (event.type === "toast") toast(event.message);
     if (event.type === "level") {
-      toast(`A fazenda alcançou o nível ${event.level} e recebeu ${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "success");
+      toast(`A fazenda alcançou o nível ${event.level} e recebeu ${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "level");
       window.setTimeout(() => render(true), 0);
     }
-    if (event.type === "offline") toast(`Enquanto você esteve longe, a fazenda produziu ${engine ? engine.formatNumber(event.harvested) : Math.floor(event.harvested)} itens.`);
-    if (event.type === "contracts-expired-offline") toast(`${event.count} contrato${event.count === 1 ? " expirou" : "s expiraram"} enquanto você esteve longe. As unidades já entregues foram perdidas.`, "error");
   }
 
   engine = new GameEngine(event => {
@@ -561,9 +559,15 @@
     const availableResource = kind === "upgrade" ? engine.state.coins : kind === "research" ? engine.state.research : engine.state.prestigePoints;
     const affordable = !maxed && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
-    const description = kind === "prestige" && item.id === "royalTreasury"
-      ? `${Math.floor(2000 + level * 2000).toLocaleString("pt-BR")} ao começar uma nova jornada.`
-      : item.desc;
+    const isRoyalTreasury = kind === "prestige" && item.id === "royalTreasury";
+    const treasuryAmount = 2000 + Math.min(level, 9) * 2000;
+    const descriptionHtml = isRoyalTreasury
+      ? `<span class="treasury-current-value">${resourceAmount("coins", treasuryAmount, { compact: true })}<span>ao começar uma nova jornada.</span></span>${level < 9
+        ? `<span class="treasury-next-value">Próximo nível: ${resourceAmount("coins", 2000, { compact: true })} adicionais.</span>`
+        : level < item.max
+          ? `<span class="treasury-next-value">O último nível consolida este valor como máximo.</span>`
+          : `<span class="treasury-next-value">Valor inicial máximo consolidado.</span>`}`
+      : enrichResourceText(item.desc);
     return `
       <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-upgrade-kind="${kind}">
         <div class="upgrade-level-badge">Nível ${level} / ${item.max}</div>
@@ -571,7 +575,7 @@
           <span class="upgrade-icon" aria-hidden="true">${item.icon}</span>
           <h3>${escapeHtml(item.name)}</h3>
         </div>
-        <p class="upgrade-description">${enrichResourceText(description)}</p>
+        <p class="upgrade-description ${isRoyalTreasury ? "treasury-description" : ""}">${descriptionHtml}</p>
         <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
       </article>`;
   }
@@ -637,13 +641,14 @@
     }
     dom.contractDock.classList.add("visible");
     dom.contractDock.classList.toggle("collapsed", contractDockCollapsed);
-    const toggleLabel = contractDockCollapsed ? "Mostrar contratos" : "Recolher contratos";
+    const toggleLabel = contractDockCollapsed ? "Expandir acompanhamento de contratos" : "Recolher acompanhamento de contratos";
+    const toggleIcon = contractDockCollapsed ? "⌃" : "⌄";
     if (contractDockCollapsed) {
-      dom.contractDock.innerHTML = `<button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="false">${toggleLabel}</button>`;
+      dom.contractDock.innerHTML = `<button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="false" aria-label="${toggleLabel}" title="${toggleLabel}"><span aria-hidden="true">${toggleIcon}</span></button>`;
       return;
     }
     dom.contractDock.innerHTML = `
-      <button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="true">${toggleLabel}</button>
+      <button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="true" aria-label="${toggleLabel}" title="${toggleLabel}"><span aria-hidden="true">${toggleIcon}</span></button>
       <div class="contract-dock-panel">
         <button class="contract-dock-title" type="button" data-go-office-contracts><strong>Contratos</strong><small>${contracts.length}/${GameEngine.MAX_ACTIVE_CONTRACTS}</small></button>
         <div class="contract-dock-list">
@@ -734,7 +739,21 @@
     }
 
     const completedCrops = owned.filter(crop => engine.getOrder(crop.id)?.complete);
-    const activeCrops = owned.filter(crop => !engine.getOrder(crop.id)?.complete);
+    const activeCrops = owned
+      .filter(crop => !engine.getOrder(crop.id)?.complete)
+      .sort((cropA, cropB) => {
+        const orderA = engine.getOrder(cropA.id);
+        const orderB = engine.getOrder(cropB.id);
+        const stockA = Math.max(0, Number(engine.state.crops[cropA.id]?.stock) || 0);
+        const stockB = Math.max(0, Number(engine.state.crops[cropB.id]?.stock) || 0);
+        const readyA = stockA >= orderA.amount;
+        const readyB = stockB >= orderB.amount;
+        if (readyA !== readyB) return readyA ? -1 : 1;
+        const progressA = stockA / Math.max(1, orderA.amount);
+        const progressB = stockB / Math.max(1, orderB.amount);
+        if (progressA !== progressB) return progressB - progressA;
+        return (Number(cropA.unlockLevel) || 0) - (Number(cropB.unlockLevel) || 0);
+      });
     dom.orderList.innerHTML = activeCrops.map(crop => {
       const order = engine.getOrder(crop.id);
       const stock = Math.max(0, Number(engine.state.crops[crop.id].stock) || 0);
