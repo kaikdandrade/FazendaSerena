@@ -24,7 +24,7 @@
   <div class="app-shell">
     <header class="app-header">
       <a class="brand" href="#farmView" data-go-view="farmView" aria-label="Ir para a fazenda">
-        <img src="img/logo.png" alt="Folha com as quatro estações" class="brand-logo">
+        <img src="img/logo.png" alt="Folha da Fazenda Serena" class="brand-logo">
         <span class="brand-copy">
           <small>fazenda serena</small>
           <strong>Agricultura Industrial</strong>
@@ -75,7 +75,7 @@
             <p>As culturas trabalham no próprio ritmo, inclusive enquanto você está longe. Aprimore cada plantação e deixe a produção preencher o celeiro compartilhado.</p>
             <div class="mini-metrics" id="farmMetrics"></div>
           </div>
-          <article class="season-panel" id="seasonPanel" aria-label="Estação atual"></article>
+          <article class="farm-status-panel" id="farmStatusPanel" aria-label="Resumo da produção"></article>
         </div>
 
         <div class="section-heading">
@@ -91,13 +91,6 @@
             <select id="categoryFilter" aria-label="Filtrar por categoria">
               <option value="all">Todas as categorias</option>
             </select>
-            <select id="sortCrops" aria-label="Ordenar culturas">
-              <option value="default">Ordem natural</option>
-              <option value="owned">Compradas primeiro</option>
-              <option value="stock">Maior estoque</option>
-              <option value="level">Maior aprimoramento</option>
-              <option value="price">Maior valor</option>
-            </select>
           </div>
         </div>
         <div class="crop-grid" id="cropGrid"></div>
@@ -109,7 +102,7 @@
           <div>
             <p class="eyebrow">produção guardada</p>
             <h1>Estoque da fazenda</h1>
-            <p class="section-copy">Venda em pequenas quantidades ou esvazie o celeiro de uma vez. Os preços variam suavemente com as estações e as evoluções da fazenda.</p>
+            <p class="section-copy">Venda em pequenas quantidades ou esvazie o celeiro de uma vez. Os valores aumentam conforme as evoluções de logística, pesquisa e os legados permanentes da fazenda.</p>
           </div>
           <button class="button primary" id="sellAllStock" type="button">Vender todo o estoque</button>
         </div>
@@ -270,7 +263,7 @@
             <ol>
               <li>Compre a cebola gratuitamente e escolha quando adquirir a cenoura.</li>
               <li>A fazenda mostra as culturas do seu nível e antecipa somente o próximo nível bloqueado.</li>
-              <li>A barra de produção mostra quanto falta para o próximo ciclo automático.</li>
+              <li>O contorno verde ao redor da imagem mostra quanto falta para o próximo ciclo automático.</li>
               <li>Todas as culturas usam o mesmo estoque, que começa com 200 espaços e pode ser aprimorado.</li>
               <li>Empresas enviam propostas; você pode manter até dois contratos ativos e fazer entregas parciais.</li>
               <li>O prestígio reinicia a fazenda, mas preserva pontos e legados permanentes.</li>

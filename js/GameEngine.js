@@ -2,9 +2,8 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 6;
+  static SAVE_VERSION = 7;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
-  static SEASON_DURATION = 180;
   static BASE_STORAGE_CAPACITY = 200;
   static MAX_BATCH_UPGRADES = 1000;
 
@@ -49,8 +48,6 @@ class GameEngine {
       prestigePoints,
       farmLevel: 1,
       farmXP: 0,
-      seasonIndex: 0,
-      seasonElapsed: 0,
       crops,
       orders,
       upgrades: Object.fromEntries(this.data.upgrades.map(item => [item.id, 0])),
@@ -200,8 +197,9 @@ class GameEngine {
     merged.permanentBonuses.prestigeDouble = Boolean(merged.permanentBonuses.prestigeDouble);
     merged.farmLevel = Math.max(1, Math.floor(Number(merged.farmLevel) || 1));
     merged.farmXP = Math.max(0, Number(merged.farmXP) || 0);
-    merged.seasonIndex = Math.abs(Math.floor(Number(merged.seasonIndex) || 0)) % this.data.seasons.length;
-    merged.seasonElapsed = Math.max(0, Number(merged.seasonElapsed) || 0) % GameEngine.SEASON_DURATION;
+    Reflect.deleteProperty(merged, "seasonIndex");
+    Reflect.deleteProperty(merged, "seasonElapsed");
+    Reflect.deleteProperty(merged.upgrades, "greenhouse");
     return merged;
   }
 
@@ -250,18 +248,10 @@ class GameEngine {
   simulate(seconds, offline = false) {
     let remaining = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, Number(seconds) || 0));
     while (remaining > 0.0001) {
-      const untilSeason = GameEngine.SEASON_DURATION - this.state.seasonElapsed;
-      const step = Math.min(remaining, untilSeason, offline ? 60 : remaining);
+      const step = Math.min(remaining, offline ? 60 : remaining);
       this.produce(step, offline);
       this.ensureContractOffers();
-      this.state.seasonElapsed += step;
       remaining -= step;
-
-      if (this.state.seasonElapsed >= GameEngine.SEASON_DURATION - 0.0001) {
-        this.state.seasonElapsed = 0;
-        this.state.seasonIndex = (this.state.seasonIndex + 1) % this.data.seasons.length;
-        if (!offline) this.emit("season", { season: this.currentSeason() });
-      }
     }
   }
 
@@ -302,22 +292,20 @@ class GameEngine {
   addFarmXP(amount, silent = false) {
     this.state.farmXP += Math.max(0, amount);
     let leveled = false;
+    let rewardCoins = 0;
     while (this.state.farmXP >= this.getFarmXPNeed()) {
       this.state.farmXP -= this.getFarmXPNeed();
       this.state.farmLevel += 1;
       const reward = 35 + this.state.farmLevel * 12;
       this.addCoins(reward);
+      rewardCoins += reward;
       leveled = true;
     }
-    if (leveled && !silent) this.emit("level", { level: this.state.farmLevel });
+    if (leveled && !silent) this.emit("level", { level: this.state.farmLevel, rewardCoins });
   }
 
   getFarmXPNeed(level = this.state.farmLevel) {
     return Math.round(38 + 30 * Math.pow(Math.max(1, level), 1.32));
-  }
-
-  currentSeason() {
-    return this.data.seasons[this.state.seasonIndex % this.data.seasons.length];
   }
 
   getCrop(cropId) {
@@ -328,54 +316,25 @@ class GameEngine {
     return this.data.crops.filter(crop => this.state.crops[crop.id]?.owned);
   }
 
-  getSeasonEffect(cropId) {
-    const crop = this.getCrop(cropId);
-    const season = this.currentSeason();
-    const greenhouse = Number(this.state.upgrades.greenhouse || 0);
-    let speed = 1;
-    let yieldBonus = 1;
-    let label = "Ritmo estável";
-
-    if (crop.best.includes(season.id)) {
-      speed += 0.24 + greenhouse * 0.012;
-      yieldBonus += 0.15 + greenhouse * 0.008;
-      label = "Safra favorita";
-    } else if (season.id === "winter") {
-      const penalty = Math.max(0.025, 0.12 - greenhouse * 0.007);
-      speed -= penalty;
-      label = "Descanso de inverno";
-    } else if (season.id === "spring" && crop.category === "leaf") {
-      speed += 0.12;
-      yieldBonus += 0.07;
-      label = "Brisa de primavera";
-    } else if (season.id === "autumn" && ["grain", "tree"].includes(crop.category)) {
-      yieldBonus += 0.1;
-      label = "Colheita de outono";
-    }
-    return { speed, yield: yieldBonus, label };
-  }
-
   getGrowthTime(cropId) {
     const crop = this.getCrop(cropId);
     const cropState = this.state.crops[cropId];
-    const season = this.getSeasonEffect(cropId);
     const irrigation = Number(this.state.upgrades.irrigation || 0);
     const hydro = Number(this.state.researchTechs.hydroponics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
     const cropLevel = Math.max(0, cropState.level - 1);
-    const speed = season.speed * (1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04 + cropLevel * 0.055);
+    const speed = 1 + irrigation * 0.08 + hydro * 0.06 + legacy * 0.04 + cropLevel * 0.055;
     return Math.max(1.1, crop.baseGrowth / speed);
   }
 
   getYield(cropId) {
     const crop = this.getCrop(cropId);
     const cropState = this.state.crops[cropId];
-    const season = this.getSeasonEffect(cropId);
     const fertilizer = Number(this.state.upgrades.fertilizer || 0);
     const genetics = Number(this.state.researchTechs.genetics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
     const cropLevel = Math.max(0, cropState.level - 1);
-    return crop.baseYield * season.yield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03 + cropLevel * 0.14);
+    return crop.baseYield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03 + cropLevel * 0.14);
   }
 
   getStorageCap() {
@@ -397,12 +356,10 @@ class GameEngine {
 
   getSalePrice(cropId) {
     const crop = this.getCrop(cropId);
-    const season = this.currentSeason();
     const logistics = Number(this.state.upgrades.logistics || 0);
     const market = Number(this.state.researchTechs.marketData || 0);
     const merchant = Number(this.state.prestigeUpgrades.merchantCrown || 0);
-    const seasonal = season.id === "autumn" && ["grain", "tree"].includes(crop.category) ? 1.12 : season.id === "winter" ? 1.04 : 1;
-    return Math.max(1, crop.basePrice * seasonal * (1 + logistics * 0.07 + market * 0.04 + merchant * 0.05));
+    return Math.max(1, crop.basePrice * (1 + logistics * 0.07 + market * 0.04 + merchant * 0.05));
   }
 
   getBuyCost(cropId) {
@@ -665,10 +622,19 @@ class GameEngine {
   getContractProgress(contract) {
     const amount = Math.max(1, Number(contract?.amount) || 1);
     const delivered = Math.max(0, Math.min(amount, Number(contract?.delivered) || 0));
+    const remaining = Math.max(0, amount - delivered);
+    const stock = Math.max(0, Math.floor(Number(this.state.crops[contract?.cropId]?.stock) || 0));
+    const availableNow = Math.min(stock, remaining);
+    const fulfillable = Math.min(amount, delivered + availableNow);
     return {
       delivered,
-      remaining: Math.max(0, amount - delivered),
-      percent: Math.max(0, Math.min(100, (delivered / amount) * 100))
+      remaining,
+      stock,
+      availableNow,
+      fulfillable,
+      percent: Math.max(0, Math.min(100, (delivered / amount) * 100)),
+      availablePercent: Math.max(0, Math.min(100, (fulfillable / amount) * 100)),
+      readyToComplete: remaining > 0 && stock >= remaining
     };
   }
 
