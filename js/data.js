@@ -106,7 +106,7 @@ window.GameData = (() => {
   const upgrades = [
     { id: "irrigation", name: "Irrigação silenciosa", icon: "💧", desc: "+8% de velocidade para todas as culturas.", max: 25, baseCost: 180, growth: 1.72, currency: "coins" },
     { id: "fertilizer", name: "Composto orgânico", icon: "🌱", desc: "+10% de rendimento por colheita.", max: 25, baseCost: 230, growth: 1.76, currency: "coins" },
-    { id: "warehouse", name: "Celeiro modular", icon: "🏡", desc: "+100 espaços no estoque compartilhado.", max: 30, baseCost: 300, growth: 1.62, currency: "coins" },
+    { id: "warehouse", name: "Celeiro modular", icon: "🏡", desc: "+20% de capacidade no estoque compartilhado por nível.", max: 30, baseCost: 300, growth: 1.62, currency: "coins" },
     { id: "logistics", name: "Rotas tranquilas", icon: "🚚", desc: "+7% no valor de todas as vendas.", max: 20, baseCost: 520, growth: 1.69, currency: "coins" }
   ];
 
@@ -114,7 +114,7 @@ window.GameData = (() => {
     { id: "genetics", name: "Sementes resilientes", icon: "🧬", desc: "+7% de produção por nível.", max: 16, baseCost: 2, growth: 1.55 },
     { id: "hydroponics", name: "Hidroponia modular", icon: "🫧", desc: "+6% de velocidade por nível.", max: 16, baseCost: 2, growth: 1.57 },
     { id: "marketData", name: "Mercado cooperativo", icon: "📈", desc: "+4% no preço de venda por nível.", max: 18, baseCost: 3, growth: 1.6 },
-    { id: "storageScience", name: "Conservação natural", icon: "🧺", desc: "+50 espaços no estoque compartilhado.", max: 15, baseCost: 3, growth: 1.61 },
+    { id: "storageScience", name: "Conservação natural", icon: "🧺", desc: "+12% de capacidade no estoque compartilhado por nível.", max: 15, baseCost: 3, growth: 1.61 },
     { id: "contractAI", name: "Planejamento industrial", icon: "📋", desc: "+8% nas recompensas de contratos.", max: 14, baseCost: 4, growth: 1.67 },
     { id: "prestigeTheory", name: "Memória da terra", icon: "✨", desc: "+8% nos pontos obtidos ao prestigiar.", max: 12, baseCost: 6, growth: 1.74 }
   ];
@@ -125,7 +125,7 @@ window.GameData = (() => {
     { id: "greenLegacy", name: "Legado verde", icon: "🍃", desc: "+4% de velocidade e +3% de produção por nível.", max: 20, baseCost: 1, growth: 1.58 },
     { id: "merchantCrown", name: "Feira permanente", icon: "🏷️", desc: "+5% no valor de venda por nível.", max: 18, baseCost: 2, growth: 1.64 },
     { id: "academyLegacy", name: "Caderno ancestral", icon: "📚", desc: "+10% de pesquisa recebida por nível.", max: 12, baseCost: 3, growth: 1.72 },
-    { id: "storageLegacy", name: "Celeiro ancestral", icon: "🪵", desc: "+75 espaços permanentes no estoque compartilhado.", max: 15, baseCost: 2, growth: 1.66 }
+    { id: "storageLegacy", name: "Celeiro ancestral", icon: "🪵", desc: "+25% de capacidade permanente no estoque compartilhado por nível.", max: 15, baseCost: 2, growth: 1.66 }
   ];
 
 

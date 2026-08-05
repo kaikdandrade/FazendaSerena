@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 10;
+  static SAVE_VERSION = 11;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -228,7 +228,7 @@ class GameEngine {
     const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
     const rawOffers = Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts;
     const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
-    merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, 3);
+    merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, 6);
     merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
     Reflect.deleteProperty(merged, "contracts");
     merged.version = GameEngine.SAVE_VERSION;
@@ -541,12 +541,18 @@ class GameEngine {
   }
 
   getStorageCap() {
-    return Math.round(
-      GameEngine.BASE_STORAGE_CAPACITY
-      + Number(this.state.upgrades.warehouse || 0) * 100
-      + Number(this.state.researchTechs.storageScience || 0) * 50
-      + Number(this.state.prestigeUpgrades.storageLegacy || 0) * 75
+    const warehouseBonus = Number(this.state.upgrades.warehouse || 0) * 0.20;
+    const researchBonus = Number(this.state.researchTechs.storageScience || 0) * 0.12;
+    const legacyBonus = Number(this.state.prestigeUpgrades.storageLegacy || 0) * 0.25;
+    return Math.max(
+      GameEngine.BASE_STORAGE_CAPACITY,
+      Math.round(GameEngine.BASE_STORAGE_CAPACITY * (1 + warehouseBonus + researchBonus + legacyBonus))
     );
+  }
+
+  getStorageUpgradePercent(id) {
+    const percentages = { warehouse: 20, storageScience: 12, storageLegacy: 25 };
+    return percentages[id] || 0;
   }
 
   getStorageUsedFromState(state = this.state) {
@@ -615,6 +621,23 @@ class GameEngine {
     };
   }
 
+
+  getCropUpgradeToMaxCost(cropId) {
+    const cropState = this.state.crops[cropId];
+    if (!cropState?.owned || cropState.level >= GameEngine.MAX_CROP_LEVEL) {
+      return { levels: 0, totalCost: 0, targetLevel: GameEngine.MAX_CROP_LEVEL };
+    }
+    let totalCost = 0;
+    for (let level = cropState.level; level < GameEngine.MAX_CROP_LEVEL; level += 1) {
+      totalCost += this.getCropUpgradeCost(cropId, level);
+    }
+    return {
+      levels: GameEngine.MAX_CROP_LEVEL - cropState.level,
+      totalCost,
+      targetLevel: GameEngine.MAX_CROP_LEVEL
+    };
+  }
+
   isCropUnlocked(cropId) {
     const crop = this.getCrop(cropId);
     return Boolean(crop && this.state.farmLevel >= crop.unlockLevel);
@@ -671,6 +694,15 @@ class GameEngine {
       return { ok: false, message: "Ainda não há moedas suficientes para outro aprimoramento." };
     }
     return this.upgradeCrop(cropId, affordable.levels);
+  }
+
+  upgradeCropToMax(cropId) {
+    const plan = this.getCropUpgradeToMaxCost(cropId);
+    if (plan.levels < 1) return { ok: false, message: "Esta plantação já está no nível máximo." };
+    if (this.state.coins < plan.totalCost) {
+      return { ok: false, message: `Faltam ${this.formatMoney(plan.totalCost - this.state.coins)} para chegar ao nível 300.` };
+    }
+    return this.upgradeCrop(cropId, plan.levels);
   }
 
   recordSale(cropId, sold, gain, silent = false) {
@@ -906,7 +938,7 @@ class GameEngine {
     this.state.contractOffers = this.state.contractOffers
       .map(contract => this.normalizeContract(contract, false))
       .filter(Boolean)
-      .slice(0, 3);
+      .slice(0, 6);
     this.state.activeContracts = this.state.activeContracts
       .map(contract => this.normalizeContract(contract, true))
       .filter(Boolean)
@@ -915,8 +947,8 @@ class GameEngine {
       this.state.contractOffers = [];
       return;
     }
-    if (this.state.contractOffers.length < 3) {
-      this.state.contractOffers.push(...this.createContractOffers(3 - this.state.contractOffers.length));
+    if (this.state.contractOffers.length < 6) {
+      this.state.contractOffers.push(...this.createContractOffers(6 - this.state.contractOffers.length));
     }
   }
 

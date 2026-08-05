@@ -56,39 +56,30 @@
 </section>
 </header>
 <div class="workspace-shell"><aside aria-label="Navegação do jogo" class="navigation-stack"><nav aria-label="Áreas do jogo" class="main-nav">
-<span class="nav-rail-title">Navegação</span>
+
 <button class="nav-tab active" data-view="farmView" type="button"><span class="nav-tab-icon">🌱</span><span class="nav-tab-label">Fazenda</span></button>
 <button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" type="button"><span class="nav-tab-icon">🧺</span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
 <button class="nav-tab" data-view="evolveView" type="button"><span class="nav-tab-icon">🛠️</span><span class="nav-tab-label">Evoluções</span></button>
 <button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" type="button"><span class="nav-tab-icon">📋</span><span class="nav-tab-label">Escritório</span><b aria-hidden="true" class="nav-alert" hidden="" id="officeNavBadge">!</b></button>
-<button class="nav-tab stats-nav-tab" data-view="statsView" type="button"><span class="nav-tab-icon">📊</span><span class="nav-tab-label">Estatísticas</span></button><button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="img/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
+<button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="img/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
-<span class="context-nav-title">Evoluções</span>
+
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
 <button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" type="button"><span><i>🛠️</i> Evoluções</span><small>Moedas</small></button>
 <button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" type="button"><span><i>🧪</i> Pesquisa</span><small>Pontos de pesquisa</small></button>
 <button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" role="tab" type="button"><span><i>✨</i> Prestígio</span><small>Legados permanentes</small></button>
 </nav>
 </aside><aside aria-label="Navegação do escritório" class="context-nav-column context-nav-block" data-context-for="officeView" hidden="">
-<span class="context-nav-title">Escritório</span>
+
 <nav aria-label="Seções do escritório" class="office-tabs context-tabs" role="tablist">
 <button aria-selected="true" class="office-tab active" data-office-tab="contracts" role="tab" type="button"><span><i>📑</i> Contratos</span><b id="contractTabCount">0</b></button>
 <button aria-selected="false" class="office-tab" data-office-tab="orders" role="tab" type="button"><span><i>🧾</i> Pedidos</span><b id="orderTabCount">0</b></button>
-<button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" type="button"><span><i>🏅</i> Missões</span><b id="missionTabCount">0</b></button>
+<button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" type="button"><span><i>🏅</i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" type="button"><span><i>📊</i> Estatísticas</span></button>
 </nav>
 </aside></aside>
-
 <main class="game-main">
 <section class="view active" data-view-panel="farmView" id="farmView">
-<div class="farm-hero panel-card">
-<div class="hero-copy">
-<p class="eyebrow">visão da fazenda</p>
-<h1>Cultive, aprimore e deixe crescer.</h1>
-<p>Produção automática, decisões simples e progresso constante.</p>
-<div class="mini-metrics" id="farmMetrics"></div>
-</div>
-<article aria-label="Resumo da produção" class="farm-status-panel" id="farmStatusPanel"></article>
-</div>
+
 <div class="section-heading">
 <div>
 <p class="eyebrow">área de cultivo</p>
@@ -104,7 +95,7 @@
 </select>
 </div>
 </div>
-<div class="crop-grid items-scroll-region" id="cropGrid"></div>
+<div class="crop-grid" id="cropGrid"></div>
 <div class="empty-state hidden" id="cropEmpty">Nenhuma cultura corresponde a essa busca.</div>
 </section>
 <section class="view" data-view-panel="stockView" id="stockView">
@@ -112,20 +103,18 @@
 <div>
 <p class="eyebrow">produção guardada</p>
 <h1>Estoque da fazenda</h1>
-<p class="section-copy">Gerencie o celeiro, as vendas manuais e a venda automática.</p>
+<p class="section-copy">Gerencie a capacidade compartilhada, as vendas manuais e a venda automática por categoria.</p>
 </div>
 <div class="stock-toolbar">
-<label class="search-field"><span aria-hidden="true">⌕</span><input autocomplete="off" id="stockSearch" placeholder="Buscar no estoque..." type="search"/></label>
+
 <select aria-label="Filtrar estoque por categoria" id="stockCategoryFilter"><option value="all">Todas as categorias</option></select>
 <button class="button primary" id="sellAllStock" type="button">Vender todo o estoque</button>
 </div>
 </div>
 <div class="stock-summary" id="stockSummary"></div>
-<div class="stock-grid items-scroll-region" id="stockGrid"></div>
+<div class="stock-grid" id="stockGrid"></div>
 </section>
 <section class="view" data-view-panel="evolveView" id="evolveView">
-
-
 <div class="section-heading evolution-heading">
 <div>
 <p class="eyebrow">melhorias para toda a fazenda</p>
@@ -138,37 +127,32 @@
 <div class="section-heading compact-heading evolution-panel-heading">
 <div><p class="eyebrow">investimento cotidiano</p><h2>Infraestrutura da fazenda</h2><p class="section-copy">Use moedas para melhorar produção, armazenamento e vendas durante esta jornada.</p></div>
 </div>
-<div class="upgrade-grid items-scroll-region" id="upgradeList"></div>
+<div class="upgrade-grid" id="upgradeList"></div>
 </section>
 <section class="evolution-panel" data-evolution-panel="research" hidden="" role="tabpanel">
 <div class="section-heading compact-heading evolution-panel-heading">
 <div><p class="eyebrow">conhecimento aplicado</p><h2>Centro de pesquisa</h2><p class="section-copy">Pontos de pesquisa chegam principalmente por contratos, pedidos avançados e missões.</p></div>
 </div>
-<div class="upgrade-grid items-scroll-region" id="researchList"></div>
+<div class="upgrade-grid" id="researchList"></div>
 </section>
 <section class="evolution-panel" data-evolution-panel="prestige" hidden="" role="tabpanel">
 <div class="prestige-hero" id="prestigeDashboard"></div>
 <div class="section-heading compact-heading evolution-panel-heading prestige-panel-heading">
 <div><p class="eyebrow">benefícios entre jornadas</p><h2>Legados permanentes</h2><p class="section-copy">Invista pontos de prestígio em melhorias que permanecem após cada recomeço.</p></div>
 </div>
-<div class="upgrade-grid prestige-grid items-scroll-region" id="prestigeList"></div>
+<div class="upgrade-grid prestige-grid" id="prestigeList"></div>
 </section>
 </div>
-
-
-
 </section>
 <section class="view" data-view-panel="officeView" id="officeView">
-
-
 <div class="section-heading office-heading">
 <div>
 <p class="eyebrow">organização e metas</p>
 <h1>Escritório da fazenda</h1>
-<p class="section-copy">Acompanhe compromissos, pedidos permanentes e objetivos da fazenda.</p>
+<p class="section-copy">Acompanhe contratos, pedidos, missões e todo o histórico permanente da sua fazenda.</p>
 </div>
 </div>
-<div class="office-summary" id="officeSummary"></div>
+
 <div class="office-workspace panel-card">
 <section class="office-panel active" data-office-panel="contracts" role="tabpanel">
 <div class="section-heading compact-heading office-panel-heading">
@@ -177,17 +161,16 @@
 <h2>Central de contratos</h2>
 <p class="section-copy">Empresas enviam propostas com culturas, quantidades e pagamentos diferentes. Aceite somente o que fizer sentido para sua produção.</p>
 </div>
-
 </div>
 <div class="contract-capacity" id="contractCapacity"></div>
 <div class="contract-section-head">
 <div><span class="contract-section-icon">📌</span><div><h3>Contratos ativos</h3><p>A produção correspondente é direcionada automaticamente. No máximo três contratos podem ficar ativos ao mesmo tempo.</p></div></div>
 </div>
-<div class="active-contract-grid items-scroll-region" id="activeContractList"></div>
+<div class="active-contract-grid" id="activeContractList"></div>
 <div class="contract-section-head proposals-heading">
-<div><span class="contract-section-icon">✉️</span><div><h3>Propostas recebidas</h3><p>Aceite ou recuse livremente. Propostas recusadas são substituídas por novas empresas.</p></div></div>
+<div><span class="contract-section-icon">✉️</span><div><h3>Propostas recebidas</h3><p>Compare seis propostas disponíveis. Aceite até três contratos e recuse livremente as demais.</p></div></div>
 </div>
-<div class="contract-grid contract-offer-grid items-scroll-region" id="contractOfferList"></div>
+<div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
 </section>
 <section class="office-panel" data-office-panel="orders" hidden="" role="tabpanel">
 <div class="section-heading compact-heading office-panel-heading">
@@ -197,7 +180,7 @@
 <p class="section-copy">Cada cultura comprada recebe uma sequência fixa de pedidos. Entregas podem ser parciais e o progresso nunca expira.</p>
 </div>
 </div>
-<div class="order-grid items-scroll-region" id="orderList"></div>
+<div class="order-grid" id="orderList"></div>
 </section>
 <section class="office-panel" data-office-panel="missions" hidden="" role="tabpanel">
 <div class="section-heading compact-heading office-panel-heading">
@@ -207,25 +190,18 @@
 <p class="section-copy">Objetivos de mercado, contratos, pedidos, crescimento e prestígio. Missões concluídas permanecem registradas entre jornadas.</p>
 </div>
 </div>
-<div class="mission-grid items-scroll-region" id="missionList"></div><div class="mission-history-toggle">
+<div class="mission-grid" id="missionList"></div><div class="mission-history-toggle">
 <button aria-expanded="false" class="button secondary" id="toggleCompletedMissions" type="button">Mostrar missões concluídas</button>
 <small id="completedMissionCount">Nenhuma missão concluída ainda.</small>
 </div>
 </section>
-</div>
-
-
-
-</section>
-<section class="view stats-view" data-view-panel="statsView" id="statsView">
-<div class="section-heading stats-heading">
+<section class="office-panel stats-office-panel" data-office-panel="stats" hidden="" role="tabpanel"><div class="section-heading compact-heading office-panel-heading stats-heading">
 <div>
 <p class="eyebrow">histórico da conta</p>
-<h1>Estatísticas do jogador</h1>
+<h2>Estatísticas do jogador</h2>
 <p class="section-copy">Recordes, totais permanentes, conquistas e tudo que conta a história da sua fazenda.</p>
 </div>
-</div>
-<div class="stats-scroll-region">
+</div><div class="stats-content">
 <div class="stats-hero" id="statsHero"></div>
 <section class="stats-section">
 <div class="compact-section-title"><div><p class="eyebrow">progresso permanente</p><h2>Totais da conta</h2></div></div>
@@ -240,8 +216,9 @@
 <div class="achievement-summary" id="achievementSummary"></div>
 <div class="achievement-grid" id="achievementGrid"></div>
 </section>
-</div>
-</section><section class="view" data-view-panel="settingsView" id="settingsView">
+</div></section></div>
+</section>
+<section class="view" data-view-panel="settingsView" id="settingsView">
 <div class="section-heading">
 <div>
 <p class="eyebrow">seu jeito de jogar</p>

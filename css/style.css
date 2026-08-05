@@ -4233,3 +4233,591 @@ body {
     display: none;
   }
 }
+
+/* ==========================================================
+   REVISÃO 9 — navegação horizontal, rolagem global e painéis
+   simplificados
+   ========================================================== */
+
+html,
+body {
+  width: 100%;
+  height: auto !important;
+  min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+.app-shell {
+  width: min(1660px, calc(100% - 28px));
+  height: auto !important;
+  min-height: 100dvh;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.workspace-shell {
+  display: block !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.workspace-shell > .game-main,
+.game-main,
+.view,
+.view.active,
+.office-workspace,
+.evolution-workspace,
+.office-panel,
+.office-panel.active,
+.evolution-panel,
+.evolution-panel.active,
+.settings-grid,
+.stats-content,
+.crop-grid,
+.stock-grid,
+.upgrade-grid,
+.contract-grid,
+.active-contract-grid,
+.order-grid,
+.mission-grid,
+.achievement-grid {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.navigation-stack {
+  position: sticky;
+  top: 100px;
+  z-index: 19;
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin: 10px 0 18px;
+  padding: 0;
+  overflow: visible !important;
+  background: transparent;
+}
+
+.main-nav,
+.context-nav-column {
+  position: static !important;
+  display: flex !important;
+  align-items: center;
+  width: auto !important;
+  max-width: 100%;
+  margin: 0 !important;
+  padding: 6px !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid rgba(255, 255, 255, .75);
+  border-radius: 18px !important;
+  background: rgba(252, 252, 246, .9);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(18px) saturate(1.08);
+  scrollbar-width: none;
+}
+
+.main-nav::-webkit-scrollbar,
+.context-nav-column::-webkit-scrollbar,
+.context-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.context-nav-column {
+  margin-left: auto !important;
+}
+
+.context-nav-column[hidden] {
+  display: none !important;
+}
+
+.context-tabs,
+.office-tabs,
+.evolution-tabs {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+  width: max-content;
+  padding: 0;
+  overflow-x: auto;
+  border: 0;
+  background: transparent;
+}
+
+.nav-tab,
+.office-tab,
+.evolution-tab {
+  display: inline-flex !important;
+  grid-template-columns: none !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: max-content !important;
+  min-height: 40px;
+  padding: 0 13px !important;
+  gap: 7px;
+  border-radius: 13px !important;
+  text-align: center;
+}
+
+.office-tab > span,
+.evolution-tab > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  white-space: nowrap;
+}
+
+.evolution-tab small {
+  display: none;
+}
+
+.office-tab b {
+  margin-left: 2px;
+}
+
+.nav-tab-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.nav-tab-icon img {
+  width: 19px;
+  height: 19px;
+}
+
+/* O reinício de um ciclo precisa cortar para zero sem animar para trás. */
+.crop-art-progress.progress-resetting {
+  transition: none !important;
+}
+
+/* Fazenda mais objetiva. */
+#farmView > .section-heading {
+  margin-top: 2px;
+}
+
+#farmView .crop-grid {
+  align-items: start;
+}
+
+.crop-card {
+  gap: 8px;
+}
+
+.crop-card .crop-meta-row {
+  min-height: 22px;
+}
+
+.crop-card .locked-cycle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font-size: .62rem;
+  font-weight: 850;
+  background: rgba(83, 121, 76, .08);
+}
+
+.crop-upgrade-redesign {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.15fr);
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid rgba(79, 122, 72, .12);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(245, 249, 240, .92), rgba(235, 244, 228, .75));
+}
+
+.upgrade-mode-selector {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 3px;
+  border-radius: 11px;
+  background: rgba(69, 103, 65, .09);
+}
+
+.upgrade-mode-option {
+  min-height: 31px;
+  padding: 0 7px;
+  border-radius: 8px;
+  color: var(--ink-soft);
+  font-size: .62rem;
+  font-weight: 950;
+  cursor: pointer;
+  background: transparent;
+  transition: .18s ease;
+}
+
+.upgrade-mode-option:hover {
+  color: var(--green-deep);
+  background: rgba(255, 255, 255, .62);
+}
+
+.upgrade-mode-option.active {
+  color: #fff;
+  background: linear-gradient(135deg, #76ad67, #55884f);
+  box-shadow: 0 5px 12px rgba(66, 111, 60, .18);
+}
+
+.crop-upgrade-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 7px;
+  min-width: 0;
+  padding: 0 3px;
+}
+
+.crop-upgrade-summary > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: .59rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crop-upgrade-summary > strong {
+  flex: 0 0 auto;
+}
+
+.crop-upgrade-cta {
+  grid-column: 1 / -1;
+  min-height: 34px;
+  border-radius: 10px;
+}
+
+/* Estoque sem métricas redundantes. */
+.stock-toolbar {
+  align-items: center;
+}
+
+.stock-toolbar select {
+  min-width: 210px;
+}
+
+.stock-summary {
+  display: block !important;
+  margin-bottom: 14px;
+}
+
+.simplified-storage-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(190px, auto);
+  align-items: center;
+  gap: 8px 18px;
+  min-height: 0;
+  padding: 13px 15px;
+}
+
+.simplified-storage-card .storage-summary-head,
+.simplified-storage-card .progress-track {
+  grid-column: 1;
+}
+
+.simplified-storage-card .button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: auto;
+  min-width: 190px;
+}
+
+#sellAllStock .resource-amount {
+  margin-left: 4px;
+}
+
+/* Prestígio: apenas os fatores renováveis que influenciam o cálculo. */
+.prestige-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 12px;
+  padding: 14px !important;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(250, 246, 252, .94), rgba(241, 248, 240, .91));
+}
+
+.prestige-overview-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(235px, .65fr);
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid rgba(132, 96, 151, .12);
+  border-radius: 19px;
+  background: rgba(255, 255, 255, .65);
+}
+
+.prestige-overview-card .prestige-copy {
+  padding: 0;
+}
+
+.prestige-gain-card {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 17px;
+  border-radius: 17px;
+  text-align: center;
+  background: linear-gradient(145deg, rgba(232, 213, 240, .72), rgba(246, 231, 189, .62));
+}
+
+.prestige-gain-card > small,
+.prestige-gain-card > span {
+  color: #6d6271;
+  font-size: .64rem;
+  font-weight: 850;
+}
+
+.prestige-gain-card > strong .resource-amount {
+  min-height: 38px;
+  padding: 6px 12px 6px 7px;
+}
+
+.prestige-gain-card > strong .resource-amount img {
+  width: 27px;
+  height: 27px;
+}
+
+.prestige-requirements {
+  padding: 15px;
+  border: 1px solid rgba(78, 116, 72, .12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .63);
+}
+
+.prestige-requirements-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.prestige-requirements-head small {
+  color: var(--ink-soft);
+  font-size: .62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.prestige-requirements-head h3 {
+  margin: 2px 0 0;
+  font-size: 1rem;
+}
+
+.prestige-requirements-head > span {
+  padding: 5px 9px;
+  border-radius: 999px;
+  color: var(--green-deep);
+  font-size: .63rem;
+  font-weight: 950;
+  background: rgba(118, 173, 103, .13);
+}
+
+.prestige-driver-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.prestige-driver-grid article {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(242, 247, 238, .82);
+}
+
+.prestige-driver-grid article > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .82);
+}
+
+.prestige-driver-grid article > div {
+  min-width: 0;
+}
+
+.prestige-driver-grid small,
+.prestige-driver-grid p {
+  color: var(--ink-soft);
+  font-size: .57rem;
+}
+
+.prestige-driver-grid strong {
+  display: block;
+  margin: 2px 0;
+  font-size: .86rem;
+}
+
+.prestige-driver-grid p {
+  margin: 0;
+}
+
+.prestige-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 15px;
+  border-radius: 17px;
+  color: #66522a;
+  background: rgba(247, 228, 171, .43);
+}
+
+.prestige-action-card p {
+  margin: 3px 0 0;
+  color: #77694d;
+  font-size: .65rem;
+}
+
+.prestige-action-card .button {
+  flex: 0 0 auto;
+}
+
+/* Escritório e estatísticas agora compartilham a mesma view. */
+.stats-office-panel .stats-content {
+  display: grid;
+  gap: 18px;
+}
+
+.contract-offer-grid {
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+}
+
+/* Responsividade da nova organização. */
+@media (max-width: 1120px) {
+  .navigation-stack {
+    position: static;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .main-nav,
+  .context-nav-column {
+    max-width: 100%;
+  }
+
+  .context-nav-column {
+    margin-left: 0 !important;
+  }
+
+  .prestige-driver-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .contract-offer-grid {
+    grid-template-columns: repeat(2, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  html,
+  body,
+  .app-shell,
+  .workspace-shell,
+  .workspace-shell > .game-main,
+  .view,
+  .view.active {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .navigation-stack {
+    display: grid !important;
+    gap: 5px;
+    margin: 6px 0 10px;
+  }
+
+  .main-nav,
+  .context-nav-column {
+    width: 100% !important;
+    max-width: 100%;
+    overflow-x: auto !important;
+  }
+
+  .nav-tab,
+  .office-tab,
+  .evolution-tab {
+    min-height: 37px;
+    padding: 0 10px !important;
+    font-size: .68rem;
+  }
+
+  #farmView > .section-heading,
+  #stockView > .section-heading,
+  #settingsView > .section-heading,
+  .evolution-heading,
+  .office-heading {
+    margin-top: 4px;
+  }
+
+  #stockView .stock-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  #stockView .stock-toolbar select,
+  #stockView .stock-toolbar .button {
+    width: 100%;
+  }
+
+  .simplified-storage-card {
+    grid-template-columns: 1fr;
+  }
+
+  .simplified-storage-card .storage-summary-head,
+  .simplified-storage-card .progress-track,
+  .simplified-storage-card .button {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .crop-upgrade-redesign {
+    grid-template-columns: 1fr;
+  }
+
+  .crop-upgrade-cta {
+    grid-column: 1;
+  }
+
+  .prestige-overview-card,
+  .prestige-driver-grid,
+  .contract-offer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .prestige-action-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .prestige-action-card .button {
+    width: 100%;
+  }
+}
