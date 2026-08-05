@@ -3,3 +3,4 @@ README.md
 LICENSE
 firestore.rules
 FIREBASE_SETUP.md
+js/firebase-config.js
