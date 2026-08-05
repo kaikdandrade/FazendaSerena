@@ -7,6 +7,8 @@
   let engine = null;
   let lastFrame = performance.now();
   let lastRender = 0;
+  let lastLiveHeader = 0;
+  let lastCropControls = 0;
   let lastSave = 0;
   let activeView = "farmView";
   let activeOfficeTab = "contracts";
@@ -134,7 +136,10 @@
   function handleEngineEvent(event) {
     if (!event) return;
     if (event.type === "toast") toast(event.message);
-    if (event.type === "level") toast(`A fazenda alcançou o nível ${event.level} e recebeu +${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "success");
+    if (event.type === "level") {
+      toast(`A fazenda alcançou o nível ${event.level} e recebeu +${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "success");
+      window.setTimeout(() => render(true), 0);
+    }
     if (event.type === "offline") toast(`Enquanto você esteve longe, a fazenda produziu ${engine ? engine.formatNumber(event.harvested) : Math.floor(event.harvested)} itens.`);
     if (event.type === "contracts-expired-offline") toast(`${event.count} contrato${event.count === 1 ? " expirou" : "s expiraram"} enquanto você esteve longe. As unidades já entregues foram perdidas.`, "error");
   }
@@ -201,26 +206,165 @@
     const metrics = engine.getMetrics();
     const capacity = Math.max(1, metrics.storageCapacity);
     const storagePct = percent((metrics.stock / capacity) * 100);
+
+    if (metrics.owned === 0) {
+      const starter = engine.getCrop("onion");
+      const starterCost = engine.getBuyCost("onion");
+      dom.farmStatusPanel.innerHTML = `
+        <div class="farm-status-ring starter-ring" style="--status-progress:0%">
+          <span>🌱</span>
+          <strong>1º passo</strong>
+        </div>
+        <div class="farm-status-copy">
+          <small>Comece por aqui</small>
+          <h2>Compre sua primeira cultura</h2>
+          <p>${escapeHtml(starter.name)} inicia a produção e custa ${resourceAmount("coins", -starterCost, { sign: true, compact: true })}.</p>
+          <span class="farm-status-note">O saldo inicial foi equilibrado para permitir somente esta primeira compra.</span>
+        </div>`;
+      return;
+    }
+
     dom.farmStatusPanel.innerHTML = `
-      <div class="farm-status-ring" style="--status-progress:${storagePct}%">
+      <div class="farm-status-ring" data-live-storage-ring style="--status-progress:${storagePct}%">
         <span>🧺</span>
-        <strong>${storagePct.toFixed(0)}%</strong>
+        <strong data-live-storage-percent>${storagePct.toFixed(0)}%</strong>
       </div>
       <div class="farm-status-copy">
-        <small>Produção automática</small>
-        <h2>O celeiro trabalha com você</h2>
-        <p>${engine.formatNumber(metrics.stock)} de ${engine.formatNumber(metrics.storageCapacity)} espaços estão ocupados.</p>
-        <span class="farm-status-note">${metrics.storageRemaining > 0 ? `${engine.formatNumber(metrics.storageRemaining)} espaços disponíveis` : "Celeiro cheio: apenas culturas sem contrato ou venda automática ficam pausadas"}</span>
+        <small>Resumo da produção</small>
+        <h2>${metrics.storageRemaining > 0 ? "Celeiro em funcionamento" : "Celeiro cheio"}</h2>
+        <p><b data-live-storage-used>${engine.formatNumber(metrics.stock)}</b> de ${engine.formatNumber(metrics.storageCapacity)} espaços ocupados.</p>
+        <span class="farm-status-note" data-live-storage-note>${metrics.storageRemaining > 0 ? `${engine.formatNumber(metrics.storageRemaining)} espaços disponíveis` : "Venda ou amplie o estoque para retomar culturas pausadas"}</span>
       </div>`;
   }
 
   function renderFarmMetrics() {
     const metrics = engine.getMetrics();
+    const productionPerMinute = engine.getOwnedCrops().reduce((sum, crop) => sum + engine.getProductionRate(crop.id), 0) * 60;
     dom.farmMetrics.innerHTML = `
-      <span class="metric-chip">🌱 <strong>${metrics.owned}</strong> / ${engine.data.crops.length} culturas</span>
-      <span class="metric-chip">🧺 <strong>${engine.formatNumber(metrics.stock)}</strong> / ${engine.formatNumber(metrics.storageCapacity)} no celeiro</span>
-      <span class="metric-chip">🧾 <strong>${metrics.orders}</strong> pedidos nesta jornada</span>
-      <span class="metric-chip">📋 <strong>${metrics.contracts}</strong> contratos nesta jornada</span>`;
+      <span class="metric-chip">🌱 <strong>${metrics.owned}</strong> culturas</span>
+      <span class="metric-chip">⚙️ <strong>${engine.formatNumber(productionPerMinute)}</strong>/min</span>
+      <span class="metric-chip">🧺 <strong>${engine.formatNumber(metrics.stock)}</strong> / ${engine.formatNumber(metrics.storageCapacity)}</span>
+      <span class="metric-chip">📑 <strong>${metrics.activeContracts}</strong> contratos ativos</span>`;
+  }
+
+  function formatLiveTime(seconds) {
+    const value = Math.max(0, Number(seconds) || 0);
+    if (value < 10) return `${value.toFixed(1).replace(".", ",")}s`;
+    if (value < 60) return `${Math.ceil(value)}s`;
+    return engine.formatTime(value);
+  }
+
+  function updateLiveHeader(now = performance.now()) {
+    if (now - lastLiveHeader < 100) return;
+    lastLiveHeader = now;
+    const state = engine.state;
+    const farmNeed = engine.getFarmXPNeed();
+    dom.coinsCounter.textContent = engine.formatNumber(state.coins);
+    dom.researchCounter.textContent = engine.formatNumber(state.research);
+    dom.prestigeCounter.textContent = engine.formatNumber(state.prestigePoints);
+    dom.farmLevelLabel.textContent = state.farmLevel;
+    dom.farmXPBar.style.width = `${percent((state.farmXP / farmNeed) * 100)}%`;
+    dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
+    dom.stockNavBadge.textContent = engine.formatNumber(engine.getStorageUsed());
+  }
+
+  function updateLiveFarmUI(now = performance.now()) {
+    if (activeView !== "farmView") return;
+    const storageRemaining = engine.getStorageRemaining();
+    const updateControls = now - lastCropControls >= 450;
+    if (updateControls) lastCropControls = now;
+
+    $$('[data-live-crop]').forEach(card => {
+      const cropId = card.dataset.liveCrop;
+      const cropState = engine.state.crops[cropId];
+      if (!cropState?.owned) return;
+      const growthTime = engine.getGrowthTime(cropId);
+      const instant = growthTime <= 0;
+      const activeContracts = engine.state.activeContracts.filter(contract => contract.cropId === cropId && contract.delivered < contract.amount && contract.timeRemaining > 0);
+      const directRoute = cropState.autoSell || activeContracts.length > 0;
+      const paused = storageRemaining <= 0 && !directRoute;
+      const progress = instant ? 100 : percent(cropState.progress * 100);
+      const ring = $('[data-crop-ring]', card);
+      const progressLabel = $('[data-crop-percent]', card);
+      const cycle = $('[data-crop-cycle]', card);
+      const stock = $('[data-crop-stock]', card);
+      const route = $('[data-crop-route]', card);
+
+      if (ring) {
+        ring.style.setProperty("--growth-progress", `${progress}%`);
+        ring.classList.toggle("instant", instant);
+        ring.classList.toggle("paused", paused);
+      }
+      if (progressLabel) progressLabel.textContent = instant ? "∞" : paused ? "Ⅱ" : `${Math.floor(progress)}%`;
+      if (cycle) cycle.textContent = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
+      if (stock) stock.textContent = engine.formatNumber(cropState.stock);
+      if (route) {
+        const kind = activeContracts.length ? "contract" : cropState.autoSell ? "auto" : "stock";
+        route.className = `crop-route-pill route-${kind}`;
+        route.textContent = activeContracts.length ? `Contrato${activeContracts.length > 1 ? ` ×${activeContracts.length}` : ""}` : cropState.autoSell ? "Venda auto" : "Estoque";
+      }
+      card.classList.toggle("auto-sell-enabled", Boolean(cropState.autoSell));
+
+      if (updateControls) {
+        const maxed = cropState.level >= GameEngine.MAX_CROP_LEVEL;
+        const affordable = engine.getCropAffordableUpgrades(cropId);
+        const nextCost = affordable.nextCost;
+        const affordability = $('[data-crop-affordability]', card);
+        const oneButton = $('[data-crop-upgrade-one]', card);
+        const maxButton = $('[data-crop-upgrade-max]', card);
+        const sellButton = $('[data-crop-sell]', card);
+        if (affordability) {
+          affordability.innerHTML = maxed
+            ? "Nível máximo"
+            : affordable.levels > 0
+              ? `+${affordable.levels} por ${resourceAmount("coins", -affordable.totalCost, { sign: true, compact: true })}`
+              : `Próximo ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}`;
+        }
+        if (oneButton) oneButton.disabled = maxed || engine.state.coins < nextCost;
+        if (maxButton) {
+          maxButton.disabled = maxed || affordable.levels < 1;
+          maxButton.textContent = maxed ? "Máximo" : `Máx. +${affordable.levels}`;
+        }
+        if (sellButton) {
+          sellButton.disabled = cropState.stock <= 0;
+          sellButton.textContent = `Vender estoque${cropState.stock > 0 ? ` · ${engine.formatNumber(cropState.stock)}` : ""}`;
+        }
+      }
+    });
+
+    if (updateControls) {
+      $$('[data-locked-crop]').forEach(card => {
+        const cropId = card.dataset.lockedCrop;
+        const crop = engine.getCrop(cropId);
+        const unlocked = engine.isCropUnlocked(cropId);
+        const buyCost = engine.getBuyCost(cropId);
+        const canAfford = engine.state.coins >= buyCost;
+        const status = $('[data-crop-purchase-status]', card);
+        const button = $('[data-crop-purchase]', card);
+        card.classList.toggle("insufficient", unlocked && !canAfford);
+        if (status) status.textContent = !unlocked ? `Libera no nível ${crop.unlockLevel}` : canAfford ? "Disponível para compra" : "Saldo insuficiente";
+        if (button) {
+          button.disabled = !unlocked || !canAfford;
+          button.innerHTML = !unlocked
+            ? `Nível ${crop.unlockLevel} necessário`
+            : canAfford
+              ? `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`
+              : `Faltam ${resourceAmount("coins", buyCost - engine.state.coins, { compact: true })}`;
+        }
+      });
+    }
+
+    const metrics = engine.getMetrics();
+    const capacity = Math.max(1, metrics.storageCapacity);
+    const storagePct = percent((metrics.stock / capacity) * 100);
+    const storageRing = $('[data-live-storage-ring]');
+    const storagePercent = $('[data-live-storage-percent]');
+    const storageUsed = $('[data-live-storage-used]');
+    const storageNote = $('[data-live-storage-note]');
+    if (storageRing) storageRing.style.setProperty("--status-progress", `${storagePct}%`);
+    if (storagePercent) storagePercent.textContent = `${Math.floor(storagePct)}%`;
+    if (storageUsed) storageUsed.textContent = engine.formatNumber(metrics.stock);
+    if (storageNote) storageNote.textContent = metrics.storageRemaining > 0 ? `${engine.formatNumber(metrics.storageRemaining)} espaços disponíveis` : "Venda ou amplie o estoque para retomar culturas pausadas";
   }
 
   function getCropGlow(category) {
@@ -241,30 +385,34 @@
     const data = engine.state.crops[crop.id];
     const category = engine.data.categories[crop.category];
     const unlocked = engine.isCropUnlocked(crop.id);
+    const buyCost = engine.getBuyCost(crop.id);
+    const canAffordPurchase = engine.state.coins >= buyCost;
 
     if (!data.owned) {
-      const requirements = [];
-      if (engine.state.farmLevel < crop.unlockLevel) requirements.push(`nível ${crop.unlockLevel} da fazenda`);
-      const buyCost = engine.getBuyCost(crop.id);
+      const purchaseLabel = !unlocked
+        ? `Nível ${crop.unlockLevel} necessário`
+        : canAffordPurchase
+          ? `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`
+          : `Faltam ${resourceAmount("coins", buyCost - engine.state.coins, { compact: true })}`;
       return `
-        <article class="crop-card locked" style="--crop-glow:${getCropGlow(crop.category)}">
-          <div class="crop-level-strip locked-level-strip"><span>Ainda não cultivada</span></div>
+        <article class="crop-card locked ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
+          <div class="crop-level-strip locked-level-strip">
+            <span data-crop-purchase-status>${!unlocked ? `Libera no nível ${crop.unlockLevel}` : canAffordPurchase ? "Disponível para compra" : "Saldo insuficiente"}</span>
+          </div>
           <div class="crop-head">
-            <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
+            <div class="crop-art locked-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
             <div class="crop-info">
               <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
               <div class="crop-meta-row">
                 <span class="crop-category">${escapeHtml(category)}</span>
-                <span class="crop-unlock-tag">Nível ${crop.unlockLevel}</span>
                 ${resourceAmount("coins", buyCost, { compact: true, title: "Preço da cultura" })}
               </div>
+              <small class="locked-cycle">Ciclo inicial: ${crop.baseGrowth}s</small>
             </div>
           </div>
-          <div class="locked-copy">
-            <div class="unlock-line"><span>Desbloqueio</span><strong>${requirements.length ? escapeHtml(requirements.join(" · ")) : "Disponível"}</strong></div>
-            <div class="unlock-line"><span>Compra da cultura</span><strong>${resourceAmount("coins", -buyCost, { sign: buyCost > 0 })}</strong></div>
-          </div>
-          <button class="button primary full" type="button" data-action="buy-crop" data-crop="${crop.id}" ${unlocked ? "" : "disabled"}>${unlocked ? (buyCost === 0 ? "Comprar gratuitamente" : `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`) : `Libera no nível ${crop.unlockLevel}`}</button>
+          <button class="button primary full crop-buy-button" type="button" data-action="buy-crop" data-crop="${crop.id}" data-crop-purchase ${unlocked && canAffordPurchase ? "" : "disabled"}>
+            ${purchaseLabel}
+          </button>
         </article>`;
     }
 
@@ -279,52 +427,46 @@
     const speedMaxed = data.level >= GameEngine.INSTANT_GROWTH_LEVEL;
     const affordable = engine.getCropAffordableUpgrades(crop.id);
     const nextCost = affordable.nextCost;
-    const affordableText = maxed
-      ? "Esta plantação alcançou o nível máximo 300."
+    const routeKind = activeContracts.length ? "contract" : data.autoSell ? "auto" : "stock";
+    const routeLabel = activeContracts.length ? `Contrato${activeContracts.length > 1 ? ` ×${activeContracts.length}` : ""}` : data.autoSell ? "Venda auto" : "Estoque";
+    const affordability = maxed
+      ? "Nível máximo"
       : affordable.levels > 0
-        ? `Pode avançar <strong>+${affordable.levels}</strong> nível${affordable.levels === 1 ? "" : "is"} com o saldo atual.`
-        : `Próximo nível: ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}.`;
-    const routeMessage = activeContracts.length
-      ? `Produção direcionada para ${activeContracts.length === 1 ? "o contrato ativo" : `${activeContracts.length} contratos ativos`}`
-      : data.autoSell
-        ? "Produção vendida automaticamente"
-        : "Produção enviada ao estoque";
-    const cycleLabel = instant
-      ? "Produção instantânea"
-      : storageFull
-        ? "Produção pausada"
-        : engine.formatTime((1 - data.progress) * growthTime);
+        ? `+${affordable.levels} por ${resourceAmount("coins", -affordable.totalCost, { sign: true, compact: true })}`
+        : `Próximo ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}`;
+    const cycleLabel = instant ? "Contínua" : storageFull ? "Pausada" : formatLiveTime((1 - data.progress) * growthTime);
 
     return `
-      <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip"><div class="crop-level-copy"><span>Nível da plantação</span><strong>${data.level} / ${GameEngine.MAX_CROP_LEVEL}</strong></div>${speedMaxed ? '<span class="instant-level-badge">Velocidade máxima</span>' : ""}</div>
+      <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
+        <div class="crop-level-strip" ${speedMaxed ? 'title="Velocidade máxima; níveis 251–300 aprimoram o rendimento desta cultura"' : ""}>
+          <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
+          <span class="crop-route-pill route-${routeKind}" data-crop-route>${routeLabel}</span>
+        </div>
         <div class="crop-head">
-          <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" style="--growth-progress:${growthPct}%" title="${instant ? "Produção instantânea e contínua" : storageFull ? "Produção pausada: celeiro cheio" : `${growthPct.toFixed(0)}% do próximo ciclo`}">
+          <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" data-crop-ring style="--growth-progress:${growthPct}%" title="Progresso da produção">
             <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            <span class="crop-progress-percent">${instant ? "∞" : storageFull ? "Ⅱ" : `${growthPct.toFixed(0)}%`}</span>
+            <span class="crop-progress-percent" data-crop-percent>${instant ? "∞" : storageFull ? "Ⅱ" : `${Math.floor(growthPct)}%`}</span>
           </div>
           <div class="crop-info">
-            <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
+            <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3>${speedMaxed ? '<span class="instant-mini" title="Velocidade máxima">∞</span>' : ""}</div>
             <div class="crop-meta-row">
               <span class="crop-category">${escapeHtml(category)}</span>
-              <span class="crop-auto-tag">${data.autoSell ? "Venda automática" : "Produção automática"}</span>
               ${resourceAmount("coins", price, { compact: true, title: "Valor por unidade" })}
             </div>
-            <div class="crop-cycle-status ${storageFull ? "storage-paused" : ""} ${instant ? "instant-cycle" : ""}">
-              <span>${instant ? "Ciclo" : storageFull ? "Celeiro cheio" : "Próximo ciclo"}</span>
-              <strong>${cycleLabel}</strong>
+            <div class="crop-quick-stats">
+              <span title="Tempo restante"><i>◷</i><b data-crop-cycle>${cycleLabel}</b></span>
+              <span title="Estoque desta cultura"><i>🧺</i><b data-crop-stock>${engine.formatNumber(data.stock)}</b></span>
             </div>
           </div>
         </div>
-        <div class="production-foot"><span>🧺 ${engine.formatNumber(data.stock)} desta cultura guardadas</span><span>${escapeHtml(routeMessage)}</span></div>
-        <div class="crop-upgrade-panel">
-          <div class="crop-upgrade-copy"><strong>Aprimorar plantação</strong><small>${affordableText}</small></div>
+        <div class="crop-upgrade-panel compact-upgrade-panel">
+          <div class="crop-upgrade-copy"><small>Aprimoramento</small><strong data-crop-affordability>${affordability}</strong></div>
           <div class="crop-upgrade-actions">
-            <button class="button soft compact-button" type="button" data-action="upgrade-crop-once" data-crop="${crop.id}" ${maxed || engine.state.coins < nextCost ? "disabled" : ""}>${maxed ? "Máximo" : `+1 ${resourceAmount("coins", -nextCost, { sign: true, compact: true })}`}</button>
-            <button class="button primary compact-button" type="button" data-action="upgrade-crop-max" data-crop="${crop.id}" ${maxed || affordable.levels < 1 ? "disabled" : ""}>${maxed ? "Nível 300" : `Máximo${affordable.levels > 0 ? ` (+${affordable.levels})` : ""} ${affordable.levels > 0 ? resourceAmount("coins", -affordable.totalCost, { sign: true, compact: true }) : ""}`}</button>
+            <button class="button soft compact-button" type="button" data-action="upgrade-crop-once" data-crop="${crop.id}" data-crop-upgrade-one ${maxed || engine.state.coins < nextCost ? "disabled" : ""} title="${maxed ? "Nível máximo" : `Custo: ${engine.formatMoney(nextCost)}`}">+1</button>
+            <button class="button primary compact-button" type="button" data-action="upgrade-crop-max" data-crop="${crop.id}" data-crop-upgrade-max ${maxed || affordable.levels < 1 ? "disabled" : ""}>${maxed ? "Máximo" : `Máx. +${affordable.levels}`}</button>
           </div>
         </div>
-        <div class="crop-actions"><button class="button secondary" type="button" data-action="sell-crop" data-crop="${crop.id}" ${data.stock <= 0 ? "disabled" : ""}>Vender estoque</button></div>
+        <button class="crop-sell-button" type="button" data-action="sell-crop" data-crop="${crop.id}" data-crop-sell ${data.stock <= 0 ? "disabled" : ""}>Vender estoque${data.stock > 0 ? ` · ${engine.formatNumber(data.stock)}` : ""}</button>
       </article>`;
   }
 
@@ -661,7 +803,7 @@
 
   function render(force = false) {
     const now = performance.now();
-    if (!force && now - lastRender < 700) return;
+    if (!force && now - lastRender < 1800) return;
     lastRender = now;
     renderHeader();
     applySettings();
@@ -669,7 +811,7 @@
     if (activeView === "farmView") {
       renderFarmStatus();
       renderFarmMetrics();
-      renderCrops();
+      if (force || !dom.cropGrid.children.length) renderCrops();
     } else if (activeView === "stockView") {
       renderStock();
     } else if (activeView === "evolveView") {
@@ -681,6 +823,8 @@
       renderMissions();
       showOfficeTab(activeOfficeTab);
     }
+    updateLiveHeader(now);
+    updateLiveFarmUI();
   }
 
   function act(result, successMessage = "") {
@@ -858,6 +1002,8 @@
     const dt = Math.max(0, Math.min(2, (now - lastFrame) / 1000));
     lastFrame = now;
     engine.tick(dt);
+    updateLiveHeader(now);
+    updateLiveFarmUI(now);
     render(false);
 
     if (now - lastSave >= 15000) {

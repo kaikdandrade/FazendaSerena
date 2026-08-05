@@ -94,8 +94,10 @@ window.GameData = (() => {
       image: `img/${imageIndex}.png`,
       index,
       unlockLevel: 1 + Math.floor(index * 0.58),
-      cost: index === 0 ? 0 : Math.round(42 * Math.pow(1.43, index) + index * 18),
-      basePrice: Math.max(2, Math.round(2.2 * Math.pow(1.205, index))),
+      // A curva mantém a primeira compra acessível, impede duas culturas no início
+      // e continua sustentável até as culturas finais sem saltos impossíveis.
+      cost: Math.round(80 * Math.pow(1.235, index) + index * 24),
+      basePrice: Math.max(3, Math.round(3 * Math.pow(1.14, index))),
       baseGrowth: categoryGrowth[category] || 8,
       baseYield: 2
     };

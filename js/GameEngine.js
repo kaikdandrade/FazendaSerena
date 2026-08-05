@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 8;
+  static SAVE_VERSION = 9;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static BASE_STORAGE_CAPACITY = 200;
   static MAX_BATCH_UPGRADES = 1000;
@@ -22,7 +22,7 @@ class GameEngine {
     const settings = {
       ambient: permanent.settings?.ambient ?? true,
       reducedMotion: permanent.settings?.reducedMotion ?? false,
-      compactCards: permanent.settings?.compactCards ?? false,
+      compactCards: permanent.settings?.compactCards ?? true,
       uiScale: permanent.settings?.uiScale ?? 100
     };
 
@@ -47,7 +47,7 @@ class GameEngine {
 
     return {
       version: GameEngine.SAVE_VERSION,
-      coins: 120 + seedCapital * 250,
+      coins: 100 + seedCapital * 250,
       research: academyLegacy,
       prestigePoints,
       farmLevel: 1,
@@ -173,6 +173,22 @@ class GameEngine {
     });
 
     const legacyOwned = this.data.crops.filter(crop => merged.crops[crop.id].owned);
+    const untouchedRevisionFive = Number(input.version || 0) < 9
+      && legacyOwned.length === 1
+      && legacyOwned[0].id === "onion"
+      && merged.crops.onion.level <= 1
+      && Number(input.stats?.totalHarvested || 0) === 0
+      && Number(input.stats?.totalSold || 0) === 0
+      && Number(input.stats?.ordersCompleted || 0) === 0
+      && Number(input.stats?.contractsCompleted || 0) === 0;
+    if (untouchedRevisionFive) {
+      Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
+      merged.orders.onion = { tier: 0, delivered: 0 };
+      merged.coins = 100 + Number(merged.prestigeUpgrades.seedCapital || 0) * 250;
+    } else if (Number(input.version || 0) < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
+      merged.coins = Math.min(merged.coins, 100 + Number(merged.prestigeUpgrades.seedCapital || 0) * 250);
+    }
+
     const legacyStarterOnly = Number(input.version || 0) < 5
       && legacyOwned.length === 1
       && legacyOwned[0].id === "onion"
@@ -442,22 +458,35 @@ class GameEngine {
     if (level >= GameEngine.INSTANT_GROWTH_LEVEL) return 0;
 
     const levelProgress = Math.max(0, Math.min(1, (level - 1) / (GameEngine.INSTANT_GROWTH_LEVEL - 1)));
-    const levelAdjustedTime = crop.baseGrowth * (1 - levelProgress);
-    return Math.max(0.02, levelAdjustedTime / this.getGlobalGrowthSpeed());
+    // A raiz quadrada torna os primeiros aprimoramentos perceptíveis sem
+    // antecipar demais a produção instantânea dos níveis finais.
+    const remainingFactor = 1 - Math.sqrt(levelProgress);
+    const levelAdjustedTime = crop.baseGrowth * remainingFactor;
+    return Math.max(0.01, levelAdjustedTime / this.getGlobalGrowthSpeed());
   }
 
   getInstantCyclesPerSecond(cropId) {
     const crop = this.getCrop(cropId);
     if (!crop) return 0;
-    return Math.max(1, ((GameEngine.INSTANT_GROWTH_LEVEL - 1) * this.getGlobalGrowthSpeed()) / crop.baseGrowth);
+    // Mantém continuidade entre o nível 249 e o modo contínuo do nível 250.
+    const previousProgress = (GameEngine.INSTANT_GROWTH_LEVEL - 2) / (GameEngine.INSTANT_GROWTH_LEVEL - 1);
+    const previousFactor = Math.max(0.0001, 1 - Math.sqrt(previousProgress));
+    const previousTime = Math.max(0.01, (crop.baseGrowth * previousFactor) / this.getGlobalGrowthSpeed());
+    return Math.max(1, 1 / previousTime);
   }
 
   getYield(cropId) {
     const crop = this.getCrop(cropId);
+    const cropLevel = Math.max(1, Number(this.state.crops[cropId]?.level || 1));
     const fertilizer = Number(this.state.upgrades.fertilizer || 0);
     const genetics = Number(this.state.researchTechs.genetics || 0);
     const legacy = Number(this.state.prestigeUpgrades.greenLegacy || 0);
-    return crop.baseYield * (1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03);
+    // Após atingir velocidade máxima no nível 250, os níveis 251–300
+    // deixam de reduzir tempo e passam a aprimorar o rendimento específico.
+    const postSpeedLevels = Math.max(0, cropLevel - GameEngine.INSTANT_GROWTH_LEVEL);
+    const cropYieldMultiplier = 1 + postSpeedLevels * 0.02;
+    const globalYieldMultiplier = 1 + fertilizer * 0.1 + genetics * 0.07 + legacy * 0.03;
+    return crop.baseYield * cropYieldMultiplier * globalYieldMultiplier;
   }
 
   getProductionRate(cropId) {
@@ -502,7 +531,13 @@ class GameEngine {
     const crop = this.getCrop(cropId);
     const level = Math.max(1, Number(levelOverride ?? this.state.crops[cropId]?.level) || 1);
     if (!crop || level >= GameEngine.MAX_CROP_LEVEL) return Infinity;
-    return Math.ceil(Math.max(45, crop.cost * 0.48 + crop.basePrice * 28) * Math.pow(1.48, Math.max(0, level - 1)));
+
+    // Curva polinomial: os primeiros níveis chegam cedo, enquanto 250–300
+    // continuam sendo uma meta longa sem produzir números inalcançáveis.
+    const base = Math.max(28, crop.basePrice * 6 + Math.sqrt(crop.cost) * 2.5);
+    const curve = Math.pow(1 + (level - 1) * 0.055, 2.05);
+    const milestone = 1 + Math.floor((level - 1) / 50) * 0.16;
+    return Math.ceil(base * curve * milestone);
   }
 
   getCropAffordableUpgrades(cropId, budget = this.state.coins) {
@@ -720,10 +755,10 @@ class GameEngine {
 
   getContractDifficulty(id) {
     const profiles = {
-      calm: { id: "calm", label: "Prazo confortável", duration: 240, load: 0.55, reward: 1.42, research: 0.35 },
-      standard: { id: "standard", label: "Contrato comercial", duration: 160, load: 0.72, reward: 1.62, research: 0.52 },
-      urgent: { id: "urgent", label: "Entrega urgente", duration: 90, load: 0.90, reward: 1.95, research: 0.7 },
-      bulk: { id: "bulk", label: "Grande fornecimento", duration: 320, load: 0.82, reward: 1.78, research: 0.62 }
+      calm: { id: "calm", label: "Prazo confortável", duration: 600, load: 0.32, reward: 1.35, research: 0.32 },
+      standard: { id: "standard", label: "Contrato comercial", duration: 360, load: 0.44, reward: 1.58, research: 0.48 },
+      urgent: { id: "urgent", label: "Entrega urgente", duration: 180, load: 0.62, reward: 1.88, research: 0.66 },
+      bulk: { id: "bulk", label: "Grande fornecimento", duration: 720, load: 0.50, reward: 1.72, research: 0.58 }
     };
     return profiles[id] || profiles.standard;
   }
