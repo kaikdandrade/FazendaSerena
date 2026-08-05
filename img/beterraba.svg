@@ -1,42 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Beterraba">
-  <defs>
-    <linearGradient id="beterraba-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#b85077"/>
-      <stop offset="0.55" stop-color="#a51f51"/>
-      <stop offset="1" stop-color="#76163a"/>
-    </linearGradient>
-    <linearGradient id="beterraba-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#98e37b"/>
-      <stop offset="1" stop-color="#7fdd5a"/>
-    </linearGradient>
-    <radialGradient id="beterraba-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="beterraba-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#b54770" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#8be06a" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="beterraba-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="beterraba-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#beterraba-glow)" filter="url(#beterraba-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Beterraba">
+<defs>
+  <linearGradient id="beterraba-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#b44e72"/>
+    <stop offset="0.58" stop-color="#a32753"/>
+    <stop offset="1" stop-color="#751c3c"/>
+  </linearGradient>
+  <linearGradient id="beterraba-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#93dd77"/>
+    <stop offset="1" stop-color="#7fd75d"/>
+  </linearGradient>
+  <radialGradient id="beterraba-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="beterraba-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#beterraba-shadow)">
   
-  <g filter="url(#beterraba-shadow)">
-    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#beterraba-accent)" stroke="#5b9f40" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#9de581" stroke="#5b9f40" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#5b9f40" stroke-width="10" stroke-linecap="round" opacity=".55"/>
-  </g>
-  <g filter="url(#beterraba-shadow)">
-    <path d="M164 336c8-83 93-123 166-100 77 24 113 98 77 164-41 76-155 107-225 44-33-30-37-69-18-108Z" fill="url(#beterraba-body)" stroke="#76163a" stroke-width="16"/>
-    <circle cx="214" cy="314" r="11" fill="#661332" opacity=".34"/><circle cx="307" cy="380" r="10" fill="#661332" opacity=".34"/><circle cx="208" cy="409" r="8" fill="#661332" opacity=".34"/>
-    <path d="M258 232c-10 61-9 131 8 203" fill="none" stroke="#ffd6e6" stroke-width="8" opacity=".55" stroke-linecap="round"/>
+    <path d="M110 84C81 79 65 63 72 43c22 2 36 14 45 38-2 2-4 3-7 3Z" fill="url(#beterraba-accent)" stroke="#5b9b43" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M146 84c29-5 45-21 38-41-22 2-36 14-45 38 2 2 4 3 7 3Z" fill="#9be081" stroke="#5b9b43" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M128 90c-15-18-29-32-34-46M128 90c15-18 29-32 34-46" fill="none" stroke="#5b9b43" stroke-width="3" stroke-linecap="round" opacity=".5"/>
     
-  </g>
+  <path d="M70 142c2-39 34-57 71-49 36 7 58 34 49 69-10 37-47 55-89 44-27-8-35-31-31-64Z" fill="url(#beterraba-body)" stroke="#721b3a" stroke-width="6"/>
+  <circle cx="107" cy="139" r="4" fill="#5f1730" opacity=".32"/><circle cx="146" cy="171" r="3.5" fill="#5f1730" opacity=".32"/><circle cx="104" cy="190" r="3" fill="#5f1730" opacity=".32"/>
+  <path d="M128 106c-7 30-6 65 4 101" fill="none" stroke="#ffd9e4" stroke-width="4" opacity=".5" stroke-linecap="round"/>
+</g>
 </svg>

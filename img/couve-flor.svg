@@ -1,41 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Couve-flor">
-  <defs>
-    <linearGradient id="couve-flor-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#f4f2e8"/>
-      <stop offset="0.55" stop-color="#f2efe2"/>
-      <stop offset="1" stop-color="#aeaca2"/>
-    </linearGradient>
-    <linearGradient id="couve-flor-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#a1d985"/>
-      <stop offset="1" stop-color="#8ad067"/>
-    </linearGradient>
-    <radialGradient id="couve-flor-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="couve-flor-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#f4f1e7" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#95d476" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="couve-flor-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="couve-flor-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#couve-flor-glow)" filter="url(#couve-flor-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#couve-flor-shadow)">
-    <path d="M257 432V274" stroke="#71aa54" stroke-width="24" stroke-linecap="round"/>
-    <path d="M200 432c-28-76-18-132 19-172 19 6 34 18 38 40-5 44-21 88-57 132Z" fill="url(#couve-flor-accent)" stroke="#63954a" stroke-width="14"/>
-    <path d="M312 432c28-76 18-132-19-172-19 6-34 18-38 40 5 44 21 88 57 132Z" fill="#9fd882" stroke="#63954a" stroke-width="14"/>
-    <circle cx="192" cy="250" r="52" fill="#f3f0e7" stroke="#aeaca2" stroke-width="14"/>
-    <circle cx="256" cy="214" r="66" fill="url(#couve-flor-body)" stroke="#aeaca2" stroke-width="16"/>
-    <circle cx="320" cy="250" r="52" fill="#fbfaf2" stroke="#aeaca2" stroke-width="14"/>
-    <circle cx="238" cy="270" r="48" fill="#fbfaf0" stroke="#aeaca2" stroke-width="12"/>
-    <circle cx="274" cy="272" r="48" fill="#fffef6" stroke="#aeaca2" stroke-width="12"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Couve-flor">
+<defs>
+  <linearGradient id="couve-flor-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f3f1ea"/>
+    <stop offset="0.58" stop-color="#f0eee5"/>
+    <stop offset="1" stop-color="#adaba5"/>
+  </linearGradient>
+  <linearGradient id="couve-flor-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#a2d781"/>
+    <stop offset="1" stop-color="#90cf69"/>
+  </linearGradient>
+  <radialGradient id="couve-flor-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="couve-flor-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#couve-flor-shadow)">
+  <path d="M128 211v-77" stroke="#76aa56" stroke-width="10" stroke-linecap="round"/>
+  <path d="M103 208c-16-39-12-67 11-88 12 4 20 12 23 24-4 22-13 45-34 64Z" fill="url(#couve-flor-accent)" stroke="#68954c" stroke-width="5"/>
+  <path d="M153 208c16-39 12-67-11-88-12 4-20 12-23 24 4 22 13 45 34 64Z" fill="#a4d884" stroke="#68954c" stroke-width="5"/>
+  <circle cx="95" cy="120" r="24" fill="#f6f4eb" stroke="#adaba5" stroke-width="5"/>
+  <circle cx="128" cy="102" r="30" fill="url(#couve-flor-body)" stroke="#adaba5" stroke-width="6"/>
+  <circle cx="161" cy="120" r="24" fill="#fbfaf3" stroke="#adaba5" stroke-width="5"/>
+  <circle cx="118" cy="133" r="22" fill="#f2f0e7" stroke="#adaba5" stroke-width="4"/>
+  <circle cx="138" cy="133" r="22" fill="#fbfaf3" stroke="#adaba5" stroke-width="4"/>
+</g>
 </svg>

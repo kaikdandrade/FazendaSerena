@@ -1,36 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Banana">
-  <defs>
-    <linearGradient id="banana-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#ffe87b"/>
-      <stop offset="0.55" stop-color="#ffe257"/>
-      <stop offset="1" stop-color="#b7a23e"/>
-    </linearGradient>
-    <linearGradient id="banana-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#58bb85"/>
-      <stop offset="1" stop-color="#2faa67"/>
-    </linearGradient>
-    <radialGradient id="banana-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="banana-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#ffe775" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#43b276" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="banana-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="banana-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#banana-glow)" filter="url(#banana-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#banana-shadow)" stroke="#b7a23e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M163 235c-11 81 39 150 140 183-65-61-82-126-57-194" fill="url(#banana-body)"/>
-    <path d="M225 214c-4 79 38 134 124 165-53-53-64-112-34-174" fill="#ffe775"/>
-    <path d="M117 257c0 72 53 137 148 172-54-61-69-111-36-177" fill="#efd451"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Banana">
+<defs>
+  <linearGradient id="banana-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ffdf6e"/>
+    <stop offset="0.58" stop-color="#ffd84e"/>
+    <stop offset="1" stop-color="#b89c38"/>
+  </linearGradient>
+  <linearGradient id="banana-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#a7d776"/>
+    <stop offset="1" stop-color="#96cf5c"/>
+  </linearGradient>
+  <radialGradient id="banana-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="banana-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#banana-shadow)" stroke="#ad9335" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M81 104c-4 45 20 79 68 96-31-31-39-64-27-100" fill="url(#banana-body)"/>
+  <path d="M112 93c-2 43 18 72 60 89-26-27-31-57-16-95" fill="#ffdd67"/>
+  <path d="M59 116c0 39 25 73 73 92-27-32-34-60-17-95" fill="#f2cd4a"/>
+</g>
 </svg>

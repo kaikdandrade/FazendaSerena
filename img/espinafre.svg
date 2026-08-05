@@ -1,37 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Espinafre">
-  <defs>
-    <linearGradient id="espinafre-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#59b078"/>
-      <stop offset="0.55" stop-color="#2b9a52"/>
-      <stop offset="1" stop-color="#1e6e3b"/>
-    </linearGradient>
-    <linearGradient id="espinafre-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#c7f3b8"/>
-      <stop offset="1" stop-color="#b9f1a7"/>
-    </linearGradient>
-    <radialGradient id="espinafre-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="espinafre-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#51ac71" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#c0f2af" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="espinafre-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="espinafre-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#espinafre-glow)" filter="url(#espinafre-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#espinafre-shadow)">
-    <path d="M256 406c-64-20-109-70-101-143 7-66 50-117 101-142 52 25 95 76 102 142 7 73-38 123-102 143Z" fill="url(#espinafre-body)" stroke="#1e6e3b" stroke-width="16"/>
-    <path d="M256 128c-18 76-25 155 0 274" fill="none" stroke="#18592f" stroke-width="12" stroke-linecap="round" opacity=".58"/>
-    <path d="M255 208c-44 31-72 70-85 116M257 208c43 31 71 70 84 116" fill="none" stroke="#1a5f32" stroke-width="8" stroke-linecap="round" opacity=".45"/>
-    <ellipse cx="226" cy="205" rx="38" ry="62" transform="rotate(-18 226 205)" fill="url(#espinafre-shine)" opacity=".35"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Espinafre">
+<defs>
+  <linearGradient id="espinafre-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#51ab71"/>
+    <stop offset="0.58" stop-color="#2b9952"/>
+    <stop offset="1" stop-color="#1f6e3b"/>
+  </linearGradient>
+  <linearGradient id="espinafre-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#bfefa8"/>
+    <stop offset="1" stop-color="#b3ec98"/>
+  </linearGradient>
+  <radialGradient id="espinafre-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="espinafre-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#espinafre-shadow)">
+  <path d="M128 38c-46 12-84 53-86 108-2 47 27 80 86 93 59-13 88-46 86-93-2-55-40-96-86-108Z" fill="url(#espinafre-body)" stroke="#1d6838" stroke-width="6"/>
+  <path d="M128 50c-9 47-12 103 0 167" fill="none" stroke="#195930" stroke-width="5" stroke-linecap="round"/>
+  <path d="M126 96c-29-13-50-32-64-58M129 100c28-13 49-31 63-57M126 136c-30 9-52 24-69 47M129 137c28 8 50 23 67 45" fill="none" stroke="#1c6234" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+  <ellipse cx="103" cy="92" rx="26" ry="48" transform="rotate(-18 103 92)" fill="url(#espinafre-shine)" opacity=".35"/>
+</g>
 </svg>

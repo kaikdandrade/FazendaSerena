@@ -1,41 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mamão">
-  <defs>
-    <linearGradient id="mamao-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#ffb268"/>
-      <stop offset="0.55" stop-color="#ff9d3e"/>
-      <stop offset="1" stop-color="#b7712c"/>
-    </linearGradient>
-    <linearGradient id="mamao-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#79c389"/>
-      <stop offset="1" stop-color="#58b46c"/>
-    </linearGradient>
-    <radialGradient id="mamao-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="mamao-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#ffae60" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#68bb7a" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="mamao-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="mamao-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#mamao-glow)" filter="url(#mamao-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#mamao-shadow)">
-    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#mamao-accent)" stroke="#3f814d" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#80c68f" stroke="#3f814d" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#3f814d" stroke-width="10" stroke-linecap="round" opacity=".55"/>
-  </g>
-  <g filter="url(#mamao-shadow)">
-    <path d="M256 197c10-36 35-60 72-72" fill="none" stroke="#6f4c25" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="256" cy="331" r="108" fill="url(#mamao-body)" stroke="#b7712c" stroke-width="16"/>
-    <ellipse cx="210" cy="278" rx="32" ry="54" transform="rotate(-18 210 278)" fill="url(#mamao-shine)" opacity=".32"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Mamão">
+<defs>
+  <linearGradient id="mamao-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ffac60"/>
+    <stop offset="0.58" stop-color="#ff9a3d"/>
+    <stop offset="1" stop-color="#b86f2c"/>
+  </linearGradient>
+  <linearGradient id="mamao-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#7dc384"/>
+    <stop offset="1" stop-color="#64b86d"/>
+  </linearGradient>
+  <radialGradient id="mamao-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="mamao-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#mamao-shadow)"><path d="M128 82c5-18 16-30 34-37" fill="none" stroke="#6d4b22" stroke-width="6" stroke-linecap="round"/><ellipse cx="128" cy="151" rx="46" ry="60" fill="url(#mamao-body)" stroke="#b26c2b" stroke-width="6"/><ellipse cx="128" cy="151" rx="24" ry="34" fill="#64b86d" opacity=".55"/><circle cx="122" cy="132" r="2.7" fill="#2a2015" opacity=".75"/><circle cx="134" cy="136" r="2.7" fill="#2a2015" opacity=".75"/><circle cx="118" cy="146" r="2.7" fill="#2a2015" opacity=".75"/><circle cx="130" cy="149" r="2.7" fill="#2a2015" opacity=".75"/><circle cx="139" cy="159" r="2.7" fill="#2a2015" opacity=".75"/><circle cx="124" cy="165" r="2.7" fill="#2a2015" opacity=".75"/><circle cx="133" cy="172" r="2.7" fill="#2a2015" opacity=".75"/><ellipse cx="108" cy="125" rx="18" ry="30" transform="rotate(-18 108 125)" fill="url(#mamao-shine)" opacity=".34"/></g>
 </svg>

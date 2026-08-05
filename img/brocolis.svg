@@ -1,41 +1,33 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Brócolis">
-  <defs>
-    <linearGradient id="brocolis-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#74b974"/>
-      <stop offset="0.55" stop-color="#4ea64e"/>
-      <stop offset="1" stop-color="#387738"/>
-    </linearGradient>
-    <linearGradient id="brocolis-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#c9eb9d"/>
-      <stop offset="1" stop-color="#bce685"/>
-    </linearGradient>
-    <radialGradient id="brocolis-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="brocolis-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#6db66d" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#c2e891" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="brocolis-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="brocolis-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#brocolis-glow)" filter="url(#brocolis-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#brocolis-shadow)">
-    <path d="M257 432V274" stroke="#9abc6d" stroke-width="24" stroke-linecap="round"/>
-    <path d="M200 432c-28-76-18-132 19-172 19 6 34 18 38 40-5 44-21 88-57 132Z" fill="url(#brocolis-accent)" stroke="#87a55f" stroke-width="14"/>
-    <path d="M312 432c28-76 18-132-19-172-19 6-34 18-38 40 5 44 21 88 57 132Z" fill="#c8ea9a" stroke="#87a55f" stroke-width="14"/>
-    <circle cx="192" cy="250" r="52" fill="#5fae5f" stroke="#387738" stroke-width="14"/>
-    <circle cx="256" cy="214" r="66" fill="url(#brocolis-body)" stroke="#387738" stroke-width="16"/>
-    <circle cx="320" cy="250" r="52" fill="#5cad5c" stroke="#387738" stroke-width="14"/>
-    <circle cx="238" cy="270" r="48" fill="#55a955" stroke="#387738" stroke-width="12"/>
-    <circle cx="274" cy="272" r="48" fill="#65b165" stroke="#387738" stroke-width="12"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Brócolis">
+<defs>
+  <linearGradient id="brocolis-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6cb46e"/>
+    <stop offset="0.58" stop-color="#4ca44e"/>
+    <stop offset="1" stop-color="#377638"/>
+  </linearGradient>
+  <linearGradient id="brocolis-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#c4e79a"/>
+    <stop offset="1" stop-color="#b9e287"/>
+  </linearGradient>
+  <radialGradient id="brocolis-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="brocolis-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#brocolis-shadow)">
+  <path d="M128 211v-77" stroke="#98b96f" stroke-width="10" stroke-linecap="round"/>
+  <path d="M103 208c-16-39-12-67 11-88 12 4 20 12 23 24-4 22-13 45-34 64Z" fill="url(#brocolis-accent)" stroke="#85a361" stroke-width="5"/>
+  <path d="M153 208c16-39 12-67-11-88-12 4-20 12-23 24 4 22 13 45 34 64Z" fill="#c6e79d" stroke="#85a361" stroke-width="5"/>
+  <circle cx="95" cy="120" r="24" fill="#4ca44e" stroke="#377638" stroke-width="5"/>
+  <circle cx="128" cy="102" r="30" fill="url(#brocolis-body)" stroke="#377638" stroke-width="6"/>
+  <circle cx="161" cy="120" r="24" fill="#5ead60" stroke="#377638" stroke-width="5"/>
+  <circle cx="118" cy="133" r="22" fill="#55a957" stroke="#377638" stroke-width="4"/>
+  <circle cx="138" cy="133" r="22" fill="#5ead60" stroke="#377638" stroke-width="4"/>
+</g>
 </svg>

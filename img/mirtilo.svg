@@ -1,36 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Mirtilo">
-  <defs>
-    <linearGradient id="mirtilo-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#6d82e0"/>
-      <stop offset="0.55" stop-color="#445fd8"/>
-      <stop offset="1" stop-color="#30449b"/>
-    </linearGradient>
-    <linearGradient id="mirtilo-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#a2e79b"/>
-      <stop offset="1" stop-color="#8be282"/>
-    </linearGradient>
-    <radialGradient id="mirtilo-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="mirtilo-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#657bdf" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#96e48e" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="mirtilo-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="mirtilo-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#mirtilo-glow)" filter="url(#mirtilo-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#mirtilo-shadow)">
-    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#mirtilo-accent)" stroke="#64a25d" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#a6e8a0" stroke="#64a25d" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#64a25d" stroke-width="10" stroke-linecap="round" opacity=".55"/>
-  </g><g filter="url(#mirtilo-shadow)"><circle cx="205" cy="255" r="48" fill="url(#mirtilo-body)" stroke="#30449b" stroke-width="12"/><circle cx="280" cy="250" r="48" fill="#566fdb" stroke="#30449b" stroke-width="12"/><circle cx="166" cy="321" r="48" fill="url(#mirtilo-body)" stroke="#30449b" stroke-width="12"/><circle cx="256" cy="330" r="55" fill="#566fdb" stroke="#30449b" stroke-width="12"/><circle cx="347" cy="319" r="48" fill="url(#mirtilo-body)" stroke="#30449b" stroke-width="12"/><circle cx="205" cy="393" r="48" fill="#566fdb" stroke="#30449b" stroke-width="12"/><circle cx="299" cy="392" r="48" fill="url(#mirtilo-body)" stroke="#30449b" stroke-width="12"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Mirtilo">
+<defs>
+  <linearGradient id="mirtilo-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6d7fdf"/>
+    <stop offset="0.58" stop-color="#4d63d8"/>
+    <stop offset="1" stop-color="#37479c"/>
+  </linearGradient>
+  <linearGradient id="mirtilo-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#a1e796"/>
+    <stop offset="1" stop-color="#8fe282"/>
+  </linearGradient>
+  <radialGradient id="mirtilo-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="mirtilo-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#mirtilo-shadow)"><path d="M128 83c10-25 30-39 56-44" fill="none" stroke="#6c4721" stroke-width="6" stroke-linecap="round"/>
+    <path d="M110 84C81 79 65 63 72 43c22 2 36 14 45 38-2 2-4 3-7 3Z" fill="url(#mirtilo-accent)" stroke="#67a35e" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M146 84c29-5 45-21 38-41-22 2-36 14-45 38 2 2 4 3 7 3Z" fill="#a8e89e" stroke="#67a35e" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M128 90c-15-18-29-32-34-46M128 90c15-18 29-32 34-46" fill="none" stroke="#67a35e" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+    <circle cx="107" cy="104" r="19" fill="url(#mirtilo-body)" stroke="#364597" stroke-width="5"/><circle cx="136" cy="103" r="19" fill="#5f73dc" stroke="#364597" stroke-width="5"/><circle cx="89" cy="131" r="19" fill="url(#mirtilo-body)" stroke="#364597" stroke-width="5"/><circle cx="120" cy="133" r="21" fill="#5f73dc" stroke="#364597" stroke-width="5"/><circle cx="151" cy="132" r="19" fill="url(#mirtilo-body)" stroke="#364597" stroke-width="5"/><circle cx="104" cy="160" r="19" fill="#5f73dc" stroke="#364597" stroke-width="5"/><circle cx="136" cy="161" r="19" fill="url(#mirtilo-body)" stroke="#364597" stroke-width="5"/><path d="M103 100 107 94 111 100 117 104 107 108 97 104Z" fill="#a5e89b" opacity=".35"/><path d="M132 99 136 93 140 99 146 103 136 107 126 103Z" fill="#a5e89b" opacity=".35"/><path d="M85 127 89 121 93 127 99 131 89 135 79 131Z" fill="#a5e89b" opacity=".35"/><path d="M116 129 120 123 124 129 130 133 120 137 110 133Z" fill="#a5e89b" opacity=".35"/></g>
 </svg>

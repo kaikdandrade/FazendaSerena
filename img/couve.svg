@@ -1,39 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Couve">
-  <defs>
-    <linearGradient id="couve-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#66bb7e"/>
-      <stop offset="0.55" stop-color="#3ba85a"/>
-      <stop offset="1" stop-color="#2a7840"/>
-    </linearGradient>
-    <linearGradient id="couve-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#d3ffb3"/>
-      <stop offset="1" stop-color="#c9ffa0"/>
-    </linearGradient>
-    <radialGradient id="couve-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="couve-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#5eb777" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#ceffa9" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="couve-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="couve-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#couve-glow)" filter="url(#couve-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#couve-shadow)">
-    
-    <path d="M256 418c-102-23-170-101-149-177 21-77 111-128 149-154 40 25 131 77 150 154 18 75-48 153-150 177Z" fill="url(#couve-body)" stroke="#2a7840" stroke-width="16"/>
-    <path d="M256 419c-53-20-93-57-118-112 48 18 82 30 118 35 35-4 70-16 117-35-24 55-64 91-117 112Z" fill="#5eb777" opacity=".38"/>
-    <path d="M256 142c-12 90-12 188 0 268" fill="none" stroke="#226134" stroke-width="12" stroke-linecap="round" opacity=".56"/>
-    <path d="M255 244c-56-17-96-46-127-92M257 247c54-18 92-47 122-92M254 300c-55 15-94 43-120 83M258 300c53 14 92 41 118 83" fill="none" stroke="#246837" stroke-width="8" stroke-linecap="round" opacity=".38"/>
-    <ellipse cx="212" cy="198" rx="52" ry="82" transform="rotate(-20 212 198)" fill="url(#couve-shine)" opacity=".3"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Couve">
+<defs>
+  <linearGradient id="couve-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#60b77a"/>
+    <stop offset="0.58" stop-color="#3da75d"/>
+    <stop offset="1" stop-color="#2c7843"/>
+  </linearGradient>
+  <linearGradient id="couve-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#cfffaa"/>
+    <stop offset="1" stop-color="#c6ff9a"/>
+  </linearGradient>
+  <radialGradient id="couve-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="couve-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#couve-shadow)">
+  <path d="M117 206C78 193 55 157 62 112c27 8 44 26 58 58 1 12 0 24-3 36Z" fill="url(#couve-accent)" stroke="#8fb86f" stroke-width="5"/>
+  <path d="M139 206c39-13 62-49 55-94-27 8-44 26-58 58-1 12 0 24 3 36Z" fill="#d3ffb0" stroke="#8fb86f" stroke-width="5"/>
+  <path d="M128 190c-41-11-63-43-59-79 4-37 28-68 59-86 31 18 55 49 59 86 4 36-18 68-59 79Z" fill="url(#couve-body)" stroke="#2c7843" stroke-width="6"/>
+  <path d="M128 49c-7 42-8 93 0 135" fill="none" stroke="#236136" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+  <path d="M126 84c-18 9-32 22-42 40M130 84c18 9 31 22 41 40M124 126c-16 5-28 15-38 31M132 126c16 5 28 15 38 31" fill="none" stroke="#26683a" stroke-width="3" stroke-linecap="round" opacity=".42"/>
+</g>
 </svg>

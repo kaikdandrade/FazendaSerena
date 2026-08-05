@@ -1,42 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Alho">
-  <defs>
-    <linearGradient id="alho-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#f0e9da"/>
-      <stop offset="0.55" stop-color="#ece3d0"/>
-      <stop offset="1" stop-color="#a9a395"/>
-    </linearGradient>
-    <linearGradient id="alho-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#c7e794"/>
-      <stop offset="1" stop-color="#b9e27a"/>
-    </linearGradient>
-    <radialGradient id="alho-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="alho-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#efe8d8" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#c0e487" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="alho-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="alho-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#alho-glow)" filter="url(#alho-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#alho-shadow)">
-    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#alho-accent)" stroke="#85a257" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#c9e899" stroke="#85a257" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#85a257" stroke-width="10" stroke-linecap="round" opacity=".55"/>
-  </g>
-  <g filter="url(#alho-shadow)">
-    <path d="M184 284c-36 57-23 131 31 159 22-39 27-96-31-159Z" fill="url(#alho-body)" stroke="#a59e91" stroke-width="14"/>
-    <path d="M256 220c-58 63-70 164 0 196 70-31 58-133 0-196Z" fill="#efe7d7" stroke="#a59e91" stroke-width="14"/>
-    <path d="M328 284c36 57 23 131-31 159-22-39-27-96 31-159Z" fill="url(#alho-body)" stroke="#a59e91" stroke-width="14"/>
-    <path d="M256 260v144" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".42"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Alho">
+<defs>
+  <linearGradient id="alho-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f4eee1"/>
+    <stop offset="0.58" stop-color="#f1eadb"/>
+    <stop offset="1" stop-color="#aea89e"/>
+  </linearGradient>
+  <linearGradient id="alho-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#aadf89"/>
+    <stop offset="1" stop-color="#9ad973"/>
+  </linearGradient>
+  <radialGradient id="alho-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="alho-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#alho-shadow)">
+    <path d="M110 84C81 79 65 63 72 43c22 2 36 14 45 38-2 2-4 3-7 3Z" fill="url(#alho-accent)" stroke="#6f9c53" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M146 84c29-5 45-21 38-41-22 2-36 14-45 38 2 2 4 3 7 3Z" fill="#b0e192" stroke="#6f9c53" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M128 90c-15-18-29-32-34-46M128 90c15-18 29-32 34-46" fill="none" stroke="#6f9c53" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+    
+        <path d="M80 130c-18 28-11 63 17 77 11-19 13-46-17-77Z" fill="url(#alho-body)" stroke="#a49f95" stroke-width="5"/>
+        <path d="M128 101c-28 30-34 78 0 93 34-15 28-63 0-93Z" fill="#f3ede0" stroke="#a49f95" stroke-width="5"/>
+        <path d="M176 130c18 28 11 63-17 77-11-19-13-46 17-77Z" fill="url(#alho-body)" stroke="#a49f95" stroke-width="5"/>
+        <path d="M128 113v87" stroke="#fff" stroke-width="4" opacity=".48" stroke-linecap="round"/>
+        </g>
 </svg>

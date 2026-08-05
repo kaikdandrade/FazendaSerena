@@ -1,37 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Arroz">
-  <defs>
-    <linearGradient id="arroz-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#f6eeda"/>
-      <stop offset="0.55" stop-color="#f4ead0"/>
-      <stop offset="1" stop-color="#afa895"/>
-    </linearGradient>
-    <linearGradient id="arroz-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#9edc8e"/>
-      <stop offset="1" stop-color="#86d472"/>
-    </linearGradient>
-    <radialGradient id="arroz-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="arroz-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#f5edd8" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#92d880" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="arroz-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="arroz-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#arroz-glow)" filter="url(#arroz-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#arroz-shadow)">
-    <path d="M255 434c0-166 0-231 4-325" stroke="#609852" stroke-width="18" stroke-linecap="round"/>
-    <path d="M251 202c-71-26-104-78-92-142 59 8 98 47 117 128" fill="url(#arroz-accent)" stroke="#609852" stroke-width="12"/>
-    <path d="M271 239c79-18 118-69 108-132-66 6-107 46-131 126" fill="#9bdb8b" stroke="#609852" stroke-width="12"/>
-    <path d="M210 170c-28 40-20 84 15 112 27-39 20-82-15-112Z" fill="url(#arroz-body)" stroke="#afa895" stroke-width="10"/><path d="M280 205c-28 40-20 84 15 112 27-39 20-82-15-112Z" fill="url(#arroz-body)" stroke="#afa895" stroke-width="10"/><path d="M210 286c-28 40-20 84 15 112 27-39 20-82-15-112Z" fill="url(#arroz-body)" stroke="#afa895" stroke-width="10"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Arroz">
+<defs>
+  <linearGradient id="arroz-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f2e8d4"/>
+    <stop offset="0.58" stop-color="#efe3ca"/>
+    <stop offset="1" stop-color="#aca391"/>
+  </linearGradient>
+  <linearGradient id="arroz-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#9dd88a"/>
+    <stop offset="1" stop-color="#8ad174"/>
+  </linearGradient>
+  <radialGradient id="arroz-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="arroz-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#arroz-shadow)"><path d="M128 214c0-85 0-118 2-167" stroke="#639654" stroke-width="8" stroke-linecap="round"/><path d="M126 107c-33-12-49-36-44-66 27 4 46 22 56 60" fill="url(#arroz-accent)" stroke="#639654" stroke-width="4"/><path d="M134 124c36-8 54-32 49-62-30 3-49 21-59 58" fill="#9fd98d" stroke="#639654" stroke-width="4"/><path d="M108 95c-18 26-13 54 10 73 18-25 13-53-10-73Z" fill="url(#arroz-body)" stroke="#aca391" stroke-width="4"/><path d="M142 113c-18 26-13 54 10 73 18-25 13-53-10-73Z" fill="url(#arroz-body)" stroke="#aca391" stroke-width="4"/><path d="M109 154c-18 26-13 54 10 73 18-25 13-53-10-73Z" fill="url(#arroz-body)" stroke="#aca391" stroke-width="4"/></g>
 </svg>

@@ -1,38 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cereja">
-  <defs>
-    <linearGradient id="cereja-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#c84463"/>
-      <stop offset="0.55" stop-color="#b91037"/>
-      <stop offset="1" stop-color="#850b27"/>
-    </linearGradient>
-    <linearGradient id="cereja-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#96de7b"/>
-      <stop offset="1" stop-color="#7cd65b"/>
-    </linearGradient>
-    <radialGradient id="cereja-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="cereja-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#c53b5b" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#89da6b" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="cereja-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="cereja-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#cereja-glow)" filter="url(#cereja-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#cereja-shadow)">
-    <path d="M208 176c-18 78 16 139 97 177" fill="none" stroke="#6f4c25" stroke-width="12" stroke-linecap="round"/>
-    <path d="M304 176c10 67 48 103 100 120" fill="none" stroke="#6f4c25" stroke-width="12" stroke-linecap="round"/>
-    <circle cx="206" cy="322" r="72" fill="url(#cereja-body)" stroke="#850b27" stroke-width="16"/>
-    <circle cx="318" cy="297" r="66" fill="#c0274b" stroke="#850b27" stroke-width="16"/>
-    <ellipse cx="184" cy="282" rx="26" ry="40" fill="url(#cereja-shine)" opacity=".34"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Cereja">
+<defs>
+  <linearGradient id="cereja-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#c14766"/>
+    <stop offset="0.58" stop-color="#b31f45"/>
+    <stop offset="1" stop-color="#811632"/>
+  </linearGradient>
+  <linearGradient id="cereja-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#91db77"/>
+    <stop offset="1" stop-color="#7cd45d"/>
+  </linearGradient>
+  <radialGradient id="cereja-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="cereja-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#cereja-shadow)"><path d="M98 80c-9 37 8 66 47 84" fill="none" stroke="#6c4721" stroke-width="6" stroke-linecap="round"/><path d="M144 80c7 31 25 49 49 56" fill="none" stroke="#6c4721" stroke-width="6" stroke-linecap="round"/><circle cx="96" cy="149" r="24" fill="url(#cereja-body)" stroke="#7d1630" stroke-width="6"/><circle cx="151" cy="137" r="22" fill="#bb3558" stroke="#7d1630" stroke-width="6"/></g>
 </svg>

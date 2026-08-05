@@ -1,40 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Cenoura">
-  <defs>
-    <linearGradient id="cenoura-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#ffa75a"/>
-      <stop offset="0.55" stop-color="#ff8f2c"/>
-      <stop offset="1" stop-color="#b7661f"/>
-    </linearGradient>
-    <linearGradient id="cenoura-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#c9ff8d"/>
-      <stop offset="1" stop-color="#bcff71"/>
-    </linearGradient>
-    <radialGradient id="cenoura-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="cenoura-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#ffa351" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#c2ff7f" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="cenoura-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="cenoura-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#cenoura-glow)" filter="url(#cenoura-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#cenoura-shadow)">
-    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#cenoura-accent)" stroke="#87b751" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#ccff93" stroke="#87b751" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#87b751" stroke-width="10" stroke-linecap="round" opacity=".55"/>
-  </g>
-  <g filter="url(#cenoura-shadow)">
-    <path d="M256 224c-54 39-95 88-77 154l60 104c9 15 25 15 34 0l60-104c18-66-23-115-77-154Z" fill="url(#cenoura-body)" stroke="#b7661f" stroke-width="16"/>
-    <path d="M215 311h78M224 362h62M236 414h40" stroke="#935219" stroke-width="8" stroke-linecap="round" opacity=".46"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Cenoura">
+<defs>
+  <linearGradient id="cenoura-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ffa051"/>
+    <stop offset="0.58" stop-color="#ff8b2b"/>
+    <stop offset="1" stop-color="#b8641f"/>
+  </linearGradient>
+  <linearGradient id="cenoura-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#99df77"/>
+    <stop offset="1" stop-color="#86d95d"/>
+  </linearGradient>
+  <radialGradient id="cenoura-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="cenoura-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#cenoura-shadow)">
+    <path d="M110 84C81 79 65 63 72 43c22 2 36 14 45 38-2 2-4 3-7 3Z" fill="url(#cenoura-accent)" stroke="#609c43" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M146 84c29-5 45-21 38-41-22 2-36 14-45 38 2 2 4 3 7 3Z" fill="#a1e181" stroke="#609c43" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M128 90c-15-18-29-32-34-46M128 90c15-18 29-32 34-46" fill="none" stroke="#609c43" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+    
+        <path d="M128 96c-31 22-55 50-44 88l34 59c4 8 10 8 14 0l34-59c11-38-13-66-44-88Z" fill="url(#cenoura-body)" stroke="#b2611e" stroke-width="6"/>
+        <path d="M103 147h50M108 175h40M115 201h26" stroke="#9e561b" stroke-width="3" stroke-linecap="round" opacity=".52"/>
+        </g>
 </svg>

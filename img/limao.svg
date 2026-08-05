@@ -1,41 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Limão">
-  <defs>
-    <linearGradient id="limao-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#d6f46e"/>
-      <stop offset="0.55" stop-color="#cbf246"/>
-      <stop offset="1" stop-color="#92ae32"/>
-    </linearGradient>
-    <linearGradient id="limao-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#7bc671"/>
-      <stop offset="1" stop-color="#5ab84e"/>
-    </linearGradient>
-    <radialGradient id="limao-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="limao-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#d4f467" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#6abf5f" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="limao-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="limao-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#limao-glow)" filter="url(#limao-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#limao-shadow)">
-    <path d="M245 210c-82-18-131-76-109-134 70 3 115 38 135 114-7 11-15 16-26 20Z" fill="url(#limao-accent)" stroke="#408438" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M272 213c82-14 131-71 115-130-72 2-120 35-142 110 8 11 16 17 27 20Z" fill="#81c978" stroke="#408438" stroke-width="14" stroke-linejoin="round"/>
-    <path d="M256 222c-44-57-85-102-99-148M261 223c41-61 77-106 97-146" fill="none" stroke="#408438" stroke-width="10" stroke-linecap="round" opacity=".55"/>
-  </g>
-  <g filter="url(#limao-shadow)">
-    <path d="M256 197c10-36 35-60 72-72" fill="none" stroke="#6f4c25" stroke-width="14" stroke-linecap="round"/>
-    <circle cx="256" cy="331" r="108" fill="url(#limao-body)" stroke="#92ae32" stroke-width="16"/>
-    <ellipse cx="210" cy="278" rx="32" ry="54" transform="rotate(-18 210 278)" fill="url(#limao-shine)" opacity=".32"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Limão">
+<defs>
+  <linearGradient id="limao-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#dff26a"/>
+    <stop offset="0.58" stop-color="#d8ef49"/>
+    <stop offset="1" stop-color="#9cac35"/>
+  </linearGradient>
+  <linearGradient id="limao-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#8ad174"/>
+    <stop offset="1" stop-color="#74c85a"/>
+  </linearGradient>
+  <radialGradient id="limao-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="limao-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#limao-shadow)"><path d="M128 84c5-17 16-28 35-35" fill="none" stroke="#6d4b22" stroke-width="6" stroke-linecap="round"/><path d="M129 88c18-2 33-13 38-29-18-1-31 8-38 24-7-16-20-25-38-24 5 16 20 27 38 29Z" fill="url(#limao-accent)" stroke="#549041" stroke-width="4"/><circle cx="128" cy="149" r="54" fill="url(#limao-body)" stroke="#97a733" stroke-width="6"/><ellipse cx="108" cy="125" rx="18" ry="30" transform="rotate(-18 108 125)" fill="url(#limao-shine)" opacity=".34"/></g>
 </svg>

@@ -1,39 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Folha">
-  <defs>
-    <linearGradient id="folha-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#7ad485"/>
-      <stop offset="0.55" stop-color="#55c863"/>
-      <stop offset="1" stop-color="#3d9047"/>
-    </linearGradient>
-    <linearGradient id="folha-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#dfffdf"/>
-      <stop offset="1" stop-color="#d7ffd7"/>
-    </linearGradient>
-    <radialGradient id="folha-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="folha-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#73d17f" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#dbffdb" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="folha-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="folha-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#folha-glow)" filter="url(#folha-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#folha-shadow)">
-    
-    <path d="M256 418c-102-23-170-101-149-177 21-77 111-128 149-154 40 25 131 77 150 154 18 75-48 153-150 177Z" fill="url(#folha-body)" stroke="#3d9047" stroke-width="16"/>
-    <path d="M256 419c-53-20-93-57-118-112 48 18 82 30 118 35 35-4 70-16 117-35-24 55-64 91-117 112Z" fill="#73d17f" opacity=".38"/>
-    <path d="M256 142c-12 90-12 188 0 268" fill="none" stroke="#317439" stroke-width="12" stroke-linecap="round" opacity=".56"/>
-    <path d="M255 244c-56-17-96-46-127-92M257 247c54-18 92-47 122-92M254 300c-55 15-94 43-120 83M258 300c53 14 92 41 118 83" fill="none" stroke="#347c3d" stroke-width="8" stroke-linecap="round" opacity=".38"/>
-    <ellipse cx="212" cy="198" rx="52" ry="82" transform="rotate(-20 212 198)" fill="url(#folha-shine)" opacity=".3"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Folha">
+<defs>
+  <linearGradient id="folha-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#75c37b"/>
+    <stop offset="0.58" stop-color="#57b65e"/>
+    <stop offset="1" stop-color="#3f8344"/>
+  </linearGradient>
+  <linearGradient id="folha-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#ade98f"/>
+    <stop offset="1" stop-color="#9de57a"/>
+  </linearGradient>
+  <radialGradient id="folha-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="folha-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+
+<g filter="url(#folha-shadow)">
+  <path d="M128 38c-46 12-84 53-86 108-2 47 27 80 86 93 59-13 88-46 86-93-2-55-40-96-86-108Z" fill="url(#folha-body)" stroke="#3b7c40" stroke-width="6"/>
+  <path d="M128 50c-9 47-12 103 0 167" fill="none" stroke="#326a37" stroke-width="5" stroke-linecap="round"/>
+  <path d="M126 96c-29-13-50-32-64-58M129 100c28-13 49-31 63-57M126 136c-30 9-52 24-69 47M129 137c28 8 50 23 67 45" fill="none" stroke="#38743c" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+  <ellipse cx="103" cy="92" rx="26" ry="48" transform="rotate(-18 103 92)" fill="url(#folha-shine)" opacity=".35"/>
+</g>
 </svg>

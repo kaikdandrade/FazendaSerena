@@ -1,37 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Trigo">
-  <defs>
-    <linearGradient id="trigo-body" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#f2d47e"/>
-      <stop offset="0.55" stop-color="#efc95a"/>
-      <stop offset="1" stop-color="#ac9040"/>
-    </linearGradient>
-    <linearGradient id="trigo-accent" x1="0" x2="0.9" y1="0" y2="1">
-      <stop offset="0" stop-color="#9fd085"/>
-      <stop offset="1" stop-color="#88c567"/>
-    </linearGradient>
-    <radialGradient id="trigo-shine" cx="30%" cy="22%" r="70%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
-      <stop offset="0.42" stop-color="#ffffff" stop-opacity="0.24"/>
-      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="trigo-glow" cx="50%" cy="50%" r="55%">
-      <stop offset="0" stop-color="#f1d277" stop-opacity="0.48"/>
-      <stop offset="1" stop-color="#93ca76" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="trigo-blur" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="18"/>
-    </filter>
-    <filter id="trigo-shadow" x="-25%" y="-25%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#05150d" flood-opacity="0.32"/>
-    </filter>
-  </defs>
-  <ellipse cx="256" cy="272" rx="168" ry="152" fill="url(#trigo-glow)" filter="url(#trigo-blur)"/>
-  <ellipse cx="256" cy="438" rx="116" ry="26" fill="rgba(0,0,0,.18)"/>
-  
-  <g filter="url(#trigo-shadow)">
-    <path d="M255 434c0-166 0-231 4-325" stroke="#618d4a" stroke-width="18" stroke-linecap="round"/>
-    <path d="M251 202c-71-26-104-78-92-142 59 8 98 47 117 128" fill="url(#trigo-accent)" stroke="#618d4a" stroke-width="12"/>
-    <path d="M271 239c79-18 118-69 108-132-66 6-107 46-131 126" fill="#9dcf82" stroke="#618d4a" stroke-width="12"/>
-    <ellipse cx="226" cy="196" rx="18" ry="44" transform="rotate(-18 226 196)" fill="url(#trigo-body)" stroke="#ac9040" stroke-width="8"/><ellipse cx="266" cy="220" rx="18" ry="44" transform="rotate(0 266 220)" fill="url(#trigo-body)" stroke="#ac9040" stroke-width="8"/><ellipse cx="222" cy="286" rx="18" ry="44" transform="rotate(-15 222 286)" fill="url(#trigo-body)" stroke="#ac9040" stroke-width="8"/><ellipse cx="287" cy="292" rx="18" ry="44" transform="rotate(18 287 292)" fill="url(#trigo-body)" stroke="#ac9040" stroke-width="8"/><ellipse cx="251" cy="154" rx="18" ry="44" transform="rotate(8 251 154)" fill="url(#trigo-body)" stroke="#ac9040" stroke-width="8"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Trigo">
+<defs>
+  <linearGradient id="trigo-body" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#f2d178"/>
+    <stop offset="0.58" stop-color="#efc75a"/>
+    <stop offset="1" stop-color="#ac8f41"/>
+  </linearGradient>
+  <linearGradient id="trigo-accent" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#9ed180"/>
+    <stop offset="1" stop-color="#8cc868"/>
+  </linearGradient>
+  <radialGradient id="trigo-shine" cx="32%" cy="26%" r="58%">
+    <stop offset="0" stop-color="#fff" stop-opacity="0.9"/>
+    <stop offset="0.5" stop-color="#fff" stop-opacity="0.25"/>
+    <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="trigo-shadow" x="-30%" y="-30%" width="160%" height="180%">
+    <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#09120d" flood-opacity="0.28"/>
+  </filter>
+</defs>
+<ellipse cx="128" cy="223" rx="42" ry="10" fill="rgba(0,0,0,.14)"/>
+<g filter="url(#trigo-shadow)"><path d="M128 214c0-85 0-118 2-167" stroke="#65904b" stroke-width="8" stroke-linecap="round"/><path d="M126 107c-33-12-49-36-44-66 27 4 46 22 56 60" fill="url(#trigo-accent)" stroke="#65904b" stroke-width="4"/><path d="M134 124c36-8 54-32 49-62-30 3-49 21-59 58" fill="#a1d283" stroke="#65904b" stroke-width="4"/><ellipse cx="113" cy="87" rx="9" ry="21" transform="rotate(-18 113 87)" fill="url(#trigo-body)" stroke="#ac8f41" stroke-width="3"/><ellipse cx="133" cy="104" rx="9" ry="21" transform="rotate(0 133 104)" fill="url(#trigo-body)" stroke="#ac8f41" stroke-width="3"/><ellipse cx="111" cy="139" rx="9" ry="21" transform="rotate(-15 111 139)" fill="url(#trigo-body)" stroke="#ac8f41" stroke-width="3"/><ellipse cx="141" cy="146" rx="9" ry="21" transform="rotate(18 141 146)" fill="url(#trigo-body)" stroke="#ac8f41" stroke-width="3"/><ellipse cx="126" cy="68" rx="9" ry="21" transform="rotate(8 126 68)" fill="url(#trigo-body)" stroke="#ac8f41" stroke-width="3"/></g>
 </svg>
