@@ -1,9 +1,14 @@
+ads.txt
+js/adsense-config.js
+js/firebase-config.js
+
 CHANGELOG.md
+README.md
 LICENSE
+
+.firebase
 firestore.rules
 FIREBASE_SETUP.md
 ADSENSE_SETUP.md
-js/firebase-config.js
-ads.txt
-.firebase
+
 *.log
