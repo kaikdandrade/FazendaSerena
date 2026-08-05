@@ -154,10 +154,11 @@ class FirebaseManager {
   }
 
   buildLeaderboardEntry(state, user = this.currentUser) {
-    const safeName = String(user?.displayName || "Fazendeiro")
+    const preferredName = String(state?.settings?.playerNickname || user?.displayName || "Fazendeiro");
+    const safeName = preferredName
       .replace(/[<>]/g, "")
       .trim()
-      .slice(0, 48) || "Fazendeiro";
+      .slice(0, 24) || "Fazendeiro";
     const photoURL = /^https:\/\//i.test(String(user?.photoURL || ""))
       ? String(user.photoURL).slice(0, 500)
       : "";
@@ -239,45 +240,28 @@ class FirebaseManager {
     return this.saveQueue;
   }
 
-  async loadPrestigeLeaderboard(maximum = 10) {
+  async loadPrestigeLeaderboard(maximum = 5) {
     await this.ready();
     const user = this.currentUser;
     if (!user || !this.available || !this.db || !this.sdk) {
       return { authenticated: false, top: [], rank: null, player: null };
     }
 
+    const limit = Math.max(1, Math.min(5, Math.floor(Number(maximum) || 5)));
     const collectionReference = this.sdk.collection(this.db, FirebaseManager.LEADERBOARD_COLLECTION);
     const topQuery = this.sdk.query(
       collectionReference,
       this.sdk.orderBy("prestigeTotal", "desc"),
-      this.sdk.limit(Math.max(1, Math.min(25, Math.floor(Number(maximum) || 10))))
+      this.sdk.limit(limit)
     );
-    const playerReference = this.getLeaderboardReference(user);
-    const [topSnapshot, playerSnapshot] = await Promise.all([
-      this.sdk.getDocs(topQuery),
-      this.sdk.getDoc(playerReference)
-    ]);
-
+    const topSnapshot = await this.sdk.getDocs(topQuery);
     const top = topSnapshot.docs.map((document, index) => ({
       uid: document.id,
       position: index + 1,
       ...document.data()
     }));
-    const player = playerSnapshot.exists()
-      ? { uid: playerSnapshot.id, ...playerSnapshot.data() }
-      : null;
-
-    let rank = null;
-    if (player) {
-      const greaterQuery = this.sdk.query(
-        collectionReference,
-        this.sdk.where("prestigeTotal", ">", Math.max(0, Number(player.prestigeTotal) || 0))
-      );
-      const countSnapshot = await this.sdk.getCountFromServer(greaterQuery);
-      rank = Math.max(1, Number(countSnapshot.data().count || 0) + 1);
-    }
-
-    return { authenticated: true, top, rank, player };
+    const player = top.find(entry => entry.uid === user.uid) || null;
+    return { authenticated: true, top, rank: player?.position || null, player };
   }
 
   resetProgress() {

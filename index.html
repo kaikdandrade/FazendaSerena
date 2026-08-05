@@ -63,7 +63,7 @@
 
 <button class="nav-tab active" data-view="farmView" title="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/seedling-pot.png"/></span><span class="nav-tab-label">Fazenda</span></button>
 <button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" title="Estoque 0% cheio" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/warehouse.png"/></span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
-<button class="nav-tab" data-view="evolveView" id="evolveNavTab" title="Evoluções — desbloqueia no nível 5" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/tools.png"/></span><span class="nav-tab-label">Evoluções</span></button>
+<button class="nav-tab" data-view="evolveView" id="evolveNavTab" title="Centro de evoluções" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/tools.png"/></span><span class="nav-tab-label">Evoluções</span></button>
 <button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" title="Escritório" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/clipboard.png"/></span><span class="nav-tab-label">Escritório</span></button>
 <button class="nav-tab settings-nav-tab" data-view="settingsView" title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
@@ -71,13 +71,13 @@
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
 <button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" title="Aprimoramentos comprados com moedas" type="button"><span><i><img alt="" src="assets/icons/upgrade-anvil.png"/></i> Aprimoramentos</span><small>Moedas</small></button>
 <button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" title="Tecnologias compradas com pontos de pesquisa" type="button"><span><i><img alt="" src="assets/icons/books.png"/></i> Pesquisa</span><small>Pontos de pesquisa</small></button>
-<button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" id="prestigeEvolutionTab" role="tab" title="Prestígio — desbloqueia no nível 40" type="button"><span><i><img alt="" src="assets/icons/prestige.png"/></i> Prestígio</span><small>Legados permanentes</small></button>
+<button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" id="prestigeEvolutionTab" role="tab" title="Prestígio e legados permanentes" type="button"><span><i><img alt="" src="assets/icons/prestige.png"/></i> Prestígio</span><small>Legados permanentes</small></button>
 </nav>
 </aside><aside aria-label="Navegação do escritório" class="context-nav-column context-nav-block" data-context-for="officeView" hidden="">
 
 <nav aria-label="Seções do escritório" class="office-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="office-tab active" data-office-tab="contracts" id="contractsOfficeTab" role="tab" title="Contratos — desbloqueia no nível 5" type="button"><span><i><img alt="" src="assets/icons/commercial-contract.png"/></i> Contratos</span><b id="contractTabCount">0</b></button>
-<button aria-selected="false" class="office-tab" data-office-tab="orders" id="ordersOfficeTab" role="tab" title="Pedidos — desbloqueia no nível 5" type="button"><span><i><img alt="" src="assets/icons/package.png"/></i> Pedidos</span><b id="orderTabCount">0</b></button>
+<button aria-selected="true" class="office-tab active" data-office-tab="contracts" id="contractsOfficeTab" role="tab" title="Contratos" type="button"><span><i><img alt="" src="assets/icons/commercial-contract.png"/></i> Contratos</span><b id="contractTabCount">0</b></button>
+<button aria-selected="false" class="office-tab" data-office-tab="orders" id="ordersOfficeTab" role="tab" title="Pedidos — entregas liberadas no nível 5" type="button"><span><i><img alt="" src="assets/icons/package.png"/></i> Pedidos</span><b id="orderTabCount">0</b></button>
 <button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" title="Missões" type="button"><span><i><img alt="" src="assets/icons/graduation-cap.png"/></i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" title="Estatísticas" type="button"><span><i><img alt="" src="assets/icons/field-map.png"/></i> Estatísticas</span></button>
 </nav>
 </aside></aside>
@@ -110,8 +110,8 @@
 <p class="section-copy">Gerencie a capacidade compartilhada, as vendas manuais e a venda automática por categoria.</p>
 </div>
 <div class="stock-toolbar">
-
 <select aria-label="Filtrar estoque por categoria" id="stockCategoryFilter" title="Filtrar estoque por categoria"><option value="all">Todas as categorias</option></select>
+</div>
 </div>
 <div class="stock-summary" id="stockSummary"></div>
 <div class="stock-grid" id="stockGrid"></div>
@@ -255,6 +255,10 @@
 <span aria-hidden="true"></span>
 <small id="cloudSaveStatus">Entre com o Google para ativar o save automático na nuvem.</small>
 </div>
+<label class="setting-row nickname-setting">
+<span><strong>Apelido no rank</strong><small>Escolha o nome que aparecerá no rank global de prestígio.</small></span>
+<input autocomplete="nickname" id="playerNicknameSetting" maxlength="24" placeholder="Seu apelido no rank" type="text"/>
+</label>
 <div class="button-row account-actions">
 <button class="button google-sign-in-button" id="googleSignIn" type="button"><span aria-hidden="true">G</span> Entrar com o Google</button>
 <button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair da conta</button>
@@ -267,16 +271,16 @@
 <span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span>
 <input id="ambientSetting" type="checkbox"/>
 </label>
-<label class="range-setting">
-<span><strong>Escala da interface</strong><small id="uiScaleText">100%</small></span>
-<input aria-label="Escala da interface" id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
-</label>
 <label class="setting-row number-format-setting">
 <span><strong>Formato dos números</strong><small>Escolha entre vírgula brasileira e ponto internacional.</small></span>
 <select aria-label="Formato dos números" id="numberFormatSetting">
 <option value="brazilian">Brasileiro (1,2K)</option>
 <option value="international">Internacional (1.2K)</option>
 </select>
+</label>
+<label class="range-setting">
+<span><strong>Escala da interface</strong><small id="uiScaleText">100%</small></span>
+<input aria-label="Escala da interface" id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
 </label>
 <div class="contract-section-divider experience-divider" aria-hidden="true"><span></span></div>
 <div class="experience-audio-heading">
@@ -288,12 +292,12 @@
 <input aria-label="Volume geral" id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/>
 </label>
 <label class="range-setting">
-<span><strong>Volume dos efeitos</strong><small id="effectVolumeText">55%</small></span>
-<input aria-label="Volume dos efeitos" id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
-</label>
-<label class="range-setting">
 <span><strong>Volume da música</strong><small id="musicVolumeText">30%</small></span>
 <input aria-label="Volume da música" id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/>
+</label>
+<label class="range-setting">
+<span><strong>Volume dos efeitos</strong><small id="effectVolumeText">55%</small></span>
+<input aria-label="Volume dos efeitos" id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
 </label>
 <label class="setting-row audio-track-setting">
 <span><strong>Trilha sonora</strong><small>Escolha a música ambiente da fazenda.</small></span>
@@ -320,7 +324,7 @@
 <section><span>02</span><div><h3>Gerencie o estoque</h3><p>O celeiro é compartilhado por todas as culturas. Venda produtos manualmente, ative a venda automática ou compre mais 100 espaços diretamente no Estoque.</p></div></section>
 <section><span>03</span><div><h3>Entenda as prioridades</h3><p>A produção atende contratos ativos primeiro, inclusive entregas atrasadas, depois a venda automática e, por último, o estoque. Contratos vencidos perdem a recompensa, exigem 100% da entrega e geram multa.</p></div></section>
 <section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção e valorizam cada cultura. Contratos no prazo concedem 8% do XP necessário para o próximo nível; cada compra, aprimoramento e pedido entregue concede 1,7%. Colheitas e vendas não concedem XP.</p></div></section>
-<section><span>05</span><div><h3>Use o escritório</h3><p>Contratos e pedidos liberam no nível 5. O primeiro slot de contrato é imediato, o segundo libera no nível 20 e outros cinco são obtidos por pesquisa e prestígio.</p></div></section>
+<section><span>05</span><div><h3>Use o escritório</h3><p>Contratos estão disponíveis desde o início com um slot ativo. Pedidos liberam no nível 5, o segundo slot de contrato no nível 20 e os outros cinco são obtidos por pesquisa e prestígio.</p></div></section>
 <section><span>06</span><div><h3>Invista e prestigie</h3><p>Aprimoramentos usam moedas, pesquisas usam pontos de pesquisa e legados usam prestígio. O prestígio desbloqueia no nível 40 e inicia uma nova jornada.</p></div></section>
 </div></article>
 </div>
@@ -337,7 +341,7 @@
 <article class="resource-pill"><img alt="" src="assets/icons/potion.png"/><span><small>Pesquisa</small><strong id="floatingResearchCounter">0</strong></span></article>
 <article class="resource-pill prestige-resource"><img alt="" src="assets/icons/prestige.png"/><span><small>Prestígio</small><strong id="floatingPrestigeCounter">0</strong></span></article>
 </section>
-<button aria-label="Subir ao início da página" class="back-to-top" hidden="" id="backToTop" type="button"><strong>Subir</strong></button>
+<button aria-label="Subir ao início da página" class="back-to-top" hidden="" id="backToTop" title="Voltar ao topo" type="button"><img alt="" src="assets/icons/arrow-up.svg"/><span class="sr-only">Voltar ao topo</span></button>
 <aside aria-label="Acompanhamento dos contratos ativos" class="contract-dock" id="contractDock"></aside>
 <dialog aria-labelledby="resetProgressTitle" class="confirmation-dialog" id="resetProgressDialog">
 <form method="dialog">
@@ -345,12 +349,41 @@
 <div class="confirmation-dialog-copy">
 <p class="eyebrow">ação irreversível</p>
 <h2 id="resetProgressTitle">Resetar todo o progresso?</h2>
-<p>Esta ação apagará permanentemente sua fazenda, moedas, pesquisas, culturas, missões, estatísticas, prestígios e todos os aprimoramentos permanentes do Firestore.</p>
+<p>Esta ação apagará permanentemente sua fazenda, moedas, pesquisas, culturas, missões, estatísticas, prestígios e todos os aprimoramentos permanentes salvos na nuvem.</p>
 <strong>Não será possível recuperar os dados depois da confirmação.</strong>
 </div>
 <div class="confirmation-dialog-actions">
 <button class="button secondary" id="cancelResetProgress" value="cancel">Cancelar</button>
 <button class="button reset-confirm-button" id="confirmResetProgress" value="confirm">Apagar tudo e recomeçar</button>
+</div>
+</form>
+</dialog>
+<dialog aria-labelledby="prestigeConfirmTitle" class="confirmation-dialog confirmation-dialog-positive" id="prestigeConfirmDialog">
+<form method="dialog">
+<div class="confirmation-dialog-icon" aria-hidden="true">★</div>
+<div class="confirmation-dialog-copy">
+<p class="eyebrow">novo ciclo</p>
+<h2 id="prestigeConfirmTitle">Confirmar prestígio?</h2>
+<p id="prestigeConfirmText">Prestigiar reiniciará os recursos da jornada atual e converterá seu progresso em pontos de prestígio permanentes.</p>
+<strong>Você manterá seus legados, missões permanentes e todo o prestígio acumulado.</strong>
+</div>
+<div class="confirmation-dialog-actions">
+<button class="button secondary" id="cancelPrestigeConfirm" value="cancel">Continuar jornada</button>
+<button class="button gold" id="confirmPrestigeConfirm" value="confirm">Prestigiar agora</button>
+</div>
+</form>
+</dialog>
+<dialog aria-labelledby="milestoneDialogTitle" class="confirmation-dialog confirmation-dialog-milestone" id="milestoneDialog">
+<form method="dialog">
+<div class="confirmation-dialog-icon" aria-hidden="true">✓</div>
+<div class="confirmation-dialog-copy">
+<p class="eyebrow">marco alcançado</p>
+<h2 id="milestoneDialogTitle">Novo marco da fazenda</h2>
+<p id="milestoneDialogDescription">Confira tudo que foi desbloqueado.</p>
+<div class="milestone-dialog-list" id="milestoneDialogList"></div>
+</div>
+<div class="confirmation-dialog-actions milestone-dialog-actions">
+<button class="button primary" id="closeMilestoneDialog" value="confirm">Entendi</button>
 </div>
 </form>
 </dialog>

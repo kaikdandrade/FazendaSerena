@@ -142,14 +142,14 @@ window.GameData = (() => {
   ];
 
   const prestigeUpgrades = [
-    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "assets/icons/crown.png", desc: "Amplia o capital inicial de cada nova jornada.", max: 10, baseCost: 2, growth: 2.00 },
+    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "assets/icons/crown.png", desc: "+5K moedas no capital inicial de cada nova jornada por nível.", max: 10, baseCost: 2, growth: 2.00 },
     { id: "eternalHarvest", name: "Colheita eterna", icon: "assets/icons/harvest-crate.png", desc: "+12% de velocidade e +10% de rendimento permanentes por nível.", max: 12, baseCost: 3, growth: 2.05 },
     { id: "goldenExchange", name: "Bolsa dourada", icon: "assets/icons/coin.png", desc: "+15% no valor de todas as vendas permanentemente por nível.", max: 10, baseCost: 4, growth: 2.10 },
     { id: "endlessGranary", name: "Celeiro sem fim", icon: "assets/icons/silo.png", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 4, growth: 2.10 },
     { id: "ancestralMastery", name: "Domínio ancestral", icon: "assets/icons/seedling-pot.png", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 5, growth: 2.15 },
     { id: "immortalAcademy", name: "Academia imortal", icon: "assets/icons/books.png", desc: "25% a mais de pesquisa recebida e 3 pontos iniciais permanentes por nível.", max: 8, baseCost: 6, growth: 2.18 },
     { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "assets/icons/prestige.png", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 7, growth: 2.22 },
-    { id: "sovereignNetwork", name: "Rede soberana", icon: "assets/icons/commercial-contract.png", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 8, growth: 2.25 },
+    { id: "sovereignNetwork", name: "Rede soberana", icon: "assets/icons/delivery-truck.png", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 8, growth: 2.25 },
     { id: "contractEmpire", name: "Império contratual", icon: "assets/icons/commercial-contract.png", desc: "+1 slot permanente de contrato ativo por nível. Possui 3 níveis e permanece entre jornadas.", max: 3, baseCost: 90, growth: 3.00 }
   ];
 

@@ -1,7 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 36;
+  static SAVE_VERSION = 38;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -10,7 +10,7 @@ class GameEngine {
   static CONTRACT_OFFER_COUNT = 6;
   static CONTRACT_COOLDOWN_SECONDS = 5 * 60;
   static BASE_STARTING_COINS = 120;
-  static TREASURY_COINS_PER_LEVEL = 2000;
+  static TREASURY_COINS_PER_LEVEL = 5000;
   static BASE_STORAGE_CAPACITY = 200;
   static MAX_BATCH_UPGRADES = 1000;
   static MAX_CROP_LEVEL = 300;
@@ -40,7 +40,8 @@ class GameEngine {
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
       musicVolume: permanent.settings?.musicVolume ?? 30,
       musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows",
-      numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian"
+      numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian",
+      playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24)
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -215,6 +216,7 @@ class GameEngine {
     merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
     merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
     merged.settings.numberFormat = merged.settings.numberFormat === "international" ? "international" : "brazilian";
+    merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");
@@ -390,9 +392,18 @@ class GameEngine {
       }
     }
 
-    merged.version = GameEngine.SAVE_VERSION;
     merged.farmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(merged.farmLevel) || 1)));
-    merged.farmXP = Math.max(0, Number(merged.farmXP) || 0);
+    const loadedFarmXP = Math.max(0, Number(merged.farmXP) || 0);
+    if (Number(input.version || 0) < 38 && merged.farmLevel < GameEngine.MAX_FARM_LEVEL) {
+      // Preserva a porcentagem já preenchida da barra ao migrar da curva antiga
+      // para a escala longa que alcança os sufixos Aa–Az nos níveis avançados.
+      const previousNeed = Math.round(160 + 72 * Math.pow(merged.farmLevel, 1.52));
+      const previousProgress = previousNeed > 0 ? Math.min(0.999999, loadedFarmXP / previousNeed) : 0;
+      merged.farmXP = this.getFarmXPNeed(merged.farmLevel) * previousProgress;
+    } else {
+      merged.farmXP = loadedFarmXP;
+    }
+    merged.version = GameEngine.SAVE_VERSION;
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.research = Math.max(0, Number(merged.research) || 0);
     merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0);
@@ -580,8 +591,16 @@ class GameEngine {
     return this.state.farmLevel >= GameEngine.FEATURE_UNLOCK_LEVEL;
   }
 
-  isOfficeCommerceUnlocked() {
+  isContractsUnlocked() {
+    return true;
+  }
+
+  isOrdersUnlocked() {
     return this.state.farmLevel >= GameEngine.FEATURE_UNLOCK_LEVEL;
+  }
+
+  isOfficeCommerceUnlocked() {
+    return this.isContractsUnlocked();
   }
 
   isPrestigeUnlocked() {
@@ -594,19 +613,17 @@ class GameEngine {
   }
 
   getActiveContractSlotLimit(state = this.state) {
-    if (Number(state?.farmLevel || 1) < GameEngine.FEATURE_UNLOCK_LEVEL) return 0;
-    const levelSlot = Number(state.farmLevel || 1) >= GameEngine.SECOND_CONTRACT_SLOT_LEVEL ? 1 : 0;
+    const levelSlot = Number(state?.farmLevel || 1) >= GameEngine.SECOND_CONTRACT_SLOT_LEVEL ? 1 : 0;
     const researchSlots = Math.max(0, Math.min(2, Math.floor(Number(state?.researchTechs?.contractPortfolio) || 0)));
     const prestigeSlots = Math.max(0, Math.min(3, Math.floor(Number(state?.prestigeUpgrades?.contractEmpire) || 0)));
     return Math.min(GameEngine.MAX_ACTIVE_CONTRACTS, 1 + levelSlot + researchSlots + prestigeSlots);
   }
 
   getContractSlotBreakdown(state = this.state) {
-    const unlocked = Number(state?.farmLevel || 1) >= GameEngine.FEATURE_UNLOCK_LEVEL;
     return {
       total: this.getActiveContractSlotLimit(state),
-      base: unlocked ? 1 : 0,
-      level: unlocked && Number(state.farmLevel || 1) >= GameEngine.SECOND_CONTRACT_SLOT_LEVEL ? 1 : 0,
+      base: 1,
+      level: Number(state?.farmLevel || 1) >= GameEngine.SECOND_CONTRACT_SLOT_LEVEL ? 1 : 0,
       research: Math.max(0, Math.min(2, Math.floor(Number(state?.researchTechs?.contractPortfolio) || 0))),
       prestige: Math.max(0, Math.min(3, Math.floor(Number(state?.prestigeUpgrades?.contractEmpire) || 0)))
     };
@@ -657,6 +674,7 @@ class GameEngine {
 
     let leveled = false;
     let rewardCoins = 0;
+    const milestones = [];
     while (this.state.farmLevel < GameEngine.MAX_FARM_LEVEL && this.state.farmXP >= this.getFarmXPNeed()) {
       this.state.farmXP -= this.getFarmXPNeed();
       this.state.farmLevel += 1;
@@ -665,8 +683,14 @@ class GameEngine {
       this.addCoins(reward);
       rewardCoins += reward;
       leveled = true;
+      if (this.state.farmLevel % 5 === 0) {
+        milestones.push({
+          level: this.state.farmLevel,
+          unlocks: this.getMilestoneUnlocks(this.state.farmLevel)
+        });
+      }
     }
-    if (leveled && !silent) this.emit("level", { level: this.state.farmLevel, rewardCoins });
+    if (leveled && !silent) this.emit("level", { level: this.state.farmLevel, rewardCoins, milestones });
   }
 
   addFarmXPPercent(rate, occurrences = 1, silent = false) {
@@ -678,7 +702,37 @@ class GameEngine {
   }
 
   getFarmXPNeed(level = this.state.farmLevel) {
-    return Math.round(160 + 72 * Math.pow(Math.max(1, level), 1.52));
+    const normalizedLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(level) || 1)));
+    const baseCurve = 160 + 72 * Math.pow(normalizedLevel, 1.52);
+    const journeyProgress = (normalizedLevel - 1) / Math.max(1, GameEngine.MAX_FARM_LEVEL - 1);
+
+    // A aceleração exponencial é suave nos níveis iniciais e cresce ao longo da
+    // jornada. No nível 1.000, o requisito chega à faixa Az. Como as fontes de
+    // XP concedem percentuais do requisito atual, o ritmo de ações por nível é
+    // preservado enquanto a escala numérica acompanha a progressão completa.
+    const extendedScale = Math.pow(10, 84 * Math.pow(journeyProgress, 2));
+    return Math.round(baseCurve * extendedScale);
+  }
+
+  getMilestoneUnlocks(level) {
+    const milestoneLevel = Math.max(1, Math.floor(Number(level) || 1));
+    const unlocks = this.data.crops
+      .filter(crop => Number(crop.unlockLevel) === milestoneLevel)
+      .sort((cropA, cropB) => cropA.index - cropB.index)
+      .map(crop => `Nova cultura disponível para compra: ${crop.name}.`);
+
+    if (milestoneLevel === GameEngine.FEATURE_UNLOCK_LEVEL) {
+      unlocks.push("Pedidos liberados no Escritório.");
+      unlocks.push("Aprimoramentos e pesquisas liberados no Centro de evoluções.");
+    }
+    if (milestoneLevel === GameEngine.SECOND_CONTRACT_SLOT_LEVEL) {
+      unlocks.push("Segundo slot de contrato ativo liberado.");
+    }
+    if (milestoneLevel === GameEngine.PRESTIGE_UNLOCK_LEVEL) {
+      unlocks.push("A ação de prestigiar foi liberada.");
+    }
+    if (!unlocks.length) unlocks.push("Novo marco de desenvolvimento alcançado pela fazenda.");
+    return unlocks;
   }
 
   getCrop(cropId) {
@@ -1028,7 +1082,6 @@ class GameEngine {
   }
 
   buyPrestigeUpgrade(id) {
-    if (!this.isPrestigeUnlocked()) return { ok: false, message: `O prestígio libera no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL} da fazenda.` };
     const item = this.data.prestigeUpgrades.find(entry => entry.id === id);
     if (!item) return { ok: false };
     const level = Number(this.state.prestigeUpgrades[id] || 0);
@@ -1091,7 +1144,7 @@ class GameEngine {
   }
 
   getContractEligibleCrops() {
-    if (!this.isOfficeCommerceUnlocked()) return [];
+    if (!this.isContractsUnlocked()) return [];
     return this.data.crops.filter(crop => crop.unlockLevel <= this.state.farmLevel);
   }
 
@@ -1304,7 +1357,7 @@ class GameEngine {
 
   acceptContract(id) {
     this.ensureContractOffers();
-    if (!this.isOfficeCommerceUnlocked()) return { ok: false, message: `Os contratos liberam no nível ${GameEngine.FEATURE_UNLOCK_LEVEL} da fazenda.` };
+    if (!this.isContractsUnlocked()) return { ok: false, message: "Os contratos não estão disponíveis agora." };
     const slotLimit = this.getActiveContractSlotLimit();
     if (this.state.activeContracts.length >= slotLimit) return { ok: false, message: `Você já utiliza todos os ${slotLimit} slots de contratos ativos.` };
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
@@ -1331,7 +1384,7 @@ class GameEngine {
 
   declineContract(id) {
     this.ensureContractOffers();
-    if (!this.isOfficeCommerceUnlocked()) return { ok: false, message: `Os contratos liberam no nível ${GameEngine.FEATURE_UNLOCK_LEVEL} da fazenda.` };
+    if (!this.isContractsUnlocked()) return { ok: false, message: "Os contratos não estão disponíveis agora." };
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [contract] = this.state.contractOffers.splice(index, 1);
@@ -1424,7 +1477,7 @@ class GameEngine {
   }
 
   getOrder(cropId) {
-    if (!this.isOfficeCommerceUnlocked()) return null;
+    if (!this.isOrdersUnlocked()) return null;
     const crop = this.getCrop(cropId);
     const cropState = this.state.crops[cropId];
     const orderState = this.state.orders[cropId];
