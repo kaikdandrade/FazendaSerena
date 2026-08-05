@@ -6,7 +6,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="#eef4e8" name="theme-color"/>
 <meta content="Um jogo idle sereno sobre cultivar, pesquisar e construir uma fazenda próspera." name="description"/>
-<title>Agricultura Industrial — Fazenda Serena</title>
+<title>Fazenda Serena — Agricultura Industrial</title>
 <link href="assets/icons/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="css/style.css" rel="stylesheet"/>
 <script defer="" src="js/firebase-config.js"></script>
@@ -15,17 +15,11 @@
 <script defer="" src="js/data.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
 <script defer="" src="js/GameEngine.js"></script>
+<script defer="" src="js/ambientBackground.js"></script>
 <script defer="" src="js/main.js"></script>
 </head>
 <body class="compact-cards">
-<div aria-hidden="true" class="ambient-layer">
-<span class="ambient-orb orb-one"></span>
-<span class="ambient-orb orb-two"></span>
-<img alt="" class="floating-leaf leaf-one" src="assets/spring.png"/>
-<img alt="" class="floating-leaf leaf-two" src="assets/summer.png"/>
-<img alt="" class="floating-leaf leaf-three" src="assets/autumn.png"/>
-<img alt="" class="floating-leaf leaf-four" src="assets/winter.png"/>
-</div>
+<div aria-hidden="true" class="ambient-layer" id="ambientLayer"></div>
 <div class="app-shell">
 <header class="app-header">
 <a aria-label="Ir para a fazenda" class="brand" data-go-view="farmView" href="#farmView">
@@ -279,10 +273,10 @@
 </div>
 </div>
 <label class="setting-row profile-ranking-choice" for="playerRankingOptOut">
-<span><strong>Não quero participar do ranking global</strong><small>Seu apelido e seu avatar continuam salvos no perfil, mas sua fazenda não será publicada na classificação.</small></span>
 <input id="playerRankingOptOut" type="checkbox"/>
+<span><strong>Não quero participar do ranking global</strong><small>Seu apelido e seu avatar continuam salvos no perfil, mas sua fazenda não será publicada na classificação.</small></span>
 </label>
-<div class="profile-ranking-notice" id="profileRankingNotice" role="status">Somente jogadores conectados com apelido e avatar salvos participam do ranking global.</div>
+<div class="profile-ranking-notice" id="profileRankingNotice" role="status">Somente jogadores conectados e com apelido e avatar configurados participarão do ranking global se quiserem.</div>
 <div class="player-profile-actions">
 <button class="button primary" id="savePlayerProfile" type="submit">Salvar perfil</button>
 <small aria-live="polite" id="playerProfileFeedback"></small>

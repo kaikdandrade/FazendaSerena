@@ -436,7 +436,7 @@
     }
     if (dom.profileRankingNotice) {
       dom.profileRankingNotice.classList.remove("complete");
-      dom.profileRankingNotice.textContent = "Somente jogadores conectados com apelido e avatar salvos participam do ranking global.";
+      dom.profileRankingNotice.textContent = "Somente jogadores conectados e com apelido e avatar configurados participarão do ranking global se quiserem.";
     }
 
     if (!signedIn) setCloudSaveStatus("guest");
@@ -1260,6 +1260,7 @@
     const slotLimit = engine.getActiveContractSlotLimit();
     const openSlots = Math.max(0, slotLimit - active.length);
     const rewardsLine = contract => `<div class="contract-reward-unified"><span>Recompensa</span><strong class="resource-reward-group">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</strong></div>`;
+    const contractTypeLine = contract => `<span class="contract-type-label">${escapeHtml(engine.getContractDifficulty(contract.difficulty).label)}</span>`;
     const penaltyLine = progress => `<div class="contract-penalty-unified"><span>Recompensa cancelada</span><strong class="resource-reward-group">${resourceRewards({ coins: progress.penaltyCoins })}</strong><small>Multa obrigatória: valor original do contrato + 20%.</small></div>`;
     const breakAction = contract => {
       const fine = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
@@ -1281,7 +1282,7 @@
       if (progress.readyToPayPenalty) {
         return `<article class="contract-card active-contract-card contract-completed-card contract-defaulted-card friendly-contract-card ${toneClass}">
           <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída com atraso</strong></div></div><span class="contract-defaulted-badge">Multa pendente</span></div>
-          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>${engine.formatNumber(contract.amount)} unidades entregues</small><h3>${escapeHtml(crop.name)}</h3></div></div>
+          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${contractTypeLine(contract)}<small>${engine.formatNumber(contract.amount)} unidades entregues</small><h3>${escapeHtml(crop.name)}</h3></div></div>
           ${penaltyLine(progress)}
           <button class="button danger full contract-penalty-button" type="button" data-action="pay-contract-penalty" data-id="${contract.id}">Pagar multa, receber 1,7% de XP e liberar slot</button>
         </article>`;
@@ -1290,7 +1291,7 @@
       if (progress.defaulted) {
         return `<article class="contract-card active-contract-card contract-defaulted-card friendly-contract-card ${toneClass}">
           <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Prazo descumprido</strong></div></div><span class="contract-defaulted-badge">Sem prazo</span></div>
-          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Entrega obrigatória</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
+          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${contractTypeLine(contract)}<small>Entrega obrigatória</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
           <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
           ${penaltyLine(progress)}
           ${breakAction(contract)}
@@ -1300,7 +1301,7 @@
       if (progress.completed) {
         return `<article class="contract-card active-contract-card contract-completed-card friendly-contract-card ${toneClass}">
           <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída</strong></div></div><span class="contract-ready-mark">✓ Pronta</span></div>
-          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>${engine.formatNumber(contract.amount)} unidades</small><h3>${escapeHtml(crop.name)}</h3></div></div>
+          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${contractTypeLine(contract)}<small>${engine.formatNumber(contract.amount)} unidades</small><h3>${escapeHtml(crop.name)}</h3></div></div>
           ${rewardsLine(contract)}
           <button class="button gold full reward-claim-button" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button>
         </article>`;
@@ -1308,7 +1309,7 @@
 
       return `<article class="contract-card active-contract-card friendly-contract-card ${toneClass} ${urgent ? "contract-deadline-warning" : ""}">
         <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Contrato assinado</strong></div></div><span class="contract-clock-badge ${urgent ? "urgent" : ""}">⏱ ${engine.formatTime(contract.timeRemaining)}</span></div>
-        <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Meta de entrega</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
+        <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${contractTypeLine(contract)}<small>Meta de entrega</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
         ${rewardsLine(contract)}
         ${breakAction(contract)}
@@ -1322,7 +1323,7 @@
       const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
       return `<article class="contract-card contract-offer-card friendly-contract-card ${toneClass}">
         <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty)}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-clock-badge">⏱ ${engine.formatTime(contract.durationSeconds)}</span></div>
-        <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
+        <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${contractTypeLine(contract)}<h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         ${rewardsLine(contract)}
         <div class="contract-offer-actions"><button class="button primary contract-accept-button" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button><button class="button secondary contract-decline-button" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button></div>
       </article>`;
@@ -1745,11 +1746,6 @@
       act(result);
     }
     if (action === "break-contract") {
-      const contract = engine.state.activeContracts.find(item => item.id === id);
-      if (!contract) return;
-      const fine = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
-      const confirmation = `Quebrar este contrato custará ${engine.formatNumber(fine)} moedas e cancelará qualquer recompensa. Sujeito a multa ao quebrar contrato. Continuar?`;
-      if (!window.confirm(confirmation)) return;
       const result = engine.breakContract(id);
       if (result.ok) soundEngine.play("contractRefusal");
       act(result);

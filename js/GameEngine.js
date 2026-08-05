@@ -1,7 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 42;
+  static SAVE_VERSION = 43;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -1439,7 +1439,7 @@ class GameEngine {
     const contract = this.state.activeContracts[index];
     if (contract.completedAt && !contract.defaultedAt) return { ok: false, message: "Receba a recompensa deste contrato concluído." };
     const penaltyCoins = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
-    if (this.state.coins < penaltyCoins) return { ok: false, message: `Faltam ${this.formatMoney(penaltyCoins - this.state.coins)} para quebrar o contrato.` };
+    // A quebra é a única ação do jogo autorizada a deixar o saldo negativo.
     this.state.coins -= penaltyCoins;
     this.state.activeContracts.splice(index, 1);
     this.state.stats.contractsBroken += 1;
