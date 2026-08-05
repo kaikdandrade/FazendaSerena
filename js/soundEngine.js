@@ -21,13 +21,17 @@ class SoundEngine {
   });
 
   static DEFAULT_MAPPINGS = SoundEngine.FIXED_MAPPINGS;
-  static MUSIC_SOURCE = "assets/sounds/08_calm_farm_loop_32s.wav";
+  static MUSIC_SOURCES = Object.freeze({
+    farm: "assets/sounds/08_calm_farm_loop_32s.wav",
+    violin: "assets/sounds/08_calm_farm_loop_violin_piano_v2.wav"
+  });
 
   constructor() {
     this.effectChannel = new Audio();
     this.effectChannel.preload = "auto";
 
-    this.musicChannel = new Audio(SoundEngine.MUSIC_SOURCE);
+    this.musicTrack = "farm";
+    this.musicChannel = new Audio(SoundEngine.MUSIC_SOURCES[this.musicTrack]);
     this.musicChannel.preload = "auto";
     this.musicChannel.loop = true;
 
@@ -42,6 +46,17 @@ class SoundEngine {
     this.masterVolume = SoundEngine.toVolume(settings.masterVolume ?? 100);
     this.effectVolume = SoundEngine.toVolume(settings.effectVolume ?? settings.soundVolume ?? 55);
     this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? 30);
+
+    const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "farm";
+    if (requestedTrack !== this.musicTrack) {
+      this.musicTrack = requestedTrack;
+      const absoluteSource = new URL(SoundEngine.MUSIC_SOURCES[this.musicTrack], document.baseURI).href;
+      const wasPlaying = !this.musicChannel.paused;
+      this.musicChannel.pause();
+      if (this.musicChannel.src !== absoluteSource) this.musicChannel.src = SoundEngine.MUSIC_SOURCES[this.musicTrack];
+      this.musicChannel.currentTime = 0;
+      if (wasPlaying) this.playMusic();
+    }
 
     this.effectChannel.volume = this.getEffectiveEffectVolume();
     this.musicChannel.volume = this.getEffectiveMusicVolume();

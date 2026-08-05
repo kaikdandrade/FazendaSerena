@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 23;
+  static SAVE_VERSION = 24;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -29,7 +29,8 @@ class GameEngine {
       uiScale: permanent.settings?.uiScale ?? 100,
       masterVolume: permanent.settings?.masterVolume ?? 100,
       effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
-      musicVolume: permanent.settings?.musicVolume ?? 30
+      musicVolume: permanent.settings?.musicVolume ?? 30,
+      musicTrack: ["farm", "violin"].includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "farm"
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -189,6 +190,7 @@ class GameEngine {
     merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
     merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
     merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? 30) || 0 : 0));
+    merged.settings.musicTrack = ["farm", "violin"].includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "farm";
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");

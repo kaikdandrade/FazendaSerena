@@ -80,6 +80,7 @@
     effectVolumeText: $("#effectVolumeText"),
     musicVolumeSetting: $("#musicVolumeSetting"),
     musicVolumeText: $("#musicVolumeText"),
+    musicTrackSetting: $("#musicTrackSetting"),
     backToTop: $("#backToTop")
   };
 
@@ -220,6 +221,7 @@
     if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${settings.effectVolume ?? 55}%`;
     if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
     if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
+    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = ["farm", "violin"].includes(settings.musicTrack) ? settings.musicTrack : "farm";
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -254,17 +256,17 @@
     const maximumLevel = GameEngine.MAX_FARM_LEVEL;
     const atMaximum = state.farmLevel >= maximumLevel;
     const farmNeed = engine.getFarmXPNeed();
-    dom.farmLevelLabel.textContent = engine.formatNumber(Math.min(maximumLevel, state.farmLevel));
+    dom.farmLevelLabel.textContent = String(Math.min(maximumLevel, state.farmLevel));
     dom.farmProgress?.classList.toggle("max-level", atMaximum);
     dom.farmXPBar.style.width = atMaximum ? "100%" : `${percent((state.farmXP / farmNeed) * 100)}%`;
     dom.farmXPText.textContent = atMaximum
-      ? `${engine.formatNumber(state.farmXP)} XP acumulado`
+      ? `${engine.formatNumber(state.farmXP)} XP`
       : `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
     if (dom.farmXPTrack) {
       dom.farmXPTrack.setAttribute("aria-valuemin", "0");
       dom.farmXPTrack.setAttribute("aria-valuemax", atMaximum ? "100" : String(farmNeed));
       dom.farmXPTrack.setAttribute("aria-valuenow", atMaximum ? "100" : String(Math.floor(state.farmXP)));
-      dom.farmXPTrack.setAttribute("aria-label", atMaximum ? `Nível máximo. ${engine.formatNumber(state.farmXP)} XP acumulado.` : "Experiência da fazenda");
+      dom.farmXPTrack.setAttribute("aria-label", atMaximum ? `Nível máximo. ${engine.formatNumber(state.farmXP)} XP.` : "Experiência da fazenda");
     }
   }
 
@@ -604,14 +606,13 @@
       : enrichResourceText(item.desc);
     return `
       <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${maxed ? "evolution-upgrade-completed" : ""}" data-upgrade-kind="${kind}" data-upgrade-completed="${String(maxed)}">
-        ${maxed ? `<span class="evolution-complete-seal" aria-label="Evolução concluída"><span>✓</span></span>` : ""}
         <div class="upgrade-level-badge">${maxed ? "Nível máximo" : `Nível ${level} / ${item.max}`}</div>
         <div class="upgrade-card-identity">
           <span class="upgrade-icon" aria-hidden="true">${iconMarkup}</span>
           <h3>${escapeHtml(item.name)}</h3>
         </div>
         <p class="upgrade-description ${isRoyalTreasury ? "treasury-description" : ""}">${descriptionHtml}</p>
-        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "✓ Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
+        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
       </article>`;
   }
 
@@ -1162,6 +1163,10 @@
     });
     dom.musicVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("musicVolume", Number(dom.musicVolumeSetting.value));
+      applySettings();
+    });
+    dom.musicTrackSetting?.addEventListener("change", () => {
+      engine.setSetting("musicTrack", dom.musicTrackSetting.value);
       applySettings();
     });
 
