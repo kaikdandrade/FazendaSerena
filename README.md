@@ -1,138 +1,356 @@
-# Fazenda Serena — Agricultura Industrial
+<p align="center">
+  <a href="https://fazenda-serena.web.app/">
+    <img src="assets/logo.png" width="190" alt="Logotipo do jogo Fazenda Serena">
+  </a>
+</p>
 
+<h1 align="center">Fazenda Serena</h1>
 
-## Versão do projeto
+<p align="center">
+  <strong>Um jogo idle de agricultura, produção, comércio e evolução para navegador.</strong>
+</p>
 
-A versão pública, a versão gravada no save e a versão enviada ao Firestore vêm de um único lugar:
+<p align="center">
+  Construa uma fazenda cada vez mais eficiente, descubra novas culturas, administre o estoque,
+  negocie com empresas, desenvolva pesquisas e transforme cada nova jornada em um legado permanente.
+</p>
+
+<p align="center">
+  <a href="https://fazenda-serena.web.app/"><strong>Jogar Fazenda Serena</strong></a>
+  &nbsp;•&nbsp;
+  <a href="https://fazenda-serena.web.app/privacy.html">Privacidade e cookies</a>
+  &nbsp;•&nbsp;
+  <a href="LICENSE">Licença do projeto</a>
+</p>
+
+<p align="center">
+  <img alt="Versão 1.0.0" src="https://img.shields.io/badge/versão-1.0.0-52765b?style=flat-square">
+  <img alt="Jogo para navegador" src="https://img.shields.io/badge/plataforma-navegador-52765b?style=flat-square">
+  <img alt="Licença proprietária" src="https://img.shields.io/badge/licença-proprietária-735c3d?style=flat-square">
+  <img alt="Todos os direitos reservados" src="https://img.shields.io/badge/copyright-todos_os_direitos_reservados-735c3d?style=flat-square">
+</p>
+
+---
+
+## Sobre o jogo
+
+**Fazenda Serena** é um jogo incremental de fazenda desenvolvido para a web. A experiência começa com uma pequena produção e cresce progressivamente até se transformar em uma operação agrícola completa, formada por dezenas de culturas, melhorias econômicas, contratos comerciais, pesquisas e bônus permanentes.
+
+O jogador acompanha a produção em tempo real, decide o que armazenar ou vender, desenvolve cada plantação individualmente e administra três recursos principais:
+
+- **Moedas**, utilizadas para adquirir culturas e aprimorar a estrutura da fazenda;
+- **Pontos de pesquisa**, investidos em avanços técnicos e melhorias especializadas;
+- **Pontos de prestígio**, usados em legados que permanecem entre diferentes jornadas.
+
+A versão **1.0.0** representa o primeiro lançamento público estável do projeto e a saída oficial de sua fase beta.
+
+---
+
+## Experiência de jogo
+
+A progressão da Fazenda Serena foi organizada em ciclos conectados. Cada sistema fortalece os demais e cria novas decisões conforme a fazenda cresce.
+
+```mermaid
+flowchart LR
+    A[Cultivar] --> B[Armazenar]
+    A --> C[Vender]
+    B --> D[Contratos e pedidos]
+    C --> E[Moedas]
+    D --> E
+    D --> F[Pesquisa]
+    E --> G[Aprimoramentos]
+    F --> H[Avanços tecnológicos]
+    G --> A
+    H --> A
+    A --> I[Experiência da fazenda]
+    I --> J[Novos níveis e culturas]
+    J --> K[Prestígio]
+    K --> L[Legados permanentes]
+    L --> A
+```
+
+### Culturas e produção
+
+O jogo possui **71 culturas**, distribuídas entre folhas e hortaliças, raízes e tubérculos, frutos, pomares, grãos, plantas tropicais, arbustos e culturas industriais.
+
+Cada cultura possui identidade visual própria, nível individual, tempo de crescimento, rendimento, preço de venda e requisito de desbloqueio. A progressão apresenta uma nova cultura a cada cinco níveis da fazenda, ampliando gradualmente as possibilidades de produção.
+
+<table>
+  <tr>
+    <td align="center"><img src="assets/plants/cenoura.png" width="72" alt="Cenoura"><br><sub>Cenoura</sub></td>
+    <td align="center"><img src="assets/plants/milho.png" width="72" alt="Milho"><br><sub>Milho</sub></td>
+    <td align="center"><img src="assets/plants/morango.png" width="72" alt="Morango"><br><sub>Morango</sub></td>
+    <td align="center"><img src="assets/plants/laranja.png" width="72" alt="Laranja"><br><sub>Laranja</sub></td>
+    <td align="center"><img src="assets/plants/melao.png" width="72" alt="Melão"><br><sub>Melão</sub></td>
+    <td align="center"><img src="assets/plants/cafe.png" width="72" alt="Café"><br><sub>Café</sub></td>
+    <td align="center"><img src="assets/plants/graviola.png" width="72" alt="Graviola"><br><sub>Graviola</sub></td>
+  </tr>
+</table>
+
+### Estoque e mercado
+
+A produção pode ser guardada em um estoque compartilhado, vendida manualmente ou direcionada à venda automática. A capacidade do estoque pode ser expandida por aprimoramentos, pesquisas e legados permanentes.
+
+Entre os recursos avançados está a **Central atacadista**, que mantém a produção ativa mesmo quando o armazenamento chega ao limite. O excedente passa a ser vendido automaticamente no atacado por uma fração do valor normal, impedindo que a fazenda fique completamente parada.
+
+### Escritório
+
+O Escritório reúne as atividades comerciais e os objetivos de longo prazo:
+
+- **Contratos:** propostas de empresas com quantidades, prazos e recompensas diferentes;
+- **Pedidos:** sequências progressivas de entregas para cada cultura;
+- **Missões:** séries de objetivos que acompanham produção, vendas, estoque, níveis e prestígios;
+- **Estatísticas:** totais da conta, recordes pessoais, permanências e classificação global.
+
+Os contratos são divididos em propostas comerciais, emergenciais e de grandes safras. Cada tipo prioriza aspectos diferentes da economia, como valor, prazo ou quantidade de pesquisa recebida.
+
+### Evoluções
+
+O Centro de Evoluções é dividido em três áreas:
+
+- **Aprimoramentos da fazenda:** melhorias adquiridas com moedas e aplicadas à jornada atual;
+- **Centro de pesquisa:** avanços comprados com pontos de pesquisa;
+- **Legados permanentes:** melhorias de prestígio que sobrevivem ao reinício da fazenda.
+
+Essas evoluções afetam velocidade de crescimento, rendimento, valor das vendas, capacidade do estoque, custos, experiência, contratos, pedidos e geração passiva de recursos.
+
+### Prestígio
+
+O prestígio é desbloqueado no nível 40. Ao iniciar uma nova jornada, parte do progresso atual é reiniciada em troca de pontos usados para construir um legado agrícola permanente.
+
+Entre os legados estão bônus de produção, capital inicial, capacidade de armazenamento, geração passiva de experiência, geração passiva de pesquisa, venda atacadista e novos espaços para contratos ativos.
+
+### Perfil e ranking
+
+Jogadores conectados podem definir um apelido e escolher um avatar animal para participar do ranking global de prestígio. O perfil público exibe apenas as informações necessárias para a classificação, enquanto o progresso completo permanece associado à conta autenticada.
+
+<table>
+  <tr>
+    <td align="center"><img src="assets/avatars/macaw_1.png" width="74" alt="Avatar de arara"><br><sub>Arara</sub></td>
+    <td align="center"><img src="assets/avatars/rhinoceros.png" width="74" alt="Avatar de rinoceronte"><br><sub>Rinoceronte</sub></td>
+    <td align="center"><img src="assets/avatars/fox.png" width="74" alt="Avatar de raposa"><br><sub>Raposa</sub></td>
+    <td align="center"><img src="assets/avatars/butterfly.png" width="74" alt="Avatar de borboleta"><br><sub>Borboleta</sub></td>
+    <td align="center"><img src="assets/avatars/panda.png" width="74" alt="Avatar de panda"><br><sub>Panda</sub></td>
+    <td align="center"><img src="assets/avatars/frog_1.png" width="74" alt="Avatar de sapo"><br><sub>Sapo</sub></td>
+    <td align="center"><img src="assets/avatars/otter.png" width="74" alt="Avatar de lontra"><br><sub>Lontra</sub></td>
+  </tr>
+</table>
+
+---
+
+## Identidade visual e sonora
+
+A interface foi criada para transmitir uma atmosfera tranquila sem abandonar a sensação de crescimento constante de um jogo incremental. O projeto combina cartões de informação, cores naturais, imagens próprias para as culturas, navegação por ícones e animações ambientais discretas.
+
+O plano de fundo utiliza folhas sazonais e elementos animados para representar diferentes épocas do ano. A interface também foi adaptada para computadores, tablets e celulares, reorganizando navegação, cartões e painéis de acordo com o espaço disponível.
+
+<table>
+  <tr>
+    <td align="center"><img src="assets/icons/seedling-pot.png" width="58" alt="Ícone da fazenda"><br><sub>Fazenda</sub></td>
+    <td align="center"><img src="assets/icons/warehouse.png" width="58" alt="Ícone do estoque"><br><sub>Estoque</sub></td>
+    <td align="center"><img src="assets/icons/tools.png" width="58" alt="Ícone de evoluções"><br><sub>Evoluções</sub></td>
+    <td align="center"><img src="assets/icons/commercial-contract.png" width="58" alt="Ícone de contratos"><br><sub>Contratos</sub></td>
+    <td align="center"><img src="assets/icons/books.png" width="58" alt="Ícone de pesquisa"><br><sub>Pesquisa</sub></td>
+    <td align="center"><img src="assets/icons/prestige.png" width="58" alt="Ícone de prestígio"><br><sub>Prestígio</sub></td>
+    <td align="center"><img src="assets/icons/settings.png" width="58" alt="Ícone de configurações"><br><sub>Configurações</sub></td>
+  </tr>
+</table>
+
+A ambientação sonora inclui **11 músicas de fundo** e **13 efeitos sonoros**, cobrindo navegação, compra de culturas, aprimoramentos, recompensas, vendas, contratos, aumento de nível, prestígio e movimentação dos contadores de recursos.
+
+O motor de áudio possui controles independentes para volume geral, música e efeitos. As preferências são mantidas no save do jogador, e o volume inicial da música foi equilibrado para não competir com a interface.
+
+---
+
+## Composição do projeto
+
+Na versão 1.0.0, o repositório contém **210 arquivos principais**. A maior parte do tamanho do projeto está concentrada nos recursos audiovisuais, especialmente nas músicas em formato WAV.
+
+| Grupo | Conteúdo | Quantidade aproximada |
+| --- | --- | ---: |
+| Culturas | Ilustrações PNG utilizadas nos cartões e desbloqueios | 71 |
+| Avatares | Personagens animais selecionáveis no perfil | 40 |
+| Ícones | Navegação, recursos, empresas, ações e melhorias | 42 |
+| Músicas | Faixas ambientais reproduzidas em loop | 11 |
+| Efeitos sonoros | Sons de interface, recompensas e progressão | 13 |
+| JavaScript | Motor, dados, interface e integrações | 12 arquivos |
+| CSS | Interface principal, monetização e privacidade | 3 arquivos |
+
+Os recursos da pasta `assets/` representam mais de 99% do tamanho total do projeto. Os arquivos HTML, CSS e JavaScript concentram as regras, a interface e as integrações, mas ocupam uma parcela muito menor do armazenamento.
+
+---
+
+## Organização dos arquivos
 
 ```text
-js/appConfig.js
+FazendaSerena/
+├── assets/
+│   ├── avatars/           # Avatares animais usados no perfil e no ranking
+│   ├── icons/             # Ícones da interface, recursos, empresas e sistemas
+│   ├── plants/            # Ilustrações individuais das 71 culturas
+│   ├── sounds/
+│   │   └── music/         # Músicas de fundo reproduzidas em loop
+│   ├── autumn.png         # Folhas e elementos da estação de outono
+│   ├── spring.png         # Folhas e elementos da estação de primavera
+│   ├── summer.png         # Folhas e elementos da estação de verão
+│   ├── winter.png         # Folhas e elementos da estação de inverno
+│   └── logo.png           # Identidade principal do Fazenda Serena
+│
+├── css/
+│   ├── style.css          # Design do jogo, componentes, animações e responsividade
+│   ├── monetization.css   # Blocos de publicidade e interface de consentimento
+│   └── privacy.css        # Apresentação da Política de Privacidade
+│
+├── js/
+│   ├── GameEngine.js      # Estado, economia, produção e regras centrais do jogo
+│   ├── main.js            # Renderização da interface e interação com o jogador
+│   ├── data.js            # Culturas, melhorias, pesquisas, prestígios e missões
+│   ├── firebaseManager.js # Autenticação, save em nuvem e ranking global
+│   ├── firebase-config.js # Configuração pública do aplicativo Firebase
+│   ├── soundEngine.js     # Música, efeitos, canais e preferências de volume
+│   ├── ambientBackground.js # Folhas sazonais, orbes e ambiente animado
+│   ├── avatars.js         # Catálogo e identificação dos avatares disponíveis
+│   ├── privacyConsent.js  # Preferências de cookies e Google Consent Mode
+│   ├── adsenseManager.js  # Carregamento e controle dos espaços publicitários
+│   ├── adsense-config.js  # Identificadores públicos da integração com anúncios
+│   └── appConfig.js       # Versão oficial e configurações globais centralizadas
+│
+├── index.html             # Estrutura principal da aplicação
+├── privacy.html           # Política de Privacidade e informações sobre cookies
+├── firestore.rules        # Regras de acesso aos dados armazenados no Firestore
+├── firebase.json          # Configuração de Hosting e cabeçalhos da aplicação
+├── ads.txt                # Declaração pública de vendedores autorizados de anúncios
+├── robots.txt             # Orientações para mecanismos de busca
+├── sitemap.xml            # Endereços públicos indexáveis do projeto
+├── CHANGELOG.md           # Histórico das versões e alterações do jogo
+├── LICENSE                # Licença proprietária e condições de uso
+└── README.md              # Apresentação geral do Fazenda Serena
 ```
 
-Para publicar uma atualização futura, altere somente o valor de `appVersion` nesse arquivo, por exemplo de `1.0.0` para `1.0.1`. O HTML, o motor do jogo, a identificação do save e o campo `saveVersion` do Firestore leem essa mesma configuração. O arquivo também concentra o volume musical padrão, atualmente em 10%.
+### Núcleo JavaScript
 
-Os números usados internamente para reconhecer saves antigos são apenas marcadores de compatibilidade do formato legado; eles não representam a versão pública do jogo. A versão do SDK do Firebase e as declarações próprias de XML/Firestore também pertencem às respectivas tecnologias externas.
+O projeto utiliza JavaScript modularizado por responsabilidade, sem concentrar toda a aplicação em um único arquivo:
 
-Jogo idle de agricultura desenvolvido em HTML, CSS e JavaScript puro, com Firebase Authentication e Cloud Firestore carregados pelo CDN oficial.
+| Arquivo | Responsabilidade no projeto |
+| --- | --- |
+| `GameEngine.js` | Mantém o estado do jogo e executa produção, vendas, experiência, contratos, pedidos, missões, pesquisas e prestígio. |
+| `main.js` | Conecta o motor à página, cria os cartões, atualiza contadores, abre modais e responde às ações do jogador. |
+| `data.js` | Centraliza o conteúdo balanceável: culturas, custos, recompensas, empresas, melhorias e objetivos. |
+| `firebaseManager.js` | Controla o login com Google, a sincronização do save, o perfil público e o ranking de prestígio. |
+| `soundEngine.js` | Gerencia músicas, efeitos simultâneos, transições e níveis de volume. |
+| `ambientBackground.js` | Produz os movimentos visuais do cenário sem interferir nas regras da fazenda. |
+| `privacyConsent.js` | Registra as escolhas de cookies e comunica o consentimento aos serviços do Google. |
+| `adsenseManager.js` | Inicializa os espaços de anúncios quando as condições necessárias estão disponíveis. |
+| `appConfig.js` | Atua como fonte única da versão pública e das configurações compartilhadas. |
 
-## Como executar
+### Camada de estilos
 
-O projeto não possui etapa de build, mas precisa ser servido por HTTP para que o login do Google e os módulos do Firebase funcionem corretamente.
+O CSS principal reúne o sistema visual do jogo, incluindo cartões, navegação, cabeçalhos, barras de progresso, janelas modais, painéis de evolução, escritório, estoque, perfil e adaptações responsivas.
 
-Para servir a pasta localmente:
+Os estilos relacionados a publicidade e privacidade ficam separados para que esses componentes tenham manutenção independente da interface principal.
 
-```bash
-python -m http.server 8000
+---
+
+## Arquitetura da aplicação
+
+```mermaid
+flowchart TD
+    HTML[index.html] --> UI[main.js]
+    UI --> ENGINE[GameEngine.js]
+    ENGINE --> DATA[data.js]
+    UI --> AUDIO[soundEngine.js]
+    UI --> AMBIENT[ambientBackground.js]
+    UI --> FIREBASE[firebaseManager.js]
+    FIREBASE --> AUTH[Firebase Authentication]
+    FIREBASE --> STORE[Cloud Firestore]
+    CONSENT[privacyConsent.js] --> ADS[Google AdSense]
+    ADSMANAGER[adsenseManager.js] --> ADS
+    CONFIG[appConfig.js] --> UI
+    CONFIG --> ENGINE
 ```
 
-Depois, acesse `http://localhost:8000`.
+A interface funciona no navegador e mantém as regras econômicas separadas da renderização visual. Essa divisão permite que o motor atualize a fazenda, enquanto a camada de interface apresenta o estado ao jogador e encaminha suas ações.
 
+---
 
-## Configuração do Firebase
+## Tecnologias e serviços
 
-1. Em **Firebase Authentication > Sign-in method**, habilite o provedor Google.
-2. Em **Authentication > Settings > Authorized domains**, mantenha `localhost`, adicione `127.0.0.1` para testes locais e adicione o domínio usado em produção.
-3. Crie o banco **Cloud Firestore**.
-4. Publique o conteúdo de `firestore.rules` na aba de regras do Firestore ou execute `firebase deploy --only firestore:rules`.
-5. O arquivo `js/firebase-config.js` contém a identificação do projeto usada pelo navegador.
-6. Os saves ficam em `players/{uid}/saves/main`; as regras permitem que cada usuário leia e altere somente o próprio documento.
-7. O rank público fica em `prestigeLeaderboard/{uid}`, pode ser consultado também por visitantes e é atualizado no mesmo lote do save privado somente quando o usuário salvou um apelido e um avatar válidos.
+### HTML, CSS e JavaScript
 
-Visitantes não possuem save persistente: o estado existe apenas na memória e é perdido ao recarregar ou fechar a página. Ao entrar com Google, o jogo procura um save da conta no Firestore. Quando não existe save anterior, a sessão atual do visitante é enviada para a nuvem e passa a ser salva automaticamente a cada 15 segundos.
+A base do jogo foi desenvolvida com tecnologias nativas da web. O HTML define a estrutura acessível das telas, o CSS constrói a identidade visual e os comportamentos responsivos, e o JavaScript executa o motor incremental e as interações.
 
-## Sistemas atuais
+### Firebase Hosting
 
-- 71 culturas em uma progressão reordenada que começa pela Folha; exatamente uma nova cultura é liberada a cada cinco níveis, e a Jaca encerra a linha no nível 350 com custo na casa dos trilhões.
-- Jornada inicial com 120 moedas. O capital inicial só aumenta pelo legado de prestígio Tesouro da Dinastia, agora em +5K moedas por nível; a economia mantém curvas longas de compra, aprimoramento, pesquisa e prestígio.
-- Desbloqueio progressivo: aparecem as culturas já alcançadas e até as três próximas culturas bloqueadas por nível.
-- Produção automática com rendimento-base de 2 unidades por ciclo e progresso offline de até 8 horas.
-- Indicador circular suave ao redor da cultura, com reinício instantâneo em zero após completar cada ciclo.
-- Aprimoramento individual até o nível 300, com seleção entre `+1` e `Max`; toda cultura recém-comprada já abre com `Max` selecionado. Ao alcançar o nível 300, a cultura concede uma vez por jornada 10% do requisito atual de XP e recebe uma apresentação dourada de planta platinada com estrela própria.
-- Cada nível reduz o tempo e valoriza a cultura; a produção contínua ocorre no nível 300 sem bônus e pode chegar ao nível 250 com todas as melhorias de velocidade.
-- Estoque único compartilhado, iniciado com 200 espaços, filtro por categoria, venda automática por cultura e controle geral para ativar ou desativar todas as vendas automáticas. Sem uma rota de saída, a produção pausa quando o estoque chega a 100%; o legado permanente Central atacadista mantém a produção e vende somente o excedente por 50% do valor normal. Os cards do Estoque permanecem focados somente em quantidade, valor e venda, sem indicadores de contratos.
-- Capacidade ampliada em +100 espaços diretamente no Estoque; Aprimoramentos, Pesquisa e Prestígio continuam oferecendo bônus percentuais adicionais.
-- Fluxo de produção com prioridade: contrato ativo — inclusive vencido —, venda automática normal, estoque e venda atacadista do excedente. Pedidos exigem entrega manual do lote completo.
-- Centro de Evoluções separado em Aprimoramentos, Pesquisa e Prestígio. Todos os tabs podem ser consultados desde o começo; compras com moedas e pesquisa liberam no nível 5, legados de prestígio permanecem acessíveis e somente o início de uma nova jornada exige nível 40. A Pesquisa possui 12 tecnologias, incluindo Aprendizado contínuo com 10 níveis e o Portfólio de Contratos com somente dois níveis.
-- Escritório dividido em Contratos, Pedidos, Missões e Estatísticas.
-- Seis espaços de oportunidades empresariais e capacidade progressiva de um a sete contratos ativos. Contratos e o primeiro slot existem desde o início, o segundo slot libera no nível 20, dois vêm da pesquisa Portfólio de Contratos e três do legado Império Contratual. Recusar ou quebrar uma negociação deixa o respectivo espaço indisponível por cinco minutos. A quebra é imediata, cobra a multa mesmo que o saldo fique negativo e é a única ação capaz de produzir moedas negativas.
-- Entregas emergenciais mantêm o maior multiplicador sem pesquisa; contratos comerciais e grandes fornecimentos mantêm seus perfis próprios, e todas as recompensas em moedas recebem 10% adicional. Os prazos usam o equilíbrio atual do sistema.
-- Assinar um contrato envia imediatamente o estoque disponível; a produção futura completa o restante.
-- Contratos completos dentro do prazo aguardam o resgate manual. Contratos vencidos permanecem no slot sem limite de tempo, exigem 100% da entrega, perdem toda recompensa e só são removidos após o pagamento de uma multa igual às moedas originais mais 20%; esse encerramento atrasado concede 1,7% do XP necessário para o próximo nível.
-- Pedidos por cultura com progressão até 10.000 unidades. A etapa só pode ser entregue quando todo o lote estiver no estoque; a série é renovada a cada prestígio.
-- 83 etapas de missões permanentes em 11 séries, com métricas acumuladas entre jornadas; missões concluídas nunca são renovadas pelo prestígio.
-- Estatísticas históricas, recordes, conquistas, legados e bônus permanentes dentro do Escritório, além de um top 5 global de prestígio visível inclusive para visitantes. Para participar, a conta autenticada precisa salvar um apelido de 4 a 24 caracteres e um dos 40 avatares de animais disponíveis nas Configurações; também é possível manter o perfil salvo e optar por não aparecer no ranking.
-- A interface e os legados de Prestígio podem ser usados desde o início; a ação de prestigiar libera no nível 40, exige confirmação própria e mostra somente os fatores renováveis usados no cálculo e o que será reiniciado.
-- Nível máximo da fazenda em 1.000; a curva de requisito de XP cresce suavemente no início e alcança a faixa `Az` nos níveis finais. Enquanto o jogo está aberto, a fazenda recebe 0,05% do requisito atual por segundo; Aprendizado contínuo adiciona 0,01% por nível e o Legado da experiência adiciona 0,05% permanente por nível. Esse ganho não é concedido no período offline. O som de level up e o modal de desbloqueios aparecem apenas nos marcos de cinco em cinco níveis.
-- Login exclusivo com Google e salvamento automático privado no Cloud Firestore. Visitantes não usam `localStorage` e perdem a sessão ao recarregar. A conta autenticada pode resetar todo o progresso por uma confirmação irreversível, removendo save e registro do rank antes de criar uma fazenda limpa.
-- Motor global de áudio com canal interrompível para efeitos principais, pools simultâneos para impactos nos contadores, música ambiente em loop e três controles integrados à Experiência: volume geral, efeitos e música. Os impactos de moeda, pesquisa e prestígio usam volume interno fixo de 8%, não podem ser aumentados ou reduzidos e são silenciados quando o volume geral ou de efeitos está em 0%.
-- Navegação principal e contextual com a mesma altura, ícones em imagem e cadeado visual nas áreas em prévia. Em tablet e celular, o contêiner contextual usa largura pelo conteúdo, fica centralizado, respeita o limite da tela e preserva a rolagem horizontal por toque ou arraste quando necessário.
-- Scroll global controlado pelo elemento raiz, compatível com roda do mouse e toque; counters flutuantes durante a rolagem, atalho com ícone para voltar ao topo e layout responsivo para computador, tablet e celular.
-- Indicador circular único de ocupação do estoque contornando o tab da esquerda para a direita em todos os estados; ao lotar, o tab fica vermelho e recebe uma exclamação.
+A versão pública é distribuída pelo Firebase Hosting e está disponível em:
 
-## Perfil público e avatares
+**[fazenda-serena.web.app](https://fazenda-serena.web.app/)**
 
-A conta conectada pode definir um apelido obrigatório de 4 a 24 caracteres e escolher um avatar em **Configurações > Conta e nuvem**. O catálogo reúne somente 40 avatares de animais em `assets/avatars`. O perfil pode ser editado depois, mas um apelido vazio, curto demais ou sem avatar nunca é publicado. Mesmo com o perfil preenchido, o jogador pode marcar que não deseja participar do ranking global; apelido e avatar continuam salvos normalmente, enquanto o registro público é removido. O top 5 pode ser consultado mesmo sem login. Quando o jogador autenticado estiver participando e estiver fora do top 5, sua posição real também aparece abaixo dos cinco primeiros.
+### Firebase Authentication
 
-## Contratos
+O projeto utiliza o **Firebase Authentication** com login pelo Google. A autenticação identifica o jogador, permite associar seu progresso a uma conta e habilita a participação no ranking global quando o perfil é configurado.
 
-Os contratos estão disponíveis desde o início. A fazenda começa com um slot ativo; o segundo libera no nível 20, o terceiro e o quarto vêm dos dois níveis da pesquisa Portfólio de Contratos, e os três últimos vêm do legado Império Contratual, totalizando até sete. Existem seis espaços de oportunidades. A seleção usa culturas liberadas pelo nível atual, mesmo antes da compra, e procura variar as opções. Cada recusa ou quebra transforma um desses seis espaços em um intervalo fixo de cinco minutos, portanto todas as propostas podem ficar temporariamente indisponíveis. Ao assinar um contrato:
+### Cloud Firestore
 
-1. o estoque existente da cultura é enviado automaticamente;
-2. a produção futura daquela cultura tem prioridade sobre venda automática e armazenamento;
-3. ao completar a quantidade, o cronômetro para;
-4. a recompensa permanece aguardando resgate no Escritório;
-5. se o prazo terminar antes da conclusão, o contrato permanece ativo sem novo limite de tempo;
-6. a recompensa é cancelada, a entrega precisa chegar a 100% e uma multa de 120% das moedas prometidas deve ser paga para liberar o slot; esse pagamento concede 1,7% do XP necessário para o próximo nível;
-7. um contrato em andamento também pode ser quebrado imediatamente pagando a mesma multa de 120%; a quebra não concede XP e inicia cinco minutos de renovação em uma oportunidade.
+O **Cloud Firestore** armazena o save em nuvem e os dados públicos necessários para o ranking. As regras de segurança separam o progresso privado de cada conta das informações públicas exibidas na classificação.
 
-## Prestígio
+Jogadores não autenticados podem conhecer o jogo como visitantes, enquanto contas conectadas recebem sincronização automática do progresso.
 
-O painel de Prestígio mostra os dados renováveis que influenciam o ganho estimado: moedas recebidas na jornada, culturas compradas, nível da fazenda e contratos concluídos. Pedidos são renovados. Missões, suas etapas concluídas, estatísticas históricas, culturas descobertas, pontos de prestígio, legados e bônus permanentes não são apagados.
+### Google AdSense
 
-## Interface e escala
+A monetização do projeto utiliza **Google AdSense**. Os espaços publicitários foram integrados à interface para apoiar a manutenção do jogo sem fazer parte das mecânicas de progressão.
 
-A escala visual usada anteriormente em 85% passou a representar o novo 100%. O seletor continua disponível entre 85% e 115%, agora sobre essa base mais compacta. Botões de compra sem recursos ficam desabilitados e visualmente neutros.
+O arquivo `ads.txt` informa publicamente ao ecossistema de publicidade quais vendedores estão autorizados a representar o site.
 
-## Arquivos principais
+### Cookies e consentimento
 
-- `index.html`: estrutura e telas do jogo.
-- `css/style.css`: identidade visual, navegação e responsividade.
-- `js/firebase-config.js`: configuração pública do projeto Firebase.
-- `js/firebaseManager.js`: autenticação Google, leitura do save, fila de gravações, rank global e reset integral no Firestore.
-- `js/data.js`: culturas, melhorias, empresas, pedidos e missões.
-- `js/GameEngine.js`: economia, produção, estado em memória, contratos e prestígio.
-- `js/soundEngine.js`: efeitos permanentes, sequência clique+navegação, música em loop e volumes geral, de efeitos e de música.
-- `js/main.js`: renderização, navegação, animações e eventos da interface.
-- `firestore.rules` e `firebase.json`: regras dos saves privados, leitura pública do ranking e configuração completa do Firebase Hosting.
-- `assets/`: logo, folhas sazonais, culturas, ícones e arquivos de áudio.
+O Fazenda Serena utiliza cookies necessários ao funcionamento das preferências e integrações do site. A publicidade faz parte da operação da versão pública, enquanto a análise de uso pode ser configurada pelo visitante.
 
-## Ícones das empresas
+A página de Privacidade descreve as categorias utilizadas, os serviços externos envolvidos e as formas de gerenciar as preferências disponíveis.
 
-Os contratos usam arquivos PNG em `assets/icons/` para Alimentos Aurora, Mercado Verde Vale, Campo Dourado, Boa Mesa Refeições, Raízes & Companhia, Sabor em Rota, Colheita Serena e Horizonte Orgânicos. Os arquivos foram renomeados em inglês para manter o padrão interno do projeto.
+---
 
+## Salvamento e dados do jogador
 
-## Ambiente visual
+O save reúne o estado econômico e a progressão da fazenda, incluindo moedas, culturas adquiridas, níveis, estoque, evoluções, contratos, pedidos, missões, estatísticas, perfil e preferências de áudio.
 
-O jogo usa `js/ambientBackground.js` para controlar todo o ambiente dinâmico. As folhas sazonais entram e saem pelas bordas da tela, variam em tamanho, rotação e duração. Duas orbes percorrem lentamente diferentes cantos e alternam de forma sutil entre azul, verde, amarelo e roxo claro. Todo o conjunto respeita a opção “Ambiente vivo” e a preferência de movimento reduzido do navegador.
+Quando o jogador está autenticado, esse estado é sincronizado com o Firestore. O sistema também controla a versão do save para preservar a compatibilidade entre atualizações do jogo.
 
+O ranking utiliza uma representação pública reduzida, composta somente pelos dados necessários para identificar e posicionar o jogador, como apelido, avatar e prestígio.
 
-## Counters durante a rolagem
+---
 
-Os counters flutuantes aparecem somente depois que o conjunto original sai completamente da área visível. A transição não modifica o tamanho do cabeçalho nem o fluxo do documento, eliminando o efeito de fricção e a alternância repetida durante o uso da roda do mouse ou do toque.
+## Versão
 
-## AdSense, privacidade e cookies
+A versão atual é **1.0.0 — Release**.
 
-O projeto inclui a infraestrutura necessária para monetização sem inventar identificadores da conta. O projeto inclui `privacy.html`, aviso e preferências de cookies, Consent Mode v2, carregamento do AdSense com publicidade definida como necessária no aviso local, uma posição manual responsiva antes do rodapé, `ads.txt`, `robots.txt`, `sitemap.xml` e configuração de Hosting no `firebase.json`.
+A identificação pública da versão é centralizada em `js/appConfig.js`. Essa informação é reutilizada pela interface, pelo motor e pelos dados salvos, evitando referências divergentes espalhadas pelo código.
 
-Os IDs reais devem ser preenchidos em `js/adsense-config.js` e no `ads.txt` somente depois que forem fornecidos pelo painel do Google AdSense. O passo a passo está em `ADSENSE_SETUP.md`.
+---
 
-O aviso local controla as preferências do próprio site. Para tráfego do Espaço Econômico Europeu, Reino Unido e Suíça, também deve ser publicada a mensagem oficial em **AdSense > Privacidade e mensagens**, pois o Google exige uma CMP certificada nessas regiões.
+## Direitos autorais
 
+**Fazenda Serena é um projeto proprietário protegido por direitos autorais.**
 
-## XP por tempo e escoamento atacadista
+A presença do código-fonte neste repositório não concede autorização para copiar, modificar, redistribuir, republicar, hospedar, vender ou utilizar comercialmente o jogo, suas imagens, seus áudios, sua identidade visual ou partes de sua implementação.
 
-O ganho passivo usa o tempo real transcorrido, não a quantidade de quadros renderizados. A taxa inicial é de 0,05% do requisito atual de XP por segundo enquanto a página está ativa. A Pesquisa **Aprendizado contínuo** possui 10 níveis de +0,01% por segundo, e o Legado permanente **Legado da experiência** possui 5 níveis de +0,05% por segundo.
+O acesso público ao repositório tem finalidade de apresentação, acompanhamento do desenvolvimento e registro do projeto. As condições completas estão descritas no arquivo [`LICENSE`](LICENSE).
 
-A **Central atacadista** custa 35 pontos de prestígio e possui uma única etapa. Quando o estoque está cheio e a venda automática da cultura está desligada, a produção guarda o que ainda couber e vende apenas o excedente por 50% do valor normal. Contratos continuam tendo prioridade sobre todas as rotas de venda.
+Componentes e serviços de terceiros permanecem sujeitos aos termos e licenças de seus respectivos proprietários.
 
-O ciclo de produção também passou a reutilizar a capacidade restante do estoque, agrupar contratos ativos por cultura e consultar culturas por um índice em memória, evitando cálculos repetidos no `requestAnimationFrame`.
+---
+
+## Projeto oficial
+
+- **Jogo:** [fazenda-serena.web.app](https://fazenda-serena.web.app/)
+- **Repositório:** [github.com/kaikedandrade/paisagemserena](https://github.com/kaikedandrade/paisagemserena)
+- **Privacidade:** [fazenda-serena.web.app/privacy.html](https://fazenda-serena.web.app/privacy.html)
+- **Versão:** 1.0.0
+
+<p align="center">
+  <img src="assets/logo.png" width="96" alt="Fazenda Serena">
+</p>
+
+<p align="center">
+  <strong>Fazenda Serena</strong><br>
+  Cultive. Evolua. Construa um legado.
+</p>
