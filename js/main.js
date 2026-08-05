@@ -565,9 +565,13 @@
     const affordable = !maxed && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
     return `
-      <article class="upgrade-card normalized-upgrade-card ${!maxed && !affordable ? "unaffordable" : ""}">
-        <div class="upgrade-head"><div><h3>${escapeHtml(item.name)}</h3><span class="crop-category">Nível ${level} / ${item.max}</span></div><span class="upgrade-icon" aria-hidden="true">${item.icon}</span></div>
-        <p>${enrichResourceText(item.desc)}</p>
+      <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${!maxed && !affordable ? "unaffordable" : ""}" data-upgrade-kind="${kind}">
+        <div class="upgrade-level-badge">Nível ${level} / ${item.max}</div>
+        <div class="upgrade-card-identity">
+          <span class="upgrade-icon" aria-hidden="true">${item.icon}</span>
+          <h3>${escapeHtml(item.name)}</h3>
+        </div>
+        <p class="upgrade-description">${enrichResourceText(item.desc)}</p>
         <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { sign: true, compact: true })}`}</button>
       </article>`;
   }

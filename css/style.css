@@ -5999,3 +5999,131 @@ body.page-scrolled .floating-resource-strip { display: grid !important; }
   }
   .floating-resource-strip .resource-pill { min-height: 38px !important; padding: 5px 7px !important; }
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 14 — cards de Evoluções e prestígio com rolagem global             */
+/* ========================================================================== */
+
+/* Remove o vazio excessivo no início das subabas sem colar o título no painel. */
+#evolveView .evolution-workspace {
+  padding-top: 7px !important;
+}
+#evolveView .evolution-panel,
+#evolveView .evolution-panel.active {
+  padding-top: 7px !important;
+}
+#evolveView .evolution-panel-heading {
+  margin: 0 0 12px !important;
+  padding: 2px 4px 0 !important;
+}
+
+/* Nova hierarquia: nível no topo, ícone à esquerda, título ao lado e descrição
+   antes da ação. Todas as caixas compartilham a mesma altura e alinhamento. */
+#evolveView .upgrade-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+}
+#evolveView .redesigned-evolution-card {
+  display: grid !important;
+  grid-template-rows: auto auto minmax(42px, 1fr) auto !important;
+  align-content: stretch !important;
+  gap: 10px !important;
+  min-height: 202px !important;
+  height: 100% !important;
+  padding: 13px !important;
+}
+#evolveView .upgrade-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: start;
+  min-height: 25px;
+  padding: 0 9px;
+  border: 1px solid rgba(72, 111, 67, .12);
+  border-radius: 999px;
+  color: var(--green-deep);
+  font-size: .64rem;
+  font-weight: 900;
+  line-height: 1;
+  background: rgba(229, 239, 223, .82);
+}
+#evolveView .upgrade-card-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+#evolveView .upgrade-card-identity .upgrade-icon {
+  flex: 0 0 auto;
+  width: 43px;
+  height: 43px;
+  border-radius: 13px;
+  font-size: 1.3rem;
+}
+#evolveView .upgrade-card-identity h3 {
+  min-width: 0;
+  margin: 0;
+  font-size: .89rem;
+  line-height: 1.2;
+  letter-spacing: -.025em;
+}
+#evolveView .upgrade-description,
+#evolveView .normalized-upgrade-card .upgrade-description {
+  align-self: start;
+  min-height: 0 !important;
+  margin: 0 !important;
+  color: var(--ink-soft);
+  font-size: .75rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+#evolveView .redesigned-evolution-card .button {
+  align-self: end;
+  width: 100%;
+  margin-top: 0 !important;
+}
+#evolveView .prestige-grid .upgrade-level-badge {
+  color: #735a75;
+  border-color: rgba(122, 85, 132, .14);
+  background: rgba(239, 223, 241, .78);
+}
+
+/* O painel “Novo ciclo” participa do scroll da página; nenhum bloco interno
+   captura a roda do mouse ou cria uma barra própria. */
+#evolveView,
+#evolveView .evolution-workspace,
+#evolveView .evolution-panel,
+#evolveView .evolution-panel.active,
+#evolveView [data-evolution-panel="prestige"],
+#evolveView .prestige-hero,
+#evolveView #prestigeDashboard,
+#evolveView .prestige-overview-card,
+#evolveView .prestige-requirements {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+@media (max-width: 1040px) {
+  #evolveView .upgrade-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 620px) {
+  #evolveView .upgrade-grid {
+    grid-template-columns: 1fr !important;
+  }
+  #evolveView .redesigned-evolution-card {
+    min-height: 0 !important;
+    grid-template-rows: auto auto auto auto !important;
+  }
+  #evolveView .upgrade-description,
+  #evolveView .normalized-upgrade-card .upgrade-description {
+    min-height: 0 !important;
+  }
+}
