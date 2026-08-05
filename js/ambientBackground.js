@@ -8,10 +8,18 @@
     "assets/winter.png"
   ]);
 
+  const ORB_PALETTE = Object.freeze({
+    blue: "rgba(151, 203, 224, 0.48)",
+    green: "rgba(154, 207, 135, 0.47)",
+    yellow: "rgba(239, 203, 125, 0.42)",
+    purple: "rgba(190, 166, 220, 0.43)"
+  });
+
   const state = {
     layer: null,
     leafStage: null,
     leaves: [],
+    orbs: [],
     orbAnimations: [],
     mutationObserver: null,
     resizeTimer: 0,
@@ -20,9 +28,12 @@
 
   const random = (minimum, maximum) => minimum + Math.random() * (maximum - minimum);
   const randomItem = items => items[Math.floor(Math.random() * items.length)];
+  const clamp = (minimum, value, maximum) => Math.min(maximum, Math.max(minimum, value));
 
   function isEnabled() {
-    return document.body.dataset.ambient !== "false" && !state.mediaQuery.matches;
+    return document.body.dataset.ambient !== "false"
+      && !document.body.classList.contains("reduce-motion")
+      && !state.mediaQuery.matches;
   }
 
   function getLeafCount() {
@@ -44,31 +55,82 @@
     }
 
     state.layer.replaceChildren();
-    const orbSpecs = [
-      { className: "orb-one", x: "-12rem", y: "18rem", duration: 24000, dx: 110, dy: -45 },
-      { className: "orb-two", x: "calc(100vw - 19rem)", y: "45rem", duration: 30000, dx: -125, dy: 60 }
-    ];
-
-    state.orbAnimations = orbSpecs.map(spec => {
+    state.orbs = [0, 1].map(index => {
       const orb = document.createElement("span");
-      orb.className = `ambient-orb ${spec.className}`;
-      orb.style.left = spec.x;
-      orb.style.top = spec.y;
+      orb.className = `ambient-orb orb-${index + 1}`;
       state.layer.append(orb);
-      return orb.animate([
-        { transform: "translate3d(0, 0, 0) scale(1)" },
-        { transform: `translate3d(${spec.dx}px, ${spec.dy}px, 0) scale(1.14)` }
-      ], {
-        duration: spec.duration,
-        direction: "alternate",
-        easing: "ease-in-out",
-        iterations: Infinity
-      });
+      return orb;
     });
 
     state.leafStage = document.createElement("div");
     state.leafStage.className = "ambient-leaf-stage";
     state.layer.append(state.leafStage);
+  }
+
+  function getOrbPositions(size) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    return {
+      topLeft: { x: -size * 0.42, y: -size * 0.38 },
+      topRight: { x: width - size * 0.58, y: -size * 0.34 },
+      bottomRight: { x: width - size * 0.54, y: height - size * 0.60 },
+      bottomLeft: { x: -size * 0.38, y: height - size * 0.56 }
+    };
+  }
+
+  function orbFrame(point, color, scale, opacity, offset) {
+    return {
+      backgroundColor: color,
+      offset,
+      opacity,
+      transform: `translate3d(${Math.round(point.x)}px, ${Math.round(point.y)}px, 0) scale(${scale})`
+    };
+  }
+
+  function rebuildOrbs() {
+    state.orbAnimations.forEach(animation => animation.cancel());
+    state.orbAnimations = [];
+    if (!state.orbs.length) return;
+
+    const size = clamp(300, Math.min(window.innerWidth * 0.58, window.innerHeight * 0.82), 610);
+    const positions = getOrbPositions(size);
+    const specs = [
+      {
+        duration: 108000,
+        path: [positions.topLeft, positions.topRight, positions.bottomRight, positions.bottomLeft, positions.topLeft],
+        colors: [ORB_PALETTE.blue, ORB_PALETTE.green, ORB_PALETTE.yellow, ORB_PALETTE.purple, ORB_PALETTE.blue],
+        scales: [0.94, 1.08, 0.98, 1.12, 0.94],
+        opacities: [0.30, 0.38, 0.34, 0.39, 0.30]
+      },
+      {
+        duration: 126000,
+        path: [positions.bottomRight, positions.topLeft, positions.bottomLeft, positions.topRight, positions.bottomRight],
+        colors: [ORB_PALETTE.purple, ORB_PALETTE.yellow, ORB_PALETTE.blue, ORB_PALETTE.green, ORB_PALETTE.purple],
+        scales: [1.06, 0.96, 1.10, 0.98, 1.06],
+        opacities: [0.31, 0.36, 0.32, 0.38, 0.31]
+      }
+    ];
+
+    state.orbAnimations = state.orbs.map((orb, index) => {
+      const spec = specs[index];
+      orb.style.width = `${size}px`;
+      orb.style.height = `${size}px`;
+      const frames = spec.path.map((point, frameIndex) => orbFrame(
+        point,
+        spec.colors[frameIndex],
+        spec.scales[frameIndex],
+        spec.opacities[frameIndex],
+        frameIndex / (spec.path.length - 1)
+      ));
+      return orb.animate(frames, {
+        duration: spec.duration,
+        easing: "ease-in-out",
+        fill: "both",
+        iterations: Infinity
+      });
+    });
+
+    if (!isEnabled() || document.hidden) state.orbAnimations.forEach(animation => animation.pause());
   }
 
   function pointOutside(edge, size) {
@@ -152,7 +214,7 @@
     if (!state.layer) return;
     const enabled = isEnabled();
     state.layer.hidden = !enabled;
-    state.orbAnimations.forEach(animation => enabled ? animation.play() : animation.pause());
+    state.orbAnimations.forEach(animation => enabled && !document.hidden ? animation.play() : animation.pause());
     if (enabled && state.leaves.length !== getLeafCount()) rebuildLeaves();
     if (!enabled) {
       state.leaves.forEach(entry => entry.animation?.cancel());
@@ -163,6 +225,7 @@
 
   function initialize() {
     createStructure();
+    rebuildOrbs();
     rebuildLeaves();
     syncVisibility();
 
@@ -171,7 +234,11 @@
 
     window.addEventListener("resize", () => {
       window.clearTimeout(state.resizeTimer);
-      state.resizeTimer = window.setTimeout(rebuildLeaves, 240);
+      state.resizeTimer = window.setTimeout(() => {
+        rebuildOrbs();
+        rebuildLeaves();
+        syncVisibility();
+      }, 240);
     }, { passive: true });
 
     state.mediaQuery.addEventListener?.("change", syncVisibility);

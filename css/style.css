@@ -96,18 +96,15 @@ img {
 .ambient-layer[hidden] { display: none !important; }
 
 .ambient-orb {
+  background: rgba(151, 203, 224, 0.48);
   border-radius: 50%;
-  filter: blur(20px);
-  height: 34rem;
+  filter: blur(30px);
+  left: 0;
   opacity: 0.34;
   position: absolute;
-  will-change: transform;
-  width: 34rem;
+  top: 0;
+  will-change: transform, background-color, opacity;
 }
-
-.orb-one { background: rgba(154, 207, 135, 0.5); }
-
-.orb-two { background: rgba(239, 200, 118, 0.43); }
 
 .ambient-leaf-stage {
   inset: 0;
@@ -6956,7 +6953,7 @@ body {
 
   .active-contract-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 
-  .contract-offer-grid { grid-template-columns: 1fr !important; }
+  .contract-offer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 
   .guide-sections { grid-template-columns: 1fr !important; }
 
@@ -7434,7 +7431,8 @@ body {
   .player-profile-actions { align-items: stretch; grid-template-columns: 1fr; }
   .selected-avatar-preview { min-height: 58px; }
 
-  .active-contract-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .active-contract-grid,
+  .contract-offer-grid { grid-template-columns: minmax(0, 1fr) !important; }
 
   .account-settings-card { gap: 14px; }
 
@@ -7669,33 +7667,46 @@ body {
 .profile-ranking-choice > span { flex: 1 1 auto; min-width: 0; order: 1; }
 
 .contract-type-label {
+  --contract-type-dot: #5b9555;
+  --contract-type-halo: rgba(91, 149, 85, .18);
   align-items: center;
   align-self: flex-start;
-  background: rgba(79, 125, 74, .1);
-  border: 1px solid rgba(72, 116, 68, .14);
-  border-radius: 999px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   color: var(--green-deep);
   display: inline-flex;
   font-size: .54rem;
   font-weight: 900;
+  gap: 7px;
   letter-spacing: .055em;
-  line-height: 1;
-  margin-bottom: 3px;
-  min-height: 22px;
-  padding: 0 8px;
+  line-height: 1.25;
+  margin-bottom: 4px;
+  min-height: 18px;
+  padding: 0;
   text-transform: uppercase;
   width: fit-content;
 }
 
+.contract-type-label::before {
+  background: var(--contract-type-dot);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--contract-type-halo);
+  content: "";
+  flex: 0 0 auto;
+  height: 8px;
+  width: 8px;
+}
+
 .contract-tone-urgent .contract-type-label {
-  background: rgba(190, 86, 69, .1);
-  border-color: rgba(173, 77, 61, .17);
+  --contract-type-dot: #b65b48;
+  --contract-type-halo: rgba(182, 91, 72, .17);
   color: #984937;
 }
 
 .contract-tone-bulk .contract-type-label {
-  background: rgba(67, 127, 171, .1);
-  border-color: rgba(59, 114, 155, .17);
+  --contract-type-dot: #4c83aa;
+  --contract-type-halo: rgba(76, 131, 170, .17);
   color: #3f7196;
 }
 
@@ -7788,12 +7799,12 @@ body {
 .stock-lock-icon {
   background: url("../assets/icons/feature-lock.png") center / contain no-repeat;
   filter: drop-shadow(0 3px 3px rgba(16,47,66,.2));
-  height: 44px;
+  height: clamp(40px, 5vw, 44px);
   pointer-events: none;
   position: absolute;
   right: 13px;
   top: 12px;
-  width: 44px;
+  width: clamp(40px, 5vw, 44px);
   z-index: 30;
 }
 
@@ -7807,15 +7818,3 @@ body {
 .stock-locked-copy small { color: var(--green); font-size: .57rem; font-weight: 950; text-transform: uppercase; }
 .stock-locked-copy strong { color: var(--green-deep); font-size: .82rem; }
 .stock-locked-copy p { color: var(--ink-soft); font-size: .62rem; line-height: 1.45; margin: 0; }
-
-@media (max-width: 768px) {
-  .profile-ranking-choice { align-items: center; }
-  #officeView .active-contract-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-}
-
-@media (max-width: 480px) {
-  .player-profile-fields { --profile-control-height: 52px; }
-  .profile-ranking-choice { align-items: center; }
-  #officeView .active-contract-grid { grid-template-columns: minmax(0, 1fr) !important; }
-  .stock-lock-icon { height: 40px; width: 40px; }
-}
