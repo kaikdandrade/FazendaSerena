@@ -497,10 +497,6 @@ class GameEngine {
       this.state.stats.lifetimeHarvested += routed.accepted;
       this.state.stats.maxStorageUsed = Math.max(this.state.stats.maxStorageUsed, this.getStorageUsed());
       this.addFarmXP(Math.max(0.4, routed.accepted * 0.22), offline);
-
-      if (!offline && routed.accepted >= Math.max(20, perCycle * 4) && Math.random() < 0.025) {
-        this.emit("toast", { message: `${crop.name} trouxe uma produção especialmente bonita: +${this.formatNumber(routed.accepted)}.` });
-      }
     }
   }
 
@@ -579,13 +575,6 @@ class GameEngine {
     this.state.activeContracts = this.state.activeContracts.filter(contract => !ids.has(contract.id));
     this.state.stats.contractsFailed += expired.length;
     this.state.stats.lifetimeContractsFailed += expired.length;
-    if (!silent) {
-      expired.forEach(contract => {
-        const crop = this.getCrop(contract.cropId);
-        const company = this.getCompany(contract.companyId);
-        this.emit("toast", { message: `O prazo do contrato com ${company.name} terminou. ${this.formatNumber(contract.delivered)} unidades de ${crop.name.toLowerCase()} foram perdidas.` });
-      });
-    }
     this.ensureContractOffers();
     return expired;
   }
@@ -839,7 +828,6 @@ class GameEngine {
     this.state.stats.maxCropsOwned = Math.max(this.state.stats.maxCropsOwned, this.getOwnedCrops().length);
     this.state.stats.maxCropLevel = Math.max(this.state.stats.maxCropLevel, 1);
     this.ensureContractOffers();
-    this.emit("toast", { message: `${crop.name} agora faz parte da fazenda e recebeu seu primeiro pedido.` });
     return { ok: true };
   }
 
@@ -1306,11 +1294,6 @@ class GameEngine {
     this.state.stats.contractsCompleted += 1;
     this.state.stats.lifetimeContractsCompleted += 1;
     this.addFarmXP(contract.amount * 0.22 + 10, silent);
-    if (!silent && automatic) {
-      const crop = this.getCrop(contract.cropId);
-      const company = this.getCompany(contract.companyId);
-      this.emit("toast", { message: `Contrato de ${crop.name.toLowerCase()} com ${company.name} concluído. A recompensa está pronta no Escritório.` });
-    }
     return contract;
   }
 

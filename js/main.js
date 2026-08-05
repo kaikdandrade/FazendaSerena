@@ -50,7 +50,6 @@
     contractTabCount: $("#contractTabCount"),
     orderTabCount: $("#orderTabCount"),
     missionTabCount: $("#missionTabCount"),
-    toastZone: $("#toastZone"),
     saveBox: $("#saveBox"),
     coinsCounter: $("#coinsCounter"),
     researchCounter: $("#researchCounter"),
@@ -153,21 +152,11 @@
     return html;
   }
 
-  function toast(message, type = "") {
-    // Revisão 19: notificações visuais são exclusivas para o ganho de nível.
-    if (!message || type !== "level") return;
-    const item = document.createElement("div");
-    item.className = "toast success level-toast";
-    item.innerHTML = `<span aria-hidden="true">⬆</span><span>${enrichResourceText(message)}</span>`;
-    dom.toastZone.appendChild(item);
-    window.setTimeout(() => item.remove(), 3600);
-  }
 
   function handleEngineEvent(event) {
     if (!event) return;
     if (event.type === "level") {
       soundEngine.play("levelUp");
-      toast(`A fazenda alcançou o nível ${event.level} e recebeu ${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "level");
       window.setTimeout(() => render(true), 0);
     }
   }
@@ -194,98 +183,106 @@
 
 
   function revealTabHorizontally(container, tab, behavior = "smooth") {
-    if (!container || !tab || !window.matchMedia("(max-width: 480px)").matches) return;
-    const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
-    if (maximum <= 1) return;
+    if (!container || !tab || container.scrollWidth <= container.clientWidth) return;
     const target = tab.offsetLeft - (container.clientWidth - tab.offsetWidth) / 2;
-    container.scrollTo({
-      left: Math.max(0, Math.min(maximum, target)),
-      behavior
-    });
+    const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
+    container.scrollTo({ left: Math.max(0, Math.min(maximum, target)), behavior });
   }
 
   function setupDragNavigation(container) {
     if (!container || container.dataset.dragNavigationReady === "true") return;
     container.dataset.dragNavigationReady = "true";
 
-    const compactQuery = window.matchMedia("(max-width: 480px)");
-    const drag = {
-      pointerId: null,
-      startX: 0,
-      startScrollLeft: 0,
-      moved: false,
-      suppressClickUntil: 0
-    };
+    let pointerId = null;
+    let pointerType = "";
+    let startX = 0;
+    let startY = 0;
+    let startScrollLeft = 0;
+    let startControl = null;
+    let moved = false;
+    let suppressClickUntil = 0;
+    let dispatchingTouchClick = false;
 
-    const maximumScroll = () => Math.max(0, container.scrollWidth - container.clientWidth);
-    const canDrag = () => compactQuery.matches && maximumScroll() > 1 && !container.hidden;
+    const navigationControl = target => target?.closest?.(".nav-tab, .office-tab, .evolution-tab");
+    const hasHorizontalOverflow = () => container.scrollWidth > container.clientWidth + 1;
 
-    const refreshScrollableState = () => {
-      const scrollable = canDrag();
-      container.classList.toggle("is-drag-scrollable", scrollable);
-      if (!compactQuery.matches) {
-        container.scrollLeft = 0;
-        return;
-      }
-      container.scrollLeft = Math.min(container.scrollLeft, maximumScroll());
-    };
-
-    const finishDrag = event => {
-      if (drag.pointerId === null) return;
-      if (event && container.hasPointerCapture?.(drag.pointerId)) {
-        try { container.releasePointerCapture(drag.pointerId); } catch (_) {}
-      }
-      if (drag.moved) drag.suppressClickUntil = performance.now() + 280;
-      drag.pointerId = null;
-      drag.moved = false;
+    const resetPointer = () => {
+      pointerId = null;
+      pointerType = "";
+      startControl = null;
+      moved = false;
       container.classList.remove("is-dragging");
     };
 
+    const finishDrag = (event, cancelled = false) => {
+      if (pointerId === null) return;
+      if (event?.pointerId !== undefined && event.pointerId !== pointerId) return;
+
+      const activePointerId = pointerId;
+      const activePointerType = pointerType;
+      const activeControl = startControl;
+      const shouldActivateTouch = !cancelled
+        && !moved
+        && Boolean(activeControl)
+        && (activePointerType === "touch" || activePointerType === "pen");
+
+      if (container.hasPointerCapture?.(activePointerId)) {
+        try { container.releasePointerCapture(activePointerId); } catch (_) {}
+      }
+
+      if (moved || shouldActivateTouch) suppressClickUntil = performance.now() + 520;
+      resetPointer();
+
+      // Pointer capture redirects pointerup to the scrolling container. Triggering
+      // the original control explicitly guarantees taps on phones and tablets.
+      if (shouldActivateTouch) {
+        event?.preventDefault?.();
+        dispatchingTouchClick = true;
+        activeControl.click();
+        dispatchingTouchClick = false;
+      }
+    };
+
     container.addEventListener("pointerdown", event => {
-      if (!canDrag() || !event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
-      drag.pointerId = event.pointerId;
-      drag.startX = event.clientX;
-      drag.startScrollLeft = container.scrollLeft;
-      drag.moved = false;
-      try { container.setPointerCapture(event.pointerId); } catch (_) {}
-    });
+      const isTouchLike = event.pointerType === "touch" || event.pointerType === "pen";
+      if (!isTouchLike && event.button !== 0) return;
+      if (!isTouchLike && !hasHorizontalOverflow()) return;
+
+      pointerId = event.pointerId;
+      pointerType = event.pointerType || "mouse";
+      startX = event.clientX;
+      startY = event.clientY;
+      startScrollLeft = container.scrollLeft;
+      startControl = navigationControl(event.target);
+      moved = false;
+
+      try { container.setPointerCapture(pointerId); } catch (_) {}
+    }, { passive: true });
 
     container.addEventListener("pointermove", event => {
-      if (event.pointerId !== drag.pointerId) return;
-      const delta = event.clientX - drag.startX;
-      if (!drag.moved && Math.abs(delta) >= 5) {
-        drag.moved = true;
+      if (event.pointerId !== pointerId) return;
+
+      const deltaX = event.clientX - startX;
+      const deltaY = event.clientY - startY;
+      if (!moved && Math.abs(deltaX) >= 6 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        moved = true;
         container.classList.add("is-dragging");
       }
-      if (!drag.moved) return;
+      if (!moved || !hasHorizontalOverflow()) return;
+
+      container.scrollLeft = startScrollLeft - deltaX;
       event.preventDefault();
-      container.scrollLeft = Math.max(0, Math.min(maximumScroll(), drag.startScrollLeft - delta));
     }, { passive: false });
 
-    container.addEventListener("pointerup", finishDrag);
-    container.addEventListener("pointercancel", finishDrag);
-    container.addEventListener("lostpointercapture", finishDrag);
-    container.addEventListener("dragstart", event => event.preventDefault());
+    container.addEventListener("pointerup", event => finishDrag(event, false));
+    container.addEventListener("pointercancel", event => finishDrag(event, true));
+    container.addEventListener("lostpointercapture", event => finishDrag(event, true));
     container.addEventListener("click", event => {
-      if (performance.now() >= drag.suppressClickUntil) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
+      if (!dispatchingTouchClick && performance.now() < suppressClickUntil) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
     }, true);
-
-    if (typeof ResizeObserver === "function") {
-      new ResizeObserver(refreshScrollableState).observe(container);
-    }
-    if (typeof MutationObserver === "function") {
-      new MutationObserver(refreshScrollableState).observe(container, {
-        attributes: true,
-        attributeFilter: ["hidden", "class"],
-        childList: true,
-        subtree: true
-      });
-    }
-    compactQuery.addEventListener?.("change", refreshScrollableState);
-    window.addEventListener("resize", refreshScrollableState, { passive: true });
-    requestAnimationFrame(refreshScrollableState);
   }
 
   function showView(viewId, updateHash = true) {
@@ -1050,12 +1047,11 @@
     updateLiveFarmUI();
   }
 
-  function act(result, successMessage = "") {
+  function act(result) {
     if (!result?.ok) {
-      if (result?.message) toast(result.message, "error");
+      if (result?.message) console.warn(result.message);
       return false;
     }
-    if (successMessage) toast(typeof successMessage === "function" ? successMessage(result) : successMessage, "success");
     render(true);
     return true;
   }
@@ -1116,42 +1112,36 @@
     if (action === "upgrade-crop-selected") {
       const mode = getCropUpgradeMode(cropId);
       const result = mode === "max" ? engine.upgradeCropMax(cropId) : engine.upgradeCrop(cropId, 1);
-      act(result, value => mode === "max"
-        ? `${value.crop.name} recebeu ${value.purchased} aprimoramento${value.purchased === 1 ? "" : "s"} e chegou ao nível ${value.level}.`
-        : `${value.crop.name} foi aprimorada para o nível ${value.level}.`);
+      act(result);
     }
     if (action === "sell-fraction") {
       const stock = engine.state.crops[cropId]?.stock || 0;
       const amount = Math.max(1, Math.floor(stock * Number(button.dataset.fraction || 1)));
-      act(engine.sellCrop(cropId, amount), result => `${engine.formatNumber(result.sold)} itens vendidos por ${engine.formatMoney(result.gain)}.`);
+      act(engine.sellCrop(cropId, amount));
     }
-    if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId), result => `Venda automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
+    if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId));
     if (action === "toggle-all-auto-sell") {
       const owned = engine.data.crops.filter(crop => engine.state.crops[crop.id]?.owned);
       const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
-      act(engine.setAllAutoSell(!allEnabled), result => `Venda automática ${result.enabled ? "ativada" : "desativada"} para ${result.count} cultura${result.count === 1 ? "" : "s"}.`);
+      act(engine.setAllAutoSell(!allEnabled));
     }
-    if (action === "sell-all-stock") act(engine.sellAll(), result => `${engine.formatNumber(result.sold)} produtos vendidos por ${engine.formatMoney(result.gain)}.`);
-    if (action === "expand-storage") act(engine.expandStorage(), result => `Celeiro ampliado em +${result.added} espaços.`);
-    if (action === "buy-upgrade") act(engine.buyUpgrade(id), "Infraestrutura aprimorada.");
-    if (action === "buy-research") act(engine.buyResearch(id), "Nova etapa da pesquisa concluída.");
-    if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id), "Legado permanente aprimorado.");
-    if (action === "accept-contract") act(engine.acceptContract(id), result => `Contrato com ${engine.getCompany(result.contract.companyId).name} assinado.`);
-    if (action === "decline-contract") act(engine.declineContract(id), result => `Contrato recusado. Uma nova oportunidade chegará em até ${engine.formatTime(result.cooldownSeconds)}.`);
+    if (action === "sell-all-stock") act(engine.sellAll());
+    if (action === "expand-storage") act(engine.expandStorage());
+    if (action === "buy-upgrade") act(engine.buyUpgrade(id));
+    if (action === "buy-research") act(engine.buyResearch(id));
+    if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
+    if (action === "accept-contract") act(engine.acceptContract(id));
+    if (action === "decline-contract") act(engine.declineContract(id));
     if (action === "claim-contract") {
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch });
-      toast(`Recompensa recebida pelo contrato com ${engine.getCompany(result.contract.companyId).name}.`, "success");
       render(true);
     }
     if (action === "deliver-order") {
       const result = engine.deliverOrder(cropId);
       if (!result.ok) return act(result);
       animateResourceReward(button, result.rewards || {});
-      toast(result.seriesComplete
-        ? `Todos os pedidos de ${result.order.crop.name.toLowerCase()} foram finalizados.`
-        : `Pedido entregue e recompensa recebida. A próxima etapa de ${result.order.crop.name.toLowerCase()} foi liberada.`, "success");
       render(true);
     }
     if (action === "toggle-contract-dock") {
@@ -1162,17 +1152,16 @@
       const result = engine.claimMission(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, result.mission.reward || {});
-      toast("Etapa da missão concluída. A próxima etapa da série foi liberada.", "success");
       render(true);
     }
     if (action === "perform-prestige") {
       const gain = engine.getPrestigeEstimate();
-      if (engine.state.farmLevel < 15) return toast("O prestígio fica disponível no nível 15 da fazenda.", "error");
-      if (gain < 1) return toast("Fortaleça mais esta jornada antes de prestigiar.", "error");
+      if (engine.state.farmLevel < 15) return;
+      if (gain < 1) return;
       if (!window.confirm("Prestigiar agora reiniciará os recursos e o progresso desta jornada. Continuar?")) return;
       const result = engine.performPrestige();
       if (result.ok) soundEngine.play("prestige");
-      act(result, value => `Nova jornada iniciada com ${value.gain} ${value.gain === 1 ? "ponto de prestígio" : "pontos de prestígio"}.`);
+      act(result);
     }
   }
 
@@ -1223,8 +1212,7 @@
     });
 
     $("#saveNow").addEventListener("click", () => {
-      const saved = engine.save();
-      toast(saved ? "Progresso salvo no navegador." : "Não foi possível salvar neste navegador.", saved ? "success" : "error");
+      engine.save();
     });
 
     $("#exportSave").addEventListener("click", () => {
@@ -1239,21 +1227,18 @@
       anchor.click();
       anchor.remove();
       URL.revokeObjectURL(url);
-      toast("Save exportado e preparado para download.", "success");
     });
 
     $("#importSave").addEventListener("click", () => {
       const text = dom.saveBox.value.trim();
-      if (!text) return toast("Cole um save no campo de texto primeiro.", "error");
+      if (!text) return;
       if (!window.confirm("Importar este save substituirá o progresso atual. Continuar?")) return;
       try {
         engine.importSave(text);
         applySettings();
         render(true);
-        toast("Save importado com sucesso.", "success");
       } catch (error) {
         console.warn(error);
-        toast("O texto não contém um save válido.", "error");
       }
     });
 
@@ -1262,7 +1247,6 @@
       engine.hardReset();
       applySettings();
       showView("farmView");
-      toast("Uma nova fazenda foi criada.", "success");
     });
 
     dom.ambientSetting.addEventListener("change", () => {
@@ -1316,13 +1300,7 @@
         const now = Date.now();
         const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
         if (elapsed > 0.05) {
-          const before = engine.state.stats.totalHarvested;
-          const failedBefore = engine.state.stats.contractsFailed;
           engine.simulate(elapsed, true);
-          const harvested = Math.max(0, engine.state.stats.totalHarvested - before);
-          const expired = Math.max(0, engine.state.stats.contractsFailed - failedBefore);
-          if (elapsed >= 10 && harvested > 0) toast(`Enquanto a aba esteve em segundo plano, a fazenda produziu ${engine.formatNumber(harvested)} itens.`);
-          if (expired > 0) toast(`${expired} contrato${expired === 1 ? " expirou" : "s expiraram"} em segundo plano. As unidades entregues foram perdidas.`, "error");
           engine.state.lastUpdate = now;
           render(true);
         }
