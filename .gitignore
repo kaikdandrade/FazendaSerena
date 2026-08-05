@@ -4,3 +4,4 @@ firestore.rules
 FIREBASE_SETUP.md
 ADSENSE_SETUP.md
 js/firebase-config.js
+ads.txt
