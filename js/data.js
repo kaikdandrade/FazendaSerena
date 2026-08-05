@@ -104,42 +104,44 @@ window.GameData = (() => {
   });
 
   const upgrades = [
-    { id: "irrigation", name: "Irrigação silenciosa", icon: "💧", desc: "+4% de velocidade para todas as culturas por nível.", max: 20, baseCost: 180, growth: 1.48, currency: "coins" },
-    { id: "fertilizer", name: "Composto orgânico", icon: "🌱", desc: "+5% de rendimento em todas as colheitas por nível.", max: 20, baseCost: 220, growth: 1.50, currency: "coins" },
-    { id: "warehouse", name: "Celeiro modular", icon: "🏡", desc: "+15% de capacidade no estoque compartilhado por nível.", max: 12, baseCost: 320, growth: 1.58, currency: "coins" },
-    { id: "logistics", name: "Rotas tranquilas", icon: "🚚", desc: "+4% no valor de todas as vendas por nível.", max: 20, baseCost: 450, growth: 1.50, currency: "coins" },
-    { id: "seedWorkshop", name: "Oficina de sementes", icon: "🫘", desc: "−2% no custo de compra das culturas por nível.", max: 15, baseCost: 600, growth: 1.55, currency: "coins" },
-    { id: "fieldTraining", name: "Treinamento de campo", icon: "📒", desc: "+4% de experiência da fazenda por nível.", max: 15, baseCost: 700, growth: 1.58, currency: "coins" },
-    { id: "contractOffice", name: "Mesa de negociações", icon: "🤝", desc: "+5% nas moedas oferecidas por contratos por nível.", max: 12, baseCost: 900, growth: 1.60, currency: "coins" },
-    { id: "orderCounter", name: "Balcão de pedidos", icon: "🧾", desc: "+5% nas moedas recebidas por pedidos por nível.", max: 12, baseCost: 850, growth: 1.58, currency: "coins" },
-    { id: "autoMarket", name: "Mercado automático", icon: "🛒", desc: "+3% no valor das vendas automáticas por nível.", max: 15, baseCost: 1000, growth: 1.60, currency: "coins" },
-    { id: "packingStation", name: "Estação de embalagem", icon: "📦", desc: "+3% de prazo nos novos contratos por nível.", max: 12, baseCost: 1200, growth: 1.62, currency: "coins" },
-    { id: "mechanization", name: "Mecanização serena", icon: "⚙️", desc: "+3% de produção contínua após o nível 250 por nível.", max: 15, baseCost: 1400, growth: 1.63, currency: "coins" },
-    { id: "maintenance", name: "Manutenção preventiva", icon: "🔧", desc: "−2% no custo dos níveis das plantações por nível.", max: 15, baseCost: 1100, growth: 1.60, currency: "coins" }
+    { id: "irrigationNetwork", name: "Rede de irrigação", icon: "💧", desc: "+6% de velocidade para todas as culturas por nível.", max: 15, baseCost: 160, growth: 1.48, currency: "coins" },
+    { id: "harvestCrew", name: "Equipe de colheita", icon: "🧑‍🌾", desc: "+7% de rendimento em todas as colheitas por nível.", max: 15, baseCost: 220, growth: 1.50, currency: "coins" },
+    { id: "regionalMarket", name: "Feira regional", icon: "🏪", desc: "+6% no valor de todas as vendas por nível.", max: 15, baseCost: 300, growth: 1.51, currency: "coins" },
+    { id: "reinforcedBarn", name: "Celeiro reforçado", icon: "🏡", desc: "+20% de capacidade no estoque compartilhado por nível.", max: 12, baseCost: 360, growth: 1.56, currency: "coins" },
+    { id: "seedCooperative", name: "Cooperativa de sementes", icon: "🫘", desc: "−3% no custo de compra das culturas por nível.", max: 12, baseCost: 480, growth: 1.56, currency: "coins" },
+    { id: "precisionTools", name: "Ferramentas de precisão", icon: "🛠️", desc: "−3% no custo dos níveis das plantações por nível.", max: 12, baseCost: 600, growth: 1.58, currency: "coins" },
+    { id: "fieldAcademy", name: "Academia de campo", icon: "🎓", desc: "+7% de experiência da fazenda por nível.", max: 12, baseCost: 700, growth: 1.58, currency: "coins" },
+    { id: "contractBureau", name: "Escritório comercial", icon: "🤝", desc: "+8% nas moedas oferecidas por contratos por nível.", max: 12, baseCost: 850, growth: 1.60, currency: "coins" },
+    { id: "orderCenter", name: "Central de encomendas", icon: "🧾", desc: "+8% nas moedas recebidas por pedidos por nível.", max: 12, baseCost: 800, growth: 1.59, currency: "coins" },
+    { id: "expressPacking", name: "Embalagem expressa", icon: "📦", desc: "+5% de prazo nos novos contratos por nível.", max: 10, baseCost: 950, growth: 1.62, currency: "coins" },
+    { id: "autoAuction", name: "Leilão automático", icon: "🛒", desc: "+6% no valor das vendas automáticas por nível.", max: 12, baseCost: 900, growth: 1.60, currency: "coins" },
+    { id: "continuousMachinery", name: "Maquinário contínuo", icon: "⚙️", desc: "+6% de produção contínua após o nível 250 por nível.", max: 12, baseCost: 1200, growth: 1.63, currency: "coins" }
   ];
 
   const research = [
-    { id: "genetics", name: "Sementes resilientes", icon: "🧬", desc: "+4% de rendimento por nível.", max: 8, baseCost: 2, growth: 1.47 },
-    { id: "hydroponics", name: "Hidroponia modular", icon: "🫧", desc: "+4% de velocidade por nível.", max: 8, baseCost: 2, growth: 1.49 },
-    { id: "marketData", name: "Mercado cooperativo", icon: "📈", desc: "+3% no preço de venda por nível.", max: 8, baseCost: 3, growth: 1.50 },
-    { id: "storageScience", name: "Conservação natural", icon: "🧺", desc: "+10% de capacidade no estoque compartilhado por nível.", max: 8, baseCost: 3, growth: 1.51 },
-    { id: "contractAI", name: "Planejamento industrial", icon: "📋", desc: "+5% nas recompensas de contratos por nível.", max: 8, baseCost: 4, growth: 1.52 },
-    { id: "prestigeTheory", name: "Memória da terra", icon: "✨", desc: "+5% nos pontos obtidos ao prestigiar por nível.", max: 8, baseCost: 5, growth: 1.55 },
-    { id: "soilMapping", name: "Mapeamento do solo", icon: "🗺️", desc: "−2% no custo dos níveis das plantações por nível.", max: 8, baseCost: 3, growth: 1.50 },
-    { id: "deadlineModel", name: "Modelagem de prazos", icon: "⏱️", desc: "+4% de prazo nos novos contratos por nível.", max: 8, baseCost: 4, growth: 1.52 },
-    { id: "orderAnalytics", name: "Análise de encomendas", icon: "📊", desc: "+5% nas recompensas de pedidos por nível.", max: 8, baseCost: 4, growth: 1.52 },
-    { id: "marketAutomation", name: "Venda inteligente", icon: "🏷️", desc: "+3% no valor das vendas automáticas por nível.", max: 8, baseCost: 3, growth: 1.50 },
-    { id: "farmEducation", name: "Educação agrícola", icon: "🎓", desc: "+4% de experiência da fazenda por nível.", max: 8, baseCost: 4, growth: 1.53 },
-    { id: "seedCatalog", name: "Catálogo de cultivares", icon: "📚", desc: "−2% no custo de compra das culturas por nível.", max: 8, baseCost: 4, growth: 1.53 }
+    { id: "acceleratedGermination", name: "Germinação acelerada", icon: "🧫", desc: "+7% de velocidade para todas as culturas por nível.", max: 10, baseCost: 2, growth: 1.48 },
+    { id: "hybridGenetics", name: "Genética híbrida", icon: "🧬", desc: "+8% de rendimento em todas as colheitas por nível.", max: 10, baseCost: 2, growth: 1.49 },
+    { id: "priceForecast", name: "Previsão de preços", icon: "📈", desc: "+6% no valor de todas as vendas por nível.", max: 10, baseCost: 3, growth: 1.50 },
+    { id: "coldChain", name: "Cadeia de conservação", icon: "🧺", desc: "+15% de capacidade no estoque compartilhado por nível.", max: 10, baseCost: 3, growth: 1.51 },
+    { id: "smartSeedCatalog", name: "Catálogo inteligente", icon: "📚", desc: "−3% no custo de compra das culturas por nível.", max: 10, baseCost: 3, growth: 1.51 },
+    { id: "cultivationAlgorithms", name: "Algoritmos de cultivo", icon: "🗺️", desc: "−3% no custo dos níveis das plantações por nível.", max: 10, baseCost: 3, growth: 1.52 },
+    { id: "negotiationModels", name: "Modelos de negociação", icon: "📋", desc: "+8% nas moedas oferecidas por contratos por nível.", max: 10, baseCost: 4, growth: 1.53 },
+    { id: "orderOptimization", name: "Otimização de pedidos", icon: "📊", desc: "+8% nas moedas recebidas por pedidos por nível.", max: 10, baseCost: 4, growth: 1.53 },
+    { id: "logisticsSimulation", name: "Simulação logística", icon: "⏱️", desc: "+6% de prazo nos novos contratos por nível.", max: 10, baseCost: 4, growth: 1.54 },
+    { id: "autonomousMarket", name: "Mercado autônomo", icon: "🏷️", desc: "+6% no valor das vendas automáticas por nível.", max: 10, baseCost: 4, growth: 1.53 },
+    { id: "agriculturalPedagogy", name: "Pedagogia agrícola", icon: "📖", desc: "+7% de experiência da fazenda por nível.", max: 10, baseCost: 4, growth: 1.54 },
+    { id: "prestigeMathematics", name: "Matemática do legado", icon: "✨", desc: "+8% nos pontos obtidos ao prestigiar por nível.", max: 10, baseCost: 5, growth: 1.56 }
   ];
 
   const prestigeUpgrades = [
-    { id: "seedCapital", name: "Capital de sementes", icon: "🪙", desc: "+250 moedas iniciais por nível.", max: 20, baseCost: 1, growth: 1.48 },
-    { id: "rootMemory", name: "Herança de sementes", icon: "🌿", desc: "Reduz em 4% o custo de compra das culturas por nível.", max: 12, baseCost: 2, growth: 1.62 },
-    { id: "greenLegacy", name: "Legado verde", icon: "🍃", desc: "+4% de velocidade e +3% de produção por nível.", max: 20, baseCost: 1, growth: 1.58 },
-    { id: "merchantCrown", name: "Feira permanente", icon: "🏷️", desc: "+5% no valor de venda por nível.", max: 18, baseCost: 2, growth: 1.64 },
-    { id: "academyLegacy", name: "Caderno ancestral", icon: "📚", desc: "+10% de pesquisa recebida por nível.", max: 12, baseCost: 3, growth: 1.72 },
-    { id: "storageLegacy", name: "Celeiro ancestral", icon: "🪵", desc: "+25% de capacidade permanente no estoque compartilhado por nível.", max: 15, baseCost: 2, growth: 1.66 }
+    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "👑", desc: "+1.500 moedas iniciais permanentes por nível.", max: 10, baseCost: 1, growth: 1.72 },
+    { id: "eternalHarvest", name: "Colheita eterna", icon: "🌾", desc: "+12% de velocidade e +10% de rendimento permanentes por nível.", max: 12, baseCost: 1, growth: 1.78 },
+    { id: "goldenExchange", name: "Bolsa dourada", icon: "💰", desc: "+15% no valor de todas as vendas permanentemente por nível.", max: 10, baseCost: 2, growth: 1.82 },
+    { id: "endlessGranary", name: "Celeiro sem fim", icon: "🏰", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 2, growth: 1.82 },
+    { id: "ancestralMastery", name: "Domínio ancestral", icon: "🌿", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 2, growth: 1.90 },
+    { id: "immortalAcademy", name: "Academia imortal", icon: "📚", desc: "+25% de pesquisa recebida e +3 pontos iniciais permanentes por nível.", max: 8, baseCost: 3, growth: 1.92 },
+    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "🌟", desc: "+20% nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
+    { id: "sovereignNetwork", name: "Rede soberana", icon: "🦅", desc: "+20% nas moedas de contratos e pedidos, +10% nos prazos e vendas automáticas por nível.", max: 8, baseCost: 4, growth: 2.00 }
   ];
 
 

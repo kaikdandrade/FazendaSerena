@@ -5584,3 +5584,60 @@ body.compact-cards #farmView .crop-upgrade-cta {
     grid-template-columns: 1fr !important;
   }
 }
+
+
+/* Revisão 12 — cards da Fazenda mais diretos e árvores de evolução renovadas. */
+#farmView .crop-level-strip {
+  justify-content: flex-start !important;
+}
+#farmView .crop-category-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  color: var(--ink-soft);
+  font-size: .59rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+#farmView .crop-category-list::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #659a5d;
+  box-shadow: 0 0 0 3px rgba(101,154,93,.12);
+}
+#farmView .crop-meta-row {
+  min-height: 0;
+  margin-top: 3px !important;
+}
+#farmView .crop-quick-stats {
+  margin-top: 6px;
+}
+#farmView .crop-quick-stats > span {
+  padding-inline: 7px;
+}
+#farmView .upgrade-mode-option,
+body.compact-cards #farmView .upgrade-mode-option {
+  font-size: .76rem !important;
+  line-height: 1 !important;
+}
+#farmView .crop-upgrade-summary {
+  justify-content: center !important;
+  min-height: 31px !important;
+}
+#farmView .crop-upgrade-summary > strong {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  font-size: .72rem;
+}
+#farmView .crop-upgrade-summary > span {
+  display: none !important;
+}
+#farmView .crop-upgrade-cta:disabled,
+.normalized-upgrade-card .button:disabled {
+  cursor: not-allowed !important;
+}

@@ -295,8 +295,6 @@
       const ring = $('[data-crop-ring]', card);
       const progressLabel = $('[data-crop-percent]', card);
       const cycle = $('[data-crop-cycle]', card);
-      const stock = $('[data-crop-stock]', card);
-      const route = $('[data-crop-route]', card);
 
       if (ring) {
         const previous = Number(ring.dataset.lastProgress || 0);
@@ -318,12 +316,6 @@
       }
       if (progressLabel) progressLabel.textContent = instant ? "∞" : paused ? "Ⅱ" : `${Math.floor(progress)}%`;
       if (cycle) cycle.textContent = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
-      if (stock) stock.textContent = engine.formatNumber(cropState.stock);
-      if (route) {
-        const kind = activeContracts.length ? "contract" : autoOrder ? "order" : cropState.autoSell ? "auto" : "stock";
-        route.className = `crop-route-pill route-${kind}`;
-        route.textContent = activeContracts.length ? `Contrato${activeContracts.length > 1 ? ` ×${activeContracts.length}` : ""}` : autoOrder ? "Pedido auto" : cropState.autoSell ? "Venda auto" : "Estoque";
-      }
       card.classList.toggle("auto-sell-enabled", Boolean(cropState.autoSell));
 
       if (updateControls) updateCropUpgradePanel(card, cropId);
@@ -398,16 +390,16 @@
     const action = $('[data-crop-upgrade-action]', card);
     if (summary) {
       summary.innerHTML = selection.maxed
-        ? `<span>Nível máximo alcançado</span><strong>300 / 300</strong>`
-        : `<span>${selection.mode === "max" ? (selection.levels > 0 ? `Máximo pelo saldo · +${selection.levels} nível${selection.levels === 1 ? "" : "is"}` : "Próximo nível ainda indisponível") : "Próximo nível"}</span><strong>${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}</strong>`;
+        ? `<strong>300 / 300</strong>`
+        : `<strong>${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}</strong>`;
     }
     if (action) {
       action.disabled = selection.maxed || !selection.affordable;
-      action.innerHTML = selection.maxed
+      action.textContent = selection.maxed
         ? "Plantação concluída"
         : selection.affordable
-          ? `${selection.mode === "max" ? `Aprimorar +${selection.levels}` : "Aprimorar +1"} ${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}`
-          : "Saldo insuficiente";
+          ? `Aprimorar +${selection.mode === "max" ? selection.levels : 1}`
+          : "Aprimorar";
     }
   }
 
@@ -431,7 +423,7 @@
             <div class="crop-art locked-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
             <div class="crop-info">
               <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
-              <div class="crop-meta-row"><span class="crop-category">${escapeHtml(category)}</span><span class="locked-cycle">Ciclo: ${crop.baseGrowth}s</span></div>
+              <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span><span class="locked-cycle">Ciclo: ${crop.baseGrowth}s</span></div>
             </div>
           </div>
           <button class="button primary full crop-buy-button" type="button" data-action="buy-crop" data-crop="${crop.id}" data-crop-purchase ${unlocked && canAffordPurchase ? "" : "disabled"}>${purchaseLabel}</button>
@@ -446,8 +438,6 @@
     const directRoute = data.autoSell || autoOrder || activeContracts.length > 0;
     const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
     const speedMaxed = data.level >= GameEngine.INSTANT_GROWTH_LEVEL;
-    const routeKind = activeContracts.length ? "contract" : autoOrder ? "order" : data.autoSell ? "auto" : "stock";
-    const routeLabel = activeContracts.length ? `Contrato${activeContracts.length > 1 ? ` ×${activeContracts.length}` : ""}` : autoOrder ? "Pedido auto" : data.autoSell ? "Venda auto" : "Estoque";
     const cycleLabel = instant ? "Contínua" : storageFull ? "Pausada" : formatLiveTime((1 - data.progress) * growthTime);
     const selection = getCropUpgradeSelection(crop.id);
 
@@ -455,7 +445,6 @@
       <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
         <div class="crop-level-strip" ${speedMaxed ? 'title="Velocidade máxima; níveis 251–300 aprimoram o rendimento desta cultura"' : ""}>
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
-          <span class="crop-route-pill route-${routeKind}" data-crop-route>${routeLabel}</span>
         </div>
         <div class="crop-head">
           <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
@@ -464,20 +453,19 @@
           </div>
           <div class="crop-info">
             <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3>${speedMaxed ? '<span class="instant-mini" title="Velocidade máxima">∞</span>' : ""}</div>
-            <div class="crop-meta-row"><span class="crop-category">${escapeHtml(category)}</span></div>
+            <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>
             <div class="crop-quick-stats">
               <span title="Tempo restante"><i>◷</i><b data-crop-cycle>${cycleLabel}</b></span>
-              <span title="Estoque desta cultura"><i>🧺</i><b data-crop-stock>${engine.formatNumber(data.stock)}</b></span>
             </div>
           </div>
         </div>
         <div class="crop-upgrade-panel crop-upgrade-redesign">
           <div class="upgrade-mode-selector" role="group" aria-label="Quantidade de aprimoramentos">
-            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}">+1 nível</button>
-            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Máximo possível</button>
+            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}">+1</button>
+            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
           </div>
-          <div class="crop-upgrade-summary" data-crop-upgrade-summary>${selection.maxed ? `<span>Nível máximo alcançado</span><strong>300 / 300</strong>` : `<span>${selection.mode === "max" ? (selection.levels > 0 ? `Máximo pelo saldo · +${selection.levels} nível${selection.levels === 1 ? "" : "is"}` : "Próximo nível ainda indisponível") : "Próximo nível"}</span><strong>${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}</strong>`}</div>
-          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : selection.affordable ? `${selection.mode === "max" ? `Aprimorar +${selection.levels}` : "Aprimorar +1"} ${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}` : "Saldo insuficiente"}</button>
+          <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "300 / 300" : resourceAmount("coins", -selection.cost, { sign: true, compact: true })}</strong></div>
+          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : selection.affordable ? `Aprimorar +${selection.mode === "max" ? selection.levels : 1}` : "Aprimorar"}</button>
         </div>
       </article>`;
   }
@@ -558,7 +546,7 @@
       <article class="upgrade-card normalized-upgrade-card ${!maxed && !affordable ? "unaffordable" : ""}">
         <div class="upgrade-head"><div><h3>${escapeHtml(item.name)}</h3><span class="crop-category">Nível ${level} / ${item.max}</span></div><span class="upgrade-icon" aria-hidden="true">${item.icon}</span></div>
         <p>${enrichResourceText(item.desc)}</p>
-        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : affordable ? `Aprimorar ${resourceAmount(resourceType, -cost, { sign: true, compact: true })}` : "Recurso insuficiente"}</button>
+        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { sign: true, compact: true })}`}</button>
       </article>`;
   }
 
