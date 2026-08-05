@@ -1,12 +1,14 @@
 "use strict";
 
 /**
- * Motor global de áudio.
+ * Motor global de áudio de baixa latência.
  *
- * Os efeitos principais usam um canal interrompível para evitar acúmulo em
- * cliques rápidos. Os impactos dos recursos usam pequenos pools independentes,
- * permitindo que cada partícula toque ao alcançar o contador sem interromper
- * a navegação, a recompensa ou outros impactos que ainda estejam soando.
+ * Os efeitos são carregados e decodificados antecipadamente com Web Audio API.
+ * Assim, o clique apenas inicia um buffer que já está na memória, sem trocar o
+ * arquivo de um elemento <audio> no momento da interação. Navegação e clique
+ * também são agendados com um intervalo curto, em vez de esperar um som inteiro
+ * terminar. HTMLAudio permanece como compatibilidade para navegadores sem Web
+ * Audio ou em caso de falha no carregamento de algum efeito.
  */
 class SoundEngine {
   static FIXED_MAPPINGS = Object.freeze({
@@ -36,6 +38,7 @@ class SoundEngine {
   });
 
   static RESOURCE_COUNTER_VOLUME = 0.08;
+  static NAVIGATION_DELAY_SECONDS = 0.045;
 
   static MUSIC_SOURCES = Object.freeze({
     betweenLightAndShadows: "assets/sounds/music/between_light_and_shadows.wav",
@@ -52,33 +55,49 @@ class SoundEngine {
   });
 
   constructor() {
-    this.effectChannel = new Audio();
-    this.effectChannel.preload = "auto";
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    this.audioContext = AudioContextClass
+      ? new AudioContextClass({ latencyHint: "interactive" })
+      : null;
 
-    this.concurrentPoolSize = 10;
-    this.concurrentPools = new Map();
-    this.concurrentPoolCursors = new Map();
+    this.effectBuffers = new Map();
+    this.effectBufferPromises = new Map();
+    this.primarySources = new Set();
+    this.concurrentSources = new Set();
+    this.primaryFallbackChannels = new Set();
+    this.concurrentFallbackChannels = new Set();
+    this.fallbackPools = new Map();
+    this.fallbackPoolCursors = new Map();
+    this.pendingTimers = new Set();
+    this.playSequence = 0;
 
-    this.musicTrack = "betweenLightAndShadows";
+    const audioDefaults = window.FazendaSerenaConfig.audioDefaults;
+    this.masterVolume = SoundEngine.toVolume(audioDefaults.masterVolume);
+    this.effectVolume = SoundEngine.toVolume(audioDefaults.effectVolume);
+    this.musicVolume = SoundEngine.toVolume(audioDefaults.musicVolume);
+    this.musicTrack = SoundEngine.MUSIC_SOURCES[audioDefaults.musicTrack]
+      ? audioDefaults.musicTrack
+      : "betweenLightAndShadows";
+
     this.musicChannel = new Audio(SoundEngine.MUSIC_SOURCES[this.musicTrack]);
     this.musicChannel.preload = "auto";
     this.musicChannel.loop = true;
-
-    this.masterVolume = 1;
-    this.effectVolume = 0.55;
-    this.musicVolume = SoundEngine.toVolume(window.FazendaSerenaConfig.audioDefaults.musicVolume);
-    this.playSequence = 0;
+    this.musicChannel.playsInline = true;
     this.musicStarted = false;
+    try { this.musicChannel.load(); } catch (_) {}
+
+    this.preloadEffects();
   }
 
   configure(settings = {}) {
-    this.masterVolume = SoundEngine.toVolume(settings.masterVolume ?? 100);
-    this.effectVolume = SoundEngine.toVolume(settings.effectVolume ?? settings.soundVolume ?? 55);
-    this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? window.FazendaSerenaConfig.audioDefaults.musicVolume);
+    const audioDefaults = window.FazendaSerenaConfig.audioDefaults;
+    this.masterVolume = SoundEngine.toVolume(settings.masterVolume ?? audioDefaults.masterVolume);
+    this.effectVolume = SoundEngine.toVolume(settings.effectVolume ?? settings.soundVolume ?? audioDefaults.effectVolume);
+    this.musicVolume = SoundEngine.toVolume(settings.musicVolume ?? audioDefaults.musicVolume);
 
     const requestedTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack]
       ? settings.musicTrack
-      : "betweenLightAndShadows";
+      : audioDefaults.musicTrack;
 
     if (requestedTrack !== this.musicTrack) {
       this.musicTrack = requestedTrack;
@@ -86,19 +105,17 @@ class SoundEngine {
       const absoluteSource = new URL(source, document.baseURI).href;
       const wasPlaying = !this.musicChannel.paused;
       this.musicChannel.pause();
-      if (this.musicChannel.src !== absoluteSource) this.musicChannel.src = source;
-      this.musicChannel.currentTime = 0;
+      if (this.musicChannel.src !== absoluteSource) {
+        this.musicChannel.src = source;
+        try { this.musicChannel.load(); } catch (_) {}
+      }
+      try { this.musicChannel.currentTime = 0; } catch (_) {}
       if (wasPlaying) this.playMusic();
     }
 
-    const effectVolume = this.getEffectiveEffectVolume();
-    this.effectChannel.volume = effectVolume;
-    this.concurrentPools.forEach(pool => pool.forEach(channel => {
-      channel.volume = effectVolume;
-    }));
     this.musicChannel.volume = this.getEffectiveMusicVolume();
 
-    if (effectVolume <= 0) this.stop();
+    if (this.getEffectiveEffectVolume() <= 0) this.stop();
     if (this.getEffectiveMusicVolume() <= 0) this.pauseMusic();
     else this.playMusic();
   }
@@ -128,13 +145,68 @@ class SoundEngine {
     return this.getEffectiveEffectVolume();
   }
 
+  preloadEffects() {
+    const uniqueSources = [...new Set(Object.values(SoundEngine.FIXED_MAPPINGS))];
+    uniqueSources.forEach(source => {
+      this.prepareFallbackPool(source);
+      if (!this.audioContext || this.effectBufferPromises.has(source)) return;
+
+      const absoluteSource = new URL(source, document.baseURI).href;
+      const request = fetch(absoluteSource, { cache: "force-cache" })
+        .then(response => {
+          if (!response.ok) throw new Error(`Falha ao carregar áudio: ${response.status}`);
+          return response.arrayBuffer();
+        })
+        .then(arrayBuffer => this.audioContext.decodeAudioData(arrayBuffer))
+        .then(buffer => {
+          this.effectBuffers.set(source, buffer);
+          return buffer;
+        })
+        .catch(() => null);
+
+      this.effectBufferPromises.set(source, request);
+    });
+  }
+
+  prepareFallbackPool(source) {
+    if (this.fallbackPools.has(source)) return this.fallbackPools.get(source);
+
+    const poolSize = 4;
+    const pool = Array.from({ length: poolSize }, () => {
+      const channel = new Audio(source);
+      channel.preload = "auto";
+      channel.playsInline = true;
+      try { channel.load(); } catch (_) {}
+      return channel;
+    });
+
+    this.fallbackPools.set(source, pool);
+    this.fallbackPoolCursors.set(source, 0);
+    return pool;
+  }
+
+  unlockAudio() {
+    if (!this.audioContext || this.audioContext.state === "running") {
+      return Promise.resolve(true);
+    }
+
+    return this.audioContext.resume()
+      .then(() => this.audioContext.state === "running")
+      .catch(() => false);
+  }
+
   play(action, options = {}) {
     const source = options.source ?? SoundEngine.FIXED_MAPPINGS[action];
     const volume = this.getEffectPlaybackVolume(options);
     if (!source || volume <= 0) return false;
 
     const sequence = ++this.playSequence;
-    this.playSource(source, volume, sequence);
+    this.stopPrimary();
+    this.playPreparedSource(source, volume, {
+      sequence,
+      group: "primary",
+      delaySeconds: 0
+    });
     return true;
   }
 
@@ -143,21 +215,11 @@ class SoundEngine {
     const volume = this.getEffectPlaybackVolume(options);
     if (!source || volume <= 0) return false;
 
-    const pool = this.getConcurrentPool(source);
-    const nextCursor = this.concurrentPoolCursors.get(source) || 0;
-    let channelIndex = pool.findIndex(channel => channel.paused || channel.ended);
-    if (channelIndex < 0) channelIndex = nextCursor % pool.length;
-
-    const channel = pool[channelIndex];
-    this.concurrentPoolCursors.set(source, (channelIndex + 1) % pool.length);
-    channel.pause();
-    try { channel.currentTime = 0; } catch (_) {}
-    channel.volume = volume;
-
-    const playback = channel.play();
-    if (playback && typeof playback.catch === "function") {
-      playback.catch(() => channel.pause());
-    }
+    this.playPreparedSource(source, volume, {
+      sequence: this.playSequence,
+      group: "concurrent",
+      delaySeconds: 0
+    });
     return true;
   }
 
@@ -168,73 +230,150 @@ class SoundEngine {
       : false;
   }
 
-  getConcurrentPool(source) {
-    if (this.concurrentPools.has(source)) return this.concurrentPools.get(source);
-
-    const pool = Array.from({ length: this.concurrentPoolSize }, () => {
-      const channel = new Audio(source);
-      channel.preload = "auto";
-      channel.volume = this.getEffectiveEffectVolume();
-      return channel;
-    });
-
-    this.concurrentPools.set(source, pool);
-    this.concurrentPoolCursors.set(source, 0);
-    return pool;
-  }
-
   playNavigation() {
     const volume = this.getEffectiveEffectVolume();
     if (volume <= 0) return false;
 
     const sequence = ++this.playSequence;
-    this.playSource(SoundEngine.FIXED_MAPPINGS.click, volume, sequence, () => {
-      if (sequence !== this.playSequence) return;
-      this.playSource(SoundEngine.FIXED_MAPPINGS.navigation, volume, sequence);
+    this.stopPrimary();
+    this.playPreparedSource(SoundEngine.FIXED_MAPPINGS.click, volume, {
+      sequence,
+      group: "primary",
+      delaySeconds: 0
+    });
+    this.playPreparedSource(SoundEngine.FIXED_MAPPINGS.navigation, volume, {
+      sequence,
+      group: "primary",
+      delaySeconds: SoundEngine.NAVIGATION_DELAY_SECONDS
     });
     return true;
   }
 
-  playSource(source, volume, sequence, onEnded = null) {
-    this.effectChannel.pause();
-    this.effectChannel.onended = null;
-    this.effectChannel.onerror = null;
-    try { this.effectChannel.currentTime = 0; } catch (_) {}
+  playPreparedSource(source, volume, options) {
+    this.unlockAudio();
 
-    const absoluteSource = new URL(source, document.baseURI).href;
-    if (this.effectChannel.src !== absoluteSource) this.effectChannel.src = source;
-    this.effectChannel.volume = volume;
-
-    if (typeof onEnded === "function") {
-      this.effectChannel.onended = () => {
-        if (sequence === this.playSequence) onEnded();
-      };
+    const buffer = this.effectBuffers.get(source);
+    if (buffer && this.audioContext) {
+      this.playDecodedBuffer(buffer, volume, options);
+      return;
     }
 
-    const playback = this.effectChannel.play();
-    if (playback && typeof playback.catch === "function") {
-      playback.catch(() => {
-        if (sequence === this.playSequence) this.effectChannel.pause();
-      });
+    this.playFallback(source, volume, options);
+  }
+
+  playDecodedBuffer(buffer, volume, { sequence, group, delaySeconds = 0 }) {
+    const context = this.audioContext;
+    if (!context) return;
+
+    const sourceNode = context.createBufferSource();
+    const gainNode = context.createGain();
+    const collection = group === "primary" ? this.primarySources : this.concurrentSources;
+    const startAt = context.currentTime + Math.max(0, delaySeconds);
+
+    sourceNode.buffer = buffer;
+    gainNode.gain.setValueAtTime(volume, startAt);
+    sourceNode.connect(gainNode);
+    gainNode.connect(context.destination);
+    collection.add(sourceNode);
+
+    sourceNode.onended = () => {
+      collection.delete(sourceNode);
+      try { sourceNode.disconnect(); } catch (_) {}
+      try { gainNode.disconnect(); } catch (_) {}
+    };
+
+    try {
+      if (group === "primary" && sequence !== this.playSequence) return;
+      sourceNode.start(startAt);
+    } catch (_) {
+      collection.delete(sourceNode);
     }
+  }
+
+  playFallback(source, volume, { sequence, group, delaySeconds = 0 }) {
+    const playNow = () => {
+      if (group === "primary" && sequence !== this.playSequence) return;
+
+      const pool = this.prepareFallbackPool(source);
+      const cursor = this.fallbackPoolCursors.get(source) || 0;
+      let channelIndex = pool.findIndex(channel => channel.paused || channel.ended);
+      if (channelIndex < 0) channelIndex = cursor % pool.length;
+
+      const channel = pool[channelIndex];
+      const collection = group === "primary"
+        ? this.primaryFallbackChannels
+        : this.concurrentFallbackChannels;
+
+      this.fallbackPoolCursors.set(source, (channelIndex + 1) % pool.length);
+      channel.pause();
+      try { channel.currentTime = 0; } catch (_) {}
+      channel.volume = volume;
+      collection.add(channel);
+
+      const cleanup = () => collection.delete(channel);
+      channel.onended = cleanup;
+      channel.onerror = cleanup;
+
+      const playback = channel.play();
+      if (playback && typeof playback.catch === "function") {
+        playback.catch(cleanup);
+      }
+    };
+
+    const delayMs = Math.max(0, delaySeconds * 1000);
+    if (delayMs <= 0) {
+      playNow();
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      this.pendingTimers.delete(timer);
+      playNow();
+    }, delayMs);
+    this.pendingTimers.add(timer);
+  }
+
+  stopPrimary() {
+    this.primarySources.forEach(sourceNode => {
+      try { sourceNode.stop(); } catch (_) {}
+    });
+    this.primarySources.clear();
+
+    this.primaryFallbackChannels.forEach(channel => {
+      channel.pause();
+      channel.onended = null;
+      channel.onerror = null;
+      try { channel.currentTime = 0; } catch (_) {}
+    });
+    this.primaryFallbackChannels.clear();
+
+    this.pendingTimers.forEach(timer => window.clearTimeout(timer));
+    this.pendingTimers.clear();
   }
 
   stop() {
     this.playSequence += 1;
-    this.effectChannel.pause();
-    this.effectChannel.onended = null;
-    this.effectChannel.onerror = null;
-    try { this.effectChannel.currentTime = 0; } catch (_) {}
+    this.stopPrimary();
 
-    this.concurrentPools.forEach(pool => pool.forEach(channel => {
+    this.concurrentSources.forEach(sourceNode => {
+      try { sourceNode.stop(); } catch (_) {}
+    });
+    this.concurrentSources.clear();
+
+    this.concurrentFallbackChannels.forEach(channel => {
       channel.pause();
+      channel.onended = null;
+      channel.onerror = null;
       try { channel.currentTime = 0; } catch (_) {}
-    }));
+    });
+    this.concurrentFallbackChannels.clear();
   }
 
   playMusic() {
     const volume = this.getEffectiveMusicVolume();
     if (volume <= 0) return false;
+
+    this.unlockAudio();
     this.musicChannel.volume = volume;
     const playback = this.musicChannel.play();
     if (playback && typeof playback.then === "function") {
@@ -251,6 +390,7 @@ class SoundEngine {
   }
 
   resumeMusic() {
+    this.unlockAudio();
     return this.playMusic();
   }
 }

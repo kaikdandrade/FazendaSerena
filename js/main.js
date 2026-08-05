@@ -3,6 +3,8 @@
 (() => {
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const experienceDefaults = window.FazendaSerenaConfig.experienceDefaults;
+  const audioDefaults = window.FazendaSerenaConfig.audioDefaults;
   const soundEngine = new SoundEngine();
   let lastFrame = performance.now();
   let lastRender = 0;
@@ -669,22 +671,34 @@
 
   function applySettings() {
     const settings = engine.state.settings;
-    document.body.dataset.ambient = String(Boolean(settings.ambient));
-    document.documentElement.style.setProperty("--ui-scale", String(((Number(settings.uiScale) || 100) / 100) * 0.85));
+    const ambient = settings.ambient ?? experienceDefaults.ambient;
+    const uiScale = settings.uiScale ?? experienceDefaults.uiScale;
+    const numberFormat = ["brazilian", "international"].includes(settings.numberFormat)
+      ? settings.numberFormat
+      : experienceDefaults.numberFormat;
+    const masterVolume = settings.masterVolume ?? audioDefaults.masterVolume;
+    const effectVolume = settings.effectVolume ?? audioDefaults.effectVolume;
+    const musicVolume = settings.musicVolume ?? audioDefaults.musicVolume;
+    const musicTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack]
+      ? settings.musicTrack
+      : audioDefaults.musicTrack;
 
-    if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
-    if (dom.uiScaleSetting && document.activeElement !== dom.uiScaleSetting) dom.uiScaleSetting.value = String(settings.uiScale || 100);
-    if (dom.uiScaleText) dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
-    if (dom.numberFormatSetting && document.activeElement !== dom.numberFormatSetting) dom.numberFormatSetting.value = settings.numberFormat === "international" ? "international" : "brazilian";
+    document.body.dataset.ambient = String(Boolean(ambient));
+    document.documentElement.style.setProperty("--ui-scale", String((Number(uiScale) / 100) * 0.85));
 
-    soundEngine.configure(settings);
-    if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(settings.masterVolume ?? 100);
-    if (dom.masterVolumeText) dom.masterVolumeText.textContent = `${settings.masterVolume ?? 100}%`;
-    if (dom.effectVolumeSetting && document.activeElement !== dom.effectVolumeSetting) dom.effectVolumeSetting.value = String(settings.effectVolume ?? 55);
-    if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${settings.effectVolume ?? 55}%`;
-    if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? window.FazendaSerenaConfig.audioDefaults.musicVolume);
-    if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? window.FazendaSerenaConfig.audioDefaults.musicVolume}%`;
-    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = SoundEngine.MUSIC_SOURCES[settings.musicTrack] ? settings.musicTrack : "betweenLightAndShadows";
+    if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(ambient);
+    if (dom.uiScaleSetting && document.activeElement !== dom.uiScaleSetting) dom.uiScaleSetting.value = String(uiScale);
+    if (dom.uiScaleText) dom.uiScaleText.textContent = `${uiScale}%`;
+    if (dom.numberFormatSetting && document.activeElement !== dom.numberFormatSetting) dom.numberFormatSetting.value = numberFormat;
+
+    soundEngine.configure({ ...settings, masterVolume, effectVolume, musicVolume, musicTrack });
+    if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(masterVolume);
+    if (dom.masterVolumeText) dom.masterVolumeText.textContent = `${masterVolume}%`;
+    if (dom.effectVolumeSetting && document.activeElement !== dom.effectVolumeSetting) dom.effectVolumeSetting.value = String(effectVolume);
+    if (dom.effectVolumeText) dom.effectVolumeText.textContent = `${effectVolume}%`;
+    if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(musicVolume);
+    if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${musicVolume}%`;
+    if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = musicTrack;
     [dom.uiScaleSetting, dom.masterVolumeSetting, dom.effectVolumeSetting, dom.musicVolumeSetting].forEach(syncRangeVisual);
   }
 
@@ -2106,9 +2120,12 @@
       soundEngine.play("click");
     }, true);
 
-    const unlockMusic = () => soundEngine.resumeMusic();
-    document.addEventListener("pointerdown", unlockMusic, { once: true, passive: true });
-    document.addEventListener("keydown", unlockMusic, { once: true });
+    const unlockAudio = () => {
+      soundEngine.unlockAudio();
+      soundEngine.resumeMusic();
+    };
+    document.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+    document.addEventListener("keydown", unlockAudio, { once: true });
 
     window.addEventListener("scroll", syncScrollUI, { passive: true });
     window.addEventListener("resize", syncScrollUI, { passive: true });

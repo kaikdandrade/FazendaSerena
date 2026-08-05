@@ -2,7 +2,8 @@
 
 class GameEngine {
   static APP_VERSION = window.FazendaSerenaConfig.appVersion;
-  static DEFAULT_MUSIC_VOLUME = window.FazendaSerenaConfig.audioDefaults.musicVolume;
+  static EXPERIENCE_DEFAULTS = window.FazendaSerenaConfig.experienceDefaults;
+  static AUDIO_DEFAULTS = window.FazendaSerenaConfig.audioDefaults;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -53,14 +54,18 @@ class GameEngine {
     const prestigeUpgrades = { ...(permanent.prestigeUpgrades || {}) };
     const prestigePoints = Number(permanent.prestigePoints || 0);
     const prestiges = Number(permanent.prestiges || 0);
+    const experienceDefaults = GameEngine.EXPERIENCE_DEFAULTS;
+    const audioDefaults = GameEngine.AUDIO_DEFAULTS;
+    const requestedNumberFormat = permanent.settings?.numberFormat;
+    const requestedMusicTrack = permanent.settings?.musicTrack;
     const settings = {
-      ambient: permanent.settings?.ambient ?? true,
-      uiScale: permanent.settings?.uiScale ?? 100,
-      masterVolume: permanent.settings?.masterVolume ?? 100,
-      effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? 55,
-      musicVolume: permanent.settings?.musicVolume ?? GameEngine.DEFAULT_MUSIC_VOLUME,
-      musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows",
-      numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian",
+      ambient: permanent.settings?.ambient ?? experienceDefaults.ambient,
+      uiScale: permanent.settings?.uiScale ?? experienceDefaults.uiScale,
+      masterVolume: permanent.settings?.masterVolume ?? audioDefaults.masterVolume,
+      effectVolume: permanent.settings?.effectVolume ?? permanent.settings?.soundVolume ?? audioDefaults.effectVolume,
+      musicVolume: permanent.settings?.musicVolume ?? audioDefaults.musicVolume,
+      musicTrack: GameEngine.MUSIC_TRACKS.includes(requestedMusicTrack) ? requestedMusicTrack : audioDefaults.musicTrack,
+      numberFormat: ["brazilian", "international"].includes(requestedNumberFormat) ? requestedNumberFormat : experienceDefaults.numberFormat,
       playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
       playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
       playerRankingOptOut: Boolean(permanent.settings?.playerRankingOptOut)
@@ -234,13 +239,17 @@ class GameEngine {
       orders: {}
     };
 
+    const experienceDefaults = GameEngine.EXPERIENCE_DEFAULTS;
+    const audioDefaults = GameEngine.AUDIO_DEFAULTS;
     const legacyEffectsEnabled = merged.settings.soundEnabled !== false;
     const legacyMusicEnabled = merged.settings.musicEnabled !== false;
-    merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? 100) || 0));
-    merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? 55) || 0 : 0));
-    merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? GameEngine.DEFAULT_MUSIC_VOLUME) || 0 : 0));
-    merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
-    merged.settings.numberFormat = merged.settings.numberFormat === "international" ? "international" : "brazilian";
+    merged.settings.ambient = typeof merged.settings.ambient === "boolean" ? merged.settings.ambient : experienceDefaults.ambient;
+    merged.settings.uiScale = Math.max(85, Math.min(115, Number(merged.settings.uiScale ?? experienceDefaults.uiScale) || experienceDefaults.uiScale));
+    merged.settings.masterVolume = Math.max(0, Math.min(100, Number(merged.settings.masterVolume ?? audioDefaults.masterVolume) || 0));
+    merged.settings.effectVolume = Math.max(0, Math.min(100, legacyEffectsEnabled ? Number(merged.settings.effectVolume ?? merged.settings.soundVolume ?? audioDefaults.effectVolume) || 0 : 0));
+    merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? audioDefaults.musicVolume) || 0 : 0));
+    merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : audioDefaults.musicTrack;
+    merged.settings.numberFormat = ["brazilian", "international"].includes(merged.settings.numberFormat) ? merged.settings.numberFormat : experienceDefaults.numberFormat;
     merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
     merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
     merged.settings.playerRankingOptOut = Boolean(merged.settings.playerRankingOptOut);
@@ -326,7 +335,7 @@ class GameEngine {
     // A antiga escala visual de 85% passou a equivaler ao novo 100%.
     // Preserva a aparência de quem havia escolhido explicitamente 85% antes da migração.
     if (legacySaveFormat < 12 && Number(input.settings?.uiScale) === 85) {
-      merged.settings.uiScale = 100;
+      merged.settings.uiScale = GameEngine.EXPERIENCE_DEFAULTS.uiScale;
     }
 
     this.data.crops.forEach(crop => {
