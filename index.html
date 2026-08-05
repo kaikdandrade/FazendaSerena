@@ -109,7 +109,7 @@
           <div>
             <p class="eyebrow">produção guardada</p>
             <h1>Estoque da fazenda</h1>
-            <p class="section-copy">Venda em pequenas quantidades ou esvazie o celeiro de uma vez. Os preços variam suavemente com as estações e sua reputação.</p>
+            <p class="section-copy">Venda em pequenas quantidades ou esvazie o celeiro de uma vez. Os preços variam suavemente com as estações e as evoluções da fazenda.</p>
           </div>
           <button class="button primary" id="sellAllStock" type="button">Vender todo o estoque</button>
         </div>
@@ -141,24 +141,57 @@
       </section>
 
       <section class="view" id="officeView" data-view-panel="officeView">
-        <div class="section-heading">
+        <div class="section-heading office-heading">
           <div>
-            <p class="eyebrow">parcerias e recompensas</p>
-            <h1>Escritório da cooperativa</h1>
-            <p class="section-copy">Entregue pedidos industriais por valores melhores e construa uma reputação que libera novas sementes.</p>
+            <p class="eyebrow">organização e metas</p>
+            <h1>Escritório da fazenda</h1>
+            <p class="section-copy">Contratos têm prazo, pedidos acompanham cada cultura e missões recompensam marcos importantes da sua história.</p>
           </div>
-          <button class="button secondary" id="rerollContracts" type="button">Renovar contratos</button>
         </div>
-        <div class="contract-grid" id="contractList"></div>
 
-        <div class="section-divider"></div>
-        <div class="section-heading compact-heading">
-          <div>
-            <p class="eyebrow">metas sem prazo</p>
-            <h2>Missões da fazenda</h2>
-          </div>
+        <div class="office-summary" id="officeSummary"></div>
+
+        <div class="office-workspace panel-card">
+          <nav class="office-tabs" aria-label="Seções do escritório" role="tablist">
+            <button class="office-tab active" type="button" data-office-tab="contracts" role="tab" aria-selected="true"><span>📑 Contratos</span><b id="contractTabCount">0</b></button>
+            <button class="office-tab" type="button" data-office-tab="orders" role="tab" aria-selected="false"><span>🧾 Pedidos</span><b id="orderTabCount">0</b></button>
+            <button class="office-tab" type="button" data-office-tab="missions" role="tab" aria-selected="false"><span>🏅 Missões</span><b id="missionTabCount">0</b></button>
+          </nav>
+
+          <section class="office-panel active" data-office-panel="contracts" role="tabpanel">
+            <div class="section-heading compact-heading office-panel-heading">
+              <div>
+                <p class="eyebrow">oportunidades com prazo</p>
+                <h2>Contratos da cooperativa</h2>
+                <p class="section-copy">Remessas temporárias com pagamento e pesquisa extras. Quando um contrato expira, outro ocupa seu lugar.</p>
+              </div>
+              <button class="button secondary" id="rerollContracts" type="button">Renovar contratos</button>
+            </div>
+            <div class="contract-grid" id="contractList"></div>
+          </section>
+
+          <section class="office-panel" data-office-panel="orders" role="tabpanel" hidden>
+            <div class="section-heading compact-heading office-panel-heading">
+              <div>
+                <p class="eyebrow">encomendas permanentes</p>
+                <h2>Pedidos das culturas</h2>
+                <p class="section-copy">Cada cultura comprada recebe uma sequência fixa de pedidos. Entregas podem ser parciais e o progresso nunca expira.</p>
+              </div>
+            </div>
+            <div class="order-grid" id="orderList"></div>
+          </section>
+
+          <section class="office-panel" data-office-panel="missions" role="tabpanel" hidden>
+            <div class="section-heading compact-heading office-panel-heading">
+              <div>
+                <p class="eyebrow">conquistas sem prazo</p>
+                <h2>Missões da fazenda</h2>
+                <p class="section-copy">Objetivos de mercado, contratos, pedidos, crescimento e prestígio. Missões concluídas permanecem registradas entre jornadas.</p>
+              </div>
+            </div>
+            <div class="mission-grid" id="missionList"></div>
+          </section>
         </div>
-        <div class="mission-grid" id="missionList"></div>
       </section>
 
       <section class="view" id="settingsView" data-view-panel="settingsView">
@@ -207,11 +240,11 @@
           <article class="panel-card settings-card guide-card">
             <h2>Como jogar</h2>
             <ol>
-              <li>Comece com a cebola e venda os primeiros produtos armazenados.</li>
-              <li>Novas culturas são liberadas com nível da fazenda e reputação.</li>
+              <li>Compre a cebola gratuitamente e escolha quando adquirir a cenoura.</li>
+              <li>A fazenda mostra as culturas do seu nível e antecipa somente o próximo nível bloqueado.</li>
               <li>A barra de produção mostra quanto falta para o próximo ciclo automático.</li>
               <li>Todas as culturas usam o mesmo estoque, que começa com 200 espaços e pode ser aprimorado.</li>
-              <li>Contratos concedem pesquisa e reputação, enquanto missões não expiram.</li>
+              <li>Contratos têm prazo, pedidos são permanentes por cultura e missões não expiram.</li>
               <li>O prestígio reinicia a fazenda, mas preserva pontos e legados permanentes.</li>
             </ol>
           </article>

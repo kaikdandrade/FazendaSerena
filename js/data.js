@@ -92,7 +92,6 @@ window.GameData = (() => {
       best,
       index,
       unlockLevel: 1 + Math.floor(index * 0.58),
-      unlockReputation: Math.max(0, Math.floor((index - 3) / 4)),
       cost: index === 0 ? 0 : Math.round(42 * Math.pow(1.43, index) + index * 18),
       basePrice: Math.max(2, Math.round(2.2 * Math.pow(1.205, index))),
       baseGrowth: Number((5.2 + index * 0.52 + band * 0.9).toFixed(1)),
@@ -119,24 +118,45 @@ window.GameData = (() => {
 
   const prestigeUpgrades = [
     { id: "seedCapital", name: "Capital de sementes", icon: "🪙", desc: "+250 moedas iniciais por nível.", max: 20, baseCost: 1, growth: 1.48 },
-    { id: "rootMemory", name: "Memória das raízes", icon: "🌿", desc: "Comece com +1 cultura já comprada por nível.", max: 12, baseCost: 2, growth: 1.62 },
+    { id: "rootMemory", name: "Herança de sementes", icon: "🌿", desc: "Reduz em 4% o custo de compra das culturas por nível.", max: 12, baseCost: 2, growth: 1.62 },
     { id: "greenLegacy", name: "Legado verde", icon: "🍃", desc: "+4% de velocidade e +3% de produção por nível.", max: 20, baseCost: 1, growth: 1.58 },
     { id: "merchantCrown", name: "Feira permanente", icon: "🏷️", desc: "+5% no valor de venda por nível.", max: 18, baseCost: 2, growth: 1.64 },
     { id: "academyLegacy", name: "Caderno ancestral", icon: "📚", desc: "+10% de pesquisa recebida por nível.", max: 12, baseCost: 3, growth: 1.72 },
     { id: "storageLegacy", name: "Celeiro ancestral", icon: "🪵", desc: "+75 espaços permanentes no estoque compartilhado.", max: 15, baseCost: 2, growth: 1.66 }
   ];
 
-  const missions = [
-    { id: "harvest25", title: "Primeiras cestas", desc: "Colha 25 produtos.", metric: "harvested", target: 25, reward: { coins: 160 } },
-    { id: "own3", title: "Canteiros variados", desc: "Tenha 3 culturas diferentes.", metric: "owned", target: 3, reward: { research: 2 } },
-    { id: "sell100", title: "Feira da vila", desc: "Venda 100 produtos.", metric: "sold", target: 100, reward: { coins: 600, research: 1 } },
-    { id: "cropLevels6", title: "Canteiros aprimorados", desc: "Some 6 níveis entre suas plantações.", metric: "cropLevels", target: 6, reward: { coins: 850 } },
-    { id: "contract3", title: "Parcerias locais", desc: "Complete 3 contratos.", metric: "contracts", target: 3, reward: { research: 5 } },
-    { id: "cropLevel8", title: "Cultivo experiente", desc: "Aprimore uma plantação até o nível 8.", metric: "maxCropLevel", target: 8, reward: { coins: 1800, research: 3 } },
-    { id: "farm12", title: "Fazenda florescente", desc: "Alcance o nível 12 da fazenda.", metric: "farmLevel", target: 12, reward: { coins: 5000, research: 5 } },
-    { id: "stock1000", title: "Celeiro cheio", desc: "Mantenha 1.000 produtos em estoque.", metric: "stock", target: 1000, reward: { research: 8 } },
-    { id: "earn100k", title: "Cooperativa próspera", desc: "Ganhe 100 mil moedas no total.", metric: "coinsEarned", target: 100000, reward: { research: 12 } }
+  const orderSteps = [
+    { amount: 5, rewardMultiplier: 1.25, research: 0 },
+    { amount: 20, rewardMultiplier: 1.30, research: 0 },
+    { amount: 50, rewardMultiplier: 1.35, research: 1 },
+    { amount: 120, rewardMultiplier: 1.40, research: 1 },
+    { amount: 250, rewardMultiplier: 1.45, research: 2 },
+    { amount: 500, rewardMultiplier: 1.50, research: 2 },
+    { amount: 1000, rewardMultiplier: 1.56, research: 3 },
+    { amount: 2000, rewardMultiplier: 1.63, research: 4 },
+    { amount: 3500, rewardMultiplier: 1.70, research: 5 },
+    { amount: 5500, rewardMultiplier: 1.78, research: 7 },
+    { amount: 7500, rewardMultiplier: 1.88, research: 9 },
+    { amount: 10000, rewardMultiplier: 2.00, research: 12 }
   ];
 
-  return { categories, seasons, crops, upgrades, research, prestigeUpgrades, missions };
+  const missions = [
+    { id: "sellRoots100", title: "Raízes na feira", desc: "Venda 100 raízes e tubérculos diretamente no mercado.", metric: "categorySold", category: "root", target: 100, reward: { coins: 700 } },
+    { id: "orders3", title: "Caderno de encomendas", desc: "Conclua 3 pedidos estáticos de qualquer cultura.", metric: "orders", target: 3, reward: { research: 3 } },
+    { id: "contracts3", title: "Primeiros acordos", desc: "Cumpra 3 contratos temporários da cooperativa.", metric: "contracts", target: 3, reward: { coins: 1400, research: 2 } },
+    { id: "own5", title: "Horta variada", desc: "Compre 5 culturas diferentes.", metric: "owned", target: 5, reward: { research: 4 } },
+    { id: "cropLevels20", title: "Canteiros experientes", desc: "Some 20 níveis de aprimoramento entre as plantações.", metric: "cropLevels", target: 20, reward: { coins: 3500 } },
+    { id: "sellFruit500", title: "Banca colorida", desc: "Venda 500 frutos diretamente no mercado.", metric: "categorySold", category: "fruit", target: 500, reward: { research: 7 } },
+    { id: "orders15", title: "Clientes recorrentes", desc: "Conclua 15 pedidos estáticos.", metric: "orders", target: 15, reward: { coins: 8500, research: 8 } },
+    { id: "stock1000", title: "Celeiro movimentado", desc: "Mantenha 1.000 produtos ao mesmo tempo no estoque compartilhado.", metric: "stock", target: 1000, reward: { research: 10 } },
+    { id: "contracts25", title: "Cooperativa confiável", desc: "Cumpra 25 contratos temporários.", metric: "contracts", target: 25, reward: { coins: 18000, research: 12 } },
+    { id: "sellGrain1500", title: "Safra de grãos", desc: "Venda 1.500 grãos diretamente no mercado.", metric: "categorySold", category: "grain", target: 1500, reward: { prestige: 1, research: 12 } },
+    { id: "farm20", title: "Fazenda consolidada", desc: "Alcance o nível 20 da fazenda.", metric: "farmLevel", target: 20, reward: { coins: 30000, research: 15 } },
+    { id: "orders50", title: "Livro-caixa completo", desc: "Conclua 50 pedidos estáticos ao longo das jornadas.", metric: "orders", target: 50, reward: { prestige: 3, research: 20 } },
+    { id: "prestige1", title: "Uma nova primavera", desc: "Realize seu primeiro prestígio.", metric: "prestiges", target: 1, reward: { prestige: 2 } },
+    { id: "prestige2", title: "Prestígio dos prestígios", desc: "Realize 2 prestígios. Depois disso, todos os próximos prestígios concedem o dobro de pontos.", metric: "prestiges", target: 2, reward: { permanent: "prestigeDouble" } },
+    { id: "market10000", title: "Referência regional", desc: "Venda 10.000 produtos diretamente no mercado ao longo das jornadas.", metric: "sold", target: 10000, reward: { prestige: 5, research: 30 } }
+  ];
+
+  return { categories, seasons, crops, upgrades, research, prestigeUpgrades, orderSteps, missions };
 })();
