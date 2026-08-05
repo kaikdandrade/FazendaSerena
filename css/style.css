@@ -8757,3 +8757,94 @@ button:disabled .inline-resource img,
     padding-inline: 12px !important;
   }
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 26 — ajustes pontuais de Prestígio e navegação móvel               */
+/* ========================================================================== */
+
+/* XP ligeiramente mais legível sem alterar a estrutura aprovada do header. */
+.farm-progress > small,
+.farm-progress #farmXPText {
+  font-size: .76rem !important;
+  line-height: 1.25 !important;
+}
+
+/* O Estoque volta a usar uma borda interna progressiva em todo o contorno. */
+.main-nav .stock-nav-tab {
+  --stock-ring-color: rgba(88, 157, 77, .88);
+  --stock-ring-track: rgba(76, 112, 80, .16);
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+.main-nav .stock-nav-tab::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 3px !important;
+  z-index: 0 !important;
+  display: block !important;
+  padding: 2px !important;
+  border-radius: calc(14px - 1px) !important;
+  background: conic-gradient(
+    from -90deg,
+    var(--stock-ring-color) 0 var(--stock-progress, 0%),
+    var(--stock-ring-track) var(--stock-progress, 0%) 100%
+  ) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+}
+.main-nav .stock-nav-tab.active {
+  --stock-ring-color: rgba(255, 255, 255, .92);
+  --stock-ring-track: rgba(255, 255, 255, .25);
+}
+.main-nav .stock-nav-tab.stock-full,
+.main-nav .stock-nav-tab.stock-full.active {
+  --stock-ring-color: rgba(211, 78, 75, .96);
+  --stock-ring-track: rgba(211, 78, 75, .22);
+}
+.main-nav .stock-nav-tab > .stock-tab-progress {
+  display: none !important;
+}
+.main-nav .stock-nav-tab > .nav-tab-icon,
+.main-nav .stock-nav-tab > .nav-tab-label,
+.main-nav .stock-nav-tab > .nav-alert {
+  position: relative !important;
+  z-index: 2 !important;
+}
+.main-nav .stock-nav-tab > .nav-alert {
+  position: absolute !important;
+}
+
+/* Celular: subabas centralizadas e tabs principais mantêm ícone + texto em linha. */
+@media (max-width: 480px) {
+  .navigation-stack > .context-nav-column {
+    justify-self: center !important;
+    justify-content: center !important;
+    margin-inline: auto !important;
+  }
+  .navigation-stack > .main-nav .nav-tab {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    text-align: center !important;
+  }
+  .navigation-stack > .main-nav .nav-tab .nav-tab-icon {
+    position: static !important;
+    display: grid !important;
+    place-items: center !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+  .navigation-stack > .main-nav .nav-tab .nav-tab-label {
+    position: static !important;
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    text-align: left !important;
+  }
+}

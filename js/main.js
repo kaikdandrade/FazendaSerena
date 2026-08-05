@@ -65,7 +65,6 @@
     farmXPText: $("#farmXPText"),
     stockNavTab: $("#stockNavTab"),
     stockNavBadge: $("#stockNavBadge"),
-    stockTabProgressBar: $("#stockTabProgressBar"),
     officeNavTab: $("#officeNavTab"),
     statsHero: $("#statsHero"),
     lifetimeStats: $("#lifetimeStats"),
@@ -243,7 +242,6 @@
     const usage = percent((used / capacity) * 100);
     const full = used >= capacity;
     dom.stockNavTab.style.setProperty("--stock-progress", `${usage}%`);
-    if (dom.stockTabProgressBar) dom.stockTabProgressBar.style.width = `${usage}%`;
     dom.stockNavTab.classList.toggle("stock-full", full);
     dom.stockNavBadge.hidden = !full;
     dom.stockNavTab.setAttribute("aria-label", full
@@ -656,7 +654,7 @@
     const metrics = engine.getMetrics();
     const prestigeUnlocked = engine.state.farmLevel >= 15;
     const drivers = [
-      { label: "Nível da fazenda", value: `${engine.state.farmLevel} / 15`, ready: prestigeUnlocked },
+      { label: "Nível da fazenda", value: `${engine.state.farmLevel}`, ready: prestigeUnlocked },
       { label: "Moedas desta jornada", value: resourceAmount("coins", engine.state.stats.runCoinsEarned), ready: engine.state.stats.runCoinsEarned > 0 },
       { label: "Culturas compradas", value: `${metrics.owned} / ${engine.data.crops.length}`, ready: metrics.owned > 0 },
       { label: "Contratos concluídos", value: engine.state.stats.contractsCompleted, ready: engine.state.stats.contractsCompleted > 0 }
