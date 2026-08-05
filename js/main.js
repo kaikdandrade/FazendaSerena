@@ -65,6 +65,7 @@
     farmXPText: $("#farmXPText"),
     stockNavTab: $("#stockNavTab"),
     stockNavBadge: $("#stockNavBadge"),
+    stockTabProgressBar: $("#stockTabProgressBar"),
     officeNavTab: $("#officeNavTab"),
     statsHero: $("#statsHero"),
     lifetimeStats: $("#lifetimeStats"),
@@ -124,6 +125,15 @@
     if (reward?.research) parts.push(resourceAmount("research", reward.research, { title: "Pontos de pesquisa" }));
     if (reward?.prestige) parts.push(resourceAmount("prestige", reward.prestige, { title: "Pontos de prestígio" }));
     return parts.join("");
+  }
+
+
+  function companyIconMarkup(company) {
+    const icon = String(company?.icon || "");
+    if (/^(?:data:image\/|.*\.(?:png|webp|svg)$)/i.test(icon)) {
+      return `<img src="${escapeHtml(icon)}" alt="">`;
+    }
+    return escapeHtml(icon);
   }
 
   function enrichResourceText(message) {
@@ -192,6 +202,9 @@
       if (active) tab.setAttribute("aria-current", "page");
       else tab.removeAttribute("aria-current");
     });
+    window.requestAnimationFrame(() => {
+      dom.tabs.find(tab => tab.dataset.view === activeView)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    });
     dom.contextNavBlocks.forEach(block => {
       const visible = block.dataset.contextFor === activeView;
       block.hidden = !visible;
@@ -230,6 +243,7 @@
     const usage = percent((used / capacity) * 100);
     const full = used >= capacity;
     dom.stockNavTab.style.setProperty("--stock-progress", `${usage}%`);
+    if (dom.stockTabProgressBar) dom.stockTabProgressBar.style.width = `${usage}%`;
     dom.stockNavTab.classList.toggle("stock-full", full);
     dom.stockNavBadge.hidden = !full;
     dom.stockNavTab.setAttribute("aria-label", full
@@ -593,7 +607,7 @@
     const affordable = !maxed && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
     const isRoyalTreasury = kind === "prestige" && item.id === "royalTreasury";
-    const iconMarkup = typeof item.icon === "string" && /\.(?:png|webp|svg)$/i.test(item.icon)
+    const iconMarkup = typeof item.icon === "string" && /^(?:data:image\/|.*\.(?:png|webp|svg)$)/i.test(item.icon)
       ? `<img src="${escapeHtml(item.icon)}" alt="">`
       : escapeHtml(item.icon);
     const treasuryAmount = 2000 + Math.min(level, 9) * 2000;
@@ -622,6 +636,9 @@
       const active = tab.dataset.evolutionTab === activeEvolutionTab;
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
+    });
+    window.requestAnimationFrame(() => {
+      dom.evolutionTabs.find(tab => tab.dataset.evolutionTab === activeEvolutionTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
     });
     dom.evolutionPanels.forEach(panel => {
       const active = panel.dataset.evolutionPanel === activeEvolutionTab;
@@ -660,6 +677,9 @@
       const active = tab.dataset.officeTab === activeOfficeTab;
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
+    });
+    window.requestAnimationFrame(() => {
+      dom.officeTabs.find(tab => tab.dataset.officeTab === activeOfficeTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
     });
     dom.officePanels.forEach(panel => {
       const active = panel.dataset.officePanel === activeOfficeTab;
@@ -730,7 +750,7 @@
       if (progress.completed) {
         const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
         return `<article class="contract-card active-contract-card contract-completed-card friendly-contract-card ${toneClass}">
-          <div class="friendly-contract-top"><div class="contract-company-mark"><span>${company.icon}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída</strong></div></div><span class="contract-ready-mark">✓ Pronta</span></div>
+          <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída</strong></div></div><span class="contract-ready-mark">✓ Pronta</span></div>
           <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>${engine.formatNumber(contract.amount)} unidades</small><h3>${escapeHtml(crop.name)}</h3></div></div>
           ${rewardsLine(contract)}
           <button class="button gold full reward-claim-button" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button>
@@ -738,7 +758,7 @@
       }
       const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
       return `<article class="contract-card active-contract-card friendly-contract-card ${toneClass} ${urgent ? "contract-deadline-warning" : ""}">
-        <div class="friendly-contract-top"><div class="contract-company-mark"><span>${company.icon}</span><div><small>${escapeHtml(company.name)}</small><strong>Contrato assinado</strong></div></div><span class="contract-clock-badge ${urgent ? "urgent" : ""}">⏱ ${engine.formatTime(contract.timeRemaining)}</span></div>
+        <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Contrato assinado</strong></div></div><span class="contract-clock-badge ${urgent ? "urgent" : ""}">⏱ ${engine.formatTime(contract.timeRemaining)}</span></div>
         <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Meta de entrega</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
         ${rewardsLine(contract)}
@@ -750,7 +770,7 @@
       const company = engine.getCompany(contract.companyId);
       const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
       return `<article class="contract-card contract-offer-card friendly-contract-card ${toneClass}">
-        <div class="friendly-contract-top"><div class="contract-company-mark"><span>${company.icon}</span><div><small>${escapeHtml(company.specialty)}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-clock-badge">⏱ ${engine.formatTime(contract.durationSeconds)}</span></div>
+        <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty)}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-clock-badge">⏱ ${engine.formatTime(contract.durationSeconds)}</span></div>
         <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         ${rewardsLine(contract)}
         <div class="contract-offer-actions"><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button></div>

@@ -147,20 +147,20 @@ window.GameData = (() => {
     { id: "endlessGranary", name: "Celeiro sem fim", icon: "assets/icons/silo.png", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 2, growth: 1.82 },
     { id: "ancestralMastery", name: "Domínio ancestral", icon: "assets/icons/seedling-pot.png", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 2, growth: 1.90 },
     { id: "immortalAcademy", name: "Academia imortal", icon: "assets/icons/books.png", desc: "25% a mais de pesquisa recebida e 3 pontos iniciais permanentes por nível.", max: 8, baseCost: 3, growth: 1.92 },
-    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "assets/icons/prestige.png", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
+    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "assets/icons/prestige-resonance.png", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
     { id: "sovereignNetwork", name: "Rede soberana", icon: "assets/icons/commercial-contract.png", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 4, growth: 2.00 }
   ];
 
 
   const companies = [
-    { id: "aurora", name: "Alimentos Aurora", icon: "🌤️", specialty: "Cestas frescas" },
-    { id: "verdevale", name: "Mercado Verde Vale", icon: "🏪", specialty: "Rede de mercados" },
-    { id: "campodourado", name: "Campo Dourado", icon: "🌾", specialty: "Distribuição regional" },
-    { id: "boamesa", name: "Boa Mesa Refeições", icon: "🍲", specialty: "Cozinhas industriais" },
-    { id: "raizes", name: "Raízes & Companhia", icon: "🧺", specialty: "Produtos naturais" },
-    { id: "estacao", name: "Sabor em Rota", icon: "🚚", specialty: "Logística de alimentos" },
-    { id: "colheita", name: "Colheita Serena", icon: "🍃", specialty: "Empório sustentável" },
-    { id: "horizonte", name: "Horizonte Orgânicos", icon: "🌅", specialty: "Assinaturas semanais" }
+    { id: "aurora", name: "Alimentos Aurora", icon: "assets/icons/company-aurora-foods.png", specialty: "Cestas frescas" },
+    { id: "verdevale", name: "Mercado Verde Vale", icon: "assets/icons/company-green-valley-market.png", specialty: "Rede de mercados" },
+    { id: "campodourado", name: "Campo Dourado", icon: "assets/icons/company-golden-field.png", specialty: "Distribuição regional" },
+    { id: "boamesa", name: "Boa Mesa Refeições", icon: "assets/icons/company-good-table-meals.png", specialty: "Cozinhas industriais" },
+    { id: "raizes", name: "Raízes & Companhia", icon: "assets/icons/company-roots-and-company.png", specialty: "Produtos naturais" },
+    { id: "estacao", name: "Sabor em Rota", icon: "assets/icons/company-flavor-route.png", specialty: "Logística de alimentos" },
+    { id: "colheita", name: "Colheita Serena", icon: "assets/icons/company-serene-harvest.png", specialty: "Empório sustentável" },
+    { id: "horizonte", name: "Horizonte Orgânicos", icon: "assets/icons/company-organic-horizon.png", specialty: "Assinaturas semanais" }
   ];
 
   const orderSteps = [
