@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 17;
+  static SAVE_VERSION = 18;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -48,7 +48,7 @@ class GameEngine {
 
     return {
       version: GameEngine.SAVE_VERSION,
-      coins: 100 + royalTreasury * 1500,
+      coins: 2000 + royalTreasury * 2000,
       research: immortalAcademy * 3,
       prestigePoints,
       farmLevel: 1,
@@ -227,6 +227,15 @@ class GameEngine {
       merged.contractOffers = [];
       merged.contractCooldowns = [];
     }
+    if (Number(input?.version || 0) < 18) {
+      // Revisão 17: propostas antigas são recriadas com o novo bônus por modalidade.
+      // Contratos já assinados são preservados e nunca têm a recompensa reduzida.
+      merged.contractOffers = [];
+      merged.contractCooldowns = [];
+      // Compensa saves anteriores pela mudança do capital inicial do Tesouro.
+      const treasuryLevel = Math.max(0, Math.floor(Number(merged.prestigeUpgrades.royalTreasury) || 0));
+      merged.coins = Number(merged.coins || 0) + 1900 + treasuryLevel * 500;
+    }
 
     this.data.upgrades.forEach(item => {
       merged.upgrades[item.id] = Math.max(0, Math.min(item.max, Math.floor(Number(merged.upgrades[item.id]) || 0)));
@@ -280,9 +289,9 @@ class GameEngine {
     if (untouchedRevisionFive) {
       Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
       merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
-      merged.coins = 100 + Number(merged.prestigeUpgrades.royalTreasury || 0) * 1500;
+      merged.coins = 2000 + Number(merged.prestigeUpgrades.royalTreasury || 0) * 2000;
     } else if (Number(input.version || 0) < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
-      merged.coins = Math.min(merged.coins, 100 + Number(merged.prestigeUpgrades.royalTreasury || 0) * 1500);
+      merged.coins = Math.min(merged.coins, 2000 + Number(merged.prestigeUpgrades.royalTreasury || 0) * 2000);
     }
 
     const legacyStarterOnly = Number(input.version || 0) < 5
@@ -297,14 +306,24 @@ class GameEngine {
     }
 
     const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
-    const rawOffers = Number(input.version || 0) < 16 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
+    const rawOffers = Number(input.version || 0) < 18 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
     const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
     merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, 6);
-    merged.contractCooldowns = (Number(input.version || 0) < 16 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
+    merged.contractCooldowns = (Number(input.version || 0) < 18 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
       .map(value => this.normalizeContractCooldown(value))
       .filter(Boolean)
       .slice(0, 6);
     merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
+    if (Number(input.version || 0) < 18) {
+      merged.activeContracts.forEach(contract => {
+        const crop = this.getCrop(contract.cropId);
+        const difficulty = this.getContractDifficulty(contract.difficulty);
+        if (!crop) return;
+        const salePrice = this.getSalePriceForState(crop.id, merged);
+        const minimumReward = Math.max(1, Math.floor(contract.amount * salePrice * difficulty.reward));
+        contract.rewardCoins = Math.max(contract.rewardCoins, minimumReward);
+      });
+    }
     Reflect.deleteProperty(merged, "contracts");
     merged.version = GameEngine.SAVE_VERSION;
     merged.coins = Math.max(0, Number(merged.coins) || 0);
@@ -672,6 +691,15 @@ class GameEngine {
     return Math.max(0, this.getStorageCap() - this.getStorageUsed());
   }
 
+  getSalePriceForState(cropId, state) {
+    const crop = this.getCrop(cropId);
+    if (!crop || !state) return 0;
+    const regional = Number(state.upgrades?.regionalMarket || 0) * 0.06;
+    const forecast = Number(state.researchTechs?.priceForecast || 0) * 0.06;
+    const legacy = Number(state.prestigeUpgrades?.goldenExchange || 0) * 0.15;
+    return Math.max(1, crop.basePrice * (1 + regional + forecast + legacy));
+  }
+
   getSalePrice(cropId) {
     const crop = this.getCrop(cropId);
     const market = Number(this.state.upgrades.regionalMarket || 0);
@@ -972,10 +1000,10 @@ class GameEngine {
 
   getContractDifficulty(id) {
     const profiles = {
-      calm: { id: "calm", label: "Prazo confortável", duration: 540, load: 0.26, reward: 1.48, research: 0.30 },
-      standard: { id: "standard", label: "Entrega comercial", duration: 360, load: 0.36, reward: 1.72, research: 0.46 },
-      urgent: { id: "urgent", label: "Entrega emergencial", duration: 150, load: 0.54, reward: 2.28, research: 0.68 },
-      bulk: { id: "bulk", label: "Grande fornecimento", duration: 720, load: 0.44, reward: 1.88, research: 0.58 }
+      calm: { id: "calm", label: "Prazo confortável", duration: 540, load: 0.26, reward: 1.45, research: 0.30 },
+      standard: { id: "standard", label: "Entrega comercial", duration: 360, load: 0.36, reward: 1.65, research: 0.46 },
+      urgent: { id: "urgent", label: "Entrega emergencial", duration: 150, load: 0.54, reward: 2.00, research: 0.68 },
+      bulk: { id: "bulk", label: "Grande fornecimento", duration: 720, load: 0.44, reward: 1.85, research: 0.58 }
     };
     return profiles[id] || profiles.standard;
   }

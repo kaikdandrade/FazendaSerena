@@ -130,7 +130,7 @@ window.GameData = (() => {
   ];
 
   const prestigeUpgrades = [
-    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "👑", desc: "1.500 moedas iniciais permanentes por nível.", max: 10, baseCost: 1, growth: 1.72 },
+    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "👑", desc: "A jornada começa com 2 mil moedas e recebe mais 2 mil moedas por nível.", max: 10, baseCost: 1, growth: 1.72 },
     { id: "eternalHarvest", name: "Colheita eterna", icon: "🌾", desc: "+12% de velocidade e +10% de rendimento permanentes por nível.", max: 12, baseCost: 1, growth: 1.78 },
     { id: "goldenExchange", name: "Bolsa dourada", icon: "💰", desc: "+15% no valor de todas as vendas permanentemente por nível.", max: 10, baseCost: 2, growth: 1.82 },
     { id: "endlessGranary", name: "Celeiro sem fim", icon: "🏰", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 2, growth: 1.82 },
