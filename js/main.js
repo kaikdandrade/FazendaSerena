@@ -51,7 +51,6 @@
     contractTabCount: $("#contractTabCount"),
     orderTabCount: $("#orderTabCount"),
     missionTabCount: $("#missionTabCount"),
-    saveBox: $("#saveBox"),
     coinsCounter: $("#coinsCounter"),
     researchCounter: $("#researchCounter"),
     prestigeCounter: $("#prestigeCounter"),
@@ -84,12 +83,9 @@
     accountAvatar: $("#accountAvatar"),
     accountName: $("#accountName"),
     accountDescription: $("#accountDescription"),
-    cloudSaveBadge: $("#cloudSaveBadge"),
     cloudSaveStatus: $("#cloudSaveStatus"),
-    cloudSaveDescription: $("#cloudSaveDescription"),
     googleSignIn: $("#googleSignIn"),
     googleSignOut: $("#googleSignOut"),
-    saveNow: $("#saveNow"),
     backToTop: $("#backToTop")
   };
 
@@ -172,10 +168,6 @@
     }
   }
 
-<<<<<<< HEAD
-  const engine = new GameEngine(handleEngineEvent);
-
-=======
   function cloneState(state) {
     return JSON.parse(JSON.stringify(state || {}));
   }
@@ -189,63 +181,41 @@
   }
 
   function setCloudSaveStatus(status, detail = {}) {
-    if (!dom.cloudSaveStatus || !dom.cloudSaveBadge) return;
-
-    const badgeClasses = ["guest", "saving", "saved", "error"];
-    dom.cloudSaveBadge.classList.remove(...badgeClasses);
+    if (!dom.cloudSaveStatus) return;
 
     if (status === "saving") {
-      dom.cloudSaveBadge.textContent = "Salvando";
-      dom.cloudSaveBadge.classList.add("saving");
-      dom.cloudSaveStatus.textContent = "Enviando o progresso para o Firestore...";
+      dom.cloudSaveStatus.textContent = "Salvando automaticamente no Firestore...";
       return;
     }
-
     if (status === "saved") {
       const time = formatCloudTime(detail.savedAt);
-      dom.cloudSaveBadge.textContent = "Na nuvem";
-      dom.cloudSaveBadge.classList.add("saved");
       dom.cloudSaveStatus.textContent = time
-        ? `Progresso salvo na nuvem às ${time}.`
-        : "Progresso salvo na nuvem.";
+        ? `Progresso salvo automaticamente às ${time}.`
+        : "Progresso salvo automaticamente.";
       return;
     }
-
     if (status === "loading") {
-      dom.cloudSaveBadge.textContent = "Carregando";
-      dom.cloudSaveBadge.classList.add("saving");
-      dom.cloudSaveStatus.textContent = "Buscando seu progresso no Firestore...";
+      dom.cloudSaveStatus.textContent = "Carregando o progresso da sua conta...";
       return;
     }
-
     if (status === "loaded") {
       const time = formatCloudTime(detail.savedAt);
-      dom.cloudSaveBadge.textContent = "Na nuvem";
-      dom.cloudSaveBadge.classList.add("saved");
       dom.cloudSaveStatus.textContent = time
-        ? `Save da nuvem carregado. Última gravação: ${time}.`
-        : "Save da nuvem carregado.";
+        ? `Progresso carregado. Última gravação: ${time}.`
+        : "Progresso carregado da sua conta.";
       return;
     }
-
     if (status === "empty") {
-      dom.cloudSaveBadge.textContent = "Novo save";
-      dom.cloudSaveBadge.classList.add("saving");
-      dom.cloudSaveStatus.textContent = "Nenhum save anterior foi encontrado. Esta sessão será o primeiro save da conta.";
+      dom.cloudSaveStatus.textContent = "Esta conta ainda não possui progresso; a sessão atual será salva automaticamente.";
       return;
     }
-
     if (status === "error") {
-      dom.cloudSaveBadge.textContent = "Erro";
-      dom.cloudSaveBadge.classList.add("error");
       dom.cloudSaveStatus.textContent = window.FirebaseManager.getFriendlyError(detail.error);
       return;
     }
 
-    dom.cloudSaveBadge.textContent = "Não salvo";
-    dom.cloudSaveBadge.classList.add("guest");
     dom.cloudSaveStatus.textContent = window.FirebaseManager.isAvailable()
-      ? "Entre com o Google para ativar o save automático na nuvem."
+      ? "Entre com o Google para manter o progresso entre sessões."
       : "O Firebase não pôde ser carregado. A sessão continuará como visitante.";
   }
 
@@ -279,15 +249,6 @@
       dom.googleSignOut.hidden = !signedIn;
       dom.googleSignOut.disabled = false;
     }
-    if (dom.saveNow) {
-      dom.saveNow.disabled = !signedIn;
-      dom.saveNow.textContent = signedIn ? "Salvar agora" : "Entre para salvar";
-    }
-    if (dom.cloudSaveDescription) {
-      dom.cloudSaveDescription.textContent = signedIn
-        ? "O progresso é salvo automaticamente no Firestore a cada 15 segundos e ao sair da página."
-        : "Visitantes não possuem save persistente. Entre com o Google para salvar automaticamente no Firestore.";
-    }
 
     if (!signedIn) setCloudSaveStatus("guest");
   }
@@ -295,7 +256,6 @@
   function setAuthBusy(busy) {
     if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
     if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
-    if (dom.saveNow) dom.saveNow.disabled = busy || !window.FirebaseManager.isAuthenticated();
   }
 
   async function applyAuthenticatedUser(user, authError = null) {
@@ -349,7 +309,6 @@
     }
   }
 
->>>>>>> firebase-dev
   // Navegação, responsividade e configurações.
   function setupCategoryFilter() {
     const options = Object.entries(engine.data.categories)
@@ -511,15 +470,10 @@
       : `Estoque ${Math.floor(usage)}% ocupado`;
   }
 
-  function updateOfficeNavigation(activeContracts, readyOrders, readyMissions) {
-    const claimable = engine.getReadyContractCount();
+  function updateOfficeNavigation() {
     dom.officeNavTab.classList.remove("has-attention");
-    const reasons = [];
-    if (claimable > 0) reasons.push(`${claimable} recompensa${claimable === 1 ? " pronta" : "s prontas"}`);
-    if (readyOrders > 0) reasons.push(`${readyOrders} pedido${readyOrders === 1 ? " pronto" : "s prontos"}`);
-    if (readyMissions > 0) reasons.push(`${readyMissions} missão${readyMissions === 1 ? " pronta" : "ões prontas"}`);
-    dom.officeNavTab.setAttribute("aria-label", reasons.length ? `Escritório: ${reasons.join(", ")}.` : "Escritório");
-    dom.officeNavTab.title = reasons.length ? `Ações prontas: ${reasons.join(", ")}` : "Escritório";
+    dom.officeNavTab.setAttribute("aria-label", "Escritório");
+    dom.officeNavTab.title = "Escritório";
   }
 
   function updateFarmProgressDisplay() {
@@ -560,7 +514,7 @@
     const readyContracts = engine.getReadyContractCount();
     const readyOrders = engine.getReadyOrderCount();
     const readyMissions = engine.getReadyMissionCount();
-    updateOfficeNavigation(activeContracts, readyOrders, readyMissions);
+    updateOfficeNavigation();
     dom.contractTabCount.textContent = String(readyContracts);
     dom.contractTabCount.hidden = readyContracts < 1;
     dom.orderTabCount.textContent = String(readyOrders);
@@ -969,14 +923,33 @@
             const crop = engine.getCrop(contract.cropId);
             const company = engine.getCompany(contract.companyId);
             const progress = engine.getContractProgress(contract);
-            const urgent = !progress.completed && contract.timeRemaining <= 30;
-            const actionAttributes = progress.completed
-              ? `data-action="claim-contract" data-id="${contract.id}" title="Receber recompensa"`
-              : 'data-go-office-contracts title="Abrir contratos"';
-            return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""}" type="button" ${actionAttributes}>
+            const urgent = !progress.completed && !progress.defaulted && contract.timeRemaining <= 30;
+            let actionAttributes = 'data-go-office-contracts title="Abrir contratos"';
+            let status = progress.defaulted ? "Prazo vencido — conclua 100%" : `${engine.formatTime(contract.timeRemaining)} restantes`;
+            let smallStatus = "entregue";
+            let resourceLine = resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch });
+            const stateClasses = [];
+
+            if (progress.readyToClaim) {
+              actionAttributes = `data-action="claim-contract" data-id="${contract.id}" title="Receber recompensa"`;
+              status = "Clique para receber";
+              smallStatus = "receber";
+              stateClasses.push("reward-ready");
+            } else if (progress.readyToPayPenalty) {
+              actionAttributes = `data-action="pay-contract-penalty" data-id="${contract.id}" title="Pagar multa"`;
+              status = "Clique para pagar a multa";
+              smallStatus = "pagar";
+              resourceLine = resourceRewards({ coins: progress.penaltyCoins });
+              stateClasses.push("contract-defaulted", "penalty-ready");
+            } else if (progress.defaulted) {
+              resourceLine = resourceRewards({ coins: progress.penaltyCoins });
+              stateClasses.push("contract-defaulted");
+            }
+
+            return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""} ${stateClasses.join(" ")}" type="button" ${actionAttributes}>
               <img src="${crop.image}" alt="${escapeHtml(crop.name)}">
-              <span class="contract-dock-copy"><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${progress.completed ? "Clique para receber" : `${engine.formatTime(contract.timeRemaining)} restantes`}</u><span class="contract-dock-rewards">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</span></span>
-              <em class="${progress.completed ? "ready" : ""}">${Math.floor(progress.percent)}%<small>${progress.completed ? "receber" : "entregue"}</small></em>
+              <span class="contract-dock-copy"><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${status}</u><span class="contract-dock-rewards">${resourceLine}</span></span>
+              <em class="${progress.completed ? "ready" : ""}">${Math.floor(progress.percent)}%<small>${smallStatus}</small></em>
             </button>`;
           }).join("")}
         </div>
@@ -997,15 +970,34 @@
     const cooldowns = engine.state.contractCooldowns || [];
     const openSlots = Math.max(0, GameEngine.MAX_ACTIVE_CONTRACTS - active.length);
     const rewardsLine = contract => `<div class="contract-reward-unified"><span>Recompensa</span><strong class="resource-reward-group">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</strong></div>`;
+    const penaltyLine = progress => `<div class="contract-penalty-unified"><span>Recompensa cancelada</span><strong class="resource-reward-group">${resourceRewards({ coins: progress.penaltyCoins })}</strong><small>Multa obrigatória: valor original do contrato + 20%.</small></div>`;
 
     dom.activeContractList.innerHTML = active.map(contract => {
       const crop = engine.getCrop(contract.cropId);
       const company = engine.getCompany(contract.companyId);
-      const difficulty = engine.getContractDifficulty(contract.difficulty);
       const progress = engine.getContractProgress(contract);
-      const urgent = !progress.completed && contract.timeRemaining <= 30;
+      const urgent = !progress.completed && !progress.defaulted && contract.timeRemaining <= 30;
+      const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
+
+      if (progress.readyToPayPenalty) {
+        return `<article class="contract-card active-contract-card contract-completed-card contract-defaulted-card friendly-contract-card ${toneClass}">
+          <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída com atraso</strong></div></div><span class="contract-defaulted-badge">Multa pendente</span></div>
+          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>${engine.formatNumber(contract.amount)} unidades entregues</small><h3>${escapeHtml(crop.name)}</h3></div></div>
+          ${penaltyLine(progress)}
+          <button class="button danger full contract-penalty-button" type="button" data-action="pay-contract-penalty" data-id="${contract.id}">Pagar multa e liberar slot</button>
+        </article>`;
+      }
+
+      if (progress.defaulted) {
+        return `<article class="contract-card active-contract-card contract-defaulted-card friendly-contract-card ${toneClass}">
+          <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Prazo descumprido</strong></div></div><span class="contract-defaulted-badge">Sem prazo</span></div>
+          <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Entrega obrigatória</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
+          <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
+          ${penaltyLine(progress)}
+        </article>`;
+      }
+
       if (progress.completed) {
-        const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
         return `<article class="contract-card active-contract-card contract-completed-card friendly-contract-card ${toneClass}">
           <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída</strong></div></div><span class="contract-ready-mark">✓ Pronta</span></div>
           <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>${engine.formatNumber(contract.amount)} unidades</small><h3>${escapeHtml(crop.name)}</h3></div></div>
@@ -1013,7 +1005,7 @@
           <button class="button gold full reward-claim-button" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button>
         </article>`;
       }
-      const toneClass = contract.difficulty === "urgent" ? "contract-tone-urgent" : contract.difficulty === "bulk" ? "contract-tone-bulk" : "contract-tone-normal";
+
       return `<article class="contract-card active-contract-card friendly-contract-card ${toneClass} ${urgent ? "contract-deadline-warning" : ""}">
         <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Contrato assinado</strong></div></div><span class="contract-clock-badge ${urgent ? "urgent" : ""}">⏱ ${engine.formatTime(contract.timeRemaining)}</span></div>
         <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Meta de entrega</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
@@ -1319,7 +1311,10 @@
     if (action === "sell-fraction") {
       const stock = engine.state.crops[cropId]?.stock || 0;
       const amount = Math.max(1, Math.floor(stock * Number(button.dataset.fraction || 1)));
-      act(engine.sellCrop(cropId, amount));
+      const result = engine.sellCrop(cropId, amount);
+      if (!result.ok) return act(result);
+      animateResourceReward(button, { coins: result.gain });
+      render(true);
     }
     if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId));
     if (action === "toggle-all-auto-sell") {
@@ -1327,7 +1322,12 @@
       const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
       act(engine.setAllAutoSell(!allEnabled));
     }
-    if (action === "sell-all-stock") act(engine.sellAll());
+    if (action === "sell-all-stock") {
+      const result = engine.sellAll();
+      if (!result.ok) return act(result);
+      animateResourceReward(button, { coins: result.gain });
+      render(true);
+    }
     if (action === "expand-storage") act(engine.expandStorage());
     if (action === "buy-upgrade") act(engine.buyUpgrade(id));
     if (action === "buy-research") act(engine.buyResearch(id));
@@ -1340,6 +1340,7 @@
       animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch });
       render(true);
     }
+    if (action === "pay-contract-penalty") act(engine.payContractPenalty(id));
     if (action === "deliver-order") {
       const result = engine.deliverOrder(cropId);
       if (!result.ok) return act(result);
@@ -1417,23 +1418,6 @@
       renderMissions();
     });
 
-<<<<<<< HEAD
-    $("#saveNow").addEventListener("click", () => {
-      engine.save();
-=======
-    dom.saveNow?.addEventListener("click", async () => {
-      if (!window.FirebaseManager.isAuthenticated()) {
-        setCloudSaveStatus("guest");
-        return;
-      }
-      setAuthBusy(true);
-      try {
-        await engine.save();
-        lastSave = performance.now();
-      } finally {
-        setAuthBusy(false);
-      }
-    });
 
     dom.googleSignIn?.addEventListener("click", async () => {
       setAuthBusy(true);
@@ -1466,42 +1450,8 @@
       authTransitionQueue = authTransitionQueue
         .catch(() => {})
         .then(() => applyAuthenticatedUser(user, error));
->>>>>>> firebase-dev
     });
 
-    $("#exportSave").addEventListener("click", () => {
-      const content = engine.exportSave();
-      dom.saveBox.value = content;
-      const blob = new Blob([content], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `agricultura-industrial-save-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-    });
-
-    $("#importSave").addEventListener("click", () => {
-      const text = dom.saveBox.value.trim();
-      if (!text) return;
-      if (!window.confirm("Importar este save substituirá o progresso atual. Continuar?")) return;
-      try {
-        engine.importSave(text);
-        applySettings();
-        render(true);
-      } catch (error) {
-        console.warn(error);
-      }
-    });
-
-    $("#resetGame").addEventListener("click", () => {
-      if (!window.confirm("Apagar todo o progresso, inclusive prestígio e legados? Esta ação não pode ser desfeita.")) return;
-      engine.hardReset();
-      applySettings();
-      showView("farmView");
-    });
 
     dom.ambientSetting.addEventListener("change", () => {
       engine.setSetting("ambient", dom.ambientSetting.checked);

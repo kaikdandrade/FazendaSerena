@@ -240,11 +240,10 @@
 <img alt="" id="accountAvatar" src="assets/logo.png"/>
 </div>
 <div class="account-identity">
-<p class="eyebrow">conta e nuvem</p>
+<p class="eyebrow">conta Google</p>
 <h2 id="accountName">Visitante</h2>
 <p id="accountDescription">Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.</p>
 </div>
-<span class="cloud-save-badge guest" id="cloudSaveBadge">Não salvo</span>
 </div>
 <div class="account-save-status">
 <span aria-hidden="true"></span>
@@ -300,27 +299,14 @@
 </label>
 </div>
 </article>
-<article class="panel-card settings-card cloud-transfer-card">
-<h2>Save na nuvem e transferência</h2>
-<p id="cloudSaveDescription">Visitantes não possuem save persistente. Entre com o Google para salvar automaticamente no Firestore.</p>
-<div class="button-row">
-<button class="button primary" disabled="" id="saveNow" type="button">Salvar agora</button>
-<button class="button secondary" id="exportSave" type="button">Baixar save</button>
-</div>
-<textarea id="saveBox" placeholder="O save exportado aparece aqui. Também é possível colar um save para importá-lo."></textarea>
-<div class="button-row">
-<button class="button secondary" id="importSave" type="button">Importar texto</button>
-<button class="button danger" id="resetGame" type="button">Apagar progresso</button>
-</div>
-</article>
 <article class="panel-card settings-card guide-card">
 <div class="guide-heading"><div><p class="eyebrow">manual da fazenda</p><h2>Como jogar</h2></div><p>Um resumo visual do ciclo principal e das prioridades automáticas.</p></div>
 <div class="guide-sections">
-<section><span>01</span><div><h3>Compre a primeira cultura</h3><p>Você começa com 2.000 moedas. Compre a primeira cultura e aguarde a produção automática de duas unidades por ciclo.</p></div></section>
+<section><span>01</span><div><h3>Compre a primeira cultura</h3><p>Você começa com 2.000 moedas. A Folha é a cultura inicial; depois dela, uma nova cultura é liberada a cada cinco níveis da fazenda.</p></div></section>
 <section><span>02</span><div><h3>Gerencie o estoque</h3><p>O celeiro é compartilhado por todas as culturas. Venda produtos manualmente, ative a venda automática ou compre mais 100 espaços diretamente no Estoque.</p></div></section>
-<section><span>03</span><div><h3>Entenda as prioridades</h3><p>A produção sempre atende contratos ativos primeiro, depois a venda automática e, por último, o estoque. Pedidos são entregues manualmente quando o lote completo estiver disponível.</p></div></section>
-<section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção e valorizam cada cultura. Sem bônus de velocidade, a safra se torna contínua no nível 300; com todos os bônus, isso pode acontecer no nível 250.</p></div></section>
-<section><span>05</span><div><h3>Use o escritório</h3><p>Escolha entre seis propostas, mantenha até três contratos ativos, avance pedidos permanentes e receba recompensas de missões em etapas.</p></div></section>
+<section><span>03</span><div><h3>Entenda as prioridades</h3><p>A produção atende contratos ativos primeiro, inclusive entregas atrasadas, depois a venda automática e, por último, o estoque. Contratos vencidos perdem a recompensa, exigem 100% da entrega e geram multa.</p></div></section>
+<section><span>04</span><div><h3>Aprimore as plantações</h3><p>Os níveis reduzem o tempo de produção e valorizam cada cultura. Comprar culturas, aprimorar plantações, ampliar o estoque e investir em melhorias concede XP; colheitas e vendas não concedem XP.</p></div></section>
+<section><span>05</span><div><h3>Use o escritório</h3><p>Escolha entre seis propostas, mantenha até três contratos ativos, renove pedidos a cada prestígio e avance missões permanentes que nunca reiniciam.</p></div></section>
 <section><span>06</span><div><h3>Invista e prestigie</h3><p>Aprimoramentos usam moedas, pesquisas usam pontos de pesquisa e legados usam prestígio. O prestígio desbloqueia no nível 15 e inicia uma nova jornada.</p></div></section>
 </div></article>
 </div>

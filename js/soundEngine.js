@@ -33,11 +33,8 @@ class SoundEngine {
     prestige: "prestigeCounterHit"
   });
 
-<<<<<<< HEAD
-=======
   static RESOURCE_COUNTER_VOLUME = 0.08;
 
->>>>>>> firebase-dev
   static MUSIC_SOURCES = Object.freeze({
     betweenLightAndShadows: "assets/sounds/music/between_light_and_shadows.wav",
     pixelSprouts: "assets/sounds/music/pixel_sprouts.wav",
@@ -117,15 +114,12 @@ class SoundEngine {
   }
 
   getEffectPlaybackVolume(options = {}) {
-<<<<<<< HEAD
-=======
     if (Number.isFinite(options.fixedVolume)) {
       const effectsEnabled = this.masterVolume > 0 && this.effectVolume > 0;
       return effectsEnabled
         ? Math.max(0, Math.min(1, options.fixedVolume))
         : 0;
     }
->>>>>>> firebase-dev
     if (Number.isFinite(options.volume)) {
       return Math.max(0, Math.min(1, options.volume * this.masterVolume));
     }
@@ -167,13 +161,9 @@ class SoundEngine {
 
   playResourceCounterHit(resourceType) {
     const action = SoundEngine.RESOURCE_COUNTER_MAPPINGS[resourceType];
-<<<<<<< HEAD
-    return action ? this.playConcurrent(action) : false;
-=======
     return action
       ? this.playConcurrent(action, { fixedVolume: SoundEngine.RESOURCE_COUNTER_VOLUME })
       : false;
->>>>>>> firebase-dev
   }
 
   getConcurrentPool(source) {
