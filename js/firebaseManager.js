@@ -10,6 +10,7 @@ class FirebaseManager {
   static SAVE_COLLECTION = "players";
   static SAVE_SUBCOLLECTION = "saves";
   static SAVE_DOCUMENT = "main";
+  static LEADERBOARD_COLLECTION = "prestigeLeaderboard";
 
   constructor() {
     this.available = false;
@@ -147,6 +148,30 @@ class FirebaseManager {
     );
   }
 
+  getLeaderboardReference(user = this.currentUser) {
+    if (!user || !this.db || !this.sdk) return null;
+    return this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, user.uid);
+  }
+
+  buildLeaderboardEntry(state, user = this.currentUser) {
+    const safeName = String(user?.displayName || "Fazendeiro")
+      .replace(/[<>]/g, "")
+      .trim()
+      .slice(0, 48) || "Fazendeiro";
+    const photoURL = /^https:\/\//i.test(String(user?.photoURL || ""))
+      ? String(user.photoURL).slice(0, 500)
+      : "";
+    return {
+      displayName: safeName,
+      photoURL,
+      prestigeTotal: Math.max(0, Math.floor(Number(state?.stats?.totalPrestigeEarned) || 0)),
+      prestigeCount: Math.max(0, Math.floor(Number(state?.stats?.prestiges) || 0)),
+      maxFarmLevel: Math.max(1, Math.floor(Number(state?.stats?.maxFarmLevel || state?.farmLevel) || 1)),
+      updatedAt: this.sdk.serverTimestamp(),
+      updatedAtClient: Date.now()
+    };
+  }
+
   async loadGame() {
     await this.ready();
     const user = this.currentUser;
@@ -190,12 +215,18 @@ class FirebaseManager {
         this.emitSaveStatus("saving");
         try {
           const savedAt = new Date();
-          await this.sdk.setDoc(reference, {
+          const leaderboardReference = this.getLeaderboardReference(user);
+          const batch = this.sdk.writeBatch(this.db);
+          batch.set(reference, {
             state: snapshot,
             saveVersion: Number(snapshot.version || 0),
             updatedAt: this.sdk.serverTimestamp(),
             updatedAtClient: savedAt.getTime()
           });
+          if (leaderboardReference) {
+            batch.set(leaderboardReference, this.buildLeaderboardEntry(snapshot, user));
+          }
+          await batch.commit();
           this.emitSaveStatus("saved", { savedAt });
           return { ok: true, savedAt };
         } catch (error) {
@@ -205,6 +236,67 @@ class FirebaseManager {
         }
       });
 
+    return this.saveQueue;
+  }
+
+  async loadPrestigeLeaderboard(maximum = 10) {
+    await this.ready();
+    const user = this.currentUser;
+    if (!user || !this.available || !this.db || !this.sdk) {
+      return { authenticated: false, top: [], rank: null, player: null };
+    }
+
+    const collectionReference = this.sdk.collection(this.db, FirebaseManager.LEADERBOARD_COLLECTION);
+    const topQuery = this.sdk.query(
+      collectionReference,
+      this.sdk.orderBy("prestigeTotal", "desc"),
+      this.sdk.limit(Math.max(1, Math.min(25, Math.floor(Number(maximum) || 10))))
+    );
+    const playerReference = this.getLeaderboardReference(user);
+    const [topSnapshot, playerSnapshot] = await Promise.all([
+      this.sdk.getDocs(topQuery),
+      this.sdk.getDoc(playerReference)
+    ]);
+
+    const top = topSnapshot.docs.map((document, index) => ({
+      uid: document.id,
+      position: index + 1,
+      ...document.data()
+    }));
+    const player = playerSnapshot.exists()
+      ? { uid: playerSnapshot.id, ...playerSnapshot.data() }
+      : null;
+
+    let rank = null;
+    if (player) {
+      const greaterQuery = this.sdk.query(
+        collectionReference,
+        this.sdk.where("prestigeTotal", ">", Math.max(0, Number(player.prestigeTotal) || 0))
+      );
+      const countSnapshot = await this.sdk.getCountFromServer(greaterQuery);
+      rank = Math.max(1, Number(countSnapshot.data().count || 0) + 1);
+    }
+
+    return { authenticated: true, top, rank, player };
+  }
+
+  resetProgress() {
+    this.saveQueue = this.saveQueue
+      .catch(() => {})
+      .then(async () => {
+        await this.ready();
+        const user = this.currentUser;
+        const saveReference = this.getSaveReference(user);
+        const leaderboardReference = this.getLeaderboardReference(user);
+        if (!user || !saveReference || !leaderboardReference) {
+          return { ok: false, reason: "guest" };
+        }
+        const batch = this.sdk.writeBatch(this.db);
+        batch.delete(saveReference);
+        batch.delete(leaderboardReference);
+        await batch.commit();
+        return { ok: true };
+      });
     return this.saveQueue;
   }
 

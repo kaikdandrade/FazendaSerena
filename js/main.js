@@ -17,6 +17,8 @@
   let activeEvolutionTab = "upgrades";
   let showCompletedMissions = false;
   let contractDockCollapsed = false;
+  let leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
+  let leaderboardRequest = null;
   const cropUpgradeModes = new Map();
 
   // Elementos persistentes da interface.
@@ -65,7 +67,12 @@
     stockNavTab: $("#stockNavTab"),
     stockNavBadge: $("#stockNavBadge"),
     officeNavTab: $("#officeNavTab"),
+    evolveNavTab: $("#evolveNavTab"),
+    contractsOfficeTab: $("#contractsOfficeTab"),
+    ordersOfficeTab: $("#ordersOfficeTab"),
+    prestigeEvolutionTab: $("#prestigeEvolutionTab"),
     statsHero: $("#statsHero"),
+    prestigeLeaderboard: $("#prestigeLeaderboard"),
     lifetimeStats: $("#lifetimeStats"),
     recordStats: $("#recordStats"),
     achievementSummary: $("#achievementSummary"),
@@ -83,10 +90,15 @@
     musicTrackSetting: $("#musicTrackSetting"),
     accountAvatar: $("#accountAvatar"),
     accountName: $("#accountName"),
+    accountEmail: $("#accountEmail"),
     accountDescription: $("#accountDescription"),
     cloudSaveStatus: $("#cloudSaveStatus"),
     googleSignIn: $("#googleSignIn"),
     googleSignOut: $("#googleSignOut"),
+    resetProgressButton: $("#resetProgressButton"),
+    resetProgressDialog: $("#resetProgressDialog"),
+    cancelResetProgress: $("#cancelResetProgress"),
+    confirmResetProgress: $("#confirmResetProgress"),
     backToTop: $("#backToTop")
   };
 
@@ -239,9 +251,14 @@
         : "Visitante";
     }
 
+    if (dom.accountEmail) {
+      dom.accountEmail.textContent = signedIn
+        ? (user.email || "Conta Google conectada")
+        : "Conta não conectada";
+    }
     if (dom.accountDescription) {
       dom.accountDescription.textContent = signedIn
-        ? `${user.email || "Conta Google conectada"}. Seu progresso é privado e salvo automaticamente na nuvem.`
+        ? "Seu progresso é privado e salvo automaticamente na nuvem."
         : "Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.";
     }
 
@@ -259,6 +276,10 @@
       dom.googleSignOut.hidden = !signedIn;
       dom.googleSignOut.disabled = false;
     }
+    if (dom.resetProgressButton) {
+      dom.resetProgressButton.hidden = !signedIn;
+      dom.resetProgressButton.disabled = false;
+    }
 
     if (!signedIn) setCloudSaveStatus("guest");
   }
@@ -266,6 +287,7 @@
   function setAuthBusy(busy) {
     if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
     if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
+    if (dom.resetProgressButton) dom.resetProgressButton.disabled = busy;
   }
 
   async function applyAuthenticatedUser(user, authError = null) {
@@ -285,6 +307,8 @@
 
     const previousUid = currentAuthUid;
     const guestState = previousUid ? null : cloneState(engine.state);
+    leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
+    leaderboardRequest = null;
     currentAuthUid = nextUid;
     setAuthBusy(true);
 
@@ -312,6 +336,7 @@
 
       applySettings();
       render(true);
+      if (activeView === "officeView" && activeOfficeTab === "stats") refreshPrestigeLeaderboard(true);
       lastSave = performance.now();
     } finally {
       updateAccountUI(user);
@@ -422,7 +447,8 @@
   }
 
   function showView(viewId, updateHash = true) {
-    activeView = dom.views.some(view => view.id === viewId) ? viewId : "farmView";
+    const requestedView = dom.views.some(view => view.id === viewId) ? viewId : "farmView";
+    activeView = requestedView === "evolveView" && !engine.isEvolutionUnlocked() ? "farmView" : requestedView;
     dom.views.forEach(view => view.classList.toggle("active", view.id === activeView));
     dom.tabs.forEach(tab => {
       const active = tab.dataset.view === activeView;
@@ -486,6 +512,45 @@
     dom.officeNavTab.title = "Escritório";
   }
 
+  function syncFeatureLocks() {
+    const evolutionUnlocked = engine.isEvolutionUnlocked();
+    if (dom.evolveNavTab) {
+      dom.evolveNavTab.disabled = !evolutionUnlocked;
+      dom.evolveNavTab.classList.toggle("feature-locked", !evolutionUnlocked);
+      dom.evolveNavTab.setAttribute("aria-disabled", String(!evolutionUnlocked));
+      dom.evolveNavTab.title = evolutionUnlocked
+        ? "Evoluções"
+        : `Evoluções — desbloqueia no nível ${GameEngine.FEATURE_UNLOCK_LEVEL}`;
+    }
+
+    const commerceUnlocked = engine.isOfficeCommerceUnlocked();
+    [dom.contractsOfficeTab, dom.ordersOfficeTab].forEach(tab => {
+      if (!tab) return;
+      tab.disabled = !commerceUnlocked;
+      tab.classList.toggle("feature-locked", !commerceUnlocked);
+      tab.setAttribute("aria-disabled", String(!commerceUnlocked));
+    });
+    if (dom.contractsOfficeTab) dom.contractsOfficeTab.title = commerceUnlocked
+      ? "Contratos"
+      : `Contratos — desbloqueia no nível ${GameEngine.FEATURE_UNLOCK_LEVEL}`;
+    if (dom.ordersOfficeTab) dom.ordersOfficeTab.title = commerceUnlocked
+      ? "Pedidos"
+      : `Pedidos — desbloqueia no nível ${GameEngine.FEATURE_UNLOCK_LEVEL}`;
+
+    const prestigeUnlocked = engine.isPrestigeUnlocked();
+    if (dom.prestigeEvolutionTab) {
+      dom.prestigeEvolutionTab.disabled = !prestigeUnlocked;
+      dom.prestigeEvolutionTab.classList.toggle("feature-locked", !prestigeUnlocked);
+      dom.prestigeEvolutionTab.setAttribute("aria-disabled", String(!prestigeUnlocked));
+      dom.prestigeEvolutionTab.title = prestigeUnlocked
+        ? "Prestígio"
+        : `Prestígio — desbloqueia no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`;
+    }
+
+    if (!commerceUnlocked && ["contracts", "orders"].includes(activeOfficeTab)) activeOfficeTab = "missions";
+    if (!prestigeUnlocked && activeEvolutionTab === "prestige") activeEvolutionTab = "upgrades";
+  }
+
   function updateFarmProgressDisplay() {
     const state = engine.state;
     const maximumLevel = GameEngine.MAX_FARM_LEVEL;
@@ -506,6 +571,7 @@
   }
 
   function renderHeader() {
+    syncFeatureLocks();
     const state = engine.state;
     const coinsText = engine.formatNumber(state.coins);
     const researchText = engine.formatNumber(state.research);
@@ -520,9 +586,8 @@
 
     const metrics = engine.getMetrics();
     updateStockNavigation(metrics);
-    const activeContracts = state.activeContracts.length;
-    const readyContracts = engine.getReadyContractCount();
-    const readyOrders = engine.getReadyOrderCount();
+    const readyContracts = engine.isOfficeCommerceUnlocked() ? engine.getReadyContractCount() : 0;
+    const readyOrders = engine.isOfficeCommerceUnlocked() ? engine.getReadyOrderCount() : 0;
     const readyMissions = engine.getReadyMissionCount();
     updateOfficeNavigation();
     dom.contractTabCount.textContent = String(readyContracts);
@@ -756,11 +821,15 @@
   function renderCrops() {
     const term = normalize(dom.searchCrop.value);
     const category = dom.categoryFilter.value;
-    const visibleUnlockLevel = engine.state.farmLevel + 1;
+    const nextLockedCropIds = new Set(engine.data.crops
+      .filter(crop => !engine.state.crops[crop.id]?.owned && crop.unlockLevel > engine.state.farmLevel)
+      .sort((cropA, cropB) => (cropA.unlockLevel - cropB.unlockLevel) || (cropA.index - cropB.index))
+      .slice(0, 3)
+      .map(crop => crop.id));
     const list = engine.data.crops.filter(crop => {
       const cropState = engine.state.crops[crop.id];
       const categoryName = engine.data.categories[crop.category];
-      const visibleByProgress = cropState.owned || crop.unlockLevel <= visibleUnlockLevel;
+      const visibleByProgress = cropState.owned || crop.unlockLevel <= engine.state.farmLevel || nextLockedCropIds.has(crop.id);
       const matchesCategory = category === "locked"
         ? !cropState.owned && crop.unlockLevel <= engine.state.farmLevel
         : category === "all" || crop.category === category;
@@ -831,19 +900,18 @@
     const cost = maxed ? 0 : engine.getUpgradeCost(item, source);
     const resourceType = kind === "upgrade" ? "coins" : kind === "research" ? "research" : "prestige";
     const availableResource = kind === "upgrade" ? engine.state.coins : kind === "research" ? engine.state.research : engine.state.prestigePoints;
-    const affordable = !maxed && availableResource >= cost;
+    const prestigeLocked = kind === "prestige" && !engine.isPrestigeUnlocked();
+    const affordable = !maxed && !prestigeLocked && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
     const isRoyalTreasury = kind === "prestige" && item.id === "royalTreasury";
     const iconMarkup = typeof item.icon === "string" && /^(?:data:image\/|.*\.(?:png|webp|svg)$)/i.test(item.icon)
       ? `<img src="${escapeHtml(item.icon)}" alt="">`
       : escapeHtml(item.icon);
-    const treasuryAmount = 2000 + Math.min(level, 9) * 2000;
+    const treasuryAmount = engine.getStartingCoins();
     const descriptionHtml = isRoyalTreasury
-      ? `<span class="treasury-current-value">${resourceAmount("coins", treasuryAmount, { compact: true })}<span>ao começar uma nova jornada.</span></span>${level < 9
-        ? `<span class="treasury-next-value">Próximo nível: ${resourceAmount("coins", 2000, { compact: true })} adicionais.</span>`
-        : level < item.max
-          ? `<span class="treasury-next-value">O último nível consolida este valor como máximo.</span>`
-          : `<span class="treasury-next-value">Valor inicial máximo consolidado.</span>`}`
+      ? `<span class="treasury-current-value">${resourceAmount("coins", treasuryAmount, { compact: true })}<span>ao começar uma nova jornada.</span></span>${level < item.max
+        ? `<span class="treasury-next-value">Próximo nível: ${resourceAmount("coins", GameEngine.TREASURY_COINS_PER_LEVEL, { compact: true })} adicionais.</span>`
+        : `<span class="treasury-next-value">Valor inicial máximo consolidado.</span>`}`
       : enrichResourceText(item.desc);
     return `
       <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${maxed ? "evolution-upgrade-completed" : ""}" data-upgrade-kind="${kind}" data-upgrade-completed="${String(maxed)}">
@@ -853,7 +921,7 @@
           <h3>${escapeHtml(item.name)}</h3>
         </div>
         <p class="upgrade-description ${isRoyalTreasury ? "treasury-description" : ""}">${descriptionHtml}</p>
-        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
+        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : prestigeLocked ? `Desbloqueia no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}` : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
       </article>`;
   }
 
@@ -878,7 +946,7 @@
 
     const gain = engine.getPrestigeEstimate();
     const metrics = engine.getMetrics();
-    const prestigeUnlocked = engine.state.farmLevel >= 15;
+    const prestigeUnlocked = engine.isPrestigeUnlocked();
     const drivers = [
       { label: "Nível da fazenda", value: `${engine.state.farmLevel}`, ready: prestigeUnlocked },
       { label: "Moedas desta jornada", value: resourceAmount("coins", engine.state.stats.runCoinsEarned), ready: engine.state.stats.runCoinsEarned > 0 },
@@ -887,16 +955,19 @@
     ];
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-overview-card normalized-prestige-card ${!prestigeUnlocked ? "prestige-locked" : ""}">
-        <div class="prestige-copy"><p class="eyebrow">novo ciclo</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : "Prestígio desbloqueia no nível 15"}</h2><p>${prestigeUnlocked ? "O cálculo usa somente o progresso renovável desta jornada." : `Continue evoluindo a fazenda. Faltam ${Math.max(0, 15 - engine.state.farmLevel)} níveis para liberar o prestígio.`}</p></div>
-        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain)}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : "Desbloqueia no nível 15"}</span></div>
+        <div class="prestige-copy"><p class="eyebrow">novo ciclo</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : `Prestígio desbloqueia no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</h2><p>${prestigeUnlocked ? "O cálculo usa somente o progresso renovável desta jornada." : `Continue evoluindo a fazenda. Faltam ${Math.max(0, GameEngine.PRESTIGE_UNLOCK_LEVEL - engine.state.farmLevel)} níveis para liberar o prestígio.`}</p></div>
+        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain)}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : `Desbloqueia no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</span></div>
       </section>
       <section class="prestige-requirements normalized-prestige-requirements"><div class="prestige-requirements-head"><div><small>Requisitos da jornada</small><h3>Progresso que será convertido</h3></div><span>${prestigeUnlocked && gain > 0 ? "Pronto" : "Em progresso"}</span></div><div class="prestige-driver-grid">${drivers.map(item => `<article class="${item.ready ? "ready" : ""}"><div><small>${item.label}</small><strong>${item.value}</strong></div></article>`).join("")}</div></section>
-      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, evoluções, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? "Desbloqueia no nível 15" : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { compact: true })}`}</button></section>`;
+      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, evoluções, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? `Desbloqueia no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}` : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { compact: true })}`}</button></section>`;
     showEvolutionTab(activeEvolutionTab);
   }
 
   function showOfficeTab(tabId) {
-    activeOfficeTab = ["contracts", "orders", "missions", "stats"].includes(tabId) ? tabId : "contracts";
+    const requestedTab = ["contracts", "orders", "missions", "stats"].includes(tabId) ? tabId : "missions";
+    activeOfficeTab = !engine.isOfficeCommerceUnlocked() && ["contracts", "orders"].includes(requestedTab)
+      ? "missions"
+      : requestedTab;
     dom.officeTabs.forEach(tab => {
       const active = tab.dataset.officeTab === activeOfficeTab;
       tab.classList.toggle("active", active);
@@ -911,11 +982,12 @@
 
   function renderContractDock() {
     const contracts = engine.state.activeContracts || [];
-    if (!contracts.length) {
+    if (!contracts.length || !engine.isOfficeCommerceUnlocked()) {
       dom.contractDock.classList.remove("visible", "collapsed");
       dom.contractDock.innerHTML = "";
       return;
     }
+    const slotLimit = engine.getActiveContractSlotLimit();
     dom.contractDock.classList.add("visible");
     dom.contractDock.classList.toggle("collapsed", contractDockCollapsed);
     const toggleLabel = contractDockCollapsed ? "Expandir acompanhamento de contratos" : "Recolher acompanhamento de contratos";
@@ -927,7 +999,7 @@
     dom.contractDock.innerHTML = `
       <button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-expanded="true" aria-label="${toggleLabel}" title="${toggleLabel}"><span aria-hidden="true">${toggleIcon}</span></button>
       <div class="contract-dock-panel">
-        <button class="contract-dock-title" type="button" data-go-office-contracts><strong>Contratos</strong><small>${contracts.length}/${GameEngine.MAX_ACTIVE_CONTRACTS}</small></button>
+        <button class="contract-dock-title" type="button" data-go-office-contracts><strong>Contratos</strong><small>${contracts.length}/${slotLimit}</small></button>
         <div class="contract-dock-list">
           ${contracts.map(contract => {
             const crop = engine.getCrop(contract.cropId);
@@ -967,10 +1039,16 @@
   }
 
   function renderContracts() {
+    if (!engine.isOfficeCommerceUnlocked()) {
+      dom.activeContractList.innerHTML = `<div class="empty-state office-empty feature-unlock-message"><strong>Contratos liberam no nível ${GameEngine.FEATURE_UNLOCK_LEVEL}</strong><span>Suba o nível da fazenda para assinar oportunidades comerciais.</span></div>`;
+      dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">As seis propostas comerciais aparecerão quando o Escritório for desbloqueado.</div>`;
+      return;
+    }
+
     const eligible = engine.getContractEligibleCrops();
     if (!eligible.length) {
       dom.activeContractList.innerHTML = "";
-      dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">Evolua a fazenda para liberar culturas e receber oportunidades comerciais.</div>`;
+      dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">Compre uma cultura para começar a receber oportunidades comerciais.</div>`;
       return;
     }
 
@@ -978,11 +1056,30 @@
     const active = engine.state.activeContracts;
     const offers = engine.state.contractOffers;
     const cooldowns = engine.state.contractCooldowns || [];
-    const openSlots = Math.max(0, GameEngine.MAX_ACTIVE_CONTRACTS - active.length);
+    const slotLimit = engine.getActiveContractSlotLimit();
+    const slotBreakdown = engine.getContractSlotBreakdown();
+    const openSlots = Math.max(0, slotLimit - active.length);
     const rewardsLine = contract => `<div class="contract-reward-unified"><span>Recompensa</span><strong class="resource-reward-group">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</strong></div>`;
     const penaltyLine = progress => `<div class="contract-penalty-unified"><span>Recompensa cancelada</span><strong class="resource-reward-group">${resourceRewards({ coins: progress.penaltyCoins })}</strong><small>Multa obrigatória: valor original do contrato + 20%.</small></div>`;
+    const breakAction = contract => {
+      const fine = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
+      return `<div class="contract-break-area"><div><strong>Não quer continuar?</strong><small>Quebrar o contrato cobra a multa e retira uma proposta por 5 minutos.</small></div><button class="button contract-break-button" type="button" data-action="break-contract" data-id="${contract.id}">Quebrar ${resourceAmount("coins", -fine, { compact: true })}</button></div>`;
+    };
 
-    dom.activeContractList.innerHTML = active.map(contract => {
+    const slotNotes = [];
+    if (engine.state.farmLevel < GameEngine.SECOND_CONTRACT_SLOT_LEVEL) {
+      slotNotes.push(`2º slot no nível ${GameEngine.SECOND_CONTRACT_SLOT_LEVEL}`);
+    } else {
+      slotNotes.push("2º slot por nível liberado");
+    }
+    slotNotes.push(`Pesquisa ${slotBreakdown.research}/2`);
+    slotNotes.push(`Prestígio ${slotBreakdown.prestige}/3`);
+    const slotSummary = `<article class="contract-slot-summary">
+      <div><small>Capacidade de contratos ativos</small><strong>${active.length} / ${slotLimit} slots usados</strong><p>${slotNotes.join(" · ")}</p></div>
+      <span>${openSlots > 0 ? `${openSlots} ${openSlots === 1 ? "slot livre" : "slots livres"}` : "Capacidade cheia"}</span>
+    </article>`;
+
+    const activeCards = active.map(contract => {
       const crop = engine.getCrop(contract.cropId);
       const company = engine.getCompany(contract.companyId);
       const progress = engine.getContractProgress(contract);
@@ -994,7 +1091,7 @@
           <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.name)}</small><strong>Entrega concluída com atraso</strong></div></div><span class="contract-defaulted-badge">Multa pendente</span></div>
           <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>${engine.formatNumber(contract.amount)} unidades entregues</small><h3>${escapeHtml(crop.name)}</h3></div></div>
           ${penaltyLine(progress)}
-          <button class="button danger full contract-penalty-button" type="button" data-action="pay-contract-penalty" data-id="${contract.id}">Pagar multa e liberar slot</button>
+          <button class="button danger full contract-penalty-button" type="button" data-action="pay-contract-penalty" data-id="${contract.id}">Pagar multa, receber 1,7% de XP e liberar slot</button>
         </article>`;
       }
 
@@ -1004,6 +1101,7 @@
           <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Entrega obrigatória</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
           <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
           ${penaltyLine(progress)}
+          ${breakAction(contract)}
         </article>`;
       }
 
@@ -1021,8 +1119,10 @@
         <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Meta de entrega</small><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
         ${rewardsLine(contract)}
+        ${breakAction(contract)}
       </article>`;
-    }).join("");
+    });
+    dom.activeContractList.innerHTML = [slotSummary, ...activeCards].join("");
 
     const offerCards = offers.map(contract => {
       const crop = engine.getCrop(contract.cropId);
@@ -1032,19 +1132,29 @@
         <div class="friendly-contract-top"><div class="contract-company-mark"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty)}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-clock-badge">⏱ ${engine.formatTime(contract.durationSeconds)}</span></div>
         <div class="contract-product-focus"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><h3>${engine.formatNumber(contract.amount)} ${escapeHtml(crop.name.toLowerCase())}</h3></div></div>
         ${rewardsLine(contract)}
-        <div class="contract-offer-actions"><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button></div>
+        <div class="contract-offer-actions"><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar por 5 min</button><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button></div>
       </article>`;
     });
 
     const cooldownCards = cooldowns.map(item => {
       const seconds = Math.max(0, Math.ceil((item.availableAt - Date.now()) / 1000));
       const progress = percent((1 - seconds / Math.max(1, item.durationSeconds)) * 100);
-      return `<article class="contract-card contract-cooldown-card friendly-contract-card" aria-live="polite"><div class="cooldown-friendly"><span>🔄</span><div><small>Contato renovando</small><h3>Nova oportunidade em ${engine.formatTime(seconds)}</h3></div></div><div class="progress-track"><span style="width:${progress}%"></span></div></article>`;
+      return `<article class="contract-card contract-cooldown-card friendly-contract-card" aria-live="polite"><div class="cooldown-friendly"><span>🔄</span><div><small>Proposta indisponível</small><h3>Nova oportunidade em ${engine.formatTime(seconds)}</h3><p>Este espaço voltará depois do intervalo fixo de 5 minutos.</p></div></div><div class="progress-track"><span style="width:${progress}%"></span></div></article>`;
     });
-    dom.contractOfferList.innerHTML = [...offerCards, ...cooldownCards].join("");
+    const availableCards = [...offerCards, ...cooldownCards];
+    dom.contractOfferList.innerHTML = availableCards.length
+      ? availableCards.join("")
+      : `<div class="empty-state office-empty">As seis propostas estão em renovação. Aguarde o término dos intervalos.</div>`;
   }
 
   function renderOrders() {
+    if (!engine.isOfficeCommerceUnlocked()) {
+      dom.orderList.innerHTML = `<div class="empty-state office-empty feature-unlock-message"><strong>Pedidos liberam no nível ${GameEngine.FEATURE_UNLOCK_LEVEL}</strong><span>Continue evoluindo sua fazenda para receber as primeiras entregas.</span></div>`;
+      dom.completedOrderList.innerHTML = `<div class="empty-state compact-order-empty">Nenhum pedido disponível antes do nível ${GameEngine.FEATURE_UNLOCK_LEVEL}.</div>`;
+      if (dom.completedOrderCount) dom.completedOrderCount.textContent = `Pedidos ainda bloqueados até o nível ${GameEngine.FEATURE_UNLOCK_LEVEL}.`;
+      return;
+    }
+
     const owned = engine.getOwnedCrops();
     if (!owned.length) {
       dom.orderList.innerHTML = `<div class="empty-state office-empty">Compre uma cultura para iniciar sua primeira sequência de pedidos.</div>`;
@@ -1146,6 +1256,82 @@
     return `${Math.max(1, Math.floor(seconds / 60))} min`;
   }
 
+
+  function renderPrestigeLeaderboard() {
+    if (!dom.prestigeLeaderboard) return;
+    const user = window.FirebaseManager.getUser();
+    if (!user) {
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Entre com o Google para participar</strong><span>O rank usa o total histórico de pontos de prestígio de cada conta.</span></div>`;
+      return;
+    }
+    if (leaderboardState.status === "loading") {
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty leaderboard-loading"><strong>Atualizando o rank global...</strong><span>Consultando as fazendas conectadas ao Firestore.</span></div>`;
+      return;
+    }
+    if (leaderboardState.status === "error") {
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Não foi possível carregar o rank</strong><span>${escapeHtml(window.FirebaseManager.getFriendlyError(leaderboardState.error))}</span></div>`;
+      return;
+    }
+    if (leaderboardState.status !== "success") {
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Rank pronto para atualizar</strong><span>Abra esta aba ou use o botão “Atualizar rank”.</span></div>`;
+      return;
+    }
+
+    const top = Array.isArray(leaderboardState.top) ? leaderboardState.top : [];
+    const currentUid = user.uid;
+    const medal = position => position === 1 ? "🥇" : position === 2 ? "🥈" : position === 3 ? "🥉" : `${position}º`;
+    const row = (player, position, current = false) => {
+      const safePhoto = /^https:\/\//i.test(String(player?.photoURL || "")) ? String(player.photoURL) : "assets/logo.png";
+      return `<article class="leaderboard-row ${current ? "current-player" : ""}">
+        <strong class="leaderboard-position">${medal(position)}</strong>
+        <img src="${escapeHtml(safePhoto)}" alt="">
+        <div class="leaderboard-player"><strong>${escapeHtml(player?.displayName || "Fazendeiro")}</strong><small>${engine.formatNumber(player?.prestigeCount || 0)} prestígios · nível máximo ${engine.formatNumber(player?.maxFarmLevel || 1)}</small></div>
+        <div class="leaderboard-score"><small>Prestígio total</small><strong>${resourceAmount("prestige", player?.prestigeTotal || 0, { compact: true })}</strong></div>
+      </article>`;
+    };
+    const topRows = top.map(player => row(player, player.position, player.uid === currentUid));
+    const appearsInTop = top.some(player => player.uid === currentUid);
+    const personal = leaderboardState.player && leaderboardState.rank && !appearsInTop
+      ? `<div class="leaderboard-personal-divider"><span>Sua posição</span></div>${row(leaderboardState.player, leaderboardState.rank, true)}`
+      : "";
+    dom.prestigeLeaderboard.innerHTML = topRows.length
+      ? `<div class="leaderboard-list">${topRows.join("")}${personal}</div>`
+      : `<div class="empty-state leaderboard-empty"><strong>Ainda não há fazendas classificadas</strong><span>Seu perfil entrará no rank no próximo save automático.</span></div>`;
+  }
+
+  async function refreshPrestigeLeaderboard(force = false) {
+    if (!window.FirebaseManager.isAuthenticated()) {
+      leaderboardState = { status: "guest", top: [], rank: null, player: null, error: null, loadedAt: 0 };
+      renderPrestigeLeaderboard();
+      return;
+    }
+    if (leaderboardRequest) return leaderboardRequest;
+    if (!force && leaderboardState.status === "success" && Date.now() - leaderboardState.loadedAt < 30000) return;
+
+    leaderboardState = { ...leaderboardState, status: "loading", error: null };
+    renderPrestigeLeaderboard();
+    leaderboardRequest = (async () => {
+      try {
+        if (force) await engine.save();
+        const result = await window.FirebaseManager.loadPrestigeLeaderboard(10);
+        leaderboardState = {
+          status: "success",
+          top: result.top || [],
+          rank: result.rank || null,
+          player: result.player || null,
+          error: null,
+          loadedAt: Date.now()
+        };
+      } catch (error) {
+        leaderboardState = { status: "error", top: [], rank: null, player: null, error, loadedAt: Date.now() };
+      } finally {
+        leaderboardRequest = null;
+        renderPrestigeLeaderboard();
+      }
+    })();
+    return leaderboardRequest;
+  }
+
   function renderStats() {
     const state = engine.state;
     const stats = state.stats;
@@ -1161,7 +1347,8 @@
       statCard("🧾", "Pedidos concluídos", engine.formatNumber(stats.lifetimeOrdersCompleted), `${engine.formatNumber(stats.lifetimeOrderUnitsDelivered)} unidades entregues`),
       statCard("✨", "Prestígios realizados", engine.formatNumber(stats.prestiges), `${engine.formatNumber(stats.totalPrestigeEarned)} pontos conquistados`),
       statCard("📚", "Séries de pedidos finalizadas", engine.formatNumber(stats.completedOrderSeries), "Catálogos completos por cultura"),
-      statCard("⚠️", "Contratos expirados", engine.formatNumber(stats.lifetimeContractsFailed), "Entregas perdidas por prazo")
+      statCard("⚠️", "Contratos expirados", engine.formatNumber(stats.lifetimeContractsFailed), "Entregas concluídas depois do prazo"),
+      statCard("🔨", "Contratos quebrados", engine.formatNumber(stats.lifetimeContractsBroken), "Multas pagas para encerrar contratos")
     ].join("");
     dom.recordStats.innerHTML = [
       statCard("🏡", "Maior nível da fazenda", engine.formatNumber(stats.maxFarmLevel)),
@@ -1186,6 +1373,8 @@
     const missionAchievements = claimed.map(mission => `<article class="achievement-card"><span>✓</span><div><small>${mission.series ? `Etapa ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${escapeHtml(mission.desc)}</p></div></article>`);
     const achievements = [...permanentAchievements, ...missionAchievements];
     dom.achievementGrid.innerHTML = achievements.length ? achievements.join("") : `<div class="empty-state">Missões concluídas, bônus permanentes e legados comprados aparecerão aqui e nunca serão apagados pelo prestígio.</div>`;
+    renderPrestigeLeaderboard();
+    if (activeOfficeTab === "stats") refreshPrestigeLeaderboard(false);
   }
 
   function render(force = false) {
@@ -1344,6 +1533,15 @@
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
     if (action === "accept-contract") act(engine.acceptContract(id));
     if (action === "decline-contract") act(engine.declineContract(id));
+    if (action === "break-contract") {
+      const contract = engine.state.activeContracts.find(item => item.id === id);
+      if (!contract) return;
+      const fine = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
+      const confirmation = `Quebrar este contrato custará ${engine.formatNumber(fine)} moedas, cancelará qualquer recompensa e retirará uma proposta por 5 minutos. Continuar?`;
+      if (!window.confirm(confirmation)) return;
+      act(engine.breakContract(id));
+    }
+    if (action === "refresh-leaderboard") refreshPrestigeLeaderboard(true);
     if (action === "claim-contract") {
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
@@ -1369,11 +1567,15 @@
     }
     if (action === "perform-prestige") {
       const gain = engine.getPrestigeEstimate();
-      if (engine.state.farmLevel < 15) return;
+      if (!engine.isPrestigeUnlocked()) return;
       if (gain < 1) return;
       if (!window.confirm("Prestigiar agora reiniciará os recursos e o progresso desta jornada. Continuar?")) return;
       const result = engine.performPrestige();
-      if (result.ok) soundEngine.play("prestige");
+      if (result.ok) {
+        soundEngine.play("prestige");
+        activeEvolutionTab = "upgrades";
+        showView("farmView");
+      }
       act(result);
     }
   }
@@ -1386,16 +1588,19 @@
     setupDragNavigation(document.querySelector(".main-nav"));
     dom.contextNavBlocks.forEach(setupDragNavigation);
     dom.tabs.forEach(tab => tab.addEventListener("click", () => {
+      if (tab.disabled) return;
       soundEngine.playNavigation();
       showView(tab.dataset.view);
     }));
     dom.officeTabs.forEach(tab => tab.addEventListener("click", () => {
+      if (tab.disabled) return;
       soundEngine.playNavigation();
       showOfficeTab(tab.dataset.officeTab);
       window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
     }));
     dom.evolutionTabs.forEach(tab => tab.addEventListener("click", () => {
+      if (tab.disabled) return;
       soundEngine.playNavigation();
       showEvolutionTab(tab.dataset.evolutionTab);
       window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
@@ -1448,6 +1653,42 @@
       } catch (error) {
         setCloudSaveStatus("error", { error });
       } finally {
+        setAuthBusy(false);
+      }
+    });
+
+
+    dom.resetProgressButton?.addEventListener("click", () => {
+      if (!window.FirebaseManager.isAuthenticated()) return;
+      if (typeof dom.resetProgressDialog?.showModal === "function") dom.resetProgressDialog.showModal();
+    });
+    dom.cancelResetProgress?.addEventListener("click", event => {
+      event.preventDefault();
+      dom.resetProgressDialog?.close("cancel");
+    });
+    dom.confirmResetProgress?.addEventListener("click", async event => {
+      event.preventDefault();
+      if (!window.FirebaseManager.isAuthenticated()) return;
+      setAuthBusy(true);
+      dom.confirmResetProgress.disabled = true;
+      try {
+        const result = await window.FirebaseManager.resetProgress();
+        if (!result?.ok) throw new Error("Não foi possível apagar o progresso desta conta.");
+        engine.replaceState(null, { simulateOffline: false });
+        activeOfficeTab = "missions";
+        activeEvolutionTab = "upgrades";
+        leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
+        leaderboardRequest = null;
+        dom.resetProgressDialog?.close("confirm");
+        showView("farmView", false);
+        applySettings();
+        render(true);
+        await engine.save();
+        setCloudSaveStatus("saved", { savedAt: new Date() });
+      } catch (error) {
+        setCloudSaveStatus("error", { error });
+      } finally {
+        dom.confirmResetProgress.disabled = false;
         setAuthBusy(false);
       }
     });

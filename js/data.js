@@ -108,7 +108,7 @@ window.GameData = (() => {
     unlockLevel: index === 0 ? 1 : index * 5,
     // A curva atravessa milhares, milhões, bilhões e trilhões. A cultura final
     // custa mais de seis trilhões antes dos descontos permanentes.
-    cost: Math.max(600, Math.round(600 * Math.pow(1.39, index))),
+    cost: Math.max(100, Math.round(100 * Math.pow(1.46, index))),
     basePrice: Math.max(5, Math.round(5 * Math.pow(1.23, index))),
     baseGrowth: categoryGrowth[category] || 8,
     baseYield: 2
@@ -137,7 +137,8 @@ window.GameData = (() => {
     { id: "negotiationModels", name: "Modelos de negociação", icon: "assets/icons/pricing.png", desc: "+8% de ganhos nas recompensas oferecidas por contratos.", max: 10, baseCost: 12, growth: 1.84 },
     { id: "orderOptimization", name: "Otimização de pedidos", icon: "assets/icons/delivery-truck.png", desc: "+8% nas recompensas recebidas por pedidos.", max: 10, baseCost: 12, growth: 1.84 },
     { id: "logisticsSimulation", name: "Simulação logística", icon: "assets/icons/clock.png", desc: "+6% de aumento nos prazos dos contratos.", max: 10, baseCost: 14, growth: 1.86 },
-    { id: "agriculturalPedagogy", name: "Pedagogia agrícola", icon: "assets/icons/graduation-cap.png", desc: "+7% de experiência da fazenda ganha.", max: 10, baseCost: 15, growth: 1.88 }
+    { id: "agriculturalPedagogy", name: "Pedagogia agrícola", icon: "assets/icons/graduation-cap.png", desc: "+7% de experiência da fazenda ganha.", max: 10, baseCost: 15, growth: 1.88 },
+    { id: "contractPortfolio", name: "Portfólio de contratos", icon: "assets/icons/commercial-contract.png", desc: "+1 slot de contrato ativo por nível. Possui somente 2 níveis.", max: 2, baseCost: 320, growth: 4.50 }
   ];
 
   const prestigeUpgrades = [
@@ -148,7 +149,8 @@ window.GameData = (() => {
     { id: "ancestralMastery", name: "Domínio ancestral", icon: "assets/icons/seedling-pot.png", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 5, growth: 2.15 },
     { id: "immortalAcademy", name: "Academia imortal", icon: "assets/icons/books.png", desc: "25% a mais de pesquisa recebida e 3 pontos iniciais permanentes por nível.", max: 8, baseCost: 6, growth: 2.18 },
     { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "assets/icons/prestige.png", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 7, growth: 2.22 },
-    { id: "sovereignNetwork", name: "Rede soberana", icon: "assets/icons/commercial-contract.png", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 8, growth: 2.25 }
+    { id: "sovereignNetwork", name: "Rede soberana", icon: "assets/icons/commercial-contract.png", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 8, growth: 2.25 },
+    { id: "contractEmpire", name: "Império contratual", icon: "assets/icons/commercial-contract.png", desc: "+1 slot permanente de contrato ativo por nível. Possui 3 níveis e permanece entre jornadas.", max: 3, baseCost: 90, growth: 3.00 }
   ];
 
 
