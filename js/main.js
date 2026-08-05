@@ -104,18 +104,16 @@
 
   function resourceAmount(type, value, options = {}) {
     const number = Number(value) || 0;
-    const sign = options.sign === true ? (number > 0 ? "+" : number < 0 ? "−" : "") : "";
-    const signHtml = sign ? `<span class="resource-sign ${number > 0 ? "positive" : "negative"}" aria-hidden="true">${sign}</span>` : "";
     const label = options.label ? `<small>${escapeHtml(options.label)}</small>` : "";
     const title = options.title ? ` title="${escapeHtml(options.title)}"` : "";
-    return `<span class="resource-amount resource-${type}${options.compact ? " compact" : ""}"${title}><img src="${resourceIcons[type]}" alt="">${signHtml}<b>${engine.formatNumber(Math.abs(number))}</b>${label}</span>`;
+    return `<span class="resource-amount resource-${type}${options.compact ? " compact" : ""}"${title}><img src="${resourceIcons[type]}" alt=""><b>${engine.formatNumber(Math.abs(number))}</b>${label}</span>`;
   }
 
-  function resourceRewards(reward, sign = true) {
+  function resourceRewards(reward) {
     const parts = [];
-    if (reward?.coins) parts.push(resourceAmount("coins", reward.coins, { sign, title: "Moedas" }));
-    if (reward?.research) parts.push(resourceAmount("research", reward.research, { sign, title: "Pontos de pesquisa" }));
-    if (reward?.prestige) parts.push(resourceAmount("prestige", reward.prestige, { sign, title: "Pontos de prestígio" }));
+    if (reward?.coins) parts.push(resourceAmount("coins", reward.coins, { title: "Moedas" }));
+    if (reward?.research) parts.push(resourceAmount("research", reward.research, { title: "Pontos de pesquisa" }));
+    if (reward?.prestige) parts.push(resourceAmount("prestige", reward.prestige, { title: "Pontos de prestígio" }));
     return parts.join("");
   }
 
@@ -127,9 +125,8 @@
       html = html.replace(expression, (_, value) => {
         const first = value.trim().charAt(0);
         const signed = ["+", "−", "-"].includes(first);
-        const sign = signed ? (first === "-" ? "−" : first) : "";
         const absolute = signed ? value.trim().slice(1) : value.trim();
-        return `<span class="inline-resource resource-${type}"><img src="${resourceIcons[type]}" alt="">${sign ? `<span class="resource-sign ${sign === "+" ? "positive" : "negative"}">${sign}</span>` : ""}<b>${absolute}</b></span>`;
+        return `<span class="inline-resource resource-${type}"><img src="${resourceIcons[type]}" alt=""><b>${absolute}</b></span>`;
       });
     };
     replace("coins", "moedas?");
@@ -151,7 +148,7 @@
     if (!event) return;
     if (event.type === "toast") toast(event.message);
     if (event.type === "level") {
-      toast(`A fazenda alcançou o nível ${event.level} e recebeu +${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "success");
+      toast(`A fazenda alcançou o nível ${event.level} e recebeu ${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "success");
       window.setTimeout(() => render(true), 0);
     }
     if (event.type === "offline") toast(`Enquanto você esteve longe, a fazenda produziu ${engine ? engine.formatNumber(event.harvested) : Math.floor(event.harvested)} itens.`);
@@ -360,7 +357,7 @@
           button.disabled = !unlocked || !canAfford;
           button.innerHTML = !unlocked
             ? `Necessário: Fazenda nível ${crop.unlockLevel}`
-            : `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`;
+            : `Comprar ${resourceAmount("coins", -buyCost, { compact: true })}`;
         }
       });
     }
@@ -418,7 +415,7 @@
       action.disabled = selection.maxed || !selection.affordable;
       action.innerHTML = selection.maxed
         ? "Plantação concluída"
-        : `Aprimorar ${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}`;
+        : `Aprimorar ${resourceAmount("coins", -selection.cost, { compact: true })}`;
     }
   }
 
@@ -432,7 +429,7 @@
     if (!data.owned) {
       const purchaseLabel = !unlocked
         ? `Necessário: Fazenda nível ${crop.unlockLevel}`
-        : `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`;
+        : `Comprar ${resourceAmount("coins", -buyCost, { compact: true })}`;
       return `
         <article class="crop-card locked ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
           <div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span></div>
@@ -482,7 +479,7 @@
             <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
           </div>
           <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "Máx." : `+${selection.mode === "max" ? selection.levels : 1}`}</strong></div>
-          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : `Aprimorar ${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}`}</button>
+          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : `Aprimorar ${resourceAmount("coins", -selection.cost, { compact: true })}`}</button>
         </div>
       </article>`;
   }
@@ -519,7 +516,7 @@
       <article class="summary-card storage-capacity-card normalized-summary-card">
         <div class="summary-card-heading"><div><small>Estoque compartilhado</small><strong>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></div><span class="summary-status ${storagePct >= 100 ? "full" : ""}">${storagePct >= 100 ? "Cheio" : "Capacidade"}</span></div>
         <div class="progress-track growth"><span style="width:${Math.min(100, storagePct)}%"></span></div>
-        <button class="button primary full storage-expand-button" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>+100 espaços de armazenamento ${resourceAmount("coins", -expansionCost, { sign: true, compact: true })}</button>
+        <button class="button primary full storage-expand-button" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>+100 espaços de armazenamento ${resourceAmount("coins", -expansionCost, { compact: true })}</button>
       </article>
       <article class="summary-card stock-sale-summary normalized-summary-card">
         <div class="summary-card-heading"><div><small>Venda geral</small><strong>${engine.formatNumber(storageUsed)} itens</strong></div><span class="summary-status">Mercado</span></div>
@@ -575,7 +572,7 @@
           <h3>${escapeHtml(item.name)}</h3>
         </div>
         <p class="upgrade-description">${enrichResourceText(item.desc)}</p>
-        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { sign: true, compact: true })}`}</button>
+        <button class="button ${kind === "prestige" ? "gold" : "primary"} full" type="button" data-action="${action}" data-id="${item.id}" ${maxed || !affordable ? "disabled" : ""}>${maxed ? "Concluído" : `Aprimorar ${resourceAmount(resourceType, -cost, { compact: true })}`}</button>
       </article>`;
   }
 
@@ -610,10 +607,10 @@
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-overview-card normalized-prestige-card ${!prestigeUnlocked ? "prestige-locked" : ""}">
         <div class="prestige-copy"><p class="eyebrow">novo ciclo</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : "Prestígio desbloqueia no nível 15"}</h2><p>${prestigeUnlocked ? "O cálculo usa somente o progresso renovável desta jornada." : `Continue evoluindo a fazenda. Faltam ${Math.max(0, 15 - engine.state.farmLevel)} níveis para liberar o prestígio.`}</p></div>
-        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain, { sign: true })}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : "Desbloqueia no nível 15"}</span></div>
+        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain)}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : "Desbloqueia no nível 15"}</span></div>
       </section>
       <section class="prestige-requirements normalized-prestige-requirements"><div class="prestige-requirements-head"><div><small>Requisitos da jornada</small><h3>Progresso que será convertido</h3></div><span>${prestigeUnlocked && gain > 0 ? "Pronto" : "Em progresso"}</span></div><div class="prestige-driver-grid">${drivers.map(item => `<article class="${item.ready ? "ready" : ""}"><div><small>${item.label}</small><strong>${item.value}</strong></div></article>`).join("")}</div></section>
-      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, evoluções, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? "Desbloqueia no nível 15" : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { sign: true, compact: true })}`}</button></section>`;
+      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, evoluções, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? "Desbloqueia no nível 15" : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { compact: true })}`}</button></section>`;
     showEvolutionTab(activeEvolutionTab);
   }
 
@@ -647,10 +644,13 @@
           const company = engine.getCompany(contract.companyId);
           const progress = engine.getContractProgress(contract);
           const urgent = !progress.completed && contract.timeRemaining <= 30;
-          return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""}" type="button" data-go-office-contracts title="Abrir contratos">
+          const actionAttributes = progress.completed
+            ? `data-action="claim-contract" data-id="${contract.id}" title="Receber recompensa"`
+            : 'data-go-office-contracts title="Abrir contratos"';
+          return `<button class="contract-dock-item ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""}" type="button" ${actionAttributes}>
             <img src="${crop.image}" alt="${escapeHtml(crop.name)}">
-            <span><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${progress.completed ? "Recompensa pronta" : `${engine.formatTime(contract.timeRemaining)} restantes`}</u></span>
-            <em class="${progress.completed ? "ready" : ""}">${Math.floor(progress.percent)}%<small>${progress.completed ? "Receber" : "entregue"}</small></em>
+            <span class="contract-dock-copy"><small>${escapeHtml(company.name)}</small><strong>${escapeHtml(crop.name)}</strong><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${progress.completed ? "Clique para receber" : `${engine.formatTime(contract.timeRemaining)} restantes`}</u><span class="contract-dock-rewards">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</span></span>
+            <em class="${progress.completed ? "ready" : ""}">${Math.floor(progress.percent)}%<small>${progress.completed ? "receber" : "entregue"}</small></em>
           </button>`;
         }).join("")}
       </div>`;
@@ -659,9 +659,8 @@
   function renderContracts() {
     const eligible = engine.getContractEligibleCrops();
     if (!eligible.length) {
-      dom.contractCapacity.innerHTML = "";
-      dom.activeContractList.innerHTML = `<div class="empty-state office-empty">Evolua a fazenda para liberar culturas e receber oportunidades comerciais.</div>`;
-      dom.contractOfferList.innerHTML = "";
+      dom.activeContractList.innerHTML = "";
+      dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">Evolua a fazenda para liberar culturas e receber oportunidades comerciais.</div>`;
       return;
     }
 
@@ -670,16 +669,9 @@
     const offers = engine.state.contractOffers;
     const cooldowns = engine.state.contractCooldowns || [];
     const openSlots = Math.max(0, GameEngine.MAX_ACTIVE_CONTRACTS - active.length);
-    const readyRewards = active.filter(contract => engine.getContractProgress(contract).completed).length;
-    dom.contractCapacity.innerHTML = `<div class="contract-dashboard-strip">
-      <span><i>📑</i><small>Ativos</small><strong>${active.length} / ${GameEngine.MAX_ACTIVE_CONTRACTS}</strong></span>
-      <span><i>✨</i><small>Recompensas</small><strong>${readyRewards}</strong></span>
-      <span><i>🌱</i><small>Culturas elegíveis</small><strong>${eligible.length}</strong></span>
-    </div>`;
-
     const rewardsLine = contract => `<div class="contract-reward-unified"><span>Recompensa</span><strong class="resource-reward-group">${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch })}</strong></div>`;
 
-    dom.activeContractList.innerHTML = active.length ? active.map(contract => {
+    dom.activeContractList.innerHTML = active.map(contract => {
       const crop = engine.getCrop(contract.cropId);
       const company = engine.getCompany(contract.companyId);
       const difficulty = engine.getContractDifficulty(contract.difficulty);
@@ -699,7 +691,7 @@
         <div class="contract-progress-block"><div class="progress-label"><span>Produção enviada</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track contract-progress-track"><span class="contract-delivered" style="width:${percent(progress.percent)}%"></span></div></div>
         ${rewardsLine(contract)}
       </article>`;
-    }).join("") : `<div class="empty-state office-empty compact-office-empty">Nenhum contrato ativo. Escolha uma oportunidade abaixo.</div>`;
+    }).join("");
 
     const offerCards = offers.map(contract => {
       const crop = engine.getCrop(contract.cropId);
@@ -714,7 +706,7 @@
         <div class="contract-insight-row"><span><small>Tipo</small><strong>${escapeHtml(difficulty.label)}</strong></span><span><small>Valor por unidade</small><strong>${resourceAmount("coins", unitReward, { compact: true })}</strong></span></div>
         ${rewardsLine(contract)}
         ${owned ? "" : `<div class="contract-crop-advisory">🌱 Esta cultura já está liberada, mas ainda precisa ser comprada na Fazenda.</div>`}
-        <div class="contract-offer-actions"><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Aceitar"}</button></div>
+        <div class="contract-offer-actions"><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Limite atingido" : "Assinar"}</button></div>
       </article>`;
     });
 
@@ -740,15 +732,17 @@
     }
 
     const completedCrops = owned.filter(crop => engine.getOrder(crop.id)?.complete);
-    const visible = owned.filter(crop => showCompletedOrders || !engine.getOrder(crop.id)?.complete);
+    const activeCrops = owned.filter(crop => !engine.getOrder(crop.id)?.complete);
+    const visible = showCompletedOrders ? [...activeCrops, ...completedCrops] : activeCrops;
     dom.orderList.innerHTML = visible.map(crop => {
       const order = engine.getOrder(crop.id);
       const orderState = engine.state.orders[crop.id];
       const stock = engine.state.crops[crop.id].stock;
       if (order.complete) {
-        return `<article class="order-card order-complete normalized-order-card">
-          <div class="order-head"><div class="contract-crop"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Série completa</small><h3>${escapeHtml(crop.name)}</h3></div></div></div>
-          <div class="order-finished-state"><span>✓</span><div><strong>Pedido finalizado</strong><small>Todas as ${order.totalTiers} etapas foram recompensadas.</small></div></div>
+        const category = engine.data.categories[crop.category];
+        return `<article class="order-card order-complete compact-completed-order">
+          <div class="completed-order-identity"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div><small>Série completa</small><h3>${escapeHtml(crop.name)}</h3><p>${escapeHtml(category)}</p></div></div>
+          <strong class="completed-order-status">Pedido finalizado</strong>
         </article>`;
       }
 
@@ -793,7 +787,7 @@
     const resources = resourceRewards(reward);
     if (resources) parts.push(resources);
     if (reward.permanent === "prestigeDouble") parts.push('<span class="permanent-reward">2× pontos nos próximos prestígios</span>');
-    return parts.join('<span class="resource-plus">+</span>');
+    return parts.join("");
   }
 
   function renderMissions() {
@@ -977,8 +971,8 @@
     if (action === "buy-upgrade") act(engine.buyUpgrade(id), "Infraestrutura aprimorada.");
     if (action === "buy-research") act(engine.buyResearch(id), "Nova etapa da pesquisa concluída.");
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id), "Legado permanente aprimorado.");
-    if (action === "accept-contract") act(engine.acceptContract(id), result => `Contrato com ${engine.getCompany(result.contract.companyId).name} aceito.`);
-    if (action === "decline-contract") act(engine.declineContract(id), result => `Proposta recusada. Uma nova oferta chegará em até ${engine.formatTime(result.cooldownSeconds)}.`);
+    if (action === "accept-contract") act(engine.acceptContract(id), result => `Contrato com ${engine.getCompany(result.contract.companyId).name} assinado.`);
+    if (action === "decline-contract") act(engine.declineContract(id), result => `Contrato recusado. Uma nova oportunidade chegará em até ${engine.formatTime(result.cooldownSeconds)}.`);
     if (action === "claim-contract") {
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
@@ -1015,7 +1009,7 @@
       if (engine.state.farmLevel < 15) return toast("O prestígio fica disponível no nível 15 da fazenda.", "error");
       if (gain < 1) return toast("Fortaleça mais esta jornada antes de prestigiar.", "error");
       if (!window.confirm("Prestigiar agora reiniciará os recursos e o progresso desta jornada. Continuar?")) return;
-      act(engine.performPrestige(), result => `Nova jornada iniciada com +${result.gain} ${result.gain === 1 ? "ponto de prestígio" : "pontos de prestígio"}.`);
+      act(engine.performPrestige(), result => `Nova jornada iniciada com ${result.gain} ${result.gain === 1 ? "ponto de prestígio" : "pontos de prestígio"}.`);
     }
   }
 

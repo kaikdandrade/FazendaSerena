@@ -6357,3 +6357,205 @@ body.page-scrolled .floating-resource-strip { display: grid !important; }
 .order-history-toggle[hidden] {
   display: none !important;
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 16 — recursos sem sinais, contratos limpos e históricos compactos */
+/* ========================================================================== */
+
+/* Moedas, pesquisa e prestígio são compreendidos pelo contexto: nenhum
+   elemento visual exibe sinais matemáticos de entrada ou saída. */
+.resource-sign,
+.resource-plus { display: none !important; }
+
+/* Cards de evoluções: imagem e badge compartilham exatamente o mesmo recuo
+   superior; a ação acompanha a descrição sem um vazio artificial. */
+#evolveView .upgrade-grid {
+  align-items: start !important;
+}
+#evolveView .redesigned-evolution-card {
+  grid-template-rows: auto auto auto !important;
+  align-content: start !important;
+  align-self: start !important;
+  gap: 5px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 13px !important;
+}
+#evolveView .upgrade-level-badge {
+  top: 13px !important;
+  right: 13px !important;
+}
+#evolveView .upgrade-card-identity {
+  min-height: 43px !important;
+  padding-right: 80px !important;
+}
+#evolveView .upgrade-description,
+#evolveView .normalized-upgrade-card .upgrade-description {
+  min-height: 0 !important;
+  margin: 0 !important;
+  line-height: 1.35 !important;
+}
+#evolveView .redesigned-evolution-card .button {
+  margin-top: 1px !important;
+}
+
+/* Contratos: título, explicação e cards, sem painéis de resumo ou subtítulos
+   redundantes entre os blocos ativos e as oportunidades. */
+#officeView .contract-capacity,
+#officeView .contract-section-head,
+#officeView .contract-dashboard-strip {
+  display: none !important;
+}
+#officeView .contracts-clean-heading {
+  margin-bottom: 10px !important;
+}
+#officeView .contracts-clean-heading .section-copy {
+  max-width: 820px !important;
+}
+.contracts-clean-flow {
+  display: grid;
+  gap: 11px;
+}
+#officeView .active-contract-grid:empty {
+  display: none !important;
+}
+#officeView .active-contract-grid,
+#officeView .contract-offer-grid {
+  margin: 0 !important;
+}
+
+/* O atalho mostra a recompensa e, quando concluído, torna-se a própria ação
+   de coleta. */
+.contract-dock-item {
+  grid-template-columns: 34px minmax(0,1fr) 42px !important;
+}
+.contract-dock-copy {
+  display: grid !important;
+  min-width: 0;
+}
+.contract-dock-rewards {
+  display: flex !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
+}
+.contract-dock-rewards .resource-amount {
+  min-height: 20px !important;
+  padding: 2px 5px !important;
+  border-radius: 8px !important;
+  font-size: .54rem !important;
+}
+.contract-dock-rewards .resource-amount img {
+  width: 12px !important;
+  height: 12px !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+.contract-dock-item.reward-ready {
+  cursor: pointer;
+}
+
+/* O retorno ao início fica no lado oposto ao acompanhamento dos contratos. */
+.back-to-top {
+  left: max(16px, calc((100vw - 1660px) / 2 + 16px)) !important;
+  right: auto !important;
+  min-width: 66px !important;
+}
+
+/* Pedidos concluídos possuem uma composição própria e compacta. Eles são
+   renderizados depois de todos os pedidos em andamento. */
+.order-card.compact-completed-order {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 10px 12px !important;
+  overflow: hidden;
+}
+.order-card.compact-completed-order::after {
+  display: none !important;
+}
+.completed-order-identity {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+.completed-order-identity img {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  padding: 4px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: rgba(255,255,255,.68);
+}
+.completed-order-identity div { min-width: 0; }
+.completed-order-identity small,
+.completed-order-identity h3,
+.completed-order-identity p { display: block; margin: 0 !important; }
+.completed-order-identity small {
+  color: var(--green-deep);
+  font-size: .58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .035em;
+}
+.completed-order-identity h3 {
+  margin-top: 1px !important;
+  font-size: .78rem;
+  line-height: 1.15;
+}
+.completed-order-identity p {
+  margin-top: 2px !important;
+  color: var(--ink-soft);
+  font-size: .61rem;
+  line-height: 1.2;
+}
+.completed-order-status {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  color: var(--green-deep);
+  font-size: .65rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .back-to-top {
+    left: 10px !important;
+    right: auto !important;
+    min-width: 60px !important;
+    padding: 0 11px !important;
+  }
+  .back-to-top strong { display: inline !important; }
+  #evolveView .upgrade-level-badge {
+    top: 13px !important;
+    right: 13px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .order-card.compact-completed-order {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px !important;
+  }
+  .completed-order-status {
+    padding-left: 51px;
+  }
+}
+
+/* Evita que o card finalizado seja esticado até a altura dos pedidos ativos
+   que ocupam a mesma linha da grade. */
+.order-card.compact-completed-order {
+  align-self: start !important;
+}

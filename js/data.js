@@ -130,14 +130,14 @@ window.GameData = (() => {
   ];
 
   const prestigeUpgrades = [
-    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "👑", desc: "+1.500 moedas iniciais permanentes por nível.", max: 10, baseCost: 1, growth: 1.72 },
+    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "👑", desc: "1.500 moedas iniciais permanentes por nível.", max: 10, baseCost: 1, growth: 1.72 },
     { id: "eternalHarvest", name: "Colheita eterna", icon: "🌾", desc: "+12% de velocidade e +10% de rendimento permanentes por nível.", max: 12, baseCost: 1, growth: 1.78 },
     { id: "goldenExchange", name: "Bolsa dourada", icon: "💰", desc: "+15% no valor de todas as vendas permanentemente por nível.", max: 10, baseCost: 2, growth: 1.82 },
     { id: "endlessGranary", name: "Celeiro sem fim", icon: "🏰", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 2, growth: 1.82 },
     { id: "ancestralMastery", name: "Domínio ancestral", icon: "🌿", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 2, growth: 1.90 },
-    { id: "immortalAcademy", name: "Academia imortal", icon: "📚", desc: "+25% de pesquisa recebida e +3 pontos iniciais permanentes por nível.", max: 8, baseCost: 3, growth: 1.92 },
-    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "🌟", desc: "+20% nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
-    { id: "sovereignNetwork", name: "Rede soberana", icon: "🦅", desc: "+20% nas moedas de contratos e pedidos, +10% nos prazos e vendas automáticas por nível.", max: 8, baseCost: 4, growth: 2.00 }
+    { id: "immortalAcademy", name: "Academia imortal", icon: "📚", desc: "25% a mais de pesquisa recebida e 3 pontos iniciais permanentes por nível.", max: 8, baseCost: 3, growth: 1.92 },
+    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "🌟", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
+    { id: "sovereignNetwork", name: "Rede soberana", icon: "🦅", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 4, growth: 2.00 }
   ];
 
 
