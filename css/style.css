@@ -3109,14 +3109,6 @@ body.compact-cards #farmView .upgrade-mode-option { line-height: 1 !important; }
   z-index: 70 !important;
 }
 
-body.page-scrolled .app-header { box-shadow: 0 14px 34px rgba(42, 67, 49, .16) !important; padding-block: 7px !important; }
-
-body.page-scrolled .brand-logo { height: 56px !important; width: 41px !important; }
-
-body.page-scrolled .farm-progress { padding-block: 6px !important; }
-
-body.page-scrolled .resource-pill { min-height: 40px !important; }
-
 .back-to-top {
   align-items: center;
   backdrop-filter: blur(12px);
@@ -3278,43 +3270,9 @@ body.compact-cards #farmView .upgrade-mode-option {
 
 .global-auto-sell-toggle > .auto-sell-switch { justify-self: end; }
 
-body.page-scrolled .resource-strip {
-  backdrop-filter: blur(18px) saturate(1.1);
-  background: rgba(255,255,249,.94);
-  border: 1px solid rgba(255,255,255,.82);
-  border-radius: 18px;
-  box-shadow: 0 14px 34px rgba(42,67,49,.18);
-  grid-column: auto !important;
-  left: 50% !important;
-  margin: 0 !important;
-  padding: 6px !important;
-  position: fixed !important;
-  top: 7px !important;
-  transform: translateX(-50%);
-  width: min(560px, calc(100% - 28px)) !important;
-  z-index: 95 !important;
-}
-
-body.page-scrolled .resource-strip .resource-pill { min-height: 40px !important; }
-
-body.page-scrolled .navigation-stack { top: 62px !important; }
-
 .app-header { position: relative !important; top: auto !important; }
 
 .navigation-stack { position: relative !important; top: auto !important; }
-
-body.page-scrolled .app-header .resource-strip {
-  backdrop-filter: none !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  position: static !important;
-  transform: none !important;
-  width: auto !important;
-}
 
 .floating-resource-strip {
   backdrop-filter: blur(18px) saturate(1.1);
@@ -3322,22 +3280,35 @@ body.page-scrolled .app-header .resource-strip {
   border: 1px solid rgba(255,255,255,.82);
   border-radius: 18px;
   box-shadow: 0 14px 34px rgba(42,67,49,.18);
-  display: none !important;
+  display: grid !important;
   gap: 7px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   left: 50% !important;
   margin: 0 !important;
+  opacity: 0;
   padding: 6px !important;
+  pointer-events: none;
   position: fixed !important;
   top: 7px !important;
-  transform: translateX(-50%);
+  transform: translate(-50%, -12px);
+  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  visibility: hidden;
   width: min(560px, calc(100% - 28px)) !important;
+  will-change: opacity, transform;
   z-index: 95 !important;
 }
 
-body.page-scrolled .floating-resource-strip { display: grid !important; }
+body.page-scrolled .floating-resource-strip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+  transition-delay: 0s;
+  visibility: visible;
+}
 
 .floating-resource-strip .resource-pill { min-height: 40px !important; min-width: 0; }
+
+body.reduce-motion .floating-resource-strip { transition: none !important; }
 
 #evolveView .evolution-workspace { padding-top: 7px !important; }
 
@@ -6965,12 +6936,6 @@ body {
 
   body.compact-cards #farmView .crop-grid { grid-template-columns: 1fr !important; }
 
-  body.page-scrolled .app-header { grid-template-columns: minmax(0,1fr) !important; padding: 6px 8px !important; }
-
-  body.page-scrolled .app-header .brand { display: none !important; }
-
-  body.page-scrolled .app-header .farm-progress { display: none !important; }
-
   .evolution-tab { min-height: 40px !important; padding: 0 5px !important; }
 
   .office-tab { min-height: 40px !important; padding: 0 5px !important; }
@@ -6984,15 +6949,6 @@ body {
   body.compact-cards #farmView .crop-upgrade-redesign { grid-template-columns: minmax(105px,1fr) auto !important; }
 
   .back-to-top { bottom: 10px; }
-
-  body.page-scrolled .resource-strip {
-    border-radius: 14px;
-    padding: 4px !important;
-    top: 4px !important;
-    width: calc(100% - 12px) !important;
-  }
-
-  body.page-scrolled .resource-pill { min-height: 38px !important; padding: 5px 7px !important; }
 
   .floating-resource-strip {
     border-radius: 14px;
@@ -7818,3 +7774,11 @@ body {
 .stock-locked-copy small { color: var(--green); font-size: .57rem; font-weight: 950; text-transform: uppercase; }
 .stock-locked-copy strong { color: var(--green-deep); font-size: .82rem; }
 .stock-locked-copy p { color: var(--ink-soft); font-size: .62rem; line-height: 1.45; margin: 0; }
+
+
+/* ==========================================================================
+   Revisão 45 — counters flutuantes sem fricção durante a rolagem
+   ========================================================================== */
+
+/* A classe de rolagem controla apenas o painel flutuante. O cabeçalho original
+   nunca muda de altura, evitando saltos no scroll e alternância no limiar. */

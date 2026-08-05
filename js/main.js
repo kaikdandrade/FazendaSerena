@@ -519,10 +519,35 @@
     dom.stockCategoryFilter?.insertAdjacentHTML("beforeend", options);
   }
 
+  let scrollUiFrame = 0;
+  let floatingCountersVisible = false;
+
   function syncScrollUI() {
-    const scrolled = window.scrollY > 180;
-    document.body.classList.toggle("page-scrolled", scrolled);
-    if (dom.backToTop) dom.backToTop.hidden = !scrolled;
+    if (scrollUiFrame) return;
+
+    scrollUiFrame = window.requestAnimationFrame(() => {
+      const scrollTop = Math.max(0, window.scrollY || document.scrollingElement?.scrollTop || document.documentElement.scrollTop || document.body.scrollTop || 0);
+      const sourceStrip = document.querySelector(".app-header > .resource-strip:not(.floating-resource-strip)");
+
+      if (sourceStrip) {
+        const sourceBottom = sourceStrip.getBoundingClientRect().bottom;
+
+        // Histerese: o painel aparece somente depois que os counters originais
+        // saem por completo da tela e só desaparece quando eles voltam a entrar.
+        // Isso impede a alternância contínua da classe durante a rolagem.
+        if (!floatingCountersVisible && sourceBottom <= 0) {
+          floatingCountersVisible = true;
+        } else if (floatingCountersVisible && sourceBottom >= 18) {
+          floatingCountersVisible = false;
+        }
+      } else {
+        floatingCountersVisible = scrollTop > 220;
+      }
+
+      document.body.classList.toggle("page-scrolled", floatingCountersVisible);
+      if (dom.backToTop) dom.backToTop.hidden = scrollTop <= 180;
+      scrollUiFrame = 0;
+    });
   }
 
 
@@ -2065,6 +2090,7 @@
     document.addEventListener("keydown", unlockMusic, { once: true });
 
     window.addEventListener("scroll", syncScrollUI, { passive: true });
+    window.addEventListener("resize", syncScrollUI, { passive: true });
     dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     syncScrollUI();
 
