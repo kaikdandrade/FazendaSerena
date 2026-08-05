@@ -1,11 +1,7 @@
-CHANGELOG.md
-README.md
-ADSENSE_SETUP.md
-LICENSE
-
 .firebase
 firestore.rules
-js/firebase-config.js
 FIREBASE_SETUP.md
+ADSENSE_SETUP.md
 
+CHANGELOG.md
 *.log
