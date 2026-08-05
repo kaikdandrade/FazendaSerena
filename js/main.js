@@ -14,6 +14,14 @@
   let activeView = "farmView";
   let activeOfficeTab = "contracts";
   let activeEvolutionTab = "upgrades";
+  let activeProfileTab = "account";
+  let firebaseManager = null;
+  let firebaseState = { configured: false, ready: false, busy: false, user: null, cloudStatus: "unconfigured", message: "Carregando o Firebase...", lastSyncedAt: null };
+  let firebaseHydratedUid = null;
+  let firebaseHydratingUid = null;
+  let firebaseHydrationPromise = null;
+  let cloudSyncPromise = null;
+  let lastCloudSave = 0;
   let showCompletedMissions = false;
   let contractDockCollapsed = false;
   const cropUpgradeModes = new Map();
@@ -46,12 +54,34 @@
     officePanels: $$("[data-office-panel]"),
     evolutionTabs: $$("[data-evolution-tab]"),
     evolutionPanels: $$("[data-evolution-panel]"),
+    profileTabs: $$("[data-profile-tab]"),
+    profilePanels: $$("[data-profile-panel]"),
     contextNavBlocks: $$("[data-context-for]"),
     contractTabCount: $("#contractTabCount"),
     orderTabCount: $("#orderTabCount"),
     missionTabCount: $("#missionTabCount"),
     toastZone: $("#toastZone"),
-    saveBox: $("#saveBox"),
+    profileAvatar: $("#profileAvatar"),
+    profileAvatarImage: $("#profileAvatarImage"),
+    profileIdentityEyebrow: $("#profileIdentityEyebrow"),
+    profileDisplayName: $("#profileDisplayName"),
+    profileEmail: $("#profileEmail"),
+    cloudStatusBadge: $("#cloudStatusBadge"),
+    loggedOutProfile: $("#loggedOutProfile"),
+    loggedInProfile: $("#loggedInProfile"),
+    firebaseMessage: $("#firebaseMessage"),
+    firebaseEmail: $("#firebaseEmail"),
+    firebasePassword: $("#firebasePassword"),
+    emailAuthForm: $("#emailAuthForm"),
+    emailSignUp: $("#emailSignUp"),
+    passwordReset: $("#passwordReset"),
+    googleSignIn: $("#googleSignIn"),
+    firebaseSignOut: $("#firebaseSignOut"),
+    syncCloudNow: $("#syncCloudNow"),
+    cloudStatusText: $("#cloudStatusText"),
+    cloudLastSync: $("#cloudLastSync"),
+    settingsCloudTitle: $("#settingsCloudTitle"),
+    settingsCloudCopy: $("#settingsCloudCopy"),
     coinsCounter: $("#coinsCounter"),
     researchCounter: $("#researchCounter"),
     prestigeCounter: $("#prestigeCounter"),
@@ -65,7 +95,6 @@
     farmXPText: $("#farmXPText"),
     stockNavTab: $("#stockNavTab"),
     stockNavBadge: $("#stockNavBadge"),
-    stockTabProgressBar: $("#stockTabProgressBar"),
     officeNavTab: $("#officeNavTab"),
     statsHero: $("#statsHero"),
     lifetimeStats: $("#lifetimeStats"),
@@ -183,7 +212,7 @@
     const options = Object.entries(engine.data.categories)
       .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`)
       .join("");
-    dom.categoryFilter.insertAdjacentHTML("beforeend", options);
+    dom.categoryFilter.insertAdjacentHTML("beforeend", `<option value="available">Disponíveis para compra</option>${options}`);
     dom.stockCategoryFilter?.insertAdjacentHTML("beforeend", options);
   }
 
@@ -237,13 +266,256 @@
     if (dom.musicTrackSetting && document.activeElement !== dom.musicTrackSetting) dom.musicTrackSetting.value = ["farm", "violin"].includes(settings.musicTrack) ? settings.musicTrack : "farm";
   }
 
+  const FIREBASE_SYNC_META_PREFIX = "fazenda-serena-cloud-sync:";
+  const CLOUD_SAVE_INTERVAL_MS = 60_000;
+
+  function showProfileTab(tabId) {
+    activeProfileTab = ["account", "settings"].includes(tabId) ? tabId : "account";
+    dom.profileTabs.forEach(tab => {
+      const active = tab.dataset.profileTab === activeProfileTab;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+    });
+    window.requestAnimationFrame(() => {
+      dom.profileTabs.find(tab => tab.dataset.profileTab === activeProfileTab)?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    });
+    dom.profilePanels.forEach(panel => {
+      const active = panel.dataset.profilePanel === activeProfileTab;
+      panel.classList.toggle("active", active);
+      panel.hidden = !active;
+    });
+  }
+
+  function formatSyncTime(timestamp) {
+    const value = Number(timestamp || 0);
+    if (!value) return "Ainda não sincronizado";
+    try {
+      return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(new Date(value));
+    } catch (_) {
+      return new Date(value).toLocaleString("pt-BR");
+    }
+  }
+
+  function hasMeaningfulLocalProgress(state = engine.state) {
+    if (!state) return false;
+    const owned = Object.values(state.crops || {}).some(crop => crop?.owned);
+    const progressedStats = Number(state.stats?.totalHarvested || 0) > 0
+      || Number(state.stats?.lifetimeHarvested || 0) > 0
+      || Number(state.stats?.prestiges || 0) > 0;
+    return owned
+      || progressedStats
+      || Number(state.farmLevel || 1) > 1
+      || Number(state.prestigePoints || 0) > 0
+      || Number(state.research || 0) > 0
+      || Number(state.coins ?? 2000) !== 2000;
+  }
+
+  function getCloudSyncMeta(uid) {
+    if (!uid) return null;
+    try {
+      return JSON.parse(localStorage.getItem(`${FIREBASE_SYNC_META_PREFIX}${uid}`) || "null");
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function setCloudSyncMeta(uid, clientUpdatedAt) {
+    if (!uid || !clientUpdatedAt) return;
+    try {
+      localStorage.setItem(`${FIREBASE_SYNC_META_PREFIX}${uid}`, JSON.stringify({
+        uid,
+        clientUpdatedAt: Number(clientUpdatedAt),
+        savedAt: Date.now()
+      }));
+    } catch (_) {}
+  }
+
+  function firebaseStatusLabel(current) {
+    if (!current.configured) return "Firebase pendente";
+    if (current.busy) return "Processando";
+    if (!current.user) return "Somente local";
+    const labels = {
+      loading: "Carregando nuvem",
+      loaded: "Nuvem encontrada",
+      empty: "Nuvem vazia",
+      saving: "Sincronizando",
+      synced: "Sincronizado",
+      error: "Erro na nuvem",
+      local: "Conta conectada"
+    };
+    return labels[current.cloudStatus] || "Conta conectada";
+  }
+
+  function updateProfileUI() {
+    const current = firebaseState || {};
+    const user = current.user;
+    const configured = Boolean(current.configured);
+    const busy = Boolean(current.busy);
+    const authDisabled = !configured || !current.ready || busy;
+
+    if (dom.loggedOutProfile) dom.loggedOutProfile.hidden = Boolean(user);
+    if (dom.loggedInProfile) dom.loggedInProfile.hidden = !user;
+    if (dom.firebaseMessage) {
+      dom.firebaseMessage.textContent = current.message || (configured ? "Firebase pronto." : "Preencha js/firebase-config.js para ativar o login.");
+      dom.firebaseMessage.dataset.status = current.cloudStatus || "local";
+    }
+    if (dom.cloudStatusBadge) {
+      dom.cloudStatusBadge.textContent = firebaseStatusLabel(current);
+      dom.cloudStatusBadge.dataset.status = current.cloudStatus || (configured ? "local" : "unconfigured");
+    }
+
+    [dom.firebaseEmail, dom.firebasePassword, dom.emailSignUp, dom.passwordReset, dom.googleSignIn]
+      .filter(Boolean)
+      .forEach(control => { control.disabled = authDisabled; });
+    const submitButton = dom.emailAuthForm?.querySelector('[type="submit"]');
+    if (submitButton) submitButton.disabled = authDisabled;
+    if (dom.firebaseSignOut) dom.firebaseSignOut.disabled = busy;
+    if (dom.syncCloudNow) dom.syncCloudNow.disabled = busy || !user || firebaseHydratedUid !== user.uid;
+
+    if (user) {
+      const displayName = user.displayName || user.email?.split("@")[0] || "Fazendeiro";
+      const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase() || "FS";
+      if (dom.profileDisplayName) dom.profileDisplayName.textContent = displayName;
+      if (dom.profileEmail) dom.profileEmail.textContent = user.email || "Conta Firebase conectada";
+      if (dom.profileIdentityEyebrow) dom.profileIdentityEyebrow.textContent = "jogador conectado";
+      if (dom.profileAvatar) dom.profileAvatar.querySelector("span").textContent = initials;
+      if (dom.profileAvatarImage) {
+        if (user.photoURL) {
+          dom.profileAvatarImage.src = user.photoURL;
+          dom.profileAvatarImage.alt = `Foto de ${displayName}`;
+          dom.profileAvatarImage.hidden = false;
+        } else {
+          dom.profileAvatarImage.removeAttribute("src");
+          dom.profileAvatarImage.hidden = true;
+        }
+      }
+      if (dom.cloudStatusText) dom.cloudStatusText.textContent = current.message || firebaseStatusLabel(current);
+      if (dom.cloudLastSync) dom.cloudLastSync.textContent = formatSyncTime(current.lastSyncedAt);
+      if (dom.settingsCloudTitle) dom.settingsCloudTitle.textContent = current.cloudStatus === "error" ? "Falha na sincronização" : "Firestore conectado";
+      if (dom.settingsCloudCopy) dom.settingsCloudCopy.textContent = current.cloudStatus === "error"
+        ? (current.message || "Confira a configuração e as regras do Firestore.")
+        : `Conta ${user.email || "Firebase"} · ${formatSyncTime(current.lastSyncedAt)}`;
+    } else {
+      if (dom.profileDisplayName) dom.profileDisplayName.textContent = "Fazendeiro visitante";
+      if (dom.profileEmail) dom.profileEmail.textContent = configured
+        ? "Entre para levar sua fazenda para outros dispositivos."
+        : "Configure o Firebase para ativar login e sincronização.";
+      if (dom.profileIdentityEyebrow) dom.profileIdentityEyebrow.textContent = "jogador local";
+      if (dom.profileAvatar) dom.profileAvatar.querySelector("span").textContent = "FS";
+      if (dom.profileAvatarImage) {
+        dom.profileAvatarImage.removeAttribute("src");
+        dom.profileAvatarImage.hidden = true;
+      }
+      if (dom.settingsCloudTitle) dom.settingsCloudTitle.textContent = configured ? "Cópia local ativa" : "Firebase não configurado";
+      if (dom.settingsCloudCopy) dom.settingsCloudCopy.textContent = configured
+        ? "Entre no perfil para ativar a nuvem."
+        : "Preencha js/firebase-config.js e publique as regras do Firestore.";
+    }
+  }
+
+  function showFirebaseMessage(message, status = "error") {
+    if (!dom.firebaseMessage) return;
+    dom.firebaseMessage.textContent = message;
+    dom.firebaseMessage.dataset.status = status;
+  }
+
+  async function syncCloudSave({ force = false } = {}) {
+    const user = firebaseState?.user;
+    if (!firebaseManager || !user || firebaseHydratedUid !== user.uid) return false;
+    const now = Date.now();
+    if (!force && now - lastCloudSave < CLOUD_SAVE_INTERVAL_MS) return false;
+    if (cloudSyncPromise) return cloudSyncPromise;
+
+    engine.save();
+    lastCloudSave = now;
+    cloudSyncPromise = firebaseManager.saveGame(engine.state)
+      .then(() => {
+        const managerState = firebaseManager.getState();
+        firebaseState = managerState;
+        setCloudSyncMeta(user.uid, managerState.lastSyncedAt || Date.now());
+        updateProfileUI();
+        return true;
+      })
+      .catch(error => {
+        console.warn("Não foi possível sincronizar o save com o Firestore:", error);
+        return false;
+      })
+      .finally(() => { cloudSyncPromise = null; });
+    return cloudSyncPromise;
+  }
+
+  async function hydrateFirebaseUser(user) {
+    if (!firebaseManager || !user?.uid || firebaseHydratingUid === user.uid || firebaseHydratedUid === user.uid) return;
+    firebaseHydratingUid = user.uid;
+    firebaseHydrationPromise = (async () => {
+      try {
+        const cloudRecord = await firebaseManager.loadGame();
+        if (!cloudRecord?.save) {
+          firebaseHydratedUid = user.uid;
+          await syncCloudSave({ force: true });
+          return;
+        }
+
+        const localProgress = hasMeaningfulLocalProgress(engine.state);
+        const syncMeta = getCloudSyncMeta(user.uid);
+        const cloudTimestamp = Number(cloudRecord.clientUpdatedAt || 0);
+        const sameKnownCloud = Boolean(syncMeta?.clientUpdatedAt && cloudTimestamp && Number(syncMeta.clientUpdatedAt) === cloudTimestamp);
+        let useCloud = !localProgress;
+
+        if (localProgress && !sameKnownCloud) {
+          useCloud = window.confirm(
+            "Encontramos progresso neste navegador e também na sua conta.\n\n" +
+            "Clique em OK para carregar o progresso da nuvem.\n" +
+            "Clique em Cancelar para manter este navegador e enviar o progresso local ao Firestore."
+          );
+        }
+
+        if (useCloud) {
+          engine.replaceState(cloudRecord.save, { simulateOffline: true, persist: true });
+          applySettings();
+          render(true);
+        }
+
+        firebaseHydratedUid = user.uid;
+        if (cloudTimestamp) setCloudSyncMeta(user.uid, cloudTimestamp);
+        await syncCloudSave({ force: true });
+      } catch (error) {
+        console.warn("Falha ao preparar o save da conta:", error);
+      } finally {
+        firebaseHydratingUid = null;
+        firebaseHydrationPromise = null;
+        updateProfileUI();
+      }
+    })();
+    return firebaseHydrationPromise;
+  }
+
+  function attachFirebaseManager(manager) {
+    if (!manager || firebaseManager === manager) return;
+    firebaseManager = manager;
+    manager.subscribe(current => {
+      const previousUid = firebaseState?.user?.uid || null;
+      firebaseState = current;
+      const nextUid = current.user?.uid || null;
+      if (!nextUid) {
+        firebaseHydratedUid = null;
+        firebaseHydratingUid = null;
+      } else if (nextUid !== previousUid) {
+        firebaseHydratedUid = null;
+      }
+      updateProfileUI();
+      if (current.user && firebaseHydratedUid !== current.user.uid && firebaseHydratingUid !== current.user.uid) {
+        hydrateFirebaseUser(current.user);
+      }
+    });
+  }
+
   function updateStockNavigation(metrics = engine.getMetrics()) {
     const used = Math.max(0, Number(metrics.stock) || 0);
     const capacity = Math.max(1, Number(metrics.storageCapacity) || 1);
     const usage = percent((used / capacity) * 100);
     const full = used >= capacity;
     dom.stockNavTab.style.setProperty("--stock-progress", `${usage}%`);
-    if (dom.stockTabProgressBar) dom.stockTabProgressBar.style.width = `${usage}%`;
     dom.stockNavTab.classList.toggle("stock-full", full);
     dom.stockNavBadge.hidden = !full;
     dom.stockNavTab.setAttribute("aria-label", full
@@ -422,6 +694,8 @@
   }
 
   function getCropUpgradeMode(cropId) {
+    const cropState = engine.state.crops[cropId];
+    if (cropState?.level >= GameEngine.MAX_CROP_LEVEL) return "max";
     return cropUpgradeModes.get(cropId) === "max" ? "max" : "one";
   }
 
@@ -447,7 +721,9 @@
     $$('[data-upgrade-mode]', card).forEach(button => {
       const active = button.dataset.upgradeMode === selection.mode;
       button.classList.toggle("active", active);
+      button.disabled = selection.maxed;
       button.setAttribute("aria-pressed", String(active));
+      button.setAttribute("aria-disabled", String(selection.maxed));
     });
     const summary = $('[data-crop-upgrade-summary]', card);
     const action = $('[data-crop-upgrade-action]', card);
@@ -518,8 +794,8 @@
         </div>
         <div class="crop-upgrade-panel crop-upgrade-redesign">
           <div class="upgrade-mode-selector" role="group" aria-label="Quantidade de aprimoramentos">
-            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}">+1</button>
-            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
+            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}" ${selection.maxed ? 'disabled aria-disabled="true"' : ""}>+1</button>
+            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}" ${selection.maxed ? 'disabled aria-disabled="true"' : ""}>Max</button>
           </div>
           <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "Máx." : `+${selection.mode === "max" ? selection.levels : 1}`}</strong></div>
           <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : `Aprimorar ${resourceAmount("coins", -selection.cost, { compact: true })}`}</button>
@@ -532,9 +808,13 @@
     const category = dom.categoryFilter.value;
     const visibleUnlockLevel = engine.state.farmLevel + 1;
     const list = engine.data.crops.filter(crop => {
+      const cropState = engine.state.crops[crop.id];
       const categoryName = engine.data.categories[crop.category];
-      const visibleByProgress = engine.state.crops[crop.id].owned || crop.unlockLevel <= visibleUnlockLevel;
-      return visibleByProgress && (category === "all" || crop.category === category) && (!term || normalize(`${crop.name} ${categoryName}`).includes(term));
+      const visibleByProgress = cropState.owned || crop.unlockLevel <= visibleUnlockLevel;
+      const matchesCategory = category === "available"
+        ? !cropState.owned && crop.unlockLevel <= engine.state.farmLevel
+        : category === "all" || crop.category === category;
+      return visibleByProgress && matchesCategory && (!term || normalize(`${crop.name} ${categoryName}`).includes(term));
     }).sort((a, b) => a.index - b.index);
 
     dom.cropGrid.innerHTML = list.map(renderCropCard).join("");
@@ -656,7 +936,7 @@
     const metrics = engine.getMetrics();
     const prestigeUnlocked = engine.state.farmLevel >= 15;
     const drivers = [
-      { label: "Nível da fazenda", value: `${engine.state.farmLevel} / 15`, ready: prestigeUnlocked },
+      { label: "Nível da fazenda", value: `${engine.state.farmLevel}`, ready: prestigeUnlocked },
       { label: "Moedas desta jornada", value: resourceAmount("coins", engine.state.stats.runCoinsEarned), ready: engine.state.stats.runCoinsEarned > 0 },
       { label: "Culturas compradas", value: `${metrics.owned} / ${engine.data.crops.length}`, ready: metrics.owned > 0 },
       { label: "Contratos concluídos", value: engine.state.stats.contractsCompleted, ready: engine.state.stats.contractsCompleted > 0 }
@@ -948,6 +1228,9 @@
       renderMissions();
       renderStats();
       showOfficeTab(activeOfficeTab);
+    } else if (activeView === "profileView") {
+      showProfileTab(activeProfileTab);
+      updateProfileUI();
     }
     updateLiveHeader(now);
     updateLiveFarmUI();
@@ -1094,6 +1377,11 @@
       showEvolutionTab(tab.dataset.evolutionTab);
       render(true);
     }));
+    dom.profileTabs.forEach(tab => tab.addEventListener("click", () => {
+      soundEngine.playNavigation();
+      showProfileTab(tab.dataset.profileTab);
+      updateProfileUI();
+    }));
     $$('[data-go-view]').forEach(link => link.addEventListener("click", event => {
       event.preventDefault();
       soundEngine.playNavigation();
@@ -1121,47 +1409,86 @@
       renderMissions();
     });
 
-    $("#saveNow").addEventListener("click", () => {
-      const saved = engine.save();
-      toast(saved ? "Progresso salvo no navegador." : "Não foi possível salvar neste navegador.", saved ? "success" : "error");
-    });
-
-    $("#exportSave").addEventListener("click", () => {
-      const content = engine.exportSave();
-      dom.saveBox.value = content;
-      const blob = new Blob([content], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `agricultura-industrial-save-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-      toast("Save exportado e preparado para download.", "success");
-    });
-
-    $("#importSave").addEventListener("click", () => {
-      const text = dom.saveBox.value.trim();
-      if (!text) return toast("Cole um save no campo de texto primeiro.", "error");
-      if (!window.confirm("Importar este save substituirá o progresso atual. Continuar?")) return;
+    dom.emailAuthForm?.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
       try {
-        engine.importSave(text);
-        applySettings();
-        render(true);
-        toast("Save importado com sucesso.", "success");
+        await firebaseManager.signInWithEmail(dom.firebaseEmail?.value, dom.firebasePassword?.value);
+        if (dom.firebasePassword) dom.firebasePassword.value = "";
       } catch (error) {
         console.warn(error);
-        toast("O texto não contém um save válido.", "error");
+        showFirebaseMessage(error.message);
       }
     });
 
-    $("#resetGame").addEventListener("click", () => {
+    dom.emailSignUp?.addEventListener("click", async () => {
+      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
+      try {
+        await firebaseManager.createAccount(dom.firebaseEmail?.value, dom.firebasePassword?.value);
+        if (dom.firebasePassword) dom.firebasePassword.value = "";
+      } catch (error) {
+        console.warn(error);
+        showFirebaseMessage(error.message);
+      }
+    });
+
+    dom.passwordReset?.addEventListener("click", async () => {
+      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
+      try {
+        await firebaseManager.resetPassword(dom.firebaseEmail?.value);
+      } catch (error) {
+        console.warn(error);
+        showFirebaseMessage(error.message);
+      }
+    });
+
+    dom.googleSignIn?.addEventListener("click", async () => {
+      if (!firebaseManager) return showFirebaseMessage("O gerenciador do Firebase ainda está carregando.");
+      try {
+        await firebaseManager.signInWithGoogle();
+      } catch (error) {
+        console.warn(error);
+        showFirebaseMessage(error.message);
+      }
+    });
+
+    dom.syncCloudNow?.addEventListener("click", async () => {
+      const saved = await syncCloudSave({ force: true });
+      if (!saved) showFirebaseMessage("Não foi possível sincronizar agora. Confira a conta e a conexão.");
+    });
+
+    dom.firebaseSignOut?.addEventListener("click", async () => {
+      if (!firebaseManager) return;
+      try {
+        await syncCloudSave({ force: true });
+        await firebaseManager.signOut();
+        firebaseHydratedUid = null;
+      } catch (error) {
+        console.warn(error);
+        showFirebaseMessage(error.message);
+      }
+    });
+
+    $("#resetGame")?.addEventListener("click", async () => {
       if (!window.confirm("Apagar todo o progresso, inclusive prestígio e legados? Esta ação não pode ser desfeita.")) return;
-      engine.hardReset();
-      applySettings();
-      showView("farmView");
-      toast("Uma nova fazenda foi criada.", "success");
+      const resetButton = $("#resetGame");
+      if (resetButton) resetButton.disabled = true;
+      try {
+        if (firebaseManager && firebaseState?.user) await firebaseManager.deleteGame();
+        engine.hardReset();
+        applySettings();
+        render(true);
+        if (firebaseManager && firebaseState?.user) {
+          firebaseHydratedUid = firebaseState.user.uid;
+          await syncCloudSave({ force: true });
+        }
+        showView("farmView");
+      } catch (error) {
+        console.warn(error);
+        showFirebaseMessage("Não foi possível apagar o progresso da nuvem. O save local foi mantido.");
+      } finally {
+        if (resetButton) resetButton.disabled = false;
+      }
     });
 
     dom.ambientSetting.addEventListener("change", () => {
@@ -1205,10 +1532,14 @@
     dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     syncScrollUI();
 
-    window.addEventListener("beforeunload", () => engine.save());
+    window.addEventListener("beforeunload", () => {
+      engine.save();
+      void syncCloudSave({ force: true });
+    });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         engine.save();
+        void syncCloudSave({ force: true });
         soundEngine.pauseMusic();
       } else {
         soundEngine.resumeMusic();
@@ -1242,16 +1573,29 @@
       engine.save();
       lastSave = now;
     }
+    if (firebaseState?.user && Date.now() - lastCloudSave >= CLOUD_SAVE_INTERVAL_MS) {
+      void syncCloudSave();
+    }
     requestAnimationFrame(gameLoop);
   }
 
   function boot() {
+    window.addEventListener("fazenda-firebase-manager-ready", event => attachFirebaseManager(event.detail));
+    if (window.FirebaseManager) attachFirebaseManager(window.FirebaseManager);
+
     setupCategoryFilter();
     setupEvents();
     const hashView = location.hash.replace("#", "");
-    if (hashView && dom.views.some(view => view.id === hashView)) activeView = hashView;
+    if (hashView === "settingsView") {
+      activeView = "profileView";
+      activeProfileTab = "settings";
+    } else if (hashView && dom.views.some(view => view.id === hashView)) {
+      activeView = hashView;
+    }
     showView(activeView, false);
+    showProfileTab(activeProfileTab);
     applySettings();
+    updateProfileUI();
     render(true);
     requestAnimationFrame(gameLoop);
   }

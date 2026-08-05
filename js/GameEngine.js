@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 26;
+  static SAVE_VERSION = 28;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -401,17 +401,20 @@ class GameEngine {
     }
   }
 
-  exportSave() {
-    this.state.lastUpdate = Date.now();
-    return JSON.stringify(this.state, null, 2);
-  }
-
-  importSave(text) {
-    const parsed = JSON.parse(String(text || "").trim());
-    this.state = this.normalizeState(parsed);
+  replaceState(input, { simulateOffline = true, persist = true } = {}) {
+    const state = this.normalizeState(input);
+    this.state = state;
     this.ensureContractOffers();
-    this.save();
-    return this.state;
+    this.expireContracts(true);
+
+    const now = Date.now();
+    if (simulateOffline) {
+      const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
+      if (elapsed > 0.05) this.simulate(elapsed, true);
+    }
+    state.lastUpdate = now;
+    if (persist) this.save();
+    return state;
   }
 
   hardReset() {
