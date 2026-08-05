@@ -153,18 +153,33 @@ class FirebaseManager {
     return this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, user.uid);
   }
 
-  buildLeaderboardEntry(state, user = this.currentUser) {
-    const preferredName = String(state?.settings?.playerNickname || user?.displayName || "Fazendeiro");
-    const safeName = preferredName
+  getAvatarEntry(avatarId) {
+    const safeId = String(avatarId || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+    return (window.AvatarData || []).find(avatar => avatar.id === safeId) || null;
+  }
+
+  normalizeNickname(value) {
+    return String(value || "")
       .replace(/[<>]/g, "")
+      .replace(/\s+/g, " ")
       .trim()
-      .slice(0, 24) || "Fazendeiro";
-    const photoURL = /^https:\/\//i.test(String(user?.photoURL || ""))
-      ? String(user.photoURL).slice(0, 500)
-      : "";
+      .slice(0, 24);
+  }
+
+  hasCompleteLeaderboardProfile(state) {
+    const nickname = this.normalizeNickname(state?.settings?.playerNickname);
+    const avatar = this.getAvatarEntry(state?.settings?.playerAvatar);
+    return nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
+  }
+
+  buildLeaderboardEntry(state, user = this.currentUser) {
+    if (!user || !this.hasCompleteLeaderboardProfile(state)) return null;
+    const displayName = this.normalizeNickname(state.settings.playerNickname);
+    const avatar = this.getAvatarEntry(state.settings.playerAvatar);
     return {
-      displayName: safeName,
-      photoURL,
+      displayName,
+      avatarId: avatar.id,
+      profileComplete: true,
       prestigeTotal: Math.max(0, Math.floor(Number(state?.stats?.totalPrestigeEarned) || 0)),
       prestigeCount: Math.max(0, Math.floor(Number(state?.stats?.prestiges) || 0)),
       maxFarmLevel: Math.max(1, Math.floor(Number(state?.stats?.maxFarmLevel || state?.farmLevel) || 1)),
@@ -225,7 +240,9 @@ class FirebaseManager {
             updatedAtClient: savedAt.getTime()
           });
           if (leaderboardReference) {
-            batch.set(leaderboardReference, this.buildLeaderboardEntry(snapshot, user));
+            const leaderboardEntry = this.buildLeaderboardEntry(snapshot, user);
+            if (leaderboardEntry) batch.set(leaderboardReference, leaderboardEntry);
+            else batch.delete(leaderboardReference);
           }
           await batch.commit();
           this.emitSaveStatus("saved", { savedAt });
@@ -242,26 +259,36 @@ class FirebaseManager {
 
   async loadPrestigeLeaderboard(maximum = 5) {
     await this.ready();
-    const user = this.currentUser;
-    if (!user || !this.available || !this.db || !this.sdk) {
+    if (!this.available || !this.db || !this.sdk) {
       return { authenticated: false, top: [], rank: null, player: null };
     }
 
-    const limit = Math.max(1, Math.min(5, Math.floor(Number(maximum) || 5)));
+    const outputLimit = Math.max(1, Math.min(5, Math.floor(Number(maximum) || 5)));
     const collectionReference = this.sdk.collection(this.db, FirebaseManager.LEADERBOARD_COLLECTION);
     const topQuery = this.sdk.query(
       collectionReference,
       this.sdk.orderBy("prestigeTotal", "desc"),
-      this.sdk.limit(limit)
+      this.sdk.limit(50)
     );
     const topSnapshot = await this.sdk.getDocs(topQuery);
-    const top = topSnapshot.docs.map((document, index) => ({
-      uid: document.id,
-      position: index + 1,
-      ...document.data()
-    }));
-    const player = top.find(entry => entry.uid === user.uid) || null;
-    return { authenticated: true, top, rank: player?.position || null, player };
+    const validEntries = topSnapshot.docs
+      .map(document => ({ uid: document.id, ...document.data() }))
+      .filter(entry => {
+        const nickname = this.normalizeNickname(entry.displayName);
+        return entry.profileComplete === true
+          && nickname.length >= 4
+          && Boolean(this.getAvatarEntry(entry.avatarId));
+      })
+      .slice(0, outputLimit)
+      .map((entry, index) => ({ ...entry, position: index + 1 }));
+    const user = this.currentUser;
+    const player = user ? validEntries.find(entry => entry.uid === user.uid) || null : null;
+    return {
+      authenticated: Boolean(user),
+      top: validEntries,
+      rank: player?.position || null,
+      player
+    };
   }
 
   resetProgress() {

@@ -10,6 +10,7 @@
 <link href="assets/icons/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="css/style.css" rel="stylesheet"/>
 <script defer="" src="js/firebase-config.js"></script>
+<script defer="" src="js/avatars.js"></script>
 <script defer="" src="js/firebaseManager.js"></script>
 <script defer="" src="js/data.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
@@ -212,7 +213,7 @@
 <div class="stats-hero" id="statsHero"></div>
 <section class="stats-section global-prestige-section">
 <div class="compact-section-title"><div><p class="eyebrow">competição entre fazendas</p><h2>Rank global de prestígio</h2></div><button class="button secondary leaderboard-refresh-button" data-action="refresh-leaderboard" type="button">Atualizar rank</button></div>
-<div class="prestige-leaderboard" id="prestigeLeaderboard"><div class="empty-state">Entre com o Google para visualizar o rank global.</div></div>
+<div class="prestige-leaderboard" id="prestigeLeaderboard"><div class="empty-state">Carregando as cinco melhores fazendas da nuvem.</div></div>
 </section>
 <section class="stats-section">
 <div class="compact-section-title"><div><p class="eyebrow">progresso permanente</p><h2>Totais da conta</h2></div></div>
@@ -255,10 +256,27 @@
 <span aria-hidden="true"></span>
 <small id="cloudSaveStatus">Entre com o Google para ativar o save automático na nuvem.</small>
 </div>
-<label class="setting-row nickname-setting">
-<span><strong>Apelido no rank</strong><small>Escolha o nome que aparecerá no rank global de prestígio.</small></span>
-<input autocomplete="nickname" id="playerNicknameSetting" maxlength="24" placeholder="Seu apelido no rank" type="text"/>
+<form class="player-profile-form" id="playerProfileForm" novalidate>
+<div class="player-profile-heading">
+<div><p class="eyebrow">perfil público</p><h3>Perfil do ranking</h3><p>Defina um apelido e escolha um avatar do jogo. Você poderá editar os dois depois.</p></div>
+<span class="profile-completion-badge" id="profileCompletionBadge">Incompleto</span>
+</div>
+<label class="profile-nickname-field" for="playerNicknameSetting">
+<span><strong>Apelido</strong><small>Obrigatório, entre 4 e 24 caracteres.</small></span>
+<input autocomplete="nickname" id="playerNicknameSetting" maxlength="24" minlength="4" placeholder="Seu apelido no ranking" required="" type="text"/>
 </label>
+<fieldset class="avatar-picker-fieldset">
+<legend>Avatar do jogador</legend>
+<p>Selecione uma imagem para representar sua fazenda no ranking global.</p>
+<div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
+<input id="playerAvatarSetting" required="" type="hidden"/>
+</fieldset>
+<div class="profile-ranking-notice" id="profileRankingNotice" role="status">Somente jogadores conectados com apelido e avatar salvos participam do ranking global.</div>
+<div class="player-profile-actions">
+<button class="button primary" id="savePlayerProfile" type="submit">Salvar perfil</button>
+<small aria-live="polite" id="playerProfileFeedback"></small>
+</div>
+</form>
 <div class="button-row account-actions">
 <button class="button google-sign-in-button" id="googleSignIn" type="button"><img alt="" aria-hidden="true" src="assets/icons/google-logo.png"/> Entrar com o Google</button>
 <button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair da conta</button>

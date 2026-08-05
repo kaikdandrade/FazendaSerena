@@ -1,7 +1,7 @@
 "use strict";
 
 class GameEngine {
-  static SAVE_VERSION = 39;
+  static SAVE_VERSION = 40;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static FEATURE_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
@@ -44,7 +44,8 @@ class GameEngine {
       musicVolume: permanent.settings?.musicVolume ?? 30,
       musicTrack: GameEngine.MUSIC_TRACKS.includes(permanent.settings?.musicTrack) ? permanent.settings.musicTrack : "betweenLightAndShadows",
       numberFormat: permanent.settings?.numberFormat === "international" ? "international" : "brazilian",
-      playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24)
+      playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
+      playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48)
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -220,6 +221,7 @@ class GameEngine {
     merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : "betweenLightAndShadows";
     merged.settings.numberFormat = merged.settings.numberFormat === "international" ? "international" : "brazilian";
     merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
+    merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
     Reflect.deleteProperty(merged.settings, "soundEnabled");
     Reflect.deleteProperty(merged.settings, "soundVolume");
     Reflect.deleteProperty(merged.settings, "musicEnabled");

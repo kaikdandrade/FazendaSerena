@@ -99,7 +99,14 @@
     resetProgressDialog: $("#resetProgressDialog"),
     cancelResetProgress: $("#cancelResetProgress"),
     confirmResetProgress: $("#confirmResetProgress"),
+    playerProfileForm: $("#playerProfileForm"),
     playerNicknameSetting: $("#playerNicknameSetting"),
+    playerAvatarPicker: $("#playerAvatarPicker"),
+    playerAvatarSetting: $("#playerAvatarSetting"),
+    savePlayerProfile: $("#savePlayerProfile"),
+    playerProfileFeedback: $("#playerProfileFeedback"),
+    profileRankingNotice: $("#profileRankingNotice"),
+    profileCompletionBadge: $("#profileCompletionBadge"),
     prestigeConfirmDialog: $("#prestigeConfirmDialog"),
     prestigeConfirmText: $("#prestigeConfirmText"),
     cancelPrestigeConfirm: $("#cancelPrestigeConfirm"),
@@ -128,6 +135,53 @@
       .replace(/[\u0300-\u036f]/g, "")
       .toLowerCase()
       .trim();
+  }
+
+  function sanitizeNickname(value) {
+    return String(value || "")
+      .replace(/[<>]/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 24);
+  }
+
+  function getAvatarEntry(avatarId) {
+    const safeId = String(avatarId || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+    return (window.AvatarData || []).find(avatar => avatar.id === safeId) || null;
+  }
+
+  function getAvatarSource(avatarId, fallback = "assets/logo.png") {
+    return getAvatarEntry(avatarId)?.src || fallback;
+  }
+
+  function hasCompletePlayerProfile(state = engine?.state) {
+    const nickname = sanitizeNickname(state?.settings?.playerNickname);
+    const avatar = getAvatarEntry(state?.settings?.playerAvatar);
+    return nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
+  }
+
+  function setProfileFeedback(message = "", type = "") {
+    if (!dom.playerProfileFeedback) return;
+    dom.playerProfileFeedback.textContent = message;
+    dom.playerProfileFeedback.dataset.type = type;
+  }
+
+  function renderAvatarPicker(selectedId = "", disabled = false) {
+    if (!dom.playerAvatarPicker) return;
+    const avatars = window.AvatarData || [];
+    if (dom.playerAvatarPicker.childElementCount !== avatars.length) {
+      dom.playerAvatarPicker.innerHTML = avatars.map(avatar => `
+        <button aria-checked="false" aria-label="${escapeHtml(avatar.label)}" class="avatar-option" data-avatar-id="${escapeHtml(avatar.id)}" role="radio" title="${escapeHtml(avatar.label)}" type="button">
+          <img alt="" loading="lazy" src="${escapeHtml(avatar.src)}">
+          <span>${escapeHtml(avatar.label)}</span>
+        </button>`).join("");
+    }
+    $$(".avatar-option", dom.playerAvatarPicker).forEach(button => {
+      const selected = button.dataset.avatarId === selectedId;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-checked", String(selected));
+      button.disabled = disabled;
+    });
   }
 
   function percent(value) {
@@ -291,10 +345,14 @@
   function updateAccountUI(user = window.FirebaseManager.getUser()) {
     const signedIn = Boolean(user);
     const firebaseAvailable = window.FirebaseManager.isAvailable();
+    const storedNickname = sanitizeNickname(engine?.state?.settings?.playerNickname);
+    const storedAvatarId = getAvatarEntry(engine?.state?.settings?.playerAvatar)?.id || "";
+    const profileComplete = signedIn && hasCompletePlayerProfile();
+    const profileDirty = dom.playerProfileForm?.dataset.dirty === "true";
 
     if (dom.accountName) {
       dom.accountName.textContent = signedIn
-        ? (user.displayName || user.email || "Jogador")
+        ? (storedNickname || user.displayName || user.email || "Jogador")
         : "Visitante";
     }
 
@@ -310,9 +368,14 @@
     }
 
     if (dom.accountAvatar) {
-      dom.accountAvatar.src = signedIn && user.photoURL ? user.photoURL : "assets/logo.png";
-      dom.accountAvatar.alt = signedIn ? `Foto de ${user.displayName || "jogador"}` : "";
-      dom.accountAvatar.classList.toggle("google-avatar", Boolean(signedIn && user.photoURL));
+      const gameAvatar = getAvatarEntry(storedAvatarId);
+      const googlePhoto = signedIn && /^https:\/\//i.test(String(user.photoURL || "")) ? user.photoURL : "";
+      dom.accountAvatar.src = gameAvatar?.src || googlePhoto || "assets/logo.png";
+      dom.accountAvatar.alt = gameAvatar
+        ? `Avatar selecionado: ${gameAvatar.label}`
+        : signedIn ? `Foto de ${user.displayName || "jogador"}` : "";
+      dom.accountAvatar.classList.toggle("google-avatar", Boolean(!gameAvatar && googlePhoto));
+      dom.accountAvatar.classList.toggle("game-avatar", Boolean(gameAvatar));
     }
 
     if (dom.googleSignIn) {
@@ -327,22 +390,48 @@
       dom.resetProgressButton.hidden = !signedIn;
       dom.resetProgressButton.disabled = false;
     }
+
+    if (!profileDirty) {
+      const googleSuggestion = signedIn ? sanitizeNickname(user.displayName || "") : "";
+      if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = storedNickname || (googleSuggestion.length >= 4 ? googleSuggestion : "");
+      if (dom.playerAvatarSetting) dom.playerAvatarSetting.value = storedAvatarId;
+      setProfileFeedback("");
+    }
+
+    const selectedAvatarId = dom.playerAvatarSetting?.value || storedAvatarId;
+    renderAvatarPicker(selectedAvatarId, !signedIn);
     if (dom.playerNicknameSetting) {
       dom.playerNicknameSetting.disabled = !signedIn;
-      dom.playerNicknameSetting.placeholder = signedIn ? "Seu apelido no rank" : "Entre com o Google para definir";
-      if (document.activeElement !== dom.playerNicknameSetting) {
-        dom.playerNicknameSetting.value = String(engine?.state?.settings?.playerNickname || "");
-      }
+      dom.playerNicknameSetting.placeholder = signedIn ? "Seu apelido no ranking" : "Entre com o Google para definir";
+    }
+    if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = !signedIn;
+    if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = !signedIn;
+
+    if (dom.profileCompletionBadge) {
+      dom.profileCompletionBadge.textContent = profileComplete ? "Perfil completo" : "Incompleto";
+      dom.profileCompletionBadge.classList.toggle("complete", profileComplete);
+    }
+    if (dom.profileRankingNotice) {
+      dom.profileRankingNotice.classList.toggle("complete", profileComplete);
+      dom.profileRankingNotice.textContent = !signedIn
+        ? "Entre com o Google, escolha um apelido e um avatar para poder participar do ranking global."
+        : profileComplete
+          ? "Perfil completo: sua fazenda participa do ranking global e poderá aparecer entre as cinco melhores."
+          : "Somente jogadores conectados com apelido e avatar salvos participam do ranking global.";
     }
 
     if (!signedIn) setCloudSaveStatus("guest");
   }
 
   function setAuthBusy(busy) {
+    const profileDisabled = busy || !window.FirebaseManager.isAuthenticated();
     if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
     if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
     if (dom.resetProgressButton) dom.resetProgressButton.disabled = busy;
-    if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = busy || !window.FirebaseManager.isAuthenticated();
+    if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
+    if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
+    if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
+    $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
   }
 
   async function applyAuthenticatedUser(user, authError = null) {
@@ -362,6 +451,7 @@
 
     const previousUid = currentAuthUid;
     const guestState = previousUid ? null : cloneState(engine.state);
+    if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
     leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
     leaderboardRequest = null;
     currentAuthUid = nextUid;
@@ -849,13 +939,15 @@
     const directRoute = data.autoSell || activeContracts.length > 0;
     const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
     const speedMaxed = data.level >= engine.getInstantGrowthLevel();
+    const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;
     const cycleLabel = instant ? "Contínua" : storageFull ? "Pausada" : formatLiveTime((1 - data.progress) * growthTime);
     const selection = getCropUpgradeSelection(crop.id);
 
     return `
-      <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip" title="${data.level >= GameEngine.MAX_CROP_LEVEL ? "Prestígio da cultura concluído: bônus de 10% de XP recebido" : speedMaxed ? "Velocidade máxima; ao alcançar o nível 300 esta cultura concede 10% de XP" : "Ao alcançar o nível 300 esta cultura concede 10% de XP"}">
+      <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""} ${mastered ? "crop-mastered" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
+        <div class="crop-level-strip" title="${mastered ? "Cultura platinada: nível 300 alcançado e bônus de 10% de XP recebido" : speedMaxed ? "Velocidade máxima; ao alcançar o nível 300 esta cultura concede 10% de XP" : "Ao alcançar o nível 300 esta cultura concede 10% de XP"}">
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
+          ${mastered ? `<span class="crop-mastery-badge"><img alt="" src="assets/icons/crop-mastery-star.png">Platinada</span>` : ""}
         </div>
         <div class="crop-head">
           <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
@@ -1337,10 +1429,6 @@
   function renderPrestigeLeaderboard() {
     if (!dom.prestigeLeaderboard) return;
     const user = window.FirebaseManager.getUser();
-    if (!user) {
-      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Entre com o Google para participar</strong><span>O top 5 usa o total histórico de pontos de prestígio de cada conta.</span></div>`;
-      return;
-    }
     if (leaderboardState.status === "loading") {
       dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty leaderboard-loading"><strong>Atualizando o rank global...</strong><span>Consultando as cinco melhores fazendas salvas na nuvem.</span></div>`;
       return;
@@ -1350,34 +1438,30 @@
       return;
     }
     if (leaderboardState.status !== "success") {
-      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Top 5 pronto para atualizar</strong><span>Abra esta aba ou use o botão “Atualizar rank”.</span></div>`;
+      dom.prestigeLeaderboard.innerHTML = `<div class="empty-state leaderboard-empty"><strong>Top 5 global</strong><span>O ranking é público e pode ser consultado mesmo sem entrar com o Google.</span></div>`;
       return;
     }
 
     const top = Array.isArray(leaderboardState.top) ? leaderboardState.top.slice(0, 5) : [];
-    const currentUid = user.uid;
+    const currentUid = user?.uid || "";
     const medal = position => position === 1 ? "🥇" : position === 2 ? "🥈" : position === 3 ? "🥉" : `${position}º`;
     const rows = top.map(player => {
-      const safePhoto = /^https:\/\//i.test(String(player?.photoURL || "")) ? String(player.photoURL) : "assets/logo.png";
-      const current = player.uid === currentUid;
+      const avatar = getAvatarEntry(player?.avatarId);
+      if (!avatar) return "";
+      const current = Boolean(currentUid && player.uid === currentUid);
       return `<article class="leaderboard-row ${current ? "current-player" : ""}">
         <strong class="leaderboard-position">${medal(player.position)}</strong>
-        <img src="${escapeHtml(safePhoto)}" alt="">
+        <img src="${escapeHtml(avatar.src)}" alt="Avatar de ${escapeHtml(player?.displayName || "jogador")}">
         <div class="leaderboard-player"><strong>${escapeHtml(player?.displayName || "Fazendeiro")}</strong><small>${engine.formatNumber(player?.prestigeCount || 0)} prestígios · nível máximo ${engine.formatNumber(player?.maxFarmLevel || 1)}</small></div>
         <div class="leaderboard-score"><small>Prestígio total</small><strong>${resourceAmount("prestige", player?.prestigeTotal || 0, { compact: true })}</strong></div>
       </article>`;
-    });
+    }).filter(Boolean);
     dom.prestigeLeaderboard.innerHTML = rows.length
       ? `<div class="leaderboard-list">${rows.join("")}</div>`
-      : `<div class="empty-state leaderboard-empty"><strong>Ainda não há fazendas classificadas</strong><span>Seu apelido poderá aparecer no top 5 depois do próximo save automático.</span></div>`;
+      : `<div class="empty-state leaderboard-empty"><strong>Ainda não há fazendas classificadas</strong><span>Para participar, o jogador precisa estar conectado e ter apelido e avatar salvos.</span></div>`;
   }
 
   async function refreshPrestigeLeaderboard(force = false) {
-    if (!window.FirebaseManager.isAuthenticated()) {
-      leaderboardState = { status: "guest", top: [], rank: null, player: null, error: null, loadedAt: 0 };
-      renderPrestigeLeaderboard();
-      return;
-    }
     if (leaderboardRequest) return leaderboardRequest;
     if (!force && leaderboardState.status === "success" && Date.now() - leaderboardState.loadedAt < 30000) return;
 
@@ -1385,7 +1469,7 @@
     renderPrestigeLeaderboard();
     leaderboardRequest = (async () => {
       try {
-        if (force) await engine.save();
+        if (force && window.FirebaseManager.isAuthenticated()) await engine.save();
         const result = await window.FirebaseManager.loadPrestigeLeaderboard(5);
         leaderboardState = {
           status: "success",
@@ -1741,18 +1825,72 @@
     });
 
 
-    dom.playerNicknameSetting?.addEventListener("change", async () => {
-      if (!window.FirebaseManager.isAuthenticated()) return;
-      const nickname = String(dom.playerNicknameSetting.value || "")
-        .replace(/[<>]/g, "")
-        .trim()
-        .slice(0, 24);
-      dom.playerNicknameSetting.value = nickname;
-      engine.setSetting("playerNickname", nickname);
-      leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
-      render(true);
-      await engine.save();
-      if (activeView === "officeView" && activeOfficeTab === "stats") refreshPrestigeLeaderboard(false);
+    dom.playerNicknameSetting?.addEventListener("input", () => {
+      if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
+      dom.playerNicknameSetting.setCustomValidity("");
+      setProfileFeedback("Alterações ainda não salvas.", "pending");
+    });
+
+    dom.playerAvatarPicker?.addEventListener("click", event => {
+      const button = event.target.closest("[data-avatar-id]");
+      if (!button || button.disabled || !window.FirebaseManager.isAuthenticated()) return;
+      const avatar = getAvatarEntry(button.dataset.avatarId);
+      if (!avatar) return;
+      if (dom.playerAvatarSetting) dom.playerAvatarSetting.value = avatar.id;
+      if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
+      renderAvatarPicker(avatar.id, false);
+      if (dom.accountAvatar) {
+        dom.accountAvatar.src = avatar.src;
+        dom.accountAvatar.alt = `Avatar selecionado: ${avatar.label}`;
+        dom.accountAvatar.classList.remove("google-avatar");
+        dom.accountAvatar.classList.add("game-avatar");
+      }
+      setProfileFeedback("Avatar selecionado. Salve o perfil para confirmar.", "pending");
+    });
+
+    dom.playerProfileForm?.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (!window.FirebaseManager.isAuthenticated()) {
+        setProfileFeedback("Entre com o Google antes de salvar o perfil.", "error");
+        return;
+      }
+
+      const nickname = sanitizeNickname(dom.playerNicknameSetting?.value);
+      const avatar = getAvatarEntry(dom.playerAvatarSetting?.value);
+      if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = nickname;
+
+      if (nickname.length < 4) {
+        dom.playerNicknameSetting?.setCustomValidity("Use pelo menos 4 caracteres.");
+        dom.playerNicknameSetting?.reportValidity();
+        dom.playerNicknameSetting?.focus();
+        setProfileFeedback("O apelido precisa ter entre 4 e 24 caracteres.", "error");
+        return;
+      }
+      dom.playerNicknameSetting?.setCustomValidity("");
+      if (!avatar) {
+        setProfileFeedback("Escolha um avatar antes de salvar o perfil.", "error");
+        dom.playerAvatarPicker?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        return;
+      }
+
+      setAuthBusy(true);
+      setProfileFeedback("Salvando perfil na nuvem...", "pending");
+      try {
+        engine.setSetting("playerNickname", nickname);
+        engine.setSetting("playerAvatar", avatar.id);
+        if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
+        leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
+        const saveResult = await engine.save();
+        if (!saveResult?.ok) throw saveResult?.error || new Error("Não foi possível salvar o perfil na nuvem.");
+        updateAccountUI();
+        setProfileFeedback("Perfil salvo. Sua fazenda já pode participar do ranking global.", "success");
+        if (activeView === "officeView" && activeOfficeTab === "stats") await refreshPrestigeLeaderboard(true);
+      } catch (error) {
+        if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
+        setProfileFeedback(window.FirebaseManager.getFriendlyError(error), "error");
+      } finally {
+        setAuthBusy(false);
+      }
     });
 
     dom.cancelPrestigeConfirm?.addEventListener("click", event => {
@@ -1797,6 +1935,8 @@
         const result = await window.FirebaseManager.resetProgress();
         if (!result?.ok) throw new Error("Não foi possível apagar o progresso desta conta.");
         engine.replaceState(null, { simulateOffline: false });
+        if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
+        updateAccountUI();
         activeOfficeTab = "contracts";
         activeEvolutionTab = "upgrades";
         leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
