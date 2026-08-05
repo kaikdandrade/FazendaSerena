@@ -11,8 +11,8 @@
 
   const audioDefaults = Object.freeze({
     masterVolume: 100,
-    musicVolume: 10,
-    effectVolume: 55,
+    musicVolume: 5,
+    effectVolume: 50,
     musicTrack: "betweenLightAndShadows"
   });
 
