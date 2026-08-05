@@ -203,50 +203,88 @@
   function setupDragNavigation(container) {
     if (!container || container.dataset.dragNavigationReady === "true") return;
     container.dataset.dragNavigationReady = "true";
+
+    const compactQuery = window.matchMedia("(max-width: 480px)");
     let pointerId = null;
     let startX = 0;
     let startScrollLeft = 0;
+    let latestX = 0;
     let moved = false;
+    let animationFrame = 0;
     let suppressClickUntil = 0;
 
-    const isMobileNavigation = () => window.matchMedia("(max-width: 480px)").matches;
+    const canDrag = () => compactQuery.matches && container.scrollWidth > container.clientWidth + 1;
+    const refreshScrollableState = () => {
+      const scrollable = canDrag();
+      container.classList.toggle("is-drag-scrollable", scrollable);
+      if (!compactQuery.matches) container.scrollLeft = 0;
+      else {
+        const maximum = Math.max(0, container.scrollWidth - container.clientWidth);
+        if (container.scrollLeft > maximum) container.scrollLeft = maximum;
+      }
+    };
+
+    const applyDrag = () => {
+      animationFrame = 0;
+      if (pointerId === null || !moved) return;
+      container.scrollLeft = startScrollLeft - (latestX - startX);
+    };
+
     const finishDrag = event => {
       if (pointerId === null) return;
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      }
       if (event && container.hasPointerCapture?.(pointerId)) {
         try { container.releasePointerCapture(pointerId); } catch (_) {}
       }
-      if (moved) suppressClickUntil = performance.now() + 260;
+      if (moved) suppressClickUntil = performance.now() + 320;
       pointerId = null;
       moved = false;
       container.classList.remove("is-dragging");
     };
 
     container.addEventListener("pointerdown", event => {
-      if (!isMobileNavigation() || event.button !== 0 || container.scrollWidth <= container.clientWidth) return;
+      if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0) || !canDrag()) return;
       pointerId = event.pointerId;
       startX = event.clientX;
+      latestX = event.clientX;
       startScrollLeft = container.scrollLeft;
       moved = false;
-      container.classList.add("is-dragging");
       try { container.setPointerCapture(pointerId); } catch (_) {}
     });
+
     container.addEventListener("pointermove", event => {
       if (event.pointerId !== pointerId) return;
-      const delta = event.clientX - startX;
-      if (!moved && Math.abs(delta) >= 5) moved = true;
+      latestX = event.clientX;
+      const delta = latestX - startX;
+      if (!moved && Math.abs(delta) >= 6) {
+        moved = true;
+        container.classList.add("is-dragging");
+      }
       if (!moved) return;
-      container.scrollLeft = startScrollLeft - delta;
       event.preventDefault();
+      if (!animationFrame) animationFrame = requestAnimationFrame(applyDrag);
     }, { passive: false });
+
     container.addEventListener("pointerup", finishDrag);
     container.addEventListener("pointercancel", finishDrag);
     container.addEventListener("lostpointercapture", finishDrag);
+    container.addEventListener("dragstart", event => event.preventDefault());
     container.addEventListener("click", event => {
       if (performance.now() < suppressClickUntil) {
         event.preventDefault();
         event.stopImmediatePropagation();
       }
     }, true);
+
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(refreshScrollableState).observe(container);
+    }
+    compactQuery.addEventListener?.("change", refreshScrollableState);
+    window.addEventListener("resize", refreshScrollableState, { passive: true });
+    requestAnimationFrame(refreshScrollableState);
   }
 
   function showView(viewId, updateHash = true) {
