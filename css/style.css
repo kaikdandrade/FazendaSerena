@@ -8504,3 +8504,256 @@ button:disabled .inline-resource img,
     justify-content: flex-start !important;
   }
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 25 — breakpoints canônicos da navegação                            */
+/* Desktop: base | laptop/tablet paisagem: 1024 | tablet retrato: 768 |       */
+/* celular: 480. O header permanece sem alterações nesta revisão.             */
+/* ========================================================================== */
+
+/* Base acima de 1024 px: principal e secundária na mesma linha. */
+.navigation-stack {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.navigation-stack > .main-nav {
+  display: flex !important;
+  flex: 0 1 auto !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+.navigation-stack > .context-nav-column {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 0 0 auto !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+.navigation-stack > .context-nav-column[hidden] {
+  display: none !important;
+}
+.context-tabs,
+.office-tabs,
+.evolution-tabs {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  gap: 5px !important;
+  width: max-content !important;
+  min-width: max-content !important;
+  max-width: none !important;
+}
+
+/* Leve reforço de leitura em ambas as navegações. */
+.nav-tab-label,
+.office-tab > span,
+.evolution-tab > span {
+  font-size: .77rem !important;
+}
+.context-tabs .office-tab b,
+.context-tabs .evolution-tab small {
+  font-size: .63rem !important;
+}
+
+/* Estoque cheio não desloca ícone nem texto. */
+.main-nav .stock-nav-tab {
+  justify-content: center !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+}
+.main-nav .stock-nav-tab .nav-tab-icon,
+.main-nav .stock-nav-tab .nav-tab-label {
+  flex: 0 0 auto !important;
+}
+.main-nav .stock-nav-tab .nav-alert {
+  position: absolute !important;
+  top: 5px !important;
+  right: 5px !important;
+  z-index: 7 !important;
+  min-width: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: .56rem !important;
+  line-height: 1 !important;
+  pointer-events: none !important;
+}
+
+/* A barra percentual continua sendo parte real do tab. */
+.main-nav .stock-nav-tab > .stock-tab-progress {
+  position: absolute !important;
+  left: 10px !important;
+  right: 10px !important;
+  bottom: 4px !important;
+  z-index: 6 !important;
+  display: block !important;
+  width: auto !important;
+  height: 4px !important;
+  margin: 0 !important;
+  border-radius: 999px !important;
+}
+
+/* Contadores das subabas: neutros fora da aba e circulados apenas ativos. */
+.context-tabs .office-tab b {
+  display: grid !important;
+  place-items: center !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  margin-left: 2px !important;
+  padding: 0 4px !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  color: #78847d !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.context-tabs .office-tab.active b {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, .78) !important;
+  background: rgba(255, 255, 255, .12) !important;
+}
+.context-tabs .office-tab b[hidden] {
+  display: none !important;
+}
+
+/* Aumentos muito sutis dos ícones solicitados. */
+.main-nav .nav-tab[data-view="farmView"] .nav-tab-icon,
+.main-nav .nav-tab[data-view="farmView"] .nav-tab-icon img {
+  width: 20.5px !important;
+  height: 20.5px !important;
+  flex-basis: 20.5px !important;
+}
+.context-tabs .evolution-tab[data-evolution-tab="upgrades"] i,
+.context-tabs .evolution-tab[data-evolution-tab="upgrades"] i img {
+  width: 24.5px !important;
+  height: 24.5px !important;
+  flex-basis: 24.5px !important;
+}
+.context-tabs .office-tab[data-office-tab="contracts"] i,
+.context-tabs .office-tab[data-office-tab="contracts"] i img,
+.context-tabs .office-tab[data-office-tab="missions"] i,
+.context-tabs .office-tab[data-office-tab="missions"] i img {
+  width: 24px !important;
+  height: 24px !important;
+  flex-basis: 24px !important;
+}
+
+/* Laptops pequenos e tablets em paisagem. */
+@media (max-width: 1024px) {
+  .navigation-stack {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 9px !important;
+  }
+  .navigation-stack > .main-nav {
+    display: flex !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+  }
+  .navigation-stack > .main-nav .nav-tab {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding-inline: 10px !important;
+  }
+  .navigation-stack > .context-nav-column {
+    display: flex !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    justify-self: end !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+}
+
+/* Tablets em retrato: preserva exatamente o porte visual do breakpoint maior. */
+@media (max-width: 768px) {
+  .navigation-stack {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 9px !important;
+  }
+  .navigation-stack > .main-nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  .navigation-stack > .main-nav .nav-tab {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding-inline: 9px !important;
+  }
+  .navigation-stack > .context-nav-column {
+    width: fit-content !important;
+    max-width: 100% !important;
+    justify-self: end !important;
+    justify-content: flex-end !important;
+    overflow-x: auto !important;
+  }
+  .context-tabs .office-tab,
+  .context-tabs .evolution-tab {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+}
+
+/* Celulares: rolagem horizontal, sem grade e sem redução brusca dos tabs. */
+@media (max-width: 480px) {
+  .navigation-stack {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+  .navigation-stack > .main-nav {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .navigation-stack > .main-nav .nav-tab {
+    flex: 0 0 auto !important;
+    min-width: 108px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding-inline: 12px !important;
+  }
+  .navigation-stack > .context-nav-column {
+    width: fit-content !important;
+    max-width: 100% !important;
+    justify-self: end !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .context-tabs .office-tab,
+  .context-tabs .evolution-tab {
+    min-width: max-content !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    padding-inline: 12px !important;
+  }
+}
