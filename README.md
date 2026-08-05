@@ -1,5 +1,18 @@
 # Fazenda Serena — Agricultura Industrial
 
+
+## Versão do projeto
+
+A versão pública, a versão gravada no save e a versão enviada ao Firestore vêm de um único lugar:
+
+```text
+js/appConfig.js
+```
+
+Para publicar uma atualização futura, altere somente o valor de `appVersion` nesse arquivo, por exemplo de `1.0.0` para `1.0.1`. O HTML, o motor do jogo, a identificação do save e o campo `saveVersion` do Firestore leem essa mesma configuração. O arquivo também concentra o volume musical padrão, atualmente em 10%.
+
+Os números usados internamente para reconhecer saves antigos são apenas marcadores de compatibilidade do formato legado; eles não representam a versão pública do jogo. A versão do SDK do Firebase e as declarações próprias de XML/Firestore também pertencem às respectivas tecnologias externas.
+
 Jogo idle de agricultura desenvolvido em HTML, CSS e JavaScript puro, com Firebase Authentication e Cloud Firestore carregados pelo CDN oficial.
 
 ## Como executar
@@ -36,20 +49,20 @@ Visitantes não possuem save persistente: o estado existe apenas na memória e �
 - Indicador circular suave ao redor da cultura, com reinício instantâneo em zero após completar cada ciclo.
 - Aprimoramento individual até o nível 300, com seleção entre `+1` e `Max`; toda cultura recém-comprada já abre com `Max` selecionado. Ao alcançar o nível 300, a cultura concede uma vez por jornada 10% do requisito atual de XP e recebe uma apresentação dourada de planta platinada com estrela própria.
 - Cada nível reduz o tempo e valoriza a cultura; a produção contínua ocorre no nível 300 sem bônus e pode chegar ao nível 250 com todas as melhorias de velocidade.
-- Estoque único compartilhado, iniciado com 200 espaços, filtro por categoria, venda automática por cultura e controle geral para ativar ou desativar todas as vendas automáticas. Os cards do Estoque permanecem focados somente em quantidade, valor e venda, sem indicadores de contratos.
+- Estoque único compartilhado, iniciado com 200 espaços, filtro por categoria, venda automática por cultura e controle geral para ativar ou desativar todas as vendas automáticas. Sem uma rota de saída, a produção pausa quando o estoque chega a 100%; o legado permanente Central atacadista mantém a produção e vende somente o excedente por 50% do valor normal. Os cards do Estoque permanecem focados somente em quantidade, valor e venda, sem indicadores de contratos.
 - Capacidade ampliada em +100 espaços diretamente no Estoque; Aprimoramentos, Pesquisa e Prestígio continuam oferecendo bônus percentuais adicionais.
-- Fluxo de produção com prioridade: contrato ativo — inclusive vencido —, venda automática e estoque. Pedidos exigem entrega manual do lote completo.
-- Centro de Evoluções separado em Aprimoramentos, Pesquisa e Prestígio. Todos os tabs podem ser consultados desde o começo; compras com moedas e pesquisa liberam no nível 5, legados de prestígio permanecem acessíveis e somente o início de uma nova jornada exige nível 40. A Pesquisa possui 11 tecnologias, incluindo o Portfólio de Contratos com somente dois níveis.
+- Fluxo de produção com prioridade: contrato ativo — inclusive vencido —, venda automática normal, estoque e venda atacadista do excedente. Pedidos exigem entrega manual do lote completo.
+- Centro de Evoluções separado em Aprimoramentos, Pesquisa e Prestígio. Todos os tabs podem ser consultados desde o começo; compras com moedas e pesquisa liberam no nível 5, legados de prestígio permanecem acessíveis e somente o início de uma nova jornada exige nível 40. A Pesquisa possui 12 tecnologias, incluindo Aprendizado contínuo com 10 níveis e o Portfólio de Contratos com somente dois níveis.
 - Escritório dividido em Contratos, Pedidos, Missões e Estatísticas.
 - Seis espaços de oportunidades empresariais e capacidade progressiva de um a sete contratos ativos. Contratos e o primeiro slot existem desde o início, o segundo slot libera no nível 20, dois vêm da pesquisa Portfólio de Contratos e três do legado Império Contratual. Recusar ou quebrar uma negociação deixa o respectivo espaço indisponível por cinco minutos. A quebra é imediata, cobra a multa mesmo que o saldo fique negativo e é a única ação capaz de produzir moedas negativas.
-- Entregas emergenciais mantêm o maior multiplicador sem pesquisa; contratos comerciais e grandes fornecimentos mantêm seus perfis próprios, e todas as recompensas em moedas recebem 10% adicional na Revisão 39. Os prazos foram reduzidos em 30% sobre a revisão anterior.
+- Entregas emergenciais mantêm o maior multiplicador sem pesquisa; contratos comerciais e grandes fornecimentos mantêm seus perfis próprios, e todas as recompensas em moedas recebem 10% adicional. Os prazos usam o equilíbrio atual do sistema.
 - Assinar um contrato envia imediatamente o estoque disponível; a produção futura completa o restante.
 - Contratos completos dentro do prazo aguardam o resgate manual. Contratos vencidos permanecem no slot sem limite de tempo, exigem 100% da entrega, perdem toda recompensa e só são removidos após o pagamento de uma multa igual às moedas originais mais 20%; esse encerramento atrasado concede 1,7% do XP necessário para o próximo nível.
 - Pedidos por cultura com progressão até 10.000 unidades. A etapa só pode ser entregue quando todo o lote estiver no estoque; a série é renovada a cada prestígio.
 - 83 etapas de missões permanentes em 11 séries, com métricas acumuladas entre jornadas; missões concluídas nunca são renovadas pelo prestígio.
 - Estatísticas históricas, recordes, conquistas, legados e bônus permanentes dentro do Escritório, além de um top 5 global de prestígio visível inclusive para visitantes. Para participar, a conta autenticada precisa salvar um apelido de 4 a 24 caracteres e um dos 40 avatares de animais disponíveis nas Configurações; também é possível manter o perfil salvo e optar por não aparecer no ranking.
 - A interface e os legados de Prestígio podem ser usados desde o início; a ação de prestigiar libera no nível 40, exige confirmação própria e mostra somente os fatores renováveis usados no cálculo e o que será reiniciado.
-- Nível máximo da fazenda em 1.000; a curva de requisito de XP cresce suavemente no início e alcança a faixa `Az` nos níveis finais. Como todas as fontes relevantes concedem uma porcentagem do requisito atual, o ritmo por ações é preservado. O som de level up e o modal de desbloqueios aparecem apenas nos marcos de cinco em cinco níveis.
+- Nível máximo da fazenda em 1.000; a curva de requisito de XP cresce suavemente no início e alcança a faixa `Az` nos níveis finais. Enquanto o jogo está aberto, a fazenda recebe 0,05% do requisito atual por segundo; Aprendizado contínuo adiciona 0,01% por nível e o Legado da experiência adiciona 0,05% permanente por nível. Esse ganho não é concedido no período offline. O som de level up e o modal de desbloqueios aparecem apenas nos marcos de cinco em cinco níveis.
 - Login exclusivo com Google e salvamento automático privado no Cloud Firestore. Visitantes não usam `localStorage` e perdem a sessão ao recarregar. A conta autenticada pode resetar todo o progresso por uma confirmação irreversível, removendo save e registro do rank antes de criar uma fazenda limpa.
 - Motor global de áudio com canal interrompível para efeitos principais, pools simultâneos para impactos nos contadores, música ambiente em loop e três controles integrados à Experiência: volume geral, efeitos e música. Os impactos de moeda, pesquisa e prestígio usam volume interno fixo de 8%, não podem ser aumentados ou reduzidos e são silenciados quando o volume geral ou de efeitos está em 0%.
 - Navegação principal e contextual com a mesma altura, ícones em imagem e cadeado visual nas áreas em prévia. Em tablet e celular, o contêiner contextual usa largura pelo conteúdo, fica centralizado, respeita o limite da tela e preserva a rolagem horizontal por toque ou arraste quando necessário.
@@ -100,18 +113,26 @@ Os contratos usam arquivos PNG em `assets/icons/` para Alimentos Aurora, Mercado
 
 ## Ambiente visual
 
-A Revisão 44 usa `js/ambientBackground.js` para controlar todo o ambiente dinâmico. As folhas sazonais entram e saem pelas bordas da tela, variam em tamanho, rotação e duração. Duas orbes percorrem lentamente diferentes cantos e alternam de forma sutil entre azul, verde, amarelo e roxo claro. Todo o conjunto respeita a opção “Ambiente vivo” e a preferência de movimento reduzido do navegador.
+O jogo usa `js/ambientBackground.js` para controlar todo o ambiente dinâmico. As folhas sazonais entram e saem pelas bordas da tela, variam em tamanho, rotação e duração. Duas orbes percorrem lentamente diferentes cantos e alternam de forma sutil entre azul, verde, amarelo e roxo claro. Todo o conjunto respeita a opção “Ambiente vivo” e a preferência de movimento reduzido do navegador.
 
 
-## Revisão 45 — counters durante a rolagem
+## Counters durante a rolagem
 
 Os counters flutuantes aparecem somente depois que o conjunto original sai completamente da área visível. A transição não modifica o tamanho do cabeçalho nem o fluxo do documento, eliminando o efeito de fricção e a alternância repetida durante o uso da roda do mouse ou do toque.
 
-## Revisão 46 — AdSense, privacidade e cookies
+## AdSense, privacidade e cookies
 
-A revisão adiciona a infraestrutura necessária para monetização sem inventar identificadores da conta. O projeto inclui `privacy.html`, aviso e preferências de cookies, Consent Mode v2, carregamento condicional do AdSense, uma posição manual responsiva antes do rodapé, `ads.txt`, `robots.txt`, `sitemap.xml` e configuração de Hosting no `firebase.json`.
+O projeto inclui a infraestrutura necessária para monetização sem inventar identificadores da conta. O projeto inclui `privacy.html`, aviso e preferências de cookies, Consent Mode v2, carregamento do AdSense com publicidade definida como necessária no aviso local, uma posição manual responsiva antes do rodapé, `ads.txt`, `robots.txt`, `sitemap.xml` e configuração de Hosting no `firebase.json`.
 
 Os IDs reais devem ser preenchidos em `js/adsense-config.js` e no `ads.txt` somente depois que forem fornecidos pelo painel do Google AdSense. O passo a passo está em `ADSENSE_SETUP.md`.
 
 O aviso local controla as preferências do próprio site. Para tráfego do Espaço Econômico Europeu, Reino Unido e Suíça, também deve ser publicada a mensagem oficial em **AdSense > Privacidade e mensagens**, pois o Google exige uma CMP certificada nessas regiões.
 
+
+## XP por tempo e escoamento atacadista
+
+O ganho passivo usa o tempo real transcorrido, não a quantidade de quadros renderizados. A taxa inicial é de 0,05% do requisito atual de XP por segundo enquanto a página está ativa. A Pesquisa **Aprendizado contínuo** possui 10 níveis de +0,01% por segundo, e o Legado permanente **Legado da experiência** possui 5 níveis de +0,05% por segundo.
+
+A **Central atacadista** custa 35 pontos de prestígio e possui uma única etapa. Quando o estoque está cheio e a venda automática da cultura está desligada, a produção guarda o que ainda couber e vende apenas o excedente por 50% do valor normal. Contratos continuam tendo prioridade sobre todas as rotas de venda.
+
+O ciclo de produção também passou a reutilizar a capacidade restante do estoque, agrupar contratos ativos por cultura e consultar culturas por um índice em memória, evitando cálculos repetidos no `requestAnimationFrame`.
