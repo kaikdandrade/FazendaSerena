@@ -5300,6 +5300,159 @@ body {
   82%, 100% { transform: translateX(120%) rotate(18deg); }
 }
 
+<<<<<<< HEAD
+=======
+
+/* Conta Google e save automático no Firestore. */
+.account-settings-card {
+  display: grid;
+  gap: 18px;
+  grid-column: 1 / -1;
+}
+
+.account-settings-head {
+  align-items: center;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.account-avatar-shell {
+  align-items: center;
+  background: linear-gradient(145deg, rgba(242,249,236,.98), rgba(255,255,255,.9));
+  border: 1px solid rgba(77,128,70,.18);
+  border-radius: 22px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 10px 24px rgba(52,88,54,.10);
+  display: flex;
+  height: 76px;
+  justify-content: center;
+  overflow: hidden;
+  padding: 9px;
+  width: 76px;
+}
+
+.account-avatar-shell img {
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.account-avatar-shell img.google-avatar {
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.account-identity { min-width: 0; }
+
+.account-identity .eyebrow { margin-bottom: 4px; }
+
+.account-identity h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  margin: 0 0 5px;
+  overflow-wrap: anywhere;
+}
+
+.account-identity > p:last-child {
+  color: var(--ink-soft);
+  font-size: .72rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cloud-save-badge {
+  align-items: center;
+  background: rgba(93,157,82,.12);
+  border: 1px solid rgba(78,139,68,.14);
+  border-radius: 999px;
+  color: #427344;
+  display: inline-flex;
+  font-size: .62rem;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.cloud-save-badge.guest {
+  background: rgba(112,126,116,.10);
+  border-color: rgba(112,126,116,.14);
+  color: #657169;
+}
+
+.cloud-save-badge.saving {
+  background: rgba(188,146,52,.12);
+  border-color: rgba(188,146,52,.17);
+  color: #8a681d;
+}
+
+.cloud-save-badge.error {
+  background: rgba(184,93,89,.12);
+  border-color: rgba(184,93,89,.18);
+  color: #8b403a;
+}
+
+.account-save-status {
+  align-items: center;
+  background: rgba(237,244,232,.72);
+  border: 1px solid rgba(82,124,76,.12);
+  border-radius: 14px;
+  color: var(--ink-soft);
+  display: flex;
+  gap: 9px;
+  min-height: 40px;
+  padding: 9px 12px;
+}
+
+.account-save-status > span {
+  background: #65a95d;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(101,169,93,.12);
+  flex: 0 0 auto;
+  height: 7px;
+  width: 7px;
+}
+
+.account-save-status small {
+  font-size: .64rem;
+  font-weight: 720;
+  line-height: 1.4;
+}
+
+.account-actions { justify-content: flex-start; }
+
+.account-actions .button[hidden] { display: none !important; }
+
+.google-sign-in-button {
+  background: #fff !important;
+  border: 1px solid rgba(55,70,60,.16) !important;
+  color: #34463a !important;
+  min-width: 220px;
+}
+
+.google-sign-in-button:hover {
+  background: #f8faf7 !important;
+  border-color: rgba(55,70,60,.25) !important;
+}
+
+.google-sign-in-button > span {
+  align-items: center;
+  background: linear-gradient(135deg, #4285f4 0 25%, #34a853 25% 50%, #fbbc05 50% 75%, #ea4335 75%);
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  font-family: Arial, sans-serif;
+  font-size: .72rem;
+  font-weight: 900;
+  height: 22px;
+  justify-content: center;
+  margin-right: 7px;
+  width: 22px;
+}
+
+.cloud-transfer-card #saveNow:disabled { cursor: not-allowed; }
+
+>>>>>>> firebase-dev
 /* ========================================================================== */
 /* Até 1024px */
 /* ========================================================================== */
@@ -5501,6 +5654,17 @@ body {
 /* Até 768px */
 /* ========================================================================== */
 @media (max-width: 768px) {
+<<<<<<< HEAD
+=======
+  .account-settings-head { grid-template-columns: auto minmax(0, 1fr); }
+
+  .cloud-save-badge { grid-column: 1 / -1; justify-self: start; }
+
+  .account-actions { align-items: stretch; flex-direction: column; }
+
+  .account-actions .button { width: 100%; }
+
+>>>>>>> firebase-dev
   .app-header { align-items: center; }
 
   .resource-pill small { display: none; }
@@ -6087,6 +6251,21 @@ body {
 /* Até 480px */
 /* ========================================================================== */
 @media (max-width: 480px) {
+<<<<<<< HEAD
+=======
+  .account-settings-card { gap: 14px; }
+
+  .account-settings-head { align-items: start; gap: 12px; }
+
+  .account-avatar-shell { border-radius: 18px; height: 60px; padding: 7px; width: 60px; }
+
+  .account-identity h2 { font-size: 1.18rem; }
+
+  .account-save-status { align-items: flex-start; }
+
+  .google-sign-in-button { min-width: 0; }
+
+>>>>>>> firebase-dev
   .resource-pill { justify-content: center; }
 
   .brand { gap: 10px; min-height: 58px; }

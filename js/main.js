@@ -10,6 +10,9 @@
   let lastCropControls = 0;
   let lastSave = 0;
   let activeView = "farmView";
+  let engine = null;
+  let currentAuthUid = null;
+  let authTransitionQueue = Promise.resolve();
   let activeOfficeTab = "contracts";
   let activeEvolutionTab = "upgrades";
   let showCompletedMissions = false;
@@ -78,6 +81,15 @@
     musicVolumeSetting: $("#musicVolumeSetting"),
     musicVolumeText: $("#musicVolumeText"),
     musicTrackSetting: $("#musicTrackSetting"),
+    accountAvatar: $("#accountAvatar"),
+    accountName: $("#accountName"),
+    accountDescription: $("#accountDescription"),
+    cloudSaveBadge: $("#cloudSaveBadge"),
+    cloudSaveStatus: $("#cloudSaveStatus"),
+    cloudSaveDescription: $("#cloudSaveDescription"),
+    googleSignIn: $("#googleSignIn"),
+    googleSignOut: $("#googleSignOut"),
+    saveNow: $("#saveNow"),
     backToTop: $("#backToTop")
   };
 
@@ -160,8 +172,184 @@
     }
   }
 
+<<<<<<< HEAD
   const engine = new GameEngine(handleEngineEvent);
 
+=======
+  function cloneState(state) {
+    return JSON.parse(JSON.stringify(state || {}));
+  }
+
+  function formatCloudTime(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function setCloudSaveStatus(status, detail = {}) {
+    if (!dom.cloudSaveStatus || !dom.cloudSaveBadge) return;
+
+    const badgeClasses = ["guest", "saving", "saved", "error"];
+    dom.cloudSaveBadge.classList.remove(...badgeClasses);
+
+    if (status === "saving") {
+      dom.cloudSaveBadge.textContent = "Salvando";
+      dom.cloudSaveBadge.classList.add("saving");
+      dom.cloudSaveStatus.textContent = "Enviando o progresso para o Firestore...";
+      return;
+    }
+
+    if (status === "saved") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveBadge.textContent = "Na nuvem";
+      dom.cloudSaveBadge.classList.add("saved");
+      dom.cloudSaveStatus.textContent = time
+        ? `Progresso salvo na nuvem às ${time}.`
+        : "Progresso salvo na nuvem.";
+      return;
+    }
+
+    if (status === "loading") {
+      dom.cloudSaveBadge.textContent = "Carregando";
+      dom.cloudSaveBadge.classList.add("saving");
+      dom.cloudSaveStatus.textContent = "Buscando seu progresso no Firestore...";
+      return;
+    }
+
+    if (status === "loaded") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveBadge.textContent = "Na nuvem";
+      dom.cloudSaveBadge.classList.add("saved");
+      dom.cloudSaveStatus.textContent = time
+        ? `Save da nuvem carregado. Última gravação: ${time}.`
+        : "Save da nuvem carregado.";
+      return;
+    }
+
+    if (status === "empty") {
+      dom.cloudSaveBadge.textContent = "Novo save";
+      dom.cloudSaveBadge.classList.add("saving");
+      dom.cloudSaveStatus.textContent = "Nenhum save anterior foi encontrado. Esta sessão será o primeiro save da conta.";
+      return;
+    }
+
+    if (status === "error") {
+      dom.cloudSaveBadge.textContent = "Erro";
+      dom.cloudSaveBadge.classList.add("error");
+      dom.cloudSaveStatus.textContent = window.FirebaseManager.getFriendlyError(detail.error);
+      return;
+    }
+
+    dom.cloudSaveBadge.textContent = "Não salvo";
+    dom.cloudSaveBadge.classList.add("guest");
+    dom.cloudSaveStatus.textContent = window.FirebaseManager.isAvailable()
+      ? "Entre com o Google para ativar o save automático na nuvem."
+      : "O Firebase não pôde ser carregado. A sessão continuará como visitante.";
+  }
+
+  function updateAccountUI(user = window.FirebaseManager.getUser()) {
+    const signedIn = Boolean(user);
+    const firebaseAvailable = window.FirebaseManager.isAvailable();
+
+    if (dom.accountName) {
+      dom.accountName.textContent = signedIn
+        ? (user.displayName || user.email || "Jogador")
+        : "Visitante";
+    }
+
+    if (dom.accountDescription) {
+      dom.accountDescription.textContent = signedIn
+        ? `${user.email || "Conta Google conectada"}. Seu progresso é privado e salvo automaticamente na nuvem.`
+        : "Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.";
+    }
+
+    if (dom.accountAvatar) {
+      dom.accountAvatar.src = signedIn && user.photoURL ? user.photoURL : "assets/logo.png";
+      dom.accountAvatar.alt = signedIn ? `Foto de ${user.displayName || "jogador"}` : "";
+      dom.accountAvatar.classList.toggle("google-avatar", Boolean(signedIn && user.photoURL));
+    }
+
+    if (dom.googleSignIn) {
+      dom.googleSignIn.hidden = signedIn;
+      dom.googleSignIn.disabled = !firebaseAvailable;
+    }
+    if (dom.googleSignOut) {
+      dom.googleSignOut.hidden = !signedIn;
+      dom.googleSignOut.disabled = false;
+    }
+    if (dom.saveNow) {
+      dom.saveNow.disabled = !signedIn;
+      dom.saveNow.textContent = signedIn ? "Salvar agora" : "Entre para salvar";
+    }
+    if (dom.cloudSaveDescription) {
+      dom.cloudSaveDescription.textContent = signedIn
+        ? "O progresso é salvo automaticamente no Firestore a cada 15 segundos e ao sair da página."
+        : "Visitantes não possuem save persistente. Entre com o Google para salvar automaticamente no Firestore.";
+    }
+
+    if (!signedIn) setCloudSaveStatus("guest");
+  }
+
+  function setAuthBusy(busy) {
+    if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
+    if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
+    if (dom.saveNow) dom.saveNow.disabled = busy || !window.FirebaseManager.isAuthenticated();
+  }
+
+  async function applyAuthenticatedUser(user, authError = null) {
+    const nextUid = user?.uid || null;
+    if (!engine) {
+      currentAuthUid = nextUid;
+      updateAccountUI(user);
+      if (authError) setCloudSaveStatus("error", { error: authError });
+      return;
+    }
+
+    if (nextUid === currentAuthUid) {
+      updateAccountUI(user);
+      if (authError) setCloudSaveStatus("error", { error: authError });
+      return;
+    }
+
+    const previousUid = currentAuthUid;
+    const guestState = previousUid ? null : cloneState(engine.state);
+    currentAuthUid = nextUid;
+    setAuthBusy(true);
+
+    try {
+      if (user) {
+        let cloudState = null;
+        let loadFailed = false;
+        try {
+          cloudState = await window.FirebaseManager.loadGame();
+        } catch (error) {
+          loadFailed = true;
+          setCloudSaveStatus("error", { error });
+        }
+
+        if (cloudState) {
+          engine.replaceState(cloudState, { simulateOffline: true });
+        } else if (!loadFailed) {
+          engine.replaceState(guestState, { simulateOffline: false });
+          await engine.save();
+        }
+      } else {
+        engine.replaceState(null, { simulateOffline: false });
+        showView("farmView", false);
+      }
+
+      applySettings();
+      render(true);
+      lastSave = performance.now();
+    } finally {
+      updateAccountUI(user);
+      setAuthBusy(false);
+    }
+  }
+
+>>>>>>> firebase-dev
   // Navegação, responsividade e configurações.
   function setupCategoryFilter() {
     const options = Object.entries(engine.data.categories)
@@ -1229,8 +1417,56 @@
       renderMissions();
     });
 
+<<<<<<< HEAD
     $("#saveNow").addEventListener("click", () => {
       engine.save();
+=======
+    dom.saveNow?.addEventListener("click", async () => {
+      if (!window.FirebaseManager.isAuthenticated()) {
+        setCloudSaveStatus("guest");
+        return;
+      }
+      setAuthBusy(true);
+      try {
+        await engine.save();
+        lastSave = performance.now();
+      } finally {
+        setAuthBusy(false);
+      }
+    });
+
+    dom.googleSignIn?.addEventListener("click", async () => {
+      setAuthBusy(true);
+      try {
+        await window.FirebaseManager.signInWithGoogle();
+      } catch (error) {
+        setCloudSaveStatus("error", { error });
+      } finally {
+        setAuthBusy(false);
+      }
+    });
+
+    dom.googleSignOut?.addEventListener("click", async () => {
+      setAuthBusy(true);
+      try {
+        await engine.save();
+        await window.FirebaseManager.signOut();
+      } catch (error) {
+        setCloudSaveStatus("error", { error });
+      } finally {
+        setAuthBusy(false);
+      }
+    });
+
+    window.addEventListener("firebase-save-status", event => {
+      setCloudSaveStatus(event.detail?.status || "guest", event.detail || {});
+    });
+
+    window.FirebaseManager.subscribeAuth((user, error) => {
+      authTransitionQueue = authTransitionQueue
+        .catch(() => {})
+        .then(() => applyAuthenticatedUser(user, error));
+>>>>>>> firebase-dev
     });
 
     $("#exportSave").addEventListener("click", () => {
@@ -1308,7 +1544,9 @@
     dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     syncScrollUI();
 
-    window.addEventListener("beforeunload", () => engine.save());
+    window.addEventListener("pagehide", () => {
+      if (window.FirebaseManager.isAuthenticated()) engine.save();
+    });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         engine.save();
@@ -1343,16 +1581,41 @@
     requestAnimationFrame(gameLoop);
   }
 
-  function boot() {
+  async function boot() {
+    let initialUser = null;
+    let initialState = null;
+    let cloudLoadFailed = false;
+
+    try {
+      initialUser = await window.FirebaseManager.ready();
+      currentAuthUid = initialUser?.uid || null;
+      if (initialUser) initialState = await window.FirebaseManager.loadGame();
+    } catch (error) {
+      cloudLoadFailed = true;
+      setCloudSaveStatus("error", { error });
+    }
+
+    engine = new GameEngine(handleEngineEvent, initialState);
     setupCategoryFilter();
     setupEvents();
+
     const hashView = location.hash.replace("#", "");
     if (hashView && dom.views.some(view => view.id === hashView)) activeView = hashView;
     showView(activeView, false);
     applySettings();
+    updateAccountUI(initialUser);
+    if (initialUser && initialState) setCloudSaveStatus("loaded");
     render(true);
+
+    if (initialUser && !initialState && !cloudLoadFailed) {
+      await engine.save();
+    }
+
+    lastSave = performance.now();
     requestAnimationFrame(gameLoop);
   }
 
-  boot();
+  boot().catch(error => {
+    console.error("Não foi possível iniciar o jogo:", error);
+  });
 })();

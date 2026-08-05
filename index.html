@@ -9,6 +9,8 @@
 <title>Agricultura Industrial — Fazenda Serena</title>
 <link href="assets/icons/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="css/style.css" rel="stylesheet"/>
+<script defer="" src="js/firebase-config.js"></script>
+<script defer="" src="js/firebaseManager.js"></script>
 <script defer="" src="js/data.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
 <script defer="" src="js/GameEngine.js"></script>
@@ -232,6 +234,27 @@
 </div>
 </div>
 <div class="settings-grid">
+<article class="panel-card settings-card account-settings-card">
+<div class="account-settings-head">
+<div class="account-avatar-shell">
+<img alt="" id="accountAvatar" src="assets/logo.png"/>
+</div>
+<div class="account-identity">
+<p class="eyebrow">conta e nuvem</p>
+<h2 id="accountName">Visitante</h2>
+<p id="accountDescription">Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.</p>
+</div>
+<span class="cloud-save-badge guest" id="cloudSaveBadge">Não salvo</span>
+</div>
+<div class="account-save-status">
+<span aria-hidden="true"></span>
+<small id="cloudSaveStatus">Entre com o Google para ativar o save automático na nuvem.</small>
+</div>
+<div class="button-row account-actions">
+<button class="button google-sign-in-button" id="googleSignIn" type="button"><span aria-hidden="true">G</span> Entrar com o Google</button>
+<button class="button secondary" hidden="" id="googleSignOut" type="button">Sair da conta</button>
+</div>
+</article>
 <article class="panel-card settings-card experience-settings-card">
 <h2>Experiência</h2>
 <label class="setting-row">
@@ -277,11 +300,11 @@
 </label>
 </div>
 </article>
-<article class="panel-card settings-card">
-<h2>Salvar e transferir</h2>
-<p>O progresso é salvo automaticamente no navegador a cada 15 segundos.</p>
+<article class="panel-card settings-card cloud-transfer-card">
+<h2>Save na nuvem e transferência</h2>
+<p id="cloudSaveDescription">Visitantes não possuem save persistente. Entre com o Google para salvar automaticamente no Firestore.</p>
 <div class="button-row">
-<button class="button primary" id="saveNow" type="button">Salvar agora</button>
+<button class="button primary" disabled="" id="saveNow" type="button">Salvar agora</button>
 <button class="button secondary" id="exportSave" type="button">Baixar save</button>
 </div>
 <textarea id="saveBox" placeholder="O save exportado aparece aqui. Também é possível colar um save para importá-lo."></textarea>

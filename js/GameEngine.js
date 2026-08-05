@@ -1,8 +1,12 @@
 "use strict";
 
 class GameEngine {
+<<<<<<< HEAD
   static STORAGE_KEY = "agricultura-industrial-save-v3";
   static SAVE_VERSION = 32;
+=======
+  static SAVE_VERSION = 33;
+>>>>>>> firebase-dev
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -17,10 +21,10 @@ class GameEngine {
     "barnHay", "harvestFestival", "tropicalOrchard"
   ]);
 
-  constructor(onEvent = () => {}) {
+  constructor(onEvent = () => {}, initialState = null) {
     this.data = window.GameData;
     this.onEvent = onEvent;
-    this.state = this.load();
+    this.state = this.load(initialState);
   }
 
   createState(permanent = {}) {
@@ -109,25 +113,48 @@ class GameEngine {
     };
   }
 
-  load() {
-    let loaded = null;
-    try {
-      const raw = localStorage.getItem(GameEngine.STORAGE_KEY);
-      if (raw) loaded = JSON.parse(raw);
-    } catch (error) {
-      console.warn("Não foi possível ler o save:", error);
-    }
-
-    const state = this.normalizeState(loaded || this.createState());
+  load(initialState = null) {
+    const hasCloudState = Boolean(initialState && typeof initialState === "object");
+    const state = this.normalizeState(hasCloudState ? initialState : this.createState());
     this.state = state;
     this.ensureContractOffers();
     this.expireContracts(true);
 
     const now = Date.now();
+<<<<<<< HEAD
     const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
     if (elapsed > 0.05) this.simulate(elapsed, true);
+=======
+    if (hasCloudState) {
+      const elapsed = Math.max(0, Math.min(
+        GameEngine.MAX_OFFLINE_SECONDS,
+        (now - Number(state.lastUpdate || now)) / 1000
+      ));
+      if (elapsed > 0.05) this.simulate(elapsed, true);
+    }
+
+>>>>>>> firebase-dev
     state.lastUpdate = now;
     return state;
+  }
+
+  replaceState(input = null, { simulateOffline = false } = {}) {
+    const hasState = Boolean(input && typeof input === "object");
+    this.state = this.normalizeState(hasState ? input : this.createState());
+    this.ensureContractOffers();
+    this.expireContracts(true);
+
+    const now = Date.now();
+    if (hasState && simulateOffline) {
+      const elapsed = Math.max(0, Math.min(
+        GameEngine.MAX_OFFLINE_SECONDS,
+        (now - Number(this.state.lastUpdate || now)) / 1000
+      ));
+      if (elapsed > 0.05) this.simulate(elapsed, true);
+    }
+
+    this.state.lastUpdate = now;
+    return this.state;
   }
 
   normalizeState(input) {
@@ -383,13 +410,10 @@ class GameEngine {
 
   save() {
     this.state.lastUpdate = Date.now();
-    try {
-      localStorage.setItem(GameEngine.STORAGE_KEY, JSON.stringify(this.state));
-      return true;
-    } catch (error) {
-      console.warn("Não foi possível salvar:", error);
-      return false;
+    if (!window.FirebaseManager?.isAuthenticated()) {
+      return Promise.resolve({ ok: false, reason: "guest" });
     }
+    return window.FirebaseManager.saveGame(this.state);
   }
 
   exportSave() {
@@ -406,7 +430,6 @@ class GameEngine {
   }
 
   hardReset() {
-    localStorage.removeItem(GameEngine.STORAGE_KEY);
     this.state = this.createState();
     this.state.contractOffers = [];
     this.state.contractCooldowns = [];
