@@ -118,26 +118,43 @@
       </section>
 
       <section class="view" id="evolveView" data-view-panel="evolveView">
-        <div class="section-heading">
+        <div class="section-heading evolution-heading">
           <div>
             <p class="eyebrow">melhorias para toda a fazenda</p>
             <h1>Centro de evoluções</h1>
-            <p class="section-copy">Aprimoramentos acumulativos tornam cada retorno mais recompensador, sem exigir pressa.</p>
+            <p class="section-copy">Cada tipo de melhoria possui seu próprio espaço, deixando as decisões mais claras e tranquilas.</p>
           </div>
         </div>
 
-        <h2 class="subsection-title">Infraestrutura</h2>
-        <div class="upgrade-grid" id="upgradeList"></div>
+        <div class="evolution-workspace panel-card">
+          <nav class="evolution-tabs" aria-label="Tipos de evolução" role="tablist">
+            <button class="evolution-tab active" type="button" data-evolution-tab="upgrades" role="tab" aria-selected="true"><span>🛠️ Evoluções</span><small>Moedas</small></button>
+            <button class="evolution-tab" type="button" data-evolution-tab="research" role="tab" aria-selected="false"><span>🧪 Pesquisa</span><small>Pontos de pesquisa</small></button>
+            <button class="evolution-tab" type="button" data-evolution-tab="prestige" role="tab" aria-selected="false"><span>✨ Prestígio</span><small>Legados permanentes</small></button>
+          </nav>
 
-        <div class="section-divider"></div>
-        <h2 class="subsection-title">Centro de pesquisa</h2>
-        <p class="section-copy">Pontos de pesquisa chegam principalmente por contratos e missões.</p>
-        <div class="upgrade-grid" id="researchList"></div>
+          <section class="evolution-panel active" data-evolution-panel="upgrades" role="tabpanel">
+            <div class="section-heading compact-heading evolution-panel-heading">
+              <div><p class="eyebrow">investimento cotidiano</p><h2>Infraestrutura da fazenda</h2><p class="section-copy">Use moedas para melhorar produção, armazenamento e vendas durante esta jornada.</p></div>
+            </div>
+            <div class="upgrade-grid" id="upgradeList"></div>
+          </section>
 
-        <div class="section-divider"></div>
-        <div class="prestige-hero panel-card" id="prestigeDashboard"></div>
-        <h2 class="subsection-title">Legados permanentes</h2>
-        <div class="upgrade-grid prestige-grid" id="prestigeList"></div>
+          <section class="evolution-panel" data-evolution-panel="research" role="tabpanel" hidden>
+            <div class="section-heading compact-heading evolution-panel-heading">
+              <div><p class="eyebrow">conhecimento aplicado</p><h2>Centro de pesquisa</h2><p class="section-copy">Pontos de pesquisa chegam principalmente por contratos, pedidos avançados e missões.</p></div>
+            </div>
+            <div class="upgrade-grid" id="researchList"></div>
+          </section>
+
+          <section class="evolution-panel" data-evolution-panel="prestige" role="tabpanel" hidden>
+            <div class="prestige-hero" id="prestigeDashboard"></div>
+            <div class="section-heading compact-heading evolution-panel-heading prestige-panel-heading">
+              <div><p class="eyebrow">benefícios entre jornadas</p><h2>Legados permanentes</h2><p class="section-copy">Invista pontos de prestígio em melhorias que permanecem após cada recomeço.</p></div>
+            </div>
+            <div class="upgrade-grid prestige-grid" id="prestigeList"></div>
+          </section>
+        </div>
       </section>
 
       <section class="view" id="officeView" data-view-panel="officeView">
@@ -145,7 +162,7 @@
           <div>
             <p class="eyebrow">organização e metas</p>
             <h1>Escritório da fazenda</h1>
-            <p class="section-copy">Contratos têm prazo, pedidos acompanham cada cultura e missões recompensam marcos importantes da sua história.</p>
+            <p class="section-copy">Contratos empresariais são opcionais, pedidos acompanham cada cultura e missões recompensam marcos importantes da sua história.</p>
           </div>
         </div>
 
@@ -161,13 +178,24 @@
           <section class="office-panel active" data-office-panel="contracts" role="tabpanel">
             <div class="section-heading compact-heading office-panel-heading">
               <div>
-                <p class="eyebrow">oportunidades com prazo</p>
-                <h2>Contratos da cooperativa</h2>
-                <p class="section-copy">Remessas temporárias com pagamento e pesquisa extras. Quando um contrato expira, outro ocupa seu lugar.</p>
+                <p class="eyebrow">negociações empresariais</p>
+                <h2>Central de contratos</h2>
+                <p class="section-copy">Empresas enviam propostas com culturas, quantidades e pagamentos diferentes. Aceite somente o que fizer sentido para sua produção.</p>
               </div>
-              <button class="button secondary" id="rerollContracts" type="button">Renovar contratos</button>
+              <button class="button secondary" id="rerollContracts" type="button">Renovar propostas</button>
             </div>
-            <div class="contract-grid" id="contractList"></div>
+
+            <div class="contract-capacity" id="contractCapacity"></div>
+
+            <div class="contract-section-head">
+              <div><span class="contract-section-icon">📌</span><div><h3>Contratos ativos</h3><p>Entregue aos poucos. No máximo dois contratos podem ficar ativos ao mesmo tempo.</p></div></div>
+            </div>
+            <div class="active-contract-grid" id="activeContractList"></div>
+
+            <div class="contract-section-head proposals-heading">
+              <div><span class="contract-section-icon">✉️</span><div><h3>Propostas recebidas</h3><p>Aceite ou recuse livremente. Propostas recusadas são substituídas por novas empresas.</p></div></div>
+            </div>
+            <div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
           </section>
 
           <section class="office-panel" data-office-panel="orders" role="tabpanel" hidden>
@@ -244,7 +272,7 @@
               <li>A fazenda mostra as culturas do seu nível e antecipa somente o próximo nível bloqueado.</li>
               <li>A barra de produção mostra quanto falta para o próximo ciclo automático.</li>
               <li>Todas as culturas usam o mesmo estoque, que começa com 200 espaços e pode ser aprimorado.</li>
-              <li>Contratos têm prazo, pedidos são permanentes por cultura e missões não expiram.</li>
+              <li>Empresas enviam propostas; você pode manter até dois contratos ativos e fazer entregas parciais.</li>
               <li>O prestígio reinicia a fazenda, mas preserva pontos e legados permanentes.</li>
             </ol>
           </article>
@@ -258,6 +286,7 @@
     </footer>
   </div>
 
+  <aside class="contract-dock" id="contractDock" aria-label="Acompanhamento dos contratos ativos"></aside>
   <div class="toast-zone" id="toastZone" aria-live="polite" aria-atomic="true"></div>
 </body>
 </html>

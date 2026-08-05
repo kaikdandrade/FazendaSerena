@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 5;
+  static SAVE_VERSION = 6;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static SEASON_DURATION = 180;
   static BASE_STORAGE_CAPACITY = 200;
@@ -57,7 +57,8 @@ class GameEngine {
       researchTechs: Object.fromEntries(this.data.research.map(item => [item.id, 0])),
       prestigeUpgrades,
       permanentBonuses: { prestigeDouble: Boolean(permanent.permanentBonuses?.prestigeDouble) },
-      contracts: [],
+      contractOffers: [],
+      activeContracts: [],
       contractSerial: 1,
       missionsClaimed: { ...(permanent.missionsClaimed || {}) },
       stats: {
@@ -93,7 +94,7 @@ class GameEngine {
 
     const state = this.normalizeState(loaded || this.createState());
     this.state = state;
-    if (!state.contracts.length && this.getOwnedCrops().length) state.contracts = this.createContracts(3);
+    this.ensureContractOffers();
 
     const now = Date.now();
     const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(state.lastUpdate || now)) / 1000));
@@ -173,7 +174,12 @@ class GameEngine {
       merged.orders.onion = { tier: 0, delivered: 0 };
     }
 
-    merged.contracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
+    const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
+    const rawOffers = Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts;
+    const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
+    merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, 3);
+    merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, 2);
+    Reflect.deleteProperty(merged, "contracts");
     merged.version = GameEngine.SAVE_VERSION;
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.research = Math.max(0, Number(merged.research) || 0);
@@ -218,7 +224,7 @@ class GameEngine {
   importSave(text) {
     const parsed = JSON.parse(String(text || "").trim());
     this.state = this.normalizeState(parsed);
-    if (!this.state.contracts.length && this.getOwnedCrops().length) this.state.contracts = this.createContracts(3);
+    this.ensureContractOffers();
     this.save();
     return this.state;
   }
@@ -226,7 +232,8 @@ class GameEngine {
   hardReset() {
     localStorage.removeItem(GameEngine.STORAGE_KEY);
     this.state = this.createState();
-    this.state.contracts = [];
+    this.state.contractOffers = [];
+    this.state.activeContracts = [];
     this.save();
   }
 
@@ -246,7 +253,7 @@ class GameEngine {
       const untilSeason = GameEngine.SEASON_DURATION - this.state.seasonElapsed;
       const step = Math.min(remaining, untilSeason, offline ? 60 : remaining);
       this.produce(step, offline);
-      this.updateContracts(step);
+      this.ensureContractOffers();
       this.state.seasonElapsed += step;
       remaining -= step;
 
@@ -451,7 +458,7 @@ class GameEngine {
     if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
     this.state.coins -= cost;
     Object.assign(cropState, { owned: true, level: 1, progress: 0 });
-    if (!this.state.contracts.length) this.state.contracts = this.createContracts(3);
+    this.ensureContractOffers();
     this.emit("toast", { message: `${crop.name} agora faz parte da fazenda e recebeu seu primeiro pedido.` });
     return { ok: true };
   }
@@ -571,64 +578,167 @@ class GameEngine {
     return { ok: true };
   }
 
-  createContracts(count = 3) {
+  normalizeContract(contract, active = false) {
+    if (!contract || !this.getCrop(contract.cropId)) return null;
+    const company = this.data.companies.find(item => item.id === contract.companyId)
+      || this.data.companies[Math.abs(Number(contract.companyIndex || 0)) % this.data.companies.length]
+      || this.data.companies[0];
+    const amount = Math.max(1, Math.floor(Number(contract.amount) || 1));
+    const delivered = active ? Math.max(0, Math.min(amount, Math.floor(Number(contract.delivered) || 0))) : 0;
+    return {
+      id: String(contract.id || `contract-${Date.now()}-${this.state?.contractSerial || 1}`),
+      companyId: company.id,
+      cropId: contract.cropId,
+      amount,
+      delivered,
+      rewardCoins: Math.max(1, Math.floor(Number(contract.rewardCoins) || amount * (this.getCrop(contract.cropId)?.basePrice || 1))),
+      rewardResearch: Math.max(0, Math.floor(Number(contract.rewardResearch) || 0)),
+      createdAt: Number(contract.createdAt || Date.now()),
+      acceptedAt: active ? Number(contract.acceptedAt || Date.now()) : 0
+    };
+  }
+
+  createContractOffers(count = 1) {
     const owned = this.getOwnedCrops();
     if (!owned.length) return [];
     const result = [];
+    const usedCompanies = new Set([
+      ...(this.state.contractOffers || []).map(contract => contract.companyId),
+      ...(this.state.activeContracts || []).map(contract => contract.companyId)
+    ]);
     for (let i = 0; i < count; i += 1) {
       const crop = owned[Math.floor(Math.random() * owned.length)];
-      const cap = this.getStorageCap();
-      const amount = Math.max(8, Math.round(Math.min(cap * 0.32, 12 + this.state.farmLevel * 2.4 + Math.random() * 35)));
-      const multiplier = Number((1.35 + Math.random() * 0.65 + Number(this.state.researchTechs.contractAI || 0) * 0.08).toFixed(2));
-      const rewardCoins = Math.floor(amount * this.getSalePrice(crop.id) * multiplier);
-      const researchBase = Math.random() < 0.48 ? 1 + Math.floor(this.state.farmLevel / 9) : 0;
+      const cropLevel = Math.max(1, Number(this.state.crops[crop.id]?.level || 1));
+      const availableCompanies = this.data.companies.filter(company => !usedCompanies.has(company.id));
+      const pool = availableCompanies.length ? availableCompanies : this.data.companies;
+      const company = pool[Math.floor(Math.random() * pool.length)];
+      usedCompanies.add(company.id);
+      const scale = 10 + this.state.farmLevel * 3.2 + cropLevel * 3.8;
+      const variation = 0.78 + Math.random() * 1.05;
+      const roughAmount = Math.max(5, scale * variation);
+      const step = roughAmount < 50 ? 5 : roughAmount < 200 ? 10 : roughAmount < 1000 ? 25 : 100;
+      const amount = Math.max(5, Math.round(roughAmount / step) * step);
+      const researchLevel = Number(this.state.researchTechs.contractAI || 0);
+      const multiplier = 1.45 + Math.random() * 0.6 + researchLevel * 0.08;
+      const rewardCoins = Math.max(1, Math.floor(amount * this.getSalePrice(crop.id) * multiplier));
+      const researchBase = amount >= 60 && Math.random() < 0.58 ? 1 + Math.floor(this.state.farmLevel / 10) : 0;
       const researchBonus = 1 + Number(this.state.prestigeUpgrades.academyLegacy || 0) * 0.1;
       result.push({
         id: `contract-${Date.now()}-${this.state.contractSerial++}-${i}`,
+        companyId: company.id,
         cropId: crop.id,
         amount,
+        delivered: 0,
         rewardCoins,
         rewardResearch: Math.floor(researchBase * researchBonus),
-        timeLeft: 540 + Math.floor(Math.random() * 420)
+        createdAt: Date.now(),
+        acceptedAt: 0
       });
     }
     return result;
   }
 
-  updateContracts(seconds) {
-    let changed = false;
-    for (const contract of this.state.contracts) contract.timeLeft -= seconds;
-    const alive = this.state.contracts.filter(contract => contract.timeLeft > 0);
-    if (alive.length !== this.state.contracts.length) changed = true;
-    if (alive.length < 3) alive.push(...this.createContracts(3 - alive.length));
-    this.state.contracts = alive.slice(0, 3);
-    return changed;
+  ensureContractOffers() {
+    if (!Array.isArray(this.state.contractOffers)) this.state.contractOffers = [];
+    if (!Array.isArray(this.state.activeContracts)) this.state.activeContracts = [];
+    this.state.contractOffers = this.state.contractOffers
+      .map(contract => this.normalizeContract(contract, false))
+      .filter(Boolean)
+      .slice(0, 3);
+    this.state.activeContracts = this.state.activeContracts
+      .map(contract => this.normalizeContract(contract, true))
+      .filter(Boolean)
+      .slice(0, 2);
+    if (!this.getOwnedCrops().length) {
+      this.state.contractOffers = [];
+      return;
+    }
+    if (this.state.contractOffers.length < 3) {
+      this.state.contractOffers.push(...this.createContractOffers(3 - this.state.contractOffers.length));
+    }
   }
 
-  completeContract(id) {
-    const index = this.state.contracts.findIndex(contract => contract.id === id);
-    if (index < 0) return { ok: false, message: "Contrato não encontrado." };
-    const contract = this.state.contracts[index];
-    const cropState = this.state.crops[contract.cropId];
-    if (cropState.stock < contract.amount) return { ok: false, message: `Ainda faltam ${contract.amount - cropState.stock} unidades.` };
-    cropState.stock -= contract.amount;
-    this.state.stats.contractsCompleted += 1;
-    this.state.stats.lifetimeContractsCompleted += 1;
-    this.state.stats.contractUnitsDelivered += contract.amount;
-    this.addCoins(contract.rewardCoins);
-    this.state.research += contract.rewardResearch;
-    this.addFarmXP(contract.amount * 0.22 + 10);
-    this.state.contracts.splice(index, 1, ...this.createContracts(1));
+  getCompany(companyId) {
+    return this.data.companies.find(item => item.id === companyId) || this.data.companies[0];
+  }
+
+  getContractProgress(contract) {
+    const amount = Math.max(1, Number(contract?.amount) || 1);
+    const delivered = Math.max(0, Math.min(amount, Number(contract?.delivered) || 0));
+    return {
+      delivered,
+      remaining: Math.max(0, amount - delivered),
+      percent: Math.max(0, Math.min(100, (delivered / amount) * 100))
+    };
+  }
+
+  acceptContract(id) {
+    this.ensureContractOffers();
+    if (this.state.activeContracts.length >= 2) return { ok: false, message: "Você já possui dois contratos ativos." };
+    const index = this.state.contractOffers.findIndex(contract => contract.id === id);
+    if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
+    const [offer] = this.state.contractOffers.splice(index, 1);
+    const contract = { ...offer, delivered: 0, acceptedAt: Date.now() };
+    this.state.activeContracts.push(contract);
+    this.ensureContractOffers();
     return { ok: true, contract };
   }
 
+  declineContract(id) {
+    this.ensureContractOffers();
+    const index = this.state.contractOffers.findIndex(contract => contract.id === id);
+    if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
+    const [contract] = this.state.contractOffers.splice(index, 1);
+    this.ensureContractOffers();
+    return { ok: true, contract };
+  }
+
+  deliverContract(id) {
+    const index = this.state.activeContracts.findIndex(contract => contract.id === id);
+    if (index < 0) return { ok: false, message: "Contrato ativo não encontrado." };
+    const contract = this.state.activeContracts[index];
+    const crop = this.getCrop(contract.cropId);
+    const cropState = this.state.crops[contract.cropId];
+    const progress = this.getContractProgress(contract);
+    const delivered = Math.min(cropState.stock, progress.remaining);
+    if (delivered < 1) return { ok: false, message: `Produza ${crop.name.toLowerCase()} para continuar este contrato.` };
+
+    cropState.stock -= delivered;
+    contract.delivered += delivered;
+    this.state.stats.contractUnitsDelivered += delivered;
+    const completed = contract.delivered >= contract.amount;
+
+    if (completed) {
+      this.state.activeContracts.splice(index, 1);
+      this.state.stats.contractsCompleted += 1;
+      this.state.stats.lifetimeContractsCompleted += 1;
+      this.addCoins(contract.rewardCoins);
+      this.state.research += contract.rewardResearch;
+      this.addFarmXP(contract.amount * 0.22 + 10);
+    }
+
+    this.ensureContractOffers();
+    return { ok: true, delivered, completed, contract };
+  }
+
+  getContractRerollCost() {
+    return Math.max(25, Math.floor(15 + this.state.farmLevel * 9));
+  }
+
   rerollContracts() {
-    if (!this.getOwnedCrops().length) return { ok: false, message: "Compre uma cultura antes de buscar contratos." };
-    const cost = Math.max(35, Math.floor(20 + this.state.farmLevel * 12));
-    if (this.state.coins < cost) return { ok: false, message: `A renovação custa ${this.formatMoney(cost)}.` };
+    if (!this.getOwnedCrops().length) return { ok: false, message: "Compre uma cultura antes de buscar propostas." };
+    const cost = this.getContractRerollCost();
+    if (this.state.coins < cost) return { ok: false, message: `Renovar todas as propostas custa ${this.formatMoney(cost)}.` };
     this.state.coins -= cost;
-    this.state.contracts = this.createContracts(3);
+    this.state.contractOffers = this.createContractOffers(3);
     return { ok: true, cost };
+  }
+
+  getReadyContractCount() {
+    return this.state.activeContracts.filter(contract => {
+      const progress = this.getContractProgress(contract);
+      return progress.remaining > 0 && Number(this.state.crops[contract.cropId]?.stock || 0) > 0;
+    }).length;
   }
 
   getOrder(cropId) {
@@ -742,7 +852,8 @@ class GameEngine {
       settings: { ...this.state.settings }
     };
     this.state = this.createState(permanent);
-    this.state.contracts = [];
+    this.state.contractOffers = [];
+    this.state.activeContracts = [];
     this.save();
     return { ok: true, gain };
   }
@@ -760,6 +871,8 @@ class GameEngine {
       sold: this.state.stats.totalSold,
       harvested: this.state.stats.totalHarvested,
       contracts: this.state.stats.contractsCompleted,
+      activeContracts: this.state.activeContracts.length,
+      contractOffers: this.state.contractOffers.length,
       orders: this.state.stats.ordersCompleted,
       maxCropLevel: Math.max(0, ...cropStates.map(item => item.level || 0)),
       storageCapacity: this.getStorageCap(),

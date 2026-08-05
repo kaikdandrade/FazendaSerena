@@ -125,6 +125,18 @@ window.GameData = (() => {
     { id: "storageLegacy", name: "Celeiro ancestral", icon: "🪵", desc: "+75 espaços permanentes no estoque compartilhado.", max: 15, baseCost: 2, growth: 1.66 }
   ];
 
+
+  const companies = [
+    { id: "aurora", name: "Alimentos Aurora", icon: "🌤️", specialty: "Cestas frescas" },
+    { id: "verdevale", name: "Mercado Verde Vale", icon: "🏪", specialty: "Rede de mercados" },
+    { id: "campodourado", name: "Campo Dourado", icon: "🌾", specialty: "Distribuição regional" },
+    { id: "boamesa", name: "Boa Mesa Refeições", icon: "🍲", specialty: "Cozinhas industriais" },
+    { id: "raizes", name: "Raízes & Companhia", icon: "🧺", specialty: "Produtos naturais" },
+    { id: "estacao", name: "Estação Sabor", icon: "🚚", specialty: "Logística de alimentos" },
+    { id: "colheita", name: "Colheita Serena", icon: "🍃", specialty: "Empório sustentável" },
+    { id: "horizonte", name: "Horizonte Orgânicos", icon: "🌅", specialty: "Assinaturas semanais" }
+  ];
+
   const orderSteps = [
     { amount: 5, rewardMultiplier: 1.25, research: 0 },
     { amount: 20, rewardMultiplier: 1.30, research: 0 },
@@ -143,13 +155,13 @@ window.GameData = (() => {
   const missions = [
     { id: "sellRoots100", title: "Raízes na feira", desc: "Venda 100 raízes e tubérculos diretamente no mercado.", metric: "categorySold", category: "root", target: 100, reward: { coins: 700 } },
     { id: "orders3", title: "Caderno de encomendas", desc: "Conclua 3 pedidos estáticos de qualquer cultura.", metric: "orders", target: 3, reward: { research: 3 } },
-    { id: "contracts3", title: "Primeiros acordos", desc: "Cumpra 3 contratos temporários da cooperativa.", metric: "contracts", target: 3, reward: { coins: 1400, research: 2 } },
+    { id: "contracts3", title: "Primeiros acordos", desc: "Conclua 3 contratos aceitos de empresas parceiras.", metric: "contracts", target: 3, reward: { coins: 1400, research: 2 } },
     { id: "own5", title: "Horta variada", desc: "Compre 5 culturas diferentes.", metric: "owned", target: 5, reward: { research: 4 } },
     { id: "cropLevels20", title: "Canteiros experientes", desc: "Some 20 níveis de aprimoramento entre as plantações.", metric: "cropLevels", target: 20, reward: { coins: 3500 } },
     { id: "sellFruit500", title: "Banca colorida", desc: "Venda 500 frutos diretamente no mercado.", metric: "categorySold", category: "fruit", target: 500, reward: { research: 7 } },
     { id: "orders15", title: "Clientes recorrentes", desc: "Conclua 15 pedidos estáticos.", metric: "orders", target: 15, reward: { coins: 8500, research: 8 } },
     { id: "stock1000", title: "Celeiro movimentado", desc: "Mantenha 1.000 produtos ao mesmo tempo no estoque compartilhado.", metric: "stock", target: 1000, reward: { research: 10 } },
-    { id: "contracts25", title: "Cooperativa confiável", desc: "Cumpra 25 contratos temporários.", metric: "contracts", target: 25, reward: { coins: 18000, research: 12 } },
+    { id: "contracts25", title: "Parceiro confiável", desc: "Conclua 25 contratos aceitos de empresas parceiras.", metric: "contracts", target: 25, reward: { coins: 18000, research: 12 } },
     { id: "sellGrain1500", title: "Safra de grãos", desc: "Venda 1.500 grãos diretamente no mercado.", metric: "categorySold", category: "grain", target: 1500, reward: { prestige: 1, research: 12 } },
     { id: "farm20", title: "Fazenda consolidada", desc: "Alcance o nível 20 da fazenda.", metric: "farmLevel", target: 20, reward: { coins: 30000, research: 15 } },
     { id: "orders50", title: "Livro-caixa completo", desc: "Conclua 50 pedidos estáticos ao longo das jornadas.", metric: "orders", target: 50, reward: { prestige: 3, research: 20 } },
@@ -158,5 +170,5 @@ window.GameData = (() => {
     { id: "market10000", title: "Referência regional", desc: "Venda 10.000 produtos diretamente no mercado ao longo das jornadas.", metric: "sold", target: 10000, reward: { prestige: 5, research: 30 } }
   ];
 
-  return { categories, seasons, crops, upgrades, research, prestigeUpgrades, orderSteps, missions };
+  return { categories, seasons, crops, upgrades, research, prestigeUpgrades, companies, orderSteps, missions };
 })();
