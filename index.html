@@ -58,15 +58,17 @@
       </section>
     </header>
 
-    <nav class="main-nav" aria-label="Áreas do jogo">
-      <button class="nav-tab active" type="button" data-view="farmView"><span>🌱</span> Fazenda</button>
-      <button class="nav-tab" type="button" data-view="stockView"><span>🧺</span> Estoque <b id="stockNavBadge">0</b></button>
-      <button class="nav-tab" type="button" data-view="evolveView"><span>🛠️</span> Evoluções</button>
-      <button class="nav-tab" type="button" data-view="officeView"><span>📋</span> Escritório <b id="officeNavBadge">0</b></button>
-      <button class="nav-tab" type="button" data-view="settingsView"><span>⚙️</span> Configurações</button>
-    </nav>
+    <div class="workspace-shell">
+      <nav class="main-nav" aria-label="Áreas do jogo">
+        <span class="nav-rail-title">Navegação</span>
+        <button class="nav-tab active" type="button" data-view="farmView"><span class="nav-tab-icon">🌱</span><span class="nav-tab-label">Fazenda</span></button>
+        <button class="nav-tab stock-nav-tab" id="stockNavTab" type="button" data-view="stockView" style="--stock-progress:0%"><span class="nav-tab-icon">🧺</span><span class="nav-tab-label">Estoque</span><b class="nav-alert" id="stockNavBadge" hidden aria-hidden="true">!</b></button>
+        <button class="nav-tab" type="button" data-view="evolveView"><span class="nav-tab-icon">🛠️</span><span class="nav-tab-label">Evoluções</span></button>
+        <button class="nav-tab office-nav-tab" id="officeNavTab" type="button" data-view="officeView"><span class="nav-tab-icon">📋</span><span class="nav-tab-label">Escritório</span><b class="nav-alert" id="officeNavBadge" hidden aria-hidden="true">!</b></button>
+        <button class="nav-tab settings-nav-tab" type="button" data-view="settingsView"><span class="nav-tab-icon"><img src="img/icons/settings.png" alt=""></span><span class="nav-tab-label">Configurações</span></button>
+      </nav>
 
-    <main>
+      <main>
       <section class="view active" id="farmView" data-view-panel="farmView">
         <div class="farm-hero panel-card">
           <div class="hero-copy">
@@ -111,107 +113,121 @@
       </section>
 
       <section class="view" id="evolveView" data-view-panel="evolveView">
-        <div class="section-heading evolution-heading">
-          <div>
-            <p class="eyebrow">melhorias para toda a fazenda</p>
-            <h1>Centro de evoluções</h1>
-            <p class="section-copy">Moedas, pesquisa e prestígio em áreas separadas.</p>
+        <div class="view-with-context">
+          <div class="view-primary">
+            <div class="section-heading evolution-heading">
+              <div>
+                <p class="eyebrow">melhorias para toda a fazenda</p>
+                <h1>Centro de evoluções</h1>
+                <p class="section-copy">Moedas, pesquisa e prestígio em áreas separadas.</p>
+              </div>
+            </div>
+
+            <div class="evolution-workspace panel-card">
+              <section class="evolution-panel active" data-evolution-panel="upgrades" role="tabpanel">
+                <div class="section-heading compact-heading evolution-panel-heading">
+                  <div><p class="eyebrow">investimento cotidiano</p><h2>Infraestrutura da fazenda</h2><p class="section-copy">Use moedas para melhorar produção, armazenamento e vendas durante esta jornada.</p></div>
+                </div>
+                <div class="upgrade-grid" id="upgradeList"></div>
+              </section>
+
+              <section class="evolution-panel" data-evolution-panel="research" role="tabpanel" hidden>
+                <div class="section-heading compact-heading evolution-panel-heading">
+                  <div><p class="eyebrow">conhecimento aplicado</p><h2>Centro de pesquisa</h2><p class="section-copy">Pontos de pesquisa chegam principalmente por contratos, pedidos avançados e missões.</p></div>
+                </div>
+                <div class="upgrade-grid" id="researchList"></div>
+              </section>
+
+              <section class="evolution-panel" data-evolution-panel="prestige" role="tabpanel" hidden>
+                <div class="prestige-hero" id="prestigeDashboard"></div>
+                <div class="section-heading compact-heading evolution-panel-heading prestige-panel-heading">
+                  <div><p class="eyebrow">benefícios entre jornadas</p><h2>Legados permanentes</h2><p class="section-copy">Invista pontos de prestígio em melhorias que permanecem após cada recomeço.</p></div>
+                </div>
+                <div class="upgrade-grid prestige-grid" id="prestigeList"></div>
+              </section>
+            </div>
           </div>
-        </div>
 
-        <div class="evolution-workspace panel-card">
-          <nav class="evolution-tabs" aria-label="Tipos de evolução" role="tablist">
-            <button class="evolution-tab active" type="button" data-evolution-tab="upgrades" role="tab" aria-selected="true"><span>🛠️ Evoluções</span><small>Moedas</small></button>
-            <button class="evolution-tab" type="button" data-evolution-tab="research" role="tab" aria-selected="false"><span>🧪 Pesquisa</span><small>Pontos de pesquisa</small></button>
-            <button class="evolution-tab" type="button" data-evolution-tab="prestige" role="tab" aria-selected="false"><span>✨ Prestígio</span><small>Legados permanentes</small></button>
-          </nav>
-
-          <section class="evolution-panel active" data-evolution-panel="upgrades" role="tabpanel">
-            <div class="section-heading compact-heading evolution-panel-heading">
-              <div><p class="eyebrow">investimento cotidiano</p><h2>Infraestrutura da fazenda</h2><p class="section-copy">Use moedas para melhorar produção, armazenamento e vendas durante esta jornada.</p></div>
-            </div>
-            <div class="upgrade-grid" id="upgradeList"></div>
-          </section>
-
-          <section class="evolution-panel" data-evolution-panel="research" role="tabpanel" hidden>
-            <div class="section-heading compact-heading evolution-panel-heading">
-              <div><p class="eyebrow">conhecimento aplicado</p><h2>Centro de pesquisa</h2><p class="section-copy">Pontos de pesquisa chegam principalmente por contratos, pedidos avançados e missões.</p></div>
-            </div>
-            <div class="upgrade-grid" id="researchList"></div>
-          </section>
-
-          <section class="evolution-panel" data-evolution-panel="prestige" role="tabpanel" hidden>
-            <div class="prestige-hero" id="prestigeDashboard"></div>
-            <div class="section-heading compact-heading evolution-panel-heading prestige-panel-heading">
-              <div><p class="eyebrow">benefícios entre jornadas</p><h2>Legados permanentes</h2><p class="section-copy">Invista pontos de prestígio em melhorias que permanecem após cada recomeço.</p></div>
-            </div>
-            <div class="upgrade-grid prestige-grid" id="prestigeList"></div>
-          </section>
+          <aside class="context-nav-column" aria-label="Navegação do Centro de evoluções">
+            <span class="context-nav-title">Evoluções</span>
+            <nav class="evolution-tabs context-tabs" aria-label="Tipos de evolução" role="tablist">
+              <button class="evolution-tab active" type="button" data-evolution-tab="upgrades" role="tab" aria-selected="true"><span><i>🛠️</i> Evoluções</span><small>Moedas</small></button>
+              <button class="evolution-tab" type="button" data-evolution-tab="research" role="tab" aria-selected="false"><span><i>🧪</i> Pesquisa</span><small>Pontos de pesquisa</small></button>
+              <button class="evolution-tab" type="button" data-evolution-tab="prestige" role="tab" aria-selected="false"><span><i>✨</i> Prestígio</span><small>Legados permanentes</small></button>
+            </nav>
+          </aside>
         </div>
       </section>
 
       <section class="view" id="officeView" data-view-panel="officeView">
-        <div class="section-heading office-heading">
-          <div>
-            <p class="eyebrow">organização e metas</p>
-            <h1>Escritório da fazenda</h1>
-            <p class="section-copy">Acompanhe compromissos, pedidos permanentes e objetivos da fazenda.</p>
+        <div class="view-with-context">
+          <div class="view-primary">
+            <div class="section-heading office-heading">
+              <div>
+                <p class="eyebrow">organização e metas</p>
+                <h1>Escritório da fazenda</h1>
+                <p class="section-copy">Acompanhe compromissos, pedidos permanentes e objetivos da fazenda.</p>
+              </div>
+            </div>
+
+            <div class="office-summary" id="officeSummary"></div>
+
+            <div class="office-workspace panel-card">
+              <section class="office-panel active" data-office-panel="contracts" role="tabpanel">
+                <div class="section-heading compact-heading office-panel-heading">
+                  <div>
+                    <p class="eyebrow">negociações empresariais</p>
+                    <h2>Central de contratos</h2>
+                    <p class="section-copy">Empresas enviam propostas com culturas, quantidades e pagamentos diferentes. Aceite somente o que fizer sentido para sua produção.</p>
+                  </div>
+                  <button class="button secondary" id="rerollContracts" type="button">Renovar propostas</button>
+                </div>
+
+                <div class="contract-capacity" id="contractCapacity"></div>
+
+                <div class="contract-section-head">
+                  <div><span class="contract-section-icon">📌</span><div><h3>Contratos ativos</h3><p>A produção correspondente é direcionada automaticamente. No máximo dois contratos podem ficar ativos ao mesmo tempo.</p></div></div>
+                </div>
+                <div class="active-contract-grid" id="activeContractList"></div>
+
+                <div class="contract-section-head proposals-heading">
+                  <div><span class="contract-section-icon">✉️</span><div><h3>Propostas recebidas</h3><p>Aceite ou recuse livremente. Propostas recusadas são substituídas por novas empresas.</p></div></div>
+                </div>
+                <div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
+              </section>
+
+              <section class="office-panel" data-office-panel="orders" role="tabpanel" hidden>
+                <div class="section-heading compact-heading office-panel-heading">
+                  <div>
+                    <p class="eyebrow">encomendas permanentes</p>
+                    <h2>Pedidos das culturas</h2>
+                    <p class="section-copy">Cada cultura comprada recebe uma sequência fixa de pedidos. Entregas podem ser parciais e o progresso nunca expira.</p>
+                  </div>
+                </div>
+                <div class="order-grid" id="orderList"></div>
+              </section>
+
+              <section class="office-panel" data-office-panel="missions" role="tabpanel" hidden>
+                <div class="section-heading compact-heading office-panel-heading">
+                  <div>
+                    <p class="eyebrow">conquistas sem prazo</p>
+                    <h2>Missões da fazenda</h2>
+                    <p class="section-copy">Objetivos de mercado, contratos, pedidos, crescimento e prestígio. Missões concluídas permanecem registradas entre jornadas.</p>
+                  </div>
+                </div>
+                <div class="mission-grid" id="missionList"></div>
+              </section>
+            </div>
           </div>
-        </div>
 
-        <div class="office-summary" id="officeSummary"></div>
-
-        <div class="office-workspace panel-card">
-          <nav class="office-tabs" aria-label="Seções do escritório" role="tablist">
-            <button class="office-tab active" type="button" data-office-tab="contracts" role="tab" aria-selected="true"><span>📑 Contratos</span><b id="contractTabCount">0</b></button>
-            <button class="office-tab" type="button" data-office-tab="orders" role="tab" aria-selected="false"><span>🧾 Pedidos</span><b id="orderTabCount">0</b></button>
-            <button class="office-tab" type="button" data-office-tab="missions" role="tab" aria-selected="false"><span>🏅 Missões</span><b id="missionTabCount">0</b></button>
-          </nav>
-
-          <section class="office-panel active" data-office-panel="contracts" role="tabpanel">
-            <div class="section-heading compact-heading office-panel-heading">
-              <div>
-                <p class="eyebrow">negociações empresariais</p>
-                <h2>Central de contratos</h2>
-                <p class="section-copy">Empresas enviam propostas com culturas, quantidades e pagamentos diferentes. Aceite somente o que fizer sentido para sua produção.</p>
-              </div>
-              <button class="button secondary" id="rerollContracts" type="button">Renovar propostas</button>
-            </div>
-
-            <div class="contract-capacity" id="contractCapacity"></div>
-
-            <div class="contract-section-head">
-              <div><span class="contract-section-icon">📌</span><div><h3>Contratos ativos</h3><p>A produção correspondente é direcionada automaticamente. No máximo dois contratos podem ficar ativos ao mesmo tempo.</p></div></div>
-            </div>
-            <div class="active-contract-grid" id="activeContractList"></div>
-
-            <div class="contract-section-head proposals-heading">
-              <div><span class="contract-section-icon">✉️</span><div><h3>Propostas recebidas</h3><p>Aceite ou recuse livremente. Propostas recusadas são substituídas por novas empresas.</p></div></div>
-            </div>
-            <div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
-          </section>
-
-          <section class="office-panel" data-office-panel="orders" role="tabpanel" hidden>
-            <div class="section-heading compact-heading office-panel-heading">
-              <div>
-                <p class="eyebrow">encomendas permanentes</p>
-                <h2>Pedidos das culturas</h2>
-                <p class="section-copy">Cada cultura comprada recebe uma sequência fixa de pedidos. Entregas podem ser parciais e o progresso nunca expira.</p>
-              </div>
-            </div>
-            <div class="order-grid" id="orderList"></div>
-          </section>
-
-          <section class="office-panel" data-office-panel="missions" role="tabpanel" hidden>
-            <div class="section-heading compact-heading office-panel-heading">
-              <div>
-                <p class="eyebrow">conquistas sem prazo</p>
-                <h2>Missões da fazenda</h2>
-                <p class="section-copy">Objetivos de mercado, contratos, pedidos, crescimento e prestígio. Missões concluídas permanecem registradas entre jornadas.</p>
-              </div>
-            </div>
-            <div class="mission-grid" id="missionList"></div>
-          </section>
+          <aside class="context-nav-column" aria-label="Navegação do escritório">
+            <span class="context-nav-title">Escritório</span>
+            <nav class="office-tabs context-tabs" aria-label="Seções do escritório" role="tablist">
+              <button class="office-tab active" type="button" data-office-tab="contracts" role="tab" aria-selected="true"><span><i>📑</i> Contratos</span><b id="contractTabCount">0</b></button>
+              <button class="office-tab" type="button" data-office-tab="orders" role="tab" aria-selected="false"><span><i>🧾</i> Pedidos</span><b id="orderTabCount">0</b></button>
+              <button class="office-tab" type="button" data-office-tab="missions" role="tab" aria-selected="false"><span><i>🏅</i> Missões</span><b id="missionTabCount">0</b></button>
+            </nav>
+          </aside>
         </div>
       </section>
 
@@ -271,7 +287,8 @@
           </article>
         </div>
       </section>
-    </main>
+      </main>
+    </div>
 
     <footer class="app-footer">
       <span>Agricultura Industrial</span>

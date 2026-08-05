@@ -52,7 +52,9 @@
     farmLevelLabel: $("#farmLevelLabel"),
     farmXPBar: $("#farmXPBar"),
     farmXPText: $("#farmXPText"),
+    stockNavTab: $("#stockNavTab"),
     stockNavBadge: $("#stockNavBadge"),
+    officeNavTab: $("#officeNavTab"),
     officeNavBadge: $("#officeNavBadge"),
     ambientSetting: $("#ambientSetting"),
     reducedMotionSetting: $("#reducedMotionSetting"),
@@ -160,7 +162,12 @@
   function showView(viewId, updateHash = true) {
     activeView = dom.views.some(view => view.id === viewId) ? viewId : "farmView";
     dom.views.forEach(view => view.classList.toggle("active", view.id === activeView));
-    dom.tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.view === activeView));
+    dom.tabs.forEach(tab => {
+      const active = tab.dataset.view === activeView;
+      tab.classList.toggle("active", active);
+      if (active) tab.setAttribute("aria-current", "page");
+      else tab.removeAttribute("aria-current");
+    });
     if (updateHash) history.replaceState(null, "", `#${activeView}`);
     render(true);
     window.scrollTo({ top: 0, behavior: engine.state.settings.reducedMotion ? "auto" : "smooth" });
@@ -180,6 +187,37 @@
     dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
   }
 
+  function updateStockNavigation(metrics = engine.getMetrics()) {
+    const used = Math.max(0, Number(metrics.stock) || 0);
+    const capacity = Math.max(1, Number(metrics.storageCapacity) || 1);
+    const usage = percent((used / capacity) * 100);
+    const full = used >= capacity;
+    dom.stockNavTab.style.setProperty("--stock-progress", `${usage}%`);
+    dom.stockNavTab.classList.toggle("stock-full", full);
+    dom.stockNavBadge.hidden = !full;
+    dom.stockNavTab.setAttribute("aria-label", full
+      ? `Estoque cheio: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados.`
+      : `Estoque: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados, ${Math.floor(usage)} por cento.`);
+    dom.stockNavTab.title = full
+      ? "Estoque cheio — venda produtos ou amplie o celeiro"
+      : `Estoque ${Math.floor(usage)}% ocupado`;
+  }
+
+  function updateOfficeNavigation(activeContracts, readyOrders, readyMissions) {
+    const hasProposalsToReview = engine.state.contractOffers.length > 0 && activeContracts < 2;
+    const needsAttention = activeContracts > 0 || hasProposalsToReview || readyOrders > 0 || readyMissions > 0;
+    dom.officeNavTab.classList.toggle("has-attention", needsAttention);
+    dom.officeNavBadge.hidden = !needsAttention;
+
+    const reasons = [];
+    if (activeContracts > 0) reasons.push(`${activeContracts} contrato${activeContracts === 1 ? " ativo" : "s ativos"}`);
+    if (hasProposalsToReview) reasons.push("propostas disponíveis");
+    if (readyOrders > 0) reasons.push(`${readyOrders} pedido${readyOrders === 1 ? " pronto" : "s prontos"}`);
+    if (readyMissions > 0) reasons.push(`${readyMissions} missão${readyMissions === 1 ? " pronta" : "ões prontas"}`);
+    dom.officeNavTab.setAttribute("aria-label", needsAttention ? `Escritório: ${reasons.join(", ")}.` : "Escritório: nenhuma ação pendente.");
+    dom.officeNavTab.title = needsAttention ? `Há ações no escritório: ${reasons.join(", ")}` : "Nenhuma ação pendente no escritório";
+  }
+
   function renderHeader() {
     const state = engine.state;
     const farmNeed = engine.getFarmXPNeed();
@@ -191,11 +229,11 @@
     dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
 
     const metrics = engine.getMetrics();
-    dom.stockNavBadge.textContent = engine.formatNumber(metrics.stock);
+    updateStockNavigation(metrics);
     const activeContracts = state.activeContracts.length;
     const readyOrders = engine.getReadyOrderCount();
     const readyMissions = engine.data.missions.filter(mission => !state.missionsClaimed[mission.id] && engine.missionValue(mission.metric, mission) >= mission.target).length;
-    dom.officeNavBadge.textContent = String(activeContracts + readyOrders + readyMissions);
+    updateOfficeNavigation(activeContracts, readyOrders, readyMissions);
     dom.contractTabCount.textContent = String(activeContracts);
     dom.orderTabCount.textContent = String(readyOrders);
     dom.missionTabCount.textContent = String(readyMissions);
@@ -265,7 +303,10 @@
     dom.farmLevelLabel.textContent = state.farmLevel;
     dom.farmXPBar.style.width = `${percent((state.farmXP / farmNeed) * 100)}%`;
     dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
-    dom.stockNavBadge.textContent = engine.formatNumber(engine.getStorageUsed());
+    updateStockNavigation({
+      stock: engine.getStorageUsed(),
+      storageCapacity: engine.getStorageCap()
+    });
   }
 
   function updateLiveFarmUI(now = performance.now()) {
