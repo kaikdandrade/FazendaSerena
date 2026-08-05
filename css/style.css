@@ -5641,3 +5641,361 @@ body.compact-cards #farmView .upgrade-mode-option {
 .normalized-upgrade-card .button:disabled {
   cursor: not-allowed !important;
 }
+
+
+/* ========================================================================== */
+/* REVISÃO 13 — counters persistentes, retorno ao topo e navegação responsiva */
+/* ========================================================================== */
+
+/* O cabeçalho permanece visível durante toda a rolagem e se compacta para
+   priorizar os counters quando o jogador está longe do topo. */
+.app-header {
+  position: sticky !important;
+  top: 7px !important;
+  z-index: 70 !important;
+  isolation: isolate;
+  transition: padding .2s ease, gap .2s ease, border-radius .2s ease, box-shadow .2s ease;
+}
+body.page-scrolled .app-header {
+  padding-block: 7px !important;
+  box-shadow: 0 14px 34px rgba(42, 67, 49, .16) !important;
+}
+body.page-scrolled .brand-logo { width: 38px !important; height: 38px !important; }
+body.page-scrolled .farm-progress { padding-block: 6px !important; }
+body.page-scrolled .resource-pill { min-height: 40px !important; }
+
+.back-to-top {
+  position: fixed;
+  right: max(16px, calc((100vw - 1660px) / 2 + 16px));
+  bottom: 18px;
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 74px;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 999px;
+  color: #fff;
+  font-size: .69rem;
+  font-weight: 900;
+  cursor: pointer;
+  background: linear-gradient(135deg,#75ad66,#4d8149);
+  box-shadow: 0 12px 28px rgba(52,89,50,.25);
+  backdrop-filter: blur(12px);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.back-to-top[hidden] { display: none !important; }
+.back-to-top:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(52,89,50,.3); }
+.back-to-top > span { font-size: 1rem; line-height: 1; }
+
+/* Marcador de categoria com a bolinha neutra de uma lista comum. */
+#farmView .crop-category-list::before {
+  content: "•" !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  color: currentColor !important;
+  font-size: .85em;
+  line-height: 1;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* Cards bloqueados informam somente o nível da plantação e o requisito no botão. */
+#farmView .locked-level-strip { justify-content: flex-start !important; }
+#farmView .crop-card.locked .crop-meta-row { margin-top: 2px !important; }
+#farmView .crop-card.locked .locked-cycle { display: none !important; }
+
+/* Seletor robusto, quantidade do aprimoramento à extrema direita e custo no CTA. */
+#farmView .crop-upgrade-redesign,
+body.compact-cards #farmView .crop-upgrade-redesign {
+  grid-template-columns: minmax(108px, 1fr) auto !important;
+  align-items: center !important;
+}
+#farmView .upgrade-mode-selector {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+#farmView .upgrade-mode-option,
+body.compact-cards #farmView .upgrade-mode-option {
+  min-width: 0 !important;
+  max-width: 100%;
+  padding-inline: clamp(4px, .65vw, 8px) !important;
+  overflow: hidden;
+  font-size: clamp(.66rem, 1vw, .76rem) !important;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+#farmView .crop-upgrade-summary {
+  justify-content: flex-end !important;
+  min-width: 44px !important;
+  min-height: 31px !important;
+  padding: 0 !important;
+}
+#farmView .crop-upgrade-summary > strong {
+  display: inline-grid !important;
+  place-items: center;
+  width: auto !important;
+  min-width: 42px;
+  min-height: 29px;
+  padding: 0 9px;
+  border: 1px solid rgba(79,122,72,.14);
+  border-radius: 999px;
+  color: var(--green-deep);
+  font-size: .72rem !important;
+  font-weight: 950;
+  white-space: nowrap;
+  background: rgba(255,255,251,.78);
+}
+#farmView .crop-upgrade-cta {
+  grid-column: 1 / -1 !important;
+  gap: 6px;
+}
+#farmView .crop-upgrade-cta .resource-amount { color: inherit; background: rgba(255,255,255,.18); }
+#farmView .crop-upgrade-cta:disabled .resource-amount { color: inherit; }
+
+/* Todas as abas principais ocupam exatamente o mesmo espaço. O anel do
+   estoque é desenhado por dentro para não alterar seu tamanho visual. */
+.main-nav {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  flex: 0 1 650px !important;
+  width: min(650px, 100%) !important;
+  overflow: visible !important;
+}
+.main-nav .nav-tab {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding-inline: 9px !important;
+}
+.stock-nav-tab { overflow: hidden !important; }
+.stock-nav-tab::before {
+  inset: 2px !important;
+  padding: 2px !important;
+  border-radius: .68rem !important;
+  filter: none !important;
+}
+.stock-nav-tab > * { position: relative; z-index: 2; }
+
+/* Estoque: ação de capacidade com a mesma cor padrão e automação geral. */
+.stock-summary { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.storage-expand-button { justify-content: center; gap: 6px; }
+.storage-expand-button .resource-amount { color: inherit; background: rgba(255,255,255,.18); }
+.stock-auto-summary { gap: 9px; }
+.global-auto-sell-toggle {
+  width: 100%;
+  min-height: 42px;
+  padding: 7px 10px;
+  border: 1px solid rgba(72,112,70,.13);
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgba(244,248,239,.88);
+}
+.global-auto-sell-toggle > span:first-child { min-width: 0; text-align: left; }
+.global-auto-sell-toggle strong,
+.global-auto-sell-toggle small { display: block; }
+.global-auto-sell-toggle small { margin-top: 2px; color: var(--ink-soft); font-size: .58rem; }
+.global-auto-sell-toggle.active { border-color: rgba(75,132,71,.25); background: rgba(221,239,211,.82); }
+.global-auto-sell-toggle.active .auto-sell-switch { background: linear-gradient(135deg,#78ae67,#4f8b4e); }
+.global-auto-sell-toggle.active .auto-sell-switch i { transform: translateX(18px); }
+
+/* Hierarquia responsiva previsível: principais sempre primeiro, secundárias
+   sempre abaixo, sem inversão e sem tamanhos desalinhados. */
+.navigation-stack { align-items: stretch !important; }
+@media (max-width: 1100px) {
+  .app-header {
+    grid-template-columns: minmax(0, .9fr) minmax(210px, .72fr) minmax(0, 1.2fr) !important;
+  }
+  .navigation-stack {
+    position: sticky !important;
+    top: 72px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 7px !important;
+  }
+  .main-nav {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .context-nav-column {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .context-tabs,
+  .office-tabs,
+  .evolution-tabs { width: 100% !important; }
+  .office-tabs { display: grid !important; grid-template-columns: repeat(4,minmax(0,1fr)) !important; }
+  .evolution-tabs { display: grid !important; grid-template-columns: repeat(3,minmax(0,1fr)) !important; }
+  .office-tab,
+  .evolution-tab { width: 100% !important; min-width: 0 !important; }
+  .stock-summary { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .stock-auto-summary { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  .app-header {
+    position: sticky !important;
+    top: 4px !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 6px !important;
+  }
+  body.page-scrolled .app-header {
+    grid-template-columns: minmax(0,1fr) !important;
+    padding: 6px 8px !important;
+  }
+  body.page-scrolled .app-header .brand,
+  body.page-scrolled .app-header .farm-progress { display: none !important; }
+  body.page-scrolled .resource-strip { grid-column: auto !important; }
+  .navigation-stack {
+    position: static !important;
+    top: auto !important;
+  }
+  .main-nav {
+    grid-template-columns: repeat(5,minmax(0,1fr)) !important;
+    gap: 2px !important;
+    padding: 4px !important;
+  }
+  .main-nav .nav-tab {
+    min-height: 52px !important;
+    padding: 5px 2px !important;
+    flex-direction: column;
+    gap: 3px !important;
+    border-radius: 10px !important;
+  }
+  .nav-tab-label {
+    width: 100%;
+    overflow: hidden;
+    font-size: clamp(.5rem, 2.3vw, .63rem) !important;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav-tab-icon { width: 18px !important; height: 18px !important; }
+  .office-tabs { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+  .evolution-tabs { grid-template-columns: repeat(3,minmax(0,1fr)) !important; }
+  .office-tab,
+  .evolution-tab { min-height: 40px !important; padding: 0 5px !important; }
+  .stock-summary { grid-template-columns: 1fr !important; }
+  .stock-auto-summary { grid-column: auto; }
+  #farmView .crop-upgrade-redesign,
+  body.compact-cards #farmView .crop-upgrade-redesign {
+    grid-template-columns: minmax(105px,1fr) auto !important;
+  }
+  .back-to-top { right: 10px; bottom: 10px; min-width: 44px; padding: 0 11px; }
+  .back-to-top strong { display: none; }
+}
+
+@media (max-width: 390px) {
+  .main-nav .nav-tab { min-height: 48px !important; }
+  .nav-tab-label { font-size: .5rem !important; }
+  #farmView .crop-upgrade-redesign,
+  body.compact-cards #farmView .crop-upgrade-redesign {
+    grid-template-columns: minmax(96px,1fr) auto !important;
+    gap: 5px !important;
+  }
+  #farmView .crop-upgrade-summary > strong { min-width: 38px; padding-inline: 7px; }
+}
+
+
+/* Ajustes finais da Revisão 13. */
+.stock-summary { display: grid !important; }
+.global-auto-sell-toggle {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.global-auto-sell-toggle > span:first-child { overflow: visible !important; }
+.global-auto-sell-toggle > .auto-sell-switch { justify-self: end; }
+@media (max-width: 1100px) {
+  .navigation-stack > .main-nav,
+  .navigation-stack > .context-nav-column { grid-row: auto !important; }
+}
+
+/* Os counters usam posicionamento fixo durante a rolagem. Isso evita depender
+   do comportamento de sticky dos diferentes navegadores e mantém somente os
+   recursos essenciais ocupando espaço no topo. */
+body.page-scrolled .resource-strip {
+  position: fixed !important;
+  top: 7px !important;
+  left: 50% !important;
+  z-index: 95 !important;
+  grid-column: auto !important;
+  width: min(560px, calc(100% - 28px)) !important;
+  margin: 0 !important;
+  padding: 6px !important;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 18px;
+  background: rgba(255,255,249,.94);
+  box-shadow: 0 14px 34px rgba(42,67,49,.18);
+  backdrop-filter: blur(18px) saturate(1.1);
+  transform: translateX(-50%);
+}
+body.page-scrolled .resource-strip .resource-pill { min-height: 40px !important; }
+body.page-scrolled .navigation-stack { top: 62px !important; }
+@media (max-width: 760px) {
+  body.page-scrolled .resource-strip {
+    top: 4px !important;
+    width: calc(100% - 12px) !important;
+    padding: 4px !important;
+    border-radius: 14px;
+  }
+  body.page-scrolled .resource-pill { min-height: 38px !important; padding: 5px 7px !important; }
+}
+
+
+/* Counters flutuantes independentes do cabeçalho. */
+.app-header {
+  position: relative !important;
+  top: auto !important;
+}
+.navigation-stack {
+  position: relative !important;
+  top: auto !important;
+}
+body.page-scrolled .app-header .resource-strip {
+  position: static !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  transform: none !important;
+}
+.floating-resource-strip {
+  position: fixed !important;
+  top: 7px !important;
+  left: 50% !important;
+  z-index: 95 !important;
+  display: none !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  width: min(560px, calc(100% - 28px)) !important;
+  margin: 0 !important;
+  padding: 6px !important;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 18px;
+  background: rgba(255,255,249,.94);
+  box-shadow: 0 14px 34px rgba(42,67,49,.18);
+  backdrop-filter: blur(18px) saturate(1.1);
+  transform: translateX(-50%);
+}
+body.page-scrolled .floating-resource-strip { display: grid !important; }
+.floating-resource-strip .resource-pill { min-width: 0; min-height: 40px !important; }
+@media (max-width: 760px) {
+  .floating-resource-strip {
+    top: 4px !important;
+    width: calc(100% - 12px) !important;
+    padding: 4px !important;
+    border-radius: 14px;
+  }
+  .floating-resource-strip .resource-pill { min-height: 38px !important; padding: 5px 7px !important; }
+}

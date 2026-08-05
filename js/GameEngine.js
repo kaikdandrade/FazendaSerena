@@ -856,6 +856,16 @@ class GameEngine {
     return this.setAutoSell(cropId, !cropState?.autoSell);
   }
 
+  setAllAutoSell(enabled) {
+    const owned = this.data.crops.filter(crop => this.state.crops[crop.id]?.owned);
+    if (!owned.length) return { ok: false, message: "Compre uma cultura antes de configurar as vendas automáticas." };
+    const nextState = Boolean(enabled);
+    owned.forEach(crop => {
+      this.state.crops[crop.id].autoSell = nextState;
+    });
+    return { ok: true, enabled: nextState, count: owned.length };
+  }
+
   addCoins(value) {
     const amount = Math.max(0, Math.floor(Number(value) || 0));
     this.state.coins += amount;

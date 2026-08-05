@@ -51,6 +51,9 @@
     coinsCounter: $("#coinsCounter"),
     researchCounter: $("#researchCounter"),
     prestigeCounter: $("#prestigeCounter"),
+    floatingCoinsCounter: $("#floatingCoinsCounter"),
+    floatingResearchCounter: $("#floatingResearchCounter"),
+    floatingPrestigeCounter: $("#floatingPrestigeCounter"),
     farmLevelLabel: $("#farmLevelLabel"),
     farmXPBar: $("#farmXPBar"),
     farmXPText: $("#farmXPText"),
@@ -65,7 +68,8 @@
     achievementGrid: $("#achievementGrid"),
     ambientSetting: $("#ambientSetting"),
     uiScaleSetting: $("#uiScaleSetting"),
-    uiScaleText: $("#uiScaleText")
+    uiScaleText: $("#uiScaleText"),
+    backToTop: $("#backToTop")
   };
 
   function escapeHtml(value) {
@@ -165,6 +169,12 @@
     dom.stockCategoryFilter?.insertAdjacentHTML("beforeend", options);
   }
 
+  function syncScrollUI() {
+    const scrolled = window.scrollY > 180;
+    document.body.classList.toggle("page-scrolled", scrolled);
+    if (dom.backToTop) dom.backToTop.hidden = !scrolled;
+  }
+
   function showView(viewId, updateHash = true) {
     activeView = dom.views.some(view => view.id === viewId) ? viewId : "farmView";
     dom.views.forEach(view => view.classList.toggle("active", view.id === activeView));
@@ -181,6 +191,7 @@
     });
     if (updateHash) history.replaceState(null, "", `#${activeView}`);
     window.scrollTo({ top: 0, behavior: "auto" });
+    syncScrollUI();
     render(true);
   }
 
@@ -232,9 +243,15 @@
   function renderHeader() {
     const state = engine.state;
     const farmNeed = engine.getFarmXPNeed();
-    dom.coinsCounter.textContent = engine.formatNumber(state.coins);
-    dom.researchCounter.textContent = engine.formatNumber(state.research);
-    dom.prestigeCounter.textContent = engine.formatNumber(state.prestigePoints);
+    const coinsText = engine.formatNumber(state.coins);
+    const researchText = engine.formatNumber(state.research);
+    const prestigeText = engine.formatNumber(state.prestigePoints);
+    dom.coinsCounter.textContent = coinsText;
+    dom.researchCounter.textContent = researchText;
+    dom.prestigeCounter.textContent = prestigeText;
+    if (dom.floatingCoinsCounter) dom.floatingCoinsCounter.textContent = coinsText;
+    if (dom.floatingResearchCounter) dom.floatingResearchCounter.textContent = researchText;
+    if (dom.floatingPrestigeCounter) dom.floatingPrestigeCounter.textContent = prestigeText;
     dom.farmLevelLabel.textContent = state.farmLevel;
     dom.farmXPBar.style.width = `${percent((state.farmXP / farmNeed) * 100)}%`;
     dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
@@ -263,9 +280,15 @@
     lastLiveHeader = now;
     const state = engine.state;
     const farmNeed = engine.getFarmXPNeed();
-    dom.coinsCounter.textContent = engine.formatNumber(state.coins);
-    dom.researchCounter.textContent = engine.formatNumber(state.research);
-    dom.prestigeCounter.textContent = engine.formatNumber(state.prestigePoints);
+    const coinsText = engine.formatNumber(state.coins);
+    const researchText = engine.formatNumber(state.research);
+    const prestigeText = engine.formatNumber(state.prestigePoints);
+    dom.coinsCounter.textContent = coinsText;
+    dom.researchCounter.textContent = researchText;
+    dom.prestigeCounter.textContent = prestigeText;
+    if (dom.floatingCoinsCounter) dom.floatingCoinsCounter.textContent = coinsText;
+    if (dom.floatingResearchCounter) dom.floatingResearchCounter.textContent = researchText;
+    if (dom.floatingPrestigeCounter) dom.floatingPrestigeCounter.textContent = prestigeText;
     dom.farmLevelLabel.textContent = state.farmLevel;
     dom.farmXPBar.style.width = `${percent((state.farmXP / farmNeed) * 100)}%`;
     dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
@@ -328,17 +351,13 @@
         const unlocked = engine.isCropUnlocked(cropId);
         const buyCost = engine.getBuyCost(cropId);
         const canAfford = engine.state.coins >= buyCost;
-        const status = $('[data-crop-purchase-status]', card);
         const button = $('[data-crop-purchase]', card);
         card.classList.toggle("insufficient", unlocked && !canAfford);
-        if (status) status.textContent = !unlocked ? `Libera no nível ${crop.unlockLevel}` : canAfford ? "Disponível para compra" : "Saldo insuficiente";
         if (button) {
           button.disabled = !unlocked || !canAfford;
           button.innerHTML = !unlocked
-            ? `Nível ${crop.unlockLevel} necessário`
-            : canAfford
-              ? `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`
-              : `Faltam ${resourceAmount("coins", buyCost - engine.state.coins, { compact: true })}`;
+            ? `Necessário: Fazenda nível ${crop.unlockLevel}`
+            : `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`;
         }
       });
     }
@@ -389,17 +408,14 @@
     const summary = $('[data-crop-upgrade-summary]', card);
     const action = $('[data-crop-upgrade-action]', card);
     if (summary) {
-      summary.innerHTML = selection.maxed
-        ? `<strong>300 / 300</strong>`
-        : `<strong>${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}</strong>`;
+      const upgradeLevels = selection.mode === "max" ? selection.levels : 1;
+      summary.innerHTML = `<strong>${selection.maxed ? "Máx." : `+${upgradeLevels}`}</strong>`;
     }
     if (action) {
       action.disabled = selection.maxed || !selection.affordable;
-      action.textContent = selection.maxed
+      action.innerHTML = selection.maxed
         ? "Plantação concluída"
-        : selection.affordable
-          ? `Aprimorar +${selection.mode === "max" ? selection.levels : 1}`
-          : "Aprimorar";
+        : `Aprimorar ${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}`;
     }
   }
 
@@ -412,18 +428,16 @@
 
     if (!data.owned) {
       const purchaseLabel = !unlocked
-        ? `Nível ${crop.unlockLevel} necessário`
-        : canAffordPurchase
-          ? `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`
-          : `Faltam ${resourceAmount("coins", buyCost - engine.state.coins, { compact: true })}`;
+        ? `Necessário: Fazenda nível ${crop.unlockLevel}`
+        : `Comprar ${resourceAmount("coins", -buyCost, { sign: true, compact: true })}`;
       return `
         <article class="crop-card locked ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
-          <div class="crop-level-strip locked-level-strip"><span data-crop-purchase-status>${!unlocked ? `Libera no nível ${crop.unlockLevel}` : canAffordPurchase ? "Disponível para compra" : "Saldo insuficiente"}</span></div>
+          <div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span></div>
           <div class="crop-head">
             <div class="crop-art locked-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
             <div class="crop-info">
               <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
-              <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span><span class="locked-cycle">Ciclo: ${crop.baseGrowth}s</span></div>
+              <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>
             </div>
           </div>
           <button class="button primary full crop-buy-button" type="button" data-action="buy-crop" data-crop="${crop.id}" data-crop-purchase ${unlocked && canAffordPurchase ? "" : "disabled"}>${purchaseLabel}</button>
@@ -464,8 +478,8 @@
             <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}">+1</button>
             <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
           </div>
-          <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "300 / 300" : resourceAmount("coins", -selection.cost, { sign: true, compact: true })}</strong></div>
-          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : selection.affordable ? `Aprimorar +${selection.mode === "max" ? selection.levels : 1}` : "Aprimorar"}</button>
+          <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "Máx." : `+${selection.mode === "max" ? selection.levels : 1}`}</strong></div>
+          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : `Aprimorar ${resourceAmount("coins", -selection.cost, { sign: true, compact: true })}`}</button>
         </div>
       </article>`;
   }
@@ -495,16 +509,24 @@
     const expansionCost = engine.getDirectStorageExpansionCost();
     const canExpandStorage = engine.state.coins >= expansionCost;
 
+    const allAutoSellEnabled = allOwned.length > 0 && allOwned.every(crop => engine.state.crops[crop.id].autoSell);
+    const enabledAutoSellCount = allOwned.filter(crop => engine.state.crops[crop.id].autoSell).length;
+
     dom.stockSummary.innerHTML = `
       <article class="summary-card storage-capacity-card normalized-summary-card">
         <div class="summary-card-heading"><div><small>Estoque compartilhado</small><strong>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></div><span class="summary-status ${storagePct >= 100 ? "full" : ""}">${storagePct >= 100 ? "Cheio" : "Capacidade"}</span></div>
         <div class="progress-track growth"><span style="width:${Math.min(100, storagePct)}%"></span></div>
-        <button class="button soft full" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>${canExpandStorage ? `Adicionar +100 espaços ${resourceAmount("coins", -expansionCost, { sign: true, compact: true })}` : "Saldo insuficiente"}</button>
+        <button class="button primary full storage-expand-button" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>+100 espaços de armazenamento ${resourceAmount("coins", -expansionCost, { sign: true, compact: true })}</button>
       </article>
       <article class="summary-card stock-sale-summary normalized-summary-card">
         <div class="summary-card-heading"><div><small>Venda geral</small><strong>${engine.formatNumber(storageUsed)} itens</strong></div><span class="summary-status">Mercado</span></div>
         <p>Venda todo o conteúdo armazenado de uma só vez.</p>
         <button class="button primary full" type="button" data-action="sell-all-stock" ${storageUsed <= 0 ? "disabled" : ""}>${storageUsed > 0 ? `Vender estoque ${resourceAmount("coins", totalValue, { compact: true })}` : "Estoque vazio"}</button>
+      </article>
+      <article class="summary-card stock-auto-summary normalized-summary-card">
+        <div class="summary-card-heading"><div><small>Venda automática geral</small><strong>${enabledAutoSellCount} / ${allOwned.length} ativas</strong></div><span class="summary-status">Automação</span></div>
+        <p>Ative ou desative a venda automática de todas as culturas compradas.</p>
+        <button class="auto-sell-toggle global-auto-sell-toggle ${allAutoSellEnabled ? "active" : ""}" type="button" data-action="toggle-all-auto-sell" aria-pressed="${String(allAutoSellEnabled)}" ${allOwned.length ? "" : "disabled"}><span><strong>${allAutoSellEnabled ? "Desativar todas" : "Ativar todas"}</strong><small>${allAutoSellEnabled ? "Todas as vendas estão ativas" : enabledAutoSellCount ? "Ativar as vendas restantes" : "Nenhuma venda automática ativa"}</small></span><span class="auto-sell-switch"><i></i></span></button>
       </article>`;
 
     if (!allOwned.length) {
@@ -900,6 +922,11 @@
       act(engine.sellCrop(cropId, amount), result => `${engine.formatNumber(result.sold)} itens vendidos por ${engine.formatMoney(result.gain)}.`);
     }
     if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId), result => `Venda automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
+    if (action === "toggle-all-auto-sell") {
+      const owned = engine.data.crops.filter(crop => engine.state.crops[crop.id]?.owned);
+      const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
+      act(engine.setAllAutoSell(!allEnabled), result => `Venda automática ${result.enabled ? "ativada" : "desativada"} para ${result.count} cultura${result.count === 1 ? "" : "s"}.`);
+    }
     if (action === "toggle-order-auto") act(engine.toggleOrderAutoDelivery(cropId), result => `Entrega automática de ${result.crop.name.toLowerCase()} ${result.enabled ? "ativada" : "desativada"}.`);
     if (action === "sell-all-stock") act(engine.sellAll(), result => `${engine.formatNumber(result.sold)} produtos vendidos por ${engine.formatMoney(result.gain)}.`);
     if (action === "expand-storage") act(engine.expandStorage(), result => `Celeiro ampliado em +${result.added} espaços.`);
@@ -1029,6 +1056,10 @@
       engine.setSetting("uiScale", Number(dom.uiScaleSetting.value));
       applySettings();
     });
+
+    window.addEventListener("scroll", syncScrollUI, { passive: true });
+    dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    syncScrollUI();
 
     window.addEventListener("beforeunload", () => engine.save());
     document.addEventListener("visibilitychange", () => {
