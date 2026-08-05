@@ -1,5 +1,6 @@
 # Firebase CLI
 .firebase/
+firestore.rules
 
 # Logs
 *.log
