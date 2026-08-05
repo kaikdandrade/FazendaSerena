@@ -59,24 +59,24 @@
 </header>
 <div class="workspace-shell"><aside aria-label="Navegação do jogo" class="navigation-stack"><nav aria-label="Áreas do jogo" class="main-nav">
 
-<button class="nav-tab active" data-view="farmView" type="button"><span class="nav-tab-icon">🌱</span><span class="nav-tab-label">Fazenda</span></button>
-<button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" type="button"><span class="nav-tab-icon">🧺</span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
-<button class="nav-tab" data-view="evolveView" type="button"><span class="nav-tab-icon">🛠️</span><span class="nav-tab-label">Evoluções</span></button>
-<button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" type="button"><span class="nav-tab-icon">📋</span><span class="nav-tab-label">Escritório</span></button>
+<button class="nav-tab active" data-view="farmView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/seedling-pot.png"/></span><span class="nav-tab-label">Fazenda</span></button>
+<button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/warehouse.png"/></span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
+<button class="nav-tab" data-view="evolveView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/tools.png"/></span><span class="nav-tab-label">Evoluções</span></button>
+<button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/clipboard.png"/></span><span class="nav-tab-label">Escritório</span></button>
 <button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
 
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" type="button"><span><i>🛠️</i> Aprimoramentos</span><small>Moedas</small></button>
-<button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" type="button"><span><i>🧪</i> Pesquisa</span><small>Pontos de pesquisa</small></button>
-<button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" role="tab" type="button"><span><i>✨</i> Prestígio</span><small>Legados permanentes</small></button>
+<button aria-selected="true" class="evolution-tab active" data-evolution-tab="upgrades" role="tab" type="button"><span><i><img alt="" src="assets/icons/tools.png"/></i> Aprimoramentos</span><small>Moedas</small></button>
+<button aria-selected="false" class="evolution-tab" data-evolution-tab="research" role="tab" type="button"><span><i><img alt="" src="assets/icons/books.png"/></i> Pesquisa</span><small>Pontos de pesquisa</small></button>
+<button aria-selected="false" class="evolution-tab" data-evolution-tab="prestige" role="tab" type="button"><span><i><img alt="" src="assets/icons/crown.png"/></i> Prestígio</span><small>Legados permanentes</small></button>
 </nav>
 </aside><aside aria-label="Navegação do escritório" class="context-nav-column context-nav-block" data-context-for="officeView" hidden="">
 
 <nav aria-label="Seções do escritório" class="office-tabs context-tabs" role="tablist">
-<button aria-selected="true" class="office-tab active" data-office-tab="contracts" role="tab" type="button"><span><i>📑</i> Contratos</span><b id="contractTabCount">0</b></button>
-<button aria-selected="false" class="office-tab" data-office-tab="orders" role="tab" type="button"><span><i>🧾</i> Pedidos</span><b id="orderTabCount">0</b></button>
-<button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" type="button"><span><i>🏅</i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" type="button"><span><i>📊</i> Estatísticas</span></button>
+<button aria-selected="true" class="office-tab active" data-office-tab="contracts" role="tab" type="button"><span><i><img alt="" src="assets/icons/commercial-contract.png"/></i> Contratos</span><b id="contractTabCount">0</b></button>
+<button aria-selected="false" class="office-tab" data-office-tab="orders" role="tab" type="button"><span><i><img alt="" src="assets/icons/package.png"/></i> Pedidos</span><b id="orderTabCount">0</b></button>
+<button aria-selected="false" class="office-tab" data-office-tab="missions" role="tab" type="button"><span><i><img alt="" src="assets/icons/graduation-cap.png"/></i> Missões</span><b id="missionTabCount">0</b></button><button aria-selected="false" class="office-tab" data-office-tab="stats" role="tab" type="button"><span><i><img alt="" src="assets/icons/field-map.png"/></i> Estatísticas</span></button>
 </nav>
 </aside></aside>
 <main class="game-main">
@@ -245,22 +245,37 @@
 </article>
 <article class="panel-card settings-card sound-lab-card">
 <div class="sound-lab-heading">
-<div><p class="eyebrow">sessão temporária do desenvolvedor</p><h2>Laboratório de sons</h2></div>
-<span>Revisão 20</span>
+<div><p class="eyebrow">áudio do jogo</p><h2>Sons e música</h2></div>
+<span>Revisão 21</span>
 </div>
-<p class="sound-lab-copy">Escolha e teste livremente qual arquivo será usado em cada ação. Um novo efeito sempre interrompe o anterior antes de tocar.</p>
+<p class="sound-lab-copy">Cliques, aprimoramentos, recompensas, vendas, prestígio e subida de nível usam sons definitivos. A seleção temporária abaixo permanece somente para comparar os sons de navegação.</p>
+<div class="sound-master-grid">
+<section class="sound-master-block">
 <label class="setting-row">
-<span><strong>Efeitos sonoros</strong><small>Ativa ou silencia todos os sons configurados abaixo.</small></span>
+<span><strong>Efeitos sonoros</strong><small>Ativa ou silencia os sons das ações do jogo.</small></span>
 <input id="soundEnabledSetting" type="checkbox"/>
 </label>
 <label class="range-setting sound-volume-setting">
 <span><strong>Volume dos efeitos</strong><small id="soundVolumeText">55%</small></span>
 <input id="soundVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
 </label>
+</section>
+<section class="sound-master-block">
+<label class="setting-row">
+<span><strong>Música ambiente</strong><small>Mantém a trilha calma da fazenda tocando em repetição.</small></span>
+<input id="musicEnabledSetting" type="checkbox"/>
+</label>
+<label class="range-setting sound-volume-setting">
+<span><strong>Volume da música</strong><small id="musicVolumeText">30%</small></span>
+<input id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="30"/>
+</label>
+</section>
+</div>
+<div class="sound-navigation-heading"><strong>Sons de navegação em teste</strong><small>A escolha das navegações principal e secundária continua temporária.</small></div>
 <div class="sound-action-list" id="soundActionList"></div>
 <div class="button-row sound-lab-actions">
-<button class="button secondary" id="stopSoundPreview" type="button">Parar som</button>
-<button class="button secondary" id="resetSoundMappings" type="button">Restaurar seleção</button>
+<button class="button secondary" id="stopSoundPreview" type="button">Parar teste</button>
+<button class="button secondary" id="resetSoundMappings" type="button">Restaurar navegação</button>
 </div>
 </article>
 <article class="panel-card settings-card">

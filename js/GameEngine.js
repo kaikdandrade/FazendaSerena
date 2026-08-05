@@ -2,12 +2,13 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 21;
+  static SAVE_VERSION = 22;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
   static MAX_BATCH_UPGRADES = 1000;
   static MAX_CROP_LEVEL = 300;
+  static MAX_FARM_LEVEL = 1000;
   static INSTANT_GROWTH_LEVEL = 300;
   static MIN_INSTANT_GROWTH_LEVEL = 250;
 
@@ -28,6 +29,8 @@ class GameEngine {
       uiScale: permanent.settings?.uiScale ?? 100,
       soundEnabled: permanent.settings?.soundEnabled ?? true,
       soundVolume: permanent.settings?.soundVolume ?? 55,
+      musicEnabled: permanent.settings?.musicEnabled ?? true,
+      musicVolume: permanent.settings?.musicVolume ?? 30,
       soundMappings: {
         ...(window.SoundEngine?.DEFAULT_MAPPINGS || {}),
         ...(permanent.settings?.soundMappings || {})
@@ -188,9 +191,14 @@ class GameEngine {
     merged.settings.compactCards = true;
     merged.settings.soundEnabled = merged.settings.soundEnabled !== false;
     merged.settings.soundVolume = Math.max(0, Math.min(100, Number(merged.settings.soundVolume) || 0));
+    merged.settings.musicEnabled = merged.settings.musicEnabled !== false;
+    merged.settings.musicVolume = Math.max(0, Math.min(100, Number(merged.settings.musicVolume ?? 30) || 0));
+    const previousSoundMappings = merged.settings.soundMappings && typeof merged.settings.soundMappings === "object"
+      ? merged.settings.soundMappings
+      : {};
     merged.settings.soundMappings = {
-      ...(window.SoundEngine?.DEFAULT_MAPPINGS || {}),
-      ...(merged.settings.soundMappings && typeof merged.settings.soundMappings === "object" ? merged.settings.soundMappings : {})
+      mainNavigation: previousSoundMappings.mainNavigation ?? window.SoundEngine?.DEFAULT_MAPPINGS?.mainNavigation ?? "",
+      secondaryNavigation: previousSoundMappings.secondaryNavigation ?? window.SoundEngine?.DEFAULT_MAPPINGS?.secondaryNavigation ?? ""
     };
 
     if (Number(input.version || 0) < 14) {
@@ -344,6 +352,8 @@ class GameEngine {
     }
     Reflect.deleteProperty(merged, "contracts");
     merged.version = GameEngine.SAVE_VERSION;
+    merged.farmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(merged.farmLevel) || 1)));
+    merged.farmXP = Math.max(0, Number(merged.farmXP) || 0);
     merged.coins = Math.max(0, Number(merged.coins) || 0);
     merged.research = Math.max(0, Number(merged.research) || 0);
     merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0);
@@ -370,7 +380,7 @@ class GameEngine {
     merged.stats.contractUnitsDelivered = Math.max(0, Math.floor(Number(merged.stats.contractUnitsDelivered) || 0));
     merged.stats.lifetimeContractUnitsDelivered = Math.max(merged.stats.contractUnitsDelivered, Math.floor(Number(merged.stats.lifetimeContractUnitsDelivered) || 0));
     merged.stats.totalPrestigeEarned = Math.max(0, Math.floor(Number(merged.stats.totalPrestigeEarned) || 0));
-    merged.stats.maxFarmLevel = Math.max(merged.farmLevel || 1, Math.floor(Number(merged.stats.maxFarmLevel) || 1));
+    merged.stats.maxFarmLevel = Math.min(GameEngine.MAX_FARM_LEVEL, Math.max(merged.farmLevel || 1, Math.floor(Number(merged.stats.maxFarmLevel) || 1)));
     merged.stats.maxCropLevel = Math.max(0, Math.floor(Number(merged.stats.maxCropLevel) || 0), ...Object.values(merged.crops).map(item => item.level || 0));
     merged.stats.maxCropsOwned = Math.max(0, Math.floor(Number(merged.stats.maxCropsOwned) || 0), Object.values(merged.crops).filter(item => item.owned).length);
     merged.stats.maxCoinsHeld = Math.max(merged.coins || 0, Math.floor(Number(merged.stats.maxCoinsHeld) || 0));
@@ -585,9 +595,18 @@ class GameEngine {
     const education = Number(this.state.researchTechs.agriculturalPedagogy || 0);
     const multiplier = 1 + training * 0.07 + education * 0.07;
     this.state.farmXP += Math.max(0, amount) * multiplier;
+
+    // No nível máximo, a experiência continua sendo registrada, mas nunca cria
+    // níveis 1.001 ou superiores.
+    if (this.state.farmLevel >= GameEngine.MAX_FARM_LEVEL) {
+      this.state.farmLevel = GameEngine.MAX_FARM_LEVEL;
+      this.state.stats.maxFarmLevel = GameEngine.MAX_FARM_LEVEL;
+      return;
+    }
+
     let leveled = false;
     let rewardCoins = 0;
-    while (this.state.farmXP >= this.getFarmXPNeed()) {
+    while (this.state.farmLevel < GameEngine.MAX_FARM_LEVEL && this.state.farmXP >= this.getFarmXPNeed()) {
       this.state.farmXP -= this.getFarmXPNeed();
       this.state.farmLevel += 1;
       this.state.stats.maxFarmLevel = Math.max(this.state.stats.maxFarmLevel, this.state.farmLevel);

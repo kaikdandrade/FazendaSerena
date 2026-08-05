@@ -128,27 +128,27 @@ window.GameData = (() => {
   ];
 
   const research = [
-    { id: "acceleratedGermination", name: "Germinação acelerada", icon: "🧫", desc: "+7% de velocidade para todas as safras.", max: 10, baseCost: 2, growth: 1.48 },
-    { id: "hybridGenetics", name: "Genética híbrida", icon: "🧬", desc: "+8% de rendimento nas safras.", max: 10, baseCost: 2, growth: 1.49 },
-    { id: "priceForecast", name: "Previsão de preços", icon: "📈", desc: "+6% de aumento do valor de todas as vendas.", max: 10, baseCost: 3, growth: 1.50 },
-    { id: "coldChain", name: "Cadeia de conservação", icon: "🧺", desc: "+20% de capacidade no estoque.", max: 10, baseCost: 3, growth: 1.51 },
-    { id: "smartSeedCatalog", name: "Catálogo inteligente", icon: "📚", desc: "−4% no custo de compra das culturas.", max: 10, baseCost: 3, growth: 1.51 },
-    { id: "cultivationAlgorithms", name: "Algoritmos de cultivo", icon: "🗺️", desc: "−4% no custo dos níveis das plantações.", max: 10, baseCost: 3, growth: 1.52 },
-    { id: "negotiationModels", name: "Modelos de negociação", icon: "📋", desc: "+8% de ganhos nas recompensas oferecidas por contratos.", max: 10, baseCost: 4, growth: 1.53 },
-    { id: "orderOptimization", name: "Otimização de pedidos", icon: "📊", desc: "+8% nas recompensas recebidas por pedidos.", max: 10, baseCost: 4, growth: 1.53 },
-    { id: "logisticsSimulation", name: "Simulação logística", icon: "⏱️", desc: "+6% de aumento nos prazos dos contratos.", max: 10, baseCost: 4, growth: 1.54 },
-    { id: "agriculturalPedagogy", name: "Pedagogia agrícola", icon: "📖", desc: "+7% de experiência da fazenda ganha.", max: 10, baseCost: 4, growth: 1.54 }
+    { id: "acceleratedGermination", name: "Germinação acelerada", icon: "assets/icons/fertilizer.png", desc: "+7% de velocidade para todas as safras.", max: 10, baseCost: 2, growth: 1.48 },
+    { id: "hybridGenetics", name: "Genética híbrida", icon: "assets/icons/dna.png", desc: "+8% de rendimento nas safras.", max: 10, baseCost: 2, growth: 1.49 },
+    { id: "priceForecast", name: "Previsão de preços", icon: "assets/icons/price-estimate.png", desc: "+6% de aumento do valor de todas as vendas.", max: 10, baseCost: 3, growth: 1.50 },
+    { id: "coldChain", name: "Cadeia de conservação", icon: "assets/icons/silo-brick.png", desc: "+20% de capacidade no estoque.", max: 10, baseCost: 3, growth: 1.51 },
+    { id: "smartSeedCatalog", name: "Catálogo inteligente", icon: "assets/icons/books.png", desc: "−4% no custo de compra das culturas.", max: 10, baseCost: 3, growth: 1.51 },
+    { id: "cultivationAlgorithms", name: "Algoritmos de cultivo", icon: "assets/icons/field-map.png", desc: "−4% no custo dos níveis das plantações.", max: 10, baseCost: 3, growth: 1.52 },
+    { id: "negotiationModels", name: "Modelos de negociação", icon: "assets/icons/pricing.png", desc: "+8% de ganhos nas recompensas oferecidas por contratos.", max: 10, baseCost: 4, growth: 1.53 },
+    { id: "orderOptimization", name: "Otimização de pedidos", icon: "assets/icons/delivery-truck.png", desc: "+8% nas recompensas recebidas por pedidos.", max: 10, baseCost: 4, growth: 1.53 },
+    { id: "logisticsSimulation", name: "Simulação logística", icon: "assets/icons/clock.png", desc: "+6% de aumento nos prazos dos contratos.", max: 10, baseCost: 4, growth: 1.54 },
+    { id: "agriculturalPedagogy", name: "Pedagogia agrícola", icon: "assets/icons/graduation-cap.png", desc: "+7% de experiência da fazenda ganha.", max: 10, baseCost: 4, growth: 1.54 }
   ];
 
   const prestigeUpgrades = [
-    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "👑", desc: "Amplia o capital inicial de cada nova jornada.", max: 10, baseCost: 1, growth: 1.72 },
-    { id: "eternalHarvest", name: "Colheita eterna", icon: "🌾", desc: "+12% de velocidade e +10% de rendimento permanentes por nível.", max: 12, baseCost: 1, growth: 1.78 },
-    { id: "goldenExchange", name: "Bolsa dourada", icon: "💰", desc: "+15% no valor de todas as vendas permanentemente por nível.", max: 10, baseCost: 2, growth: 1.82 },
-    { id: "endlessGranary", name: "Celeiro sem fim", icon: "🏰", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 2, growth: 1.82 },
-    { id: "ancestralMastery", name: "Domínio ancestral", icon: "🌿", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 2, growth: 1.90 },
-    { id: "immortalAcademy", name: "Academia imortal", icon: "📚", desc: "25% a mais de pesquisa recebida e 3 pontos iniciais permanentes por nível.", max: 8, baseCost: 3, growth: 1.92 },
-    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "🌟", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
-    { id: "sovereignNetwork", name: "Rede soberana", icon: "🦅", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 4, growth: 2.00 }
+    { id: "royalTreasury", name: "Tesouro da dinastia", icon: "assets/icons/crown.png", desc: "Amplia o capital inicial de cada nova jornada.", max: 10, baseCost: 1, growth: 1.72 },
+    { id: "eternalHarvest", name: "Colheita eterna", icon: "assets/icons/harvest-crate.png", desc: "+12% de velocidade e +10% de rendimento permanentes por nível.", max: 12, baseCost: 1, growth: 1.78 },
+    { id: "goldenExchange", name: "Bolsa dourada", icon: "assets/icons/coin.png", desc: "+15% no valor de todas as vendas permanentemente por nível.", max: 10, baseCost: 2, growth: 1.82 },
+    { id: "endlessGranary", name: "Celeiro sem fim", icon: "assets/icons/silo.png", desc: "+60% de capacidade permanente no estoque por nível.", max: 10, baseCost: 2, growth: 1.82 },
+    { id: "ancestralMastery", name: "Domínio ancestral", icon: "assets/icons/seedling-pot.png", desc: "−8% no custo das culturas e −6% nos níveis das plantações por nível.", max: 8, baseCost: 2, growth: 1.90 },
+    { id: "immortalAcademy", name: "Academia imortal", icon: "assets/icons/books.png", desc: "25% a mais de pesquisa recebida e 3 pontos iniciais permanentes por nível.", max: 8, baseCost: 3, growth: 1.92 },
+    { id: "prestigeResonance", name: "Ressonância de prestígio", icon: "assets/icons/prestige.png", desc: "20% a mais nos pontos obtidos em todos os próximos prestígios por nível.", max: 8, baseCost: 3, growth: 1.98 },
+    { id: "sovereignNetwork", name: "Rede soberana", icon: "assets/icons/commercial-contract.png", desc: "20% a mais nas moedas de contratos e pedidos e 10% a mais nos prazos e vendas automáticas por nível.", max: 8, baseCost: 4, growth: 2.00 }
   ];
 
 

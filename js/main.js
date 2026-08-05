@@ -58,6 +58,8 @@
     floatingCoinsCounter: $("#floatingCoinsCounter"),
     floatingResearchCounter: $("#floatingResearchCounter"),
     floatingPrestigeCounter: $("#floatingPrestigeCounter"),
+    farmProgress: $(".farm-progress"),
+    farmXPTrack: $(".farm-progress .soft-progress"),
     farmLevelLabel: $("#farmLevelLabel"),
     farmXPBar: $("#farmXPBar"),
     farmXPText: $("#farmXPText"),
@@ -75,6 +77,9 @@
     soundEnabledSetting: $("#soundEnabledSetting"),
     soundVolumeSetting: $("#soundVolumeSetting"),
     soundVolumeText: $("#soundVolumeText"),
+    musicEnabledSetting: $("#musicEnabledSetting"),
+    musicVolumeSetting: $("#musicVolumeSetting"),
+    musicVolumeText: $("#musicVolumeText"),
     soundActionList: $("#soundActionList"),
     stopSoundPreview: $("#stopSoundPreview"),
     resetSoundMappings: $("#resetSoundMappings"),
@@ -240,6 +245,9 @@
     if (dom.soundEnabledSetting && document.activeElement !== dom.soundEnabledSetting) dom.soundEnabledSetting.checked = settings.soundEnabled !== false;
     if (dom.soundVolumeSetting && document.activeElement !== dom.soundVolumeSetting) dom.soundVolumeSetting.value = String(settings.soundVolume ?? 55);
     if (dom.soundVolumeText) dom.soundVolumeText.textContent = `${settings.soundVolume ?? 55}%`;
+    if (dom.musicEnabledSetting && document.activeElement !== dom.musicEnabledSetting) dom.musicEnabledSetting.checked = settings.musicEnabled !== false;
+    if (dom.musicVolumeSetting && document.activeElement !== dom.musicVolumeSetting) dom.musicVolumeSetting.value = String(settings.musicVolume ?? 30);
+    if (dom.musicVolumeText) dom.musicVolumeText.textContent = `${settings.musicVolume ?? 30}%`;
     renderSoundActionList();
   }
 
@@ -270,9 +278,27 @@
     dom.officeNavTab.title = reasons.length ? `Ações prontas: ${reasons.join(", ")}` : "Escritório";
   }
 
+  function updateFarmProgressDisplay() {
+    const state = engine.state;
+    const maximumLevel = GameEngine.MAX_FARM_LEVEL;
+    const atMaximum = state.farmLevel >= maximumLevel;
+    const farmNeed = engine.getFarmXPNeed();
+    dom.farmLevelLabel.textContent = engine.formatNumber(Math.min(maximumLevel, state.farmLevel));
+    dom.farmProgress?.classList.toggle("max-level", atMaximum);
+    dom.farmXPBar.style.width = atMaximum ? "100%" : `${percent((state.farmXP / farmNeed) * 100)}%`;
+    dom.farmXPText.textContent = atMaximum
+      ? `${engine.formatNumber(state.farmXP)} XP acumulado`
+      : `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
+    if (dom.farmXPTrack) {
+      dom.farmXPTrack.setAttribute("aria-valuemin", "0");
+      dom.farmXPTrack.setAttribute("aria-valuemax", atMaximum ? "100" : String(farmNeed));
+      dom.farmXPTrack.setAttribute("aria-valuenow", atMaximum ? "100" : String(Math.floor(state.farmXP)));
+      dom.farmXPTrack.setAttribute("aria-label", atMaximum ? `Nível máximo. ${engine.formatNumber(state.farmXP)} XP acumulado.` : "Experiência da fazenda");
+    }
+  }
+
   function renderHeader() {
     const state = engine.state;
-    const farmNeed = engine.getFarmXPNeed();
     const coinsText = engine.formatNumber(state.coins);
     const researchText = engine.formatNumber(state.research);
     const prestigeText = engine.formatNumber(state.prestigePoints);
@@ -282,9 +308,7 @@
     if (dom.floatingCoinsCounter) dom.floatingCoinsCounter.textContent = coinsText;
     if (dom.floatingResearchCounter) dom.floatingResearchCounter.textContent = researchText;
     if (dom.floatingPrestigeCounter) dom.floatingPrestigeCounter.textContent = prestigeText;
-    dom.farmLevelLabel.textContent = state.farmLevel;
-    dom.farmXPBar.style.width = `${percent((state.farmXP / farmNeed) * 100)}%`;
-    dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
+    updateFarmProgressDisplay();
 
     const metrics = engine.getMetrics();
     updateStockNavigation(metrics);
@@ -313,7 +337,6 @@
     if (now - lastLiveHeader < 100) return;
     lastLiveHeader = now;
     const state = engine.state;
-    const farmNeed = engine.getFarmXPNeed();
     const coinsText = engine.formatNumber(state.coins);
     const researchText = engine.formatNumber(state.research);
     const prestigeText = engine.formatNumber(state.prestigePoints);
@@ -323,9 +346,7 @@
     if (dom.floatingCoinsCounter) dom.floatingCoinsCounter.textContent = coinsText;
     if (dom.floatingResearchCounter) dom.floatingResearchCounter.textContent = researchText;
     if (dom.floatingPrestigeCounter) dom.floatingPrestigeCounter.textContent = prestigeText;
-    dom.farmLevelLabel.textContent = state.farmLevel;
-    dom.farmXPBar.style.width = `${percent((state.farmXP / farmNeed) * 100)}%`;
-    dom.farmXPText.textContent = `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} XP`;
+    updateFarmProgressDisplay();
     updateStockNavigation({
       stock: engine.getStorageUsed(),
       storageCapacity: engine.getStorageCap()
@@ -903,7 +924,12 @@
     if (state.permanentBonuses.prestigeDouble) permanentAchievements.push(`<article class="achievement-card permanent-achievement"><span>∞</span><div><small>Bônus permanente</small><h3>Prestígio dos prestígios</h3><p>Todos os próximos prestígios concedem o dobro de pontos.</p></div></article>`);
     engine.data.prestigeUpgrades.forEach(item => {
       const level = Number(state.prestigeUpgrades[item.id] || 0);
-      if (level > 0) permanentAchievements.push(`<article class="achievement-card legacy-achievement"><span>${item.icon}</span><div><small>Legado permanente · nível ${level}/${item.max}</small><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.desc)}</p></div></article>`);
+      if (level > 0) {
+        const legacyIcon = typeof item.icon === "string" && /\.(?:png|webp|svg)$/i.test(item.icon)
+          ? `<img src="${escapeHtml(item.icon)}" alt="">`
+          : escapeHtml(item.icon);
+        permanentAchievements.push(`<article class="achievement-card legacy-achievement"><span>${legacyIcon}</span><div><small>Legado permanente · nível ${level}/${item.max}</small><h3>${escapeHtml(item.name)}</h3><p>${escapeHtml(item.desc)}</p></div></article>`);
+      }
     });
     const missionAchievements = claimed.map(mission => `<article class="achievement-card"><span>✓</span><div><small>${mission.series ? `Etapa ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${escapeHtml(mission.desc)}</p></div></article>`);
     const achievements = [...permanentAchievements, ...missionAchievements];
@@ -1163,6 +1189,14 @@
       engine.setSetting("soundVolume", Number(dom.soundVolumeSetting.value));
       applySettings();
     });
+    dom.musicEnabledSetting?.addEventListener("change", () => {
+      engine.setSetting("musicEnabled", dom.musicEnabledSetting.checked);
+      applySettings();
+    });
+    dom.musicVolumeSetting?.addEventListener("input", () => {
+      engine.setSetting("musicVolume", Number(dom.musicVolumeSetting.value));
+      applySettings();
+    });
     dom.soundActionList?.addEventListener("change", event => {
       const select = event.target.closest("[data-sound-action]");
       if (!select) return;
@@ -1182,7 +1216,10 @@
     });
     dom.stopSoundPreview?.addEventListener("click", () => soundEngine.stop());
     dom.resetSoundMappings?.addEventListener("click", () => {
-      engine.setSetting("soundMappings", { ...SoundEngine.DEFAULT_MAPPINGS });
+      engine.setSetting("soundMappings", {
+        mainNavigation: SoundEngine.DEFAULT_MAPPINGS.mainNavigation,
+        secondaryNavigation: SoundEngine.DEFAULT_MAPPINGS.secondaryNavigation
+      });
       applySettings();
       soundEngine.play("click");
     });
@@ -1194,6 +1231,10 @@
       soundEngine.play("click");
     }, true);
 
+    const unlockMusic = () => soundEngine.resumeMusic();
+    document.addEventListener("pointerdown", unlockMusic, { once: true, passive: true });
+    document.addEventListener("keydown", unlockMusic, { once: true });
+
     window.addEventListener("scroll", syncScrollUI, { passive: true });
     dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     syncScrollUI();
@@ -1202,7 +1243,9 @@
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         engine.save();
+        soundEngine.pauseMusic();
       } else {
+        soundEngine.resumeMusic();
         const now = Date.now();
         const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
         if (elapsed > 0.05) {
