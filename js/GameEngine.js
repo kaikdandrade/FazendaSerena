@@ -2,7 +2,7 @@
 
 class GameEngine {
   static STORAGE_KEY = "agricultura-industrial-save-v3";
-  static SAVE_VERSION = 20;
+  static SAVE_VERSION = 21;
   static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
   static MAX_ACTIVE_CONTRACTS = 3;
   static BASE_STORAGE_CAPACITY = 200;
@@ -25,7 +25,13 @@ class GameEngine {
       ambient: permanent.settings?.ambient ?? true,
       reducedMotion: permanent.settings?.reducedMotion ?? false,
       compactCards: true,
-      uiScale: permanent.settings?.uiScale ?? 100
+      uiScale: permanent.settings?.uiScale ?? 100,
+      soundEnabled: permanent.settings?.soundEnabled ?? true,
+      soundVolume: permanent.settings?.soundVolume ?? 55,
+      soundMappings: {
+        ...(window.SoundEngine?.DEFAULT_MAPPINGS || {}),
+        ...(permanent.settings?.soundMappings || {})
+      }
     };
 
     const royalTreasury = Number(prestigeUpgrades.royalTreasury || 0);
@@ -180,6 +186,12 @@ class GameEngine {
 
     merged.settings.reducedMotion = false;
     merged.settings.compactCards = true;
+    merged.settings.soundEnabled = merged.settings.soundEnabled !== false;
+    merged.settings.soundVolume = Math.max(0, Math.min(100, Number(merged.settings.soundVolume) || 0));
+    merged.settings.soundMappings = {
+      ...(window.SoundEngine?.DEFAULT_MAPPINGS || {}),
+      ...(merged.settings.soundMappings && typeof merged.settings.soundMappings === "object" ? merged.settings.soundMappings : {})
+    };
 
     if (Number(input.version || 0) < 14) {
       const migrateLevels = (target, source, map) => {

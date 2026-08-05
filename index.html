@@ -7,9 +7,10 @@
 <meta content="#eef4e8" name="theme-color"/>
 <meta content="Um jogo idle sereno sobre cultivar, pesquisar e construir uma fazenda próspera." name="description"/>
 <title>Agricultura Industrial — Fazenda Serena</title>
-<link href="img/icons/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+<link href="assets/icons/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="css/style.css" rel="stylesheet"/>
 <script defer="" src="js/data.js"></script>
+<script defer="" src="js/soundEngine.js"></script>
 <script defer="" src="js/GameEngine.js"></script>
 <script defer="" src="js/main.js"></script>
 </head>
@@ -17,15 +18,15 @@
 <div aria-hidden="true" class="ambient-layer">
 <span class="ambient-orb orb-one"></span>
 <span class="ambient-orb orb-two"></span>
-<img alt="" class="floating-leaf leaf-one" src="img/plants/leaf.png"/>
-<img alt="" class="floating-leaf leaf-two" src="img/plants/autumn.png"/>
-<img alt="" class="floating-leaf leaf-three" src="img/plants/leaf.png"/>
-<img alt="" class="floating-leaf leaf-four" src="img/plants/autumn.png"/>
+<img alt="" class="floating-leaf leaf-one" src="assets/spring.png"/>
+<img alt="" class="floating-leaf leaf-two" src="assets/summer.png"/>
+<img alt="" class="floating-leaf leaf-three" src="assets/autumn.png"/>
+<img alt="" class="floating-leaf leaf-four" src="assets/winter.png"/>
 </div>
 <div class="app-shell">
 <header class="app-header">
 <a aria-label="Ir para a fazenda" class="brand" data-go-view="farmView" href="#farmView">
-<img alt="Folha da Fazenda Serena" class="brand-logo" src="img/logo.png"/>
+<img alt="Folha da Fazenda Serena" class="brand-logo" src="assets/logo.png"/>
 <span class="brand-copy">
 <small>fazenda serena</small>
 <strong>Agricultura Industrial</strong>
@@ -43,15 +44,15 @@
 </section>
 <section aria-label="Recursos do jogo" class="resource-strip">
 <article class="resource-pill">
-<img alt="" src="img/icons/coin.png"/>
+<img alt="" src="assets/icons/coin.png"/>
 <span><small>Moedas</small><strong id="coinsCounter">0</strong></span>
 </article>
 <article class="resource-pill">
-<img alt="" src="img/icons/potion.png"/>
+<img alt="" src="assets/icons/potion.png"/>
 <span><small>Pesquisa</small><strong id="researchCounter">0</strong></span>
 </article>
 <article class="resource-pill prestige-resource">
-<img alt="" src="img/icons/prestige.png"/>
+<img alt="" src="assets/icons/prestige.png"/>
 <span><small>Prestígio</small><strong id="prestigeCounter">0</strong></span>
 </article>
 </section>
@@ -62,7 +63,7 @@
 <button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" type="button"><span class="nav-tab-icon">🧺</span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden="" id="stockNavBadge">!</b></button>
 <button class="nav-tab" data-view="evolveView" type="button"><span class="nav-tab-icon">🛠️</span><span class="nav-tab-label">Evoluções</span></button>
 <button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" type="button"><span class="nav-tab-icon">📋</span><span class="nav-tab-label">Escritório</span></button>
-<button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="img/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
+<button class="nav-tab settings-nav-tab" data-view="settingsView" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/settings.png"/></span><span class="nav-tab-label">Configurações</span></button>
 </nav><aside aria-label="Navegação do Centro de evoluções" class="context-nav-column context-nav-block" data-context-for="evolveView" hidden="">
 
 <nav aria-label="Tipos de evolução" class="evolution-tabs context-tabs" role="tablist">
@@ -242,6 +243,26 @@
 <input id="uiScaleSetting" max="115" min="85" step="5" type="range" value="100"/>
 </label>
 </article>
+<article class="panel-card settings-card sound-lab-card">
+<div class="sound-lab-heading">
+<div><p class="eyebrow">sessão temporária do desenvolvedor</p><h2>Laboratório de sons</h2></div>
+<span>Revisão 20</span>
+</div>
+<p class="sound-lab-copy">Escolha e teste livremente qual arquivo será usado em cada ação. Um novo efeito sempre interrompe o anterior antes de tocar.</p>
+<label class="setting-row">
+<span><strong>Efeitos sonoros</strong><small>Ativa ou silencia todos os sons configurados abaixo.</small></span>
+<input id="soundEnabledSetting" type="checkbox"/>
+</label>
+<label class="range-setting sound-volume-setting">
+<span><strong>Volume dos efeitos</strong><small id="soundVolumeText">55%</small></span>
+<input id="soundVolumeSetting" max="100" min="0" step="5" type="range" value="55"/>
+</label>
+<div class="sound-action-list" id="soundActionList"></div>
+<div class="button-row sound-lab-actions">
+<button class="button secondary" id="stopSoundPreview" type="button">Parar som</button>
+<button class="button secondary" id="resetSoundMappings" type="button">Restaurar seleção</button>
+</div>
+</article>
 <article class="panel-card settings-card">
 <h2>Salvar e transferir</h2>
 <p>O progresso é salvo automaticamente no navegador a cada 15 segundos.</p>
@@ -270,14 +291,14 @@
 </main>
 </div>
 <footer class="app-footer">
-<div><img alt="" src="img/logo.png"/><span><strong>Agricultura Industrial</strong><small>Fazenda Serena</small></span></div>
+<div><img alt="" src="assets/logo.png"/><span><strong>Agricultura Industrial</strong><small>Fazenda Serena</small></span></div>
 <p>Desenvolvido por <a href="https://github.com/kaikdandrade" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a></p>
 </footer>
 </div>
 <section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
-<article class="resource-pill"><img alt="" src="img/icons/coin.png"/><span><small>Moedas</small><strong id="floatingCoinsCounter">0</strong></span></article>
-<article class="resource-pill"><img alt="" src="img/icons/potion.png"/><span><small>Pesquisa</small><strong id="floatingResearchCounter">0</strong></span></article>
-<article class="resource-pill prestige-resource"><img alt="" src="img/icons/prestige.png"/><span><small>Prestígio</small><strong id="floatingPrestigeCounter">0</strong></span></article>
+<article class="resource-pill"><img alt="" src="assets/icons/coin.png"/><span><small>Moedas</small><strong id="floatingCoinsCounter">0</strong></span></article>
+<article class="resource-pill"><img alt="" src="assets/icons/potion.png"/><span><small>Pesquisa</small><strong id="floatingResearchCounter">0</strong></span></article>
+<article class="resource-pill prestige-resource"><img alt="" src="assets/icons/prestige.png"/><span><small>Prestígio</small><strong id="floatingPrestigeCounter">0</strong></span></article>
 </section>
 <button aria-label="Subir ao início da página" class="back-to-top" hidden="" id="backToTop" type="button"><strong>Subir</strong></button>
 <aside aria-label="Acompanhamento dos contratos ativos" class="contract-dock" id="contractDock"></aside>

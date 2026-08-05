@@ -6879,3 +6879,235 @@ button:disabled .inline-resource img,
     height: 44px !important;
   }
 }
+
+/* ========================================================================== */
+/* REVISÃO 20 — assets, laboratório de sons e refinamentos responsivos        */
+/* ========================================================================== */
+
+/* Header e footer conectados às extremidades da página. */
+.app-shell {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+.app-header {
+  margin-top: 0 !important;
+  border-top: 0 !important;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg) !important;
+}
+.app-footer {
+  margin-bottom: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 20px 20px 0 0 !important;
+}
+
+/* As quatro estações usam imagens próprias na animação ambiente. */
+.floating-leaf {
+  width: clamp(46px, 5.2vw, 76px) !important;
+  height: auto !important;
+  object-fit: contain;
+  opacity: .13 !important;
+}
+.leaf-four { display: block !important; }
+
+/* Todos os tabs principais, inclusive Estoque, têm a mesma caixa em qualquer
+   estado. O indicador de capacidade permanece desenhado por dentro. */
+.main-nav {
+  align-items: stretch !important;
+}
+.main-nav .nav-tab,
+.main-nav .stock-nav-tab {
+  align-self: stretch !important;
+  min-height: 48px !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+}
+.stock-nav-tab::before {
+  box-sizing: border-box !important;
+  pointer-events: none;
+}
+
+/* Ícones ilustrados são usados somente nos aprimoramentos comprados com
+   moedas. Pesquisa, Prestígio e Escritório continuam com seus símbolos atuais. */
+#evolveView [data-upgrade-kind="upgrade"] .upgrade-icon {
+  display: grid !important;
+  place-items: center;
+  overflow: hidden;
+  padding: 5px !important;
+  background: rgba(255,255,255,.72) !important;
+}
+#evolveView [data-upgrade-kind="upgrade"] .upgrade-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 42px;
+  max-height: 42px;
+  object-fit: contain;
+}
+
+/* Laboratório temporário para o desenvolvedor testar todos os arquivos. */
+.sound-lab-card {
+  grid-column: 1 / -1;
+  gap: 14px !important;
+}
+.sound-lab-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+.sound-lab-heading h2 { margin-top: 2px; }
+.sound-lab-heading > span {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border: 1px solid rgba(83,126,77,.14);
+  border-radius: 999px;
+  color: var(--green-deep);
+  font-size: .61rem;
+  font-weight: 900;
+  background: rgba(237,246,230,.86);
+}
+.sound-lab-copy {
+  margin: -4px 0 0;
+  color: var(--ink-soft);
+  font-size: .72rem;
+  line-height: 1.55;
+}
+.sound-volume-setting { margin-top: 0 !important; }
+.sound-action-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.sound-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, .8fr);
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid rgba(70,108,68,.10);
+  border-radius: 14px;
+  background: rgba(248,250,244,.72);
+}
+.sound-action-row > span:first-child { min-width: 0; }
+.sound-action-row strong,
+.sound-action-row small { display: block; }
+.sound-action-row strong { font-size: .72rem; }
+.sound-action-row small {
+  margin-top: 2px;
+  color: var(--ink-soft);
+  font-size: .59rem;
+  line-height: 1.35;
+}
+.sound-action-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.sound-action-controls select {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid rgba(70,108,68,.14);
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: .63rem;
+  font-weight: 750;
+  background: rgba(255,255,252,.92);
+}
+.sound-preview-button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(76,124,70,.16);
+  border-radius: 10px;
+  color: var(--green-deep);
+  font-size: .74rem;
+  cursor: pointer;
+  background: rgba(231,242,224,.92);
+}
+.sound-preview-button:hover {
+  background: rgba(217,236,207,.96);
+  transform: translateY(-1px);
+}
+.sound-lab-actions { justify-content: flex-end; }
+
+/* No breakpoint de tablet os recursos ocupam a segunda linha e o nível da
+   fazenda fica firmemente alinhado à direita da primeira linha. */
+@media (min-width: 761px) and (max-width: 920px) {
+  .app-header {
+    grid-template-columns: minmax(0, 1fr) minmax(215px, .72fr) !important;
+    align-items: center !important;
+  }
+  .app-header > .brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .app-header > .farm-progress {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end !important;
+    width: min(280px, 100%) !important;
+    margin-left: auto !important;
+  }
+  .app-header > .resource-strip {
+    grid-column: 1 / -1 !important;
+    grid-row: 2;
+    width: 100% !important;
+  }
+}
+
+/* Quando as subabas quebram para a linha inferior, ocupam somente o conteúdo
+   necessário e permanecem ancoradas à direita. Em telas estreitas, o bloco
+   pode rolar horizontalmente sem inverter a ordem da navegação. */
+@media (max-width: 1100px) {
+  .navigation-stack > .context-nav-column {
+    justify-self: end !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin: 0 0 0 auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .context-nav-column .context-tabs,
+  .context-nav-column .office-tabs,
+  .context-nav-column .evolution-tabs {
+    display: flex !important;
+    align-items: stretch;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+  }
+  .context-nav-column .office-tab,
+  .context-nav-column .evolution-tab {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 122px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .app-header {
+    border-radius: 0 0 20px 20px !important;
+  }
+  .app-footer {
+    border-radius: 18px 18px 0 0 !important;
+  }
+  .context-nav-column .office-tab,
+  .context-nav-column .evolution-tab {
+    min-width: 112px !important;
+  }
+  .sound-action-list { grid-template-columns: 1fr; }
+  .sound-action-row { grid-template-columns: 1fr; gap: 8px; }
+  .sound-lab-actions { justify-content: stretch; }
+  .sound-lab-actions .button { flex: 1 1 auto; }
+}
+
+@media (max-width: 430px) {
+  .sound-lab-heading { flex-direction: column; gap: 7px; }
+  .sound-action-controls { grid-template-columns: minmax(0, 1fr) 34px; }
+  .sound-preview-button { width: 34px; height: 34px; }
+}

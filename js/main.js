@@ -5,6 +5,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const pendingEvents = [];
   let engine = null;
+  const soundEngine = new SoundEngine();
   let lastFrame = performance.now();
   let lastRender = 0;
   let lastLiveHeader = 0;
@@ -71,6 +72,12 @@
     ambientSetting: $("#ambientSetting"),
     uiScaleSetting: $("#uiScaleSetting"),
     uiScaleText: $("#uiScaleText"),
+    soundEnabledSetting: $("#soundEnabledSetting"),
+    soundVolumeSetting: $("#soundVolumeSetting"),
+    soundVolumeText: $("#soundVolumeText"),
+    soundActionList: $("#soundActionList"),
+    stopSoundPreview: $("#stopSoundPreview"),
+    resetSoundMappings: $("#resetSoundMappings"),
     backToTop: $("#backToTop")
   };
 
@@ -96,9 +103,9 @@
   }
 
   const resourceIcons = {
-    coins: "img/icons/coin.png",
-    research: "img/icons/potion.png",
-    prestige: "img/icons/prestige.png"
+    coins: "assets/icons/coin.png",
+    research: "assets/icons/potion.png",
+    prestige: "assets/icons/prestige.png"
   };
 
   function resourceAmount(type, value, options = {}) {
@@ -147,6 +154,7 @@
   function handleEngineEvent(event) {
     if (!event) return;
     if (event.type === "level") {
+      soundEngine.play("levelUp");
       toast(`A fazenda alcançou o nível ${event.level} e recebeu ${engine.formatMoney(event.rewardCoins || 0)}. Novas sementes podem ter sido liberadas.`, "level");
       window.setTimeout(() => render(true), 0);
     }
@@ -192,6 +200,31 @@
     render(true);
   }
 
+  function renderSoundActionList() {
+    if (!dom.soundActionList) return;
+    const actions = SoundEngine.getActions();
+    const files = SoundEngine.getFiles();
+    const mappings = engine.state.settings.soundMappings || {};
+
+    if (!dom.soundActionList.children.length) {
+      const options = files.map(file => `<option value="${escapeHtml(file.path)}">${escapeHtml(file.label)}</option>`).join("");
+      dom.soundActionList.innerHTML = actions.map(action => `
+        <label class="sound-action-row">
+          <span><strong>${escapeHtml(action.label)}</strong><small>${escapeHtml(action.description)}</small></span>
+          <span class="sound-action-controls">
+            <select aria-label="Som para ${escapeHtml(action.label)}" data-sound-action="${action.id}">${options}</select>
+            <button class="sound-preview-button" type="button" data-sound-preview="${action.id}" aria-label="Testar ${escapeHtml(action.label)}" title="Testar som">▶</button>
+          </span>
+        </label>`).join("");
+    }
+
+    $$("[data-sound-action]", dom.soundActionList).forEach(select => {
+      if (document.activeElement !== select) {
+        select.value = mappings[select.dataset.soundAction] ?? SoundEngine.DEFAULT_MAPPINGS[select.dataset.soundAction] ?? "";
+      }
+    });
+  }
+
   function applySettings() {
     const settings = engine.state.settings;
     document.body.dataset.ambient = String(Boolean(settings.ambient));
@@ -202,6 +235,12 @@
     if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(settings.ambient);
     if (dom.uiScaleSetting && document.activeElement !== dom.uiScaleSetting) dom.uiScaleSetting.value = String(settings.uiScale || 100);
     if (dom.uiScaleText) dom.uiScaleText.textContent = `${settings.uiScale || 100}%`;
+
+    soundEngine.configure(settings);
+    if (dom.soundEnabledSetting && document.activeElement !== dom.soundEnabledSetting) dom.soundEnabledSetting.checked = settings.soundEnabled !== false;
+    if (dom.soundVolumeSetting && document.activeElement !== dom.soundVolumeSetting) dom.soundVolumeSetting.value = String(settings.soundVolume ?? 55);
+    if (dom.soundVolumeText) dom.soundVolumeText.textContent = `${settings.soundVolume ?? 55}%`;
+    renderSoundActionList();
   }
 
   function updateStockNavigation(metrics = engine.getMetrics()) {
@@ -560,6 +599,9 @@
     const affordable = !maxed && availableResource >= cost;
     const action = kind === "upgrade" ? "buy-upgrade" : kind === "research" ? "buy-research" : "buy-prestige-upgrade";
     const isRoyalTreasury = kind === "prestige" && item.id === "royalTreasury";
+    const iconMarkup = typeof item.icon === "string" && /\.(?:png|webp|svg)$/i.test(item.icon)
+      ? `<img src="${escapeHtml(item.icon)}" alt="">`
+      : escapeHtml(item.icon);
     const treasuryAmount = 2000 + Math.min(level, 9) * 2000;
     const descriptionHtml = isRoyalTreasury
       ? `<span class="treasury-current-value">${resourceAmount("coins", treasuryAmount, { compact: true })}<span>ao começar uma nova jornada.</span></span>${level < 9
@@ -572,7 +614,7 @@
       <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-upgrade-kind="${kind}">
         <div class="upgrade-level-badge">Nível ${level} / ${item.max}</div>
         <div class="upgrade-card-identity">
-          <span class="upgrade-icon" aria-hidden="true">${item.icon}</span>
+          <span class="upgrade-icon" aria-hidden="true">${iconMarkup}</span>
           <h3>${escapeHtml(item.name)}</h3>
         </div>
         <p class="upgrade-description ${isRoyalTreasury ? "treasury-description" : ""}">${descriptionHtml}</p>
@@ -934,10 +976,20 @@
     });
   }
 
+  function getActionSound(action) {
+    if (["upgrade-crop-selected", "buy-upgrade", "buy-research", "buy-prestige-upgrade"].includes(action)) return "upgrade";
+    if (["sell-fraction", "sell-all-stock"].includes(action)) return "sell";
+    if (["claim-contract", "deliver-order", "claim-mission"].includes(action)) return "reward";
+    if (action === "perform-prestige") return "prestige";
+    return "click";
+  }
+
   function handleAction(button) {
     const action = button.dataset.action;
     const cropId = button.dataset.crop;
     const id = button.dataset.id;
+
+    if (action !== "perform-prestige") soundEngine.play(getActionSound(action));
 
     if (action === "buy-crop") act(engine.buyCrop(cropId));
     if (action === "select-upgrade-mode") {
@@ -1002,22 +1054,30 @@
       if (engine.state.farmLevel < 15) return toast("O prestígio fica disponível no nível 15 da fazenda.", "error");
       if (gain < 1) return toast("Fortaleça mais esta jornada antes de prestigiar.", "error");
       if (!window.confirm("Prestigiar agora reiniciará os recursos e o progresso desta jornada. Continuar?")) return;
-      act(engine.performPrestige(), result => `Nova jornada iniciada com ${result.gain} ${result.gain === 1 ? "ponto de prestígio" : "pontos de prestígio"}.`);
+      const result = engine.performPrestige();
+      if (result.ok) soundEngine.play("prestige");
+      act(result, value => `Nova jornada iniciada com ${value.gain} ${value.gain === 1 ? "ponto de prestígio" : "pontos de prestígio"}.`);
     }
   }
 
   function setupEvents() {
-    dom.tabs.forEach(tab => tab.addEventListener("click", () => showView(tab.dataset.view)));
+    dom.tabs.forEach(tab => tab.addEventListener("click", () => {
+      if (tab.dataset.view !== activeView) soundEngine.play("mainNavigation");
+      showView(tab.dataset.view);
+    }));
     dom.officeTabs.forEach(tab => tab.addEventListener("click", () => {
+      if (tab.dataset.officeTab !== activeOfficeTab) soundEngine.play("secondaryNavigation");
       showOfficeTab(tab.dataset.officeTab);
       render(true);
     }));
     dom.evolutionTabs.forEach(tab => tab.addEventListener("click", () => {
+      if (tab.dataset.evolutionTab !== activeEvolutionTab) soundEngine.play("secondaryNavigation");
       showEvolutionTab(tab.dataset.evolutionTab);
       render(true);
     }));
     $$('[data-go-view]').forEach(link => link.addEventListener("click", event => {
       event.preventDefault();
+      if (link.dataset.goView !== activeView) soundEngine.play("mainNavigation");
       showView(link.dataset.goView);
     }));
 
@@ -1093,6 +1153,46 @@
       engine.setSetting("uiScale", Number(dom.uiScaleSetting.value));
       applySettings();
     });
+
+    dom.soundEnabledSetting?.addEventListener("change", () => {
+      engine.setSetting("soundEnabled", dom.soundEnabledSetting.checked);
+      applySettings();
+      if (dom.soundEnabledSetting.checked) soundEngine.play("click");
+    });
+    dom.soundVolumeSetting?.addEventListener("input", () => {
+      engine.setSetting("soundVolume", Number(dom.soundVolumeSetting.value));
+      applySettings();
+    });
+    dom.soundActionList?.addEventListener("change", event => {
+      const select = event.target.closest("[data-sound-action]");
+      if (!select) return;
+      const mappings = {
+        ...(engine.state.settings.soundMappings || {}),
+        [select.dataset.soundAction]: select.value
+      };
+      engine.setSetting("soundMappings", mappings);
+      applySettings();
+      soundEngine.preview(select.value);
+    });
+    dom.soundActionList?.addEventListener("click", event => {
+      const preview = event.target.closest("[data-sound-preview]");
+      if (!preview) return;
+      const select = $(`[data-sound-action="${preview.dataset.soundPreview}"]`, dom.soundActionList);
+      if (select) soundEngine.preview(select.value);
+    });
+    dom.stopSoundPreview?.addEventListener("click", () => soundEngine.stop());
+    dom.resetSoundMappings?.addEventListener("click", () => {
+      engine.setSetting("soundMappings", { ...SoundEngine.DEFAULT_MAPPINGS });
+      applySettings();
+      soundEngine.play("click");
+    });
+
+    document.addEventListener("click", event => {
+      const control = event.target.closest("button, a.brand");
+      if (!control || control.disabled) return;
+      if (control.matches("[data-action], .nav-tab, .office-tab, .evolution-tab, [data-go-view], [data-sound-preview], #stopSoundPreview, #resetSoundMappings")) return;
+      soundEngine.play("click");
+    }, true);
 
     window.addEventListener("scroll", syncScrollUI, { passive: true });
     dom.backToTop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
