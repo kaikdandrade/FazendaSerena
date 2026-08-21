@@ -84,6 +84,17 @@ class SoundEngine {
     this.releasedMusicTime = 0;
     try { this.musicChannel.load(); } catch (_) {}
 
+    // Alguns navegadores móveis rejeitam a primeira tentativa automática de
+    // reprodução. Mantemos a ativação armada até uma interação válida iniciar
+    // a música, sem obrigar o jogador a mexer novamente no slider.
+    this.musicActivationHandler = () => {
+      if (document.hidden || this.getEffectiveMusicVolume() <= 0 || (!this.musicChannel.paused && this.musicStarted)) return;
+      this.playMusic();
+    };
+    document.addEventListener("pointerdown", this.musicActivationHandler, { passive: true, capture: true });
+    document.addEventListener("touchstart", this.musicActivationHandler, { passive: true, capture: true });
+    document.addEventListener("keydown", this.musicActivationHandler, { capture: true });
+
     this.preloadEffects();
   }
 
@@ -113,7 +124,8 @@ class SoundEngine {
     else {
       this.ensureMusicSource();
       this.musicChannel.volume = musicVolume;
-      this.playMusic();
+      if (document.hidden) this.pauseForVisibility();
+      else this.playMusic();
     }
   }
 
@@ -426,6 +438,7 @@ class SoundEngine {
   playMusic() {
     const volume = this.getEffectiveMusicVolume();
     if (volume <= 0) { this.deactivateMusic(); return false; }
+    if (document.hidden) return false;
 
     this.ensureMusicSource();
     this.unlockAudio();
@@ -444,6 +457,19 @@ class SoundEngine {
     this.musicStarted = false;
     if (this.getEffectiveMusicVolume() <= 0) this.clearMediaSession();
     else if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = "paused"; } catch (_) {} }
+  }
+
+  pauseForVisibility() {
+    // Sair da aba/tela pausa a trilha, mas não equivale a desligar o áudio: o
+    // arquivo e a posição permanecem prontos para retomar quando o jogo voltar.
+    this.musicChannel.pause();
+    this.musicStarted = false;
+    this.clearMediaSession();
+  }
+
+  resumeAfterVisibility() {
+    if (this.getEffectiveMusicVolume() <= 0) return false;
+    return this.playMusic();
   }
 
   resumeMusic() {

@@ -115,7 +115,7 @@
       try {
         await window.FirebaseManager.sendFriendRequest(friendCode);
         if (input) input.value = "";
-        await refreshFriends(true);
+        if (!friendsRealtimeUnsubscribe) await refreshFriends(true);
         setFriendsFeedback("Solicitação enviada.", "success");
       } catch (error) {
         setFriendsFeedback(window.FirebaseManager.getFriendlyError(error), "error");
@@ -388,6 +388,12 @@
       render(true);
     });
 
+    dom.navigationModeSetting?.addEventListener("change", () => {
+      engine.setSetting("navigationMode", dom.navigationModeSetting.value);
+      applySettings(true);
+      render(true);
+    });
+
 
     dom.masterVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("masterVolume", Number(dom.masterVolumeSetting.value));
@@ -431,12 +437,17 @@
     window.addEventListener("pagehide", () => {
       // Visitantes também persistem no localStorage; contas conectadas persistem na nuvem.
       engine.save();
+      soundEngine.pauseForVisibility();
+    });
+    window.addEventListener("pageshow", () => {
+      if (!document.hidden) soundEngine.resumeAfterVisibility();
     });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         engine.save();
+        soundEngine.pauseForVisibility();
       } else {
-        soundEngine.resumeMusic();
+        soundEngine.resumeAfterVisibility();
         const now = Date.now();
         const elapsed = Math.max(0, (now - Number(engine.state.lastUpdate || now)) / 1000);
         if (elapsed > 0.05) {

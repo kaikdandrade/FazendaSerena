@@ -40,6 +40,7 @@
   let leaderboardRequest = null;
   let friendsState = { status: "idle", selfProfile: null, friends: [], incoming: [], outgoing: [], error: null, loadedAt: 0 };
   let friendsRequest = null;
+  let friendsRealtimeUnsubscribe = null;
   let pendingOfflineMilestones = [];
   let pendingContractBreakId = "";
   let lastResearchRenderSignature = "";
@@ -109,6 +110,7 @@
     fontScaleSetting: $("#fontScaleSetting"),
     fontScaleText: $("#fontScaleText"),
     numberFormatSetting: $("#numberFormatSetting"),
+    navigationModeSetting: $("#navigationModeSetting"),
     masterVolumeSetting: $("#masterVolumeSetting"),
     masterVolumeText: $("#masterVolumeText"),
     effectVolumeSetting: $("#effectVolumeSetting"),

@@ -329,8 +329,11 @@ Object.assign(GameEngine.prototype, {
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [offer] = this.state.contractOffers.splice(index, 1);
-    if (offer.timeRemaining <= 0) { this.startContractCooldown(GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS, "expired"); this.ensureContractOffers(); return { ok: false, message: "O prazo desta proposta terminou." }; }
-    const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), completedAt: 0, timeRemaining: offer.offerCountdown === false ? offer.durationSeconds : offer.timeRemaining };
+    if (offer.offerCountdown !== false && offer.timeRemaining <= 0) { this.startContractCooldown(GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS, "expired"); this.ensureContractOffers(); return { ok: false, message: "O prazo desta proposta terminou." }; }
+    // A duração sorteada pertence ao contrato. Se houver prazo de proposta, ele
+    // apenas limita por quanto tempo a oferta fica disponível. Ao assinar, o
+    // cronômetro de entrega sempre recomeça com a duração completa sorteada.
+    const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), completedAt: 0, timeRemaining: Math.max(5, Number(offer.durationSeconds) || 5) };
     this.state.activeContracts.push(contract);
     const cooldown = this.startContractCooldown(GameEngine.CONTRACT_SIGNED_COOLDOWN_SECONDS, "signed", contract.id);
     const stockDelivery = this.deliverStockToContract(contract.id, true);

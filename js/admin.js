@@ -9,7 +9,7 @@
     ordersUnlockLevel: $("#adminOrdersUnlockLevel"), evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), startingCoins: $("#adminStartingCoins"), storageCapacity: $("#adminStorageCapacity"),
     contractSignedCooldown: $("#adminContractSignedCooldown"), contractExpiredCooldown: $("#adminContractExpiredCooldown"), contractDeclinedCooldown: $("#adminContractDeclinedCooldown"), contractBrokenCooldown: $("#adminContractBrokenCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
-    navigationIconGrid: $("#adminNavigationIconGrid"), mobileNavigationIconGrid: $("#adminMobileNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
+    navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
     playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"),
     textsEditor: $("#adminTextsEditor"), saveBalance: $("#adminSaveBalance"), saveTexts: $("#adminSaveTexts"),
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
@@ -30,35 +30,54 @@
     ["farm", "Fazenda"], ["stock", "Estoque"], ["office", "Escritório"], ["profile", "Perfil"], ["settings", "Configurações"],
     ["contracts", "Contratos"], ["orders", "Pedidos"], ["evolutions", "Evoluções"], ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"]
   ]);
-  const mobileNavigationIconFields = Object.freeze([
+  const gridNavigationIconFields = Object.freeze([
     ["farm", "Fazenda"], ["stock", "Estoque"], ["contracts", "Contratos"], ["orders", "Pedidos"], ["evolutions", "Evoluções"],
     ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"], ["settings", "Configurações"]
   ]);
   let playerFeedbackLoaded = false;
   const escapeHtml = value => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
-  function navigationIconFieldMarkup(fields, values, attribute) {
+  function orderedNavigationFields(fields, order = []) {
+    const rank = new Map((order || []).map((key, index) => [key, index]));
+    return [...fields].sort((a, b) => (rank.get(a[0]) ?? 999) - (rank.get(b[0]) ?? 999));
+  }
+  function navigationIconFieldMarkup(fields, values, attribute, order = []) {
     const options = window.AdminAssetRegistry?.options?.("icone") || [];
-    return fields.map(([key, label]) => {
+    return orderedNavigationFields(fields, order).map(([key, label]) => {
       const current = values?.[key] || options[0]?.value || "";
-      return `<section class="admin-navigation-icon-field"><span>${escapeHtml(label)}</span><select autocomplete="off" data-image-select ${attribute}="${key}">${options.map(item => `<option value="${escapeHtml(item.value)}" ${item.value === current ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></section>`;
+      return `<section class="admin-navigation-icon-field" data-navigation-row="${escapeHtml(key)}"><div class="admin-navigation-icon-field-title"><span>${escapeHtml(label)}</span><div class="admin-navigation-order-actions"><button class="admin-icon-order-button" data-nav-move="up" type="button" aria-label="Mover ${escapeHtml(label)} para cima">↑</button><button class="admin-icon-order-button" data-nav-move="down" type="button" aria-label="Mover ${escapeHtml(label)} para baixo">↓</button></div></div><select autocomplete="off" data-image-select ${attribute}="${key}">${options.map(item => `<option value="${escapeHtml(item.value)}" ${item.value === current ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></section>`;
     }).join("");
   }
-  function buildNavigationIconFields(values = {}, mobileValues = {}) {
+  function buildNavigationIconFields(values = {}, gridValues = {}, lineOrder = [], gridOrder = []) {
     if (dom.navigationIconGrid) {
-      dom.navigationIconGrid.innerHTML = navigationIconFieldMarkup(navigationIconFields, values, "data-navigation-icon-field");
+      dom.navigationIconGrid.innerHTML = navigationIconFieldMarkup(navigationIconFields, values, "data-navigation-icon-field", lineOrder);
       window.AdminImageSelect?.enhance?.(dom.navigationIconGrid);
     }
-    if (dom.mobileNavigationIconGrid) {
-      dom.mobileNavigationIconGrid.innerHTML = navigationIconFieldMarkup(mobileNavigationIconFields, mobileValues, "data-mobile-navigation-icon-field");
-      window.AdminImageSelect?.enhance?.(dom.mobileNavigationIconGrid);
+    if (dom.gridNavigationIconGrid) {
+      dom.gridNavigationIconGrid.innerHTML = navigationIconFieldMarkup(gridNavigationIconFields, gridValues, "data-grid-navigation-icon-field", gridOrder);
+      window.AdminImageSelect?.enhance?.(dom.gridNavigationIconGrid);
     }
   }
   function navigationIconsFromForm() {
     return Object.fromEntries(navigationIconFields.map(([key]) => [key, dom.navigationIconGrid?.querySelector(`[data-navigation-icon-field="${key}"]`)?.value || ""]));
   }
-  function mobileNavigationIconsFromForm() {
-    return Object.fromEntries(mobileNavigationIconFields.map(([key]) => [key, dom.mobileNavigationIconGrid?.querySelector(`[data-mobile-navigation-icon-field="${key}"]`)?.value || ""]));
+  function gridNavigationIconsFromForm() {
+    return Object.fromEntries(gridNavigationIconFields.map(([key]) => [key, dom.gridNavigationIconGrid?.querySelector(`[data-grid-navigation-icon-field="${key}"]`)?.value || ""]));
+  }
+  function navigationOrderFromGrid(grid) {
+    return [...(grid?.querySelectorAll('[data-navigation-row]') || [])].map(row => row.dataset.navigationRow).filter(Boolean);
+  }
+  function bindNavigationOrderControls(grid) {
+    grid?.addEventListener("click", event => {
+      const button = event.target.closest("[data-nav-move]");
+      if (!button) return;
+      const row = button.closest("[data-navigation-row]");
+      if (!row) return;
+      const sibling = button.dataset.navMove === "up" ? row.previousElementSibling : row.nextElementSibling;
+      if (!sibling) return;
+      if (button.dataset.navMove === "up") grid.insertBefore(row, sibling);
+      else grid.insertBefore(sibling, row);
+    });
   }
   async function renderPlayerFeedback() {
     if (!authorized || !dom.playerFeedbackList) return;
@@ -122,7 +141,7 @@
   function fillEditors(input, { source = "editor" } = {}) {
     const config = window.GameAdminConfig.normalize(input); currentConfig = clone(config);
     balanceFields.forEach(([key, element, isPercent]) => { const value = String(config.balance[key]); element.value = isPercent ? `${value}%` : value; });
-    catalogNames.forEach(name => window.AdminCatalogEditors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.mobileNavigationIcons); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
+    catalogNames.forEach(name => window.AdminCatalogEditors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.gridNavigationIcons, config.lineNavigationOrder, config.gridNavigationOrder); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
   function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
@@ -224,8 +243,11 @@
   dom.saveNavigationIcons?.addEventListener("click", () => queueCloudSave("Salvando ícones de navegação...", async () => {
     const next = clone(currentConfig);
     next.navigationIcons = navigationIconsFromForm();
-    next.mobileNavigationIcons = mobileNavigationIconsFromForm();
-    return publishConfig(next, "Ícones de navegação atualizados.");
+    next.gridNavigationIcons = gridNavigationIconsFromForm();
+    next.lineNavigationOrder = navigationOrderFromGrid(dom.navigationIconGrid);
+    next.gridNavigationOrder = navigationOrderFromGrid(dom.gridNavigationIconGrid);
+    delete next.mobileNavigationIcons;
+    return publishConfig(next, "Ícones e ordem da navegação atualizados.");
   }).catch(() => {}));
   dom.refreshPlayerFeedback?.addEventListener("click", () => renderPlayerFeedback());
   dom.playerFeedbackList?.addEventListener("click", event => {
@@ -258,6 +280,8 @@
   dom.resetTestOrders?.addEventListener("click", () => { if (!confirm("Resetar os pedidos da sua conta administrativa?")) return; mutateOwnTestSave("Resetando pedidos", resetOrdersInState).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
   dom.resetTestMissions?.addEventListener("click", () => { if (!confirm("Resetar as missões concluídas da sua conta administrativa?")) return; mutateOwnTestSave("Resetando missões", state => { state.missionsClaimed = {}; }).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
 
+  bindNavigationOrderControls(dom.navigationIconGrid);
+  bindNavigationOrderControls(dom.gridNavigationIconGrid);
   bindPositiveInputs();
   dom.workspaceSelect?.addEventListener("change", () => selectWorkspace(dom.workspaceSelect.value));
   selectWorkspace("balance");

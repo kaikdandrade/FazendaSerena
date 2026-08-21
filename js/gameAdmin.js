@@ -218,7 +218,7 @@
   function normalizeNavigationIcons(raw = {}) {
     return Object.fromEntries(Object.entries(defaultNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
   }
-  const defaultMobileNavigationIcons = Object.freeze({
+  const defaultGridNavigationIcons = Object.freeze({
     farm: defaultNavigationIcons.farm,
     stock: defaultNavigationIcons.stock,
     contracts: defaultNavigationIcons.contracts,
@@ -229,8 +229,15 @@
     missions: defaultNavigationIcons.missions,
     settings: defaultNavigationIcons.settings
   });
-  function normalizeMobileNavigationIcons(raw = {}, desktop = defaultNavigationIcons) {
-    return Object.fromEntries(Object.entries(defaultMobileNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], desktop?.[key] || fallback)]));
+  const defaultLineNavigationOrder = Object.freeze(["farm", "stock", "office", "profile", "settings", "contracts", "orders", "evolutions", "account", "social", "missions"]);
+  const defaultGridNavigationOrder = Object.freeze(["farm", "stock", "contracts", "orders", "evolutions", "account", "social", "missions", "settings"]);
+  function normalizeGridNavigationIcons(raw = {}, line = defaultNavigationIcons) {
+    return Object.fromEntries(Object.entries(defaultGridNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], line?.[key] || fallback)]));
+  }
+  function normalizeNavigationOrder(raw, allowed, fallback) {
+    const allowedSet = new Set(allowed);
+    const received = Array.isArray(raw) ? raw.map(value => String(value || "")).filter(value => allowedSet.has(value)) : [];
+    return [...new Set([...received, ...fallback])].filter(value => allowedSet.has(value));
   }
 
   const standardPointTypes = Object.freeze([
@@ -241,7 +248,7 @@
   ]);
 
   const defaults = Object.freeze({
-    schemaVersion: 13,
+    schemaVersion: 15,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -257,7 +264,9 @@
     events: [],
     updateNotes: [],
     navigationIcons: clone(defaultNavigationIcons),
-    mobileNavigationIcons: clone(defaultMobileNavigationIcons),
+    gridNavigationIcons: clone(defaultGridNavigationIcons),
+    lineNavigationOrder: clone(defaultLineNavigationOrder),
+    gridNavigationOrder: clone(defaultGridNavigationOrder),
     texts: clone(defaultTexts)
   });
 
@@ -612,7 +621,7 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 13,
+      schemaVersion: 15,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -628,7 +637,9 @@
       events: normalizeEvents(source?.events),
       updateNotes,
       navigationIcons: normalizeNavigationIcons(source?.navigationIcons),
-      mobileNavigationIcons: normalizeMobileNavigationIcons(source?.mobileNavigationIcons, normalizeNavigationIcons(source?.navigationIcons)),
+      gridNavigationIcons: normalizeGridNavigationIcons(source?.gridNavigationIcons || source?.mobileNavigationIcons, normalizeNavigationIcons(source?.navigationIcons)),
+      lineNavigationOrder: normalizeNavigationOrder(source?.lineNavigationOrder, Object.keys(defaultNavigationIcons), defaultLineNavigationOrder),
+      gridNavigationOrder: normalizeNavigationOrder(source?.gridNavigationOrder || source?.mobileNavigationOrder, Object.keys(defaultGridNavigationIcons), defaultGridNavigationOrder),
       texts: normalizeTexts(source?.texts)
     };
   }
@@ -677,17 +688,33 @@
   }
 
 
-  function applyNavigationIcons(icons = {}, mobileIcons = {}) {
-    Object.entries(icons).forEach(([key, src]) => {
+  function applyNavigationIcons(lineIcons = {}, gridIcons = {}) {
+    Object.entries(lineIcons).forEach(([key, src]) => {
       document.querySelectorAll(`[data-navigation-icon="${key}"]`).forEach(image => {
         if (image instanceof HTMLImageElement) image.src = src;
       });
     });
-    Object.entries(mobileIcons).forEach(([key, src]) => {
-      document.querySelectorAll(`[data-mobile-navigation-icon="${key}"]`).forEach(image => {
+    Object.entries(gridIcons).forEach(([key, src]) => {
+      document.querySelectorAll(`[data-grid-navigation-icon="${key}"]`).forEach(image => {
         if (image instanceof HTMLImageElement) image.src = src;
       });
     });
+  }
+
+  function reorderNavigation(container, selector, order, attribute) {
+    if (!container) return;
+    const rank = new Map((order || []).map((key, index) => [key, index]));
+    [...container.querySelectorAll(selector)]
+      .sort((a, b) => (rank.get(a.getAttribute(attribute)) ?? 999) - (rank.get(b.getAttribute(attribute)) ?? 999))
+      .forEach(element => container.appendChild(element));
+  }
+
+  function applyNavigationOrder(lineOrder = defaultLineNavigationOrder, gridOrder = defaultGridNavigationOrder) {
+    reorderNavigation(document.querySelector('.desktop-main-nav'), ':scope > [data-navigation-key]', lineOrder, 'data-navigation-key');
+    document.querySelectorAll('.desktop-context-nav .context-tabs').forEach(container => {
+      reorderNavigation(container, ':scope > [data-navigation-key]', lineOrder, 'data-navigation-key');
+    });
+    reorderNavigation(document.querySelector('.mobile-direct-nav'), ':scope > [data-grid-navigation-key]', gridOrder, 'data-grid-navigation-key');
   }
 
   function apply(raw = {}) {
@@ -730,7 +757,8 @@
     window.FazendaSerenaRuntimeConfig = runtimeConfig;
     window.FazendaSerenaConfig?.applyCloudVersion?.(config.gameVersion);
     applyTexts(config.texts, config.pointTypes);
-    applyNavigationIcons(config.navigationIcons, config.mobileNavigationIcons);
+    applyNavigationIcons(config.navigationIcons, config.gridNavigationIcons);
+    applyNavigationOrder(config.lineNavigationOrder, config.gridNavigationOrder);
     window.dispatchEvent(new CustomEvent("fazenda-runtime-config", { detail: clone(runtimeConfig) }));
     return clone(config);
   }
@@ -745,8 +773,11 @@
     window.FazendaSerenaRuntimeConfig = current;
     applyTexts(current.texts, current.pointTypes || []);
     current.navigationIcons = clone(normalized.navigationIcons);
-    current.mobileNavigationIcons = clone(normalized.mobileNavigationIcons);
-    applyNavigationIcons(current.navigationIcons, current.mobileNavigationIcons);
+    current.gridNavigationIcons = clone(normalized.gridNavigationIcons);
+    current.lineNavigationOrder = clone(normalized.lineNavigationOrder);
+    current.gridNavigationOrder = clone(normalized.gridNavigationOrder);
+    applyNavigationIcons(current.navigationIcons, current.gridNavigationIcons);
+    applyNavigationOrder(current.lineNavigationOrder, current.gridNavigationOrder);
     window.dispatchEvent(new CustomEvent("fazenda-live-content", { detail: { events: clone(current.events) } }));
   }
 

@@ -191,7 +191,8 @@
     const musicTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack]
       ? settings.musicTrack
       : audioDefaults.musicTrack;
-    const signature = JSON.stringify({ ambient: Boolean(ambient), fontScale, numberFormat, masterVolume, effectVolume, musicVolume, musicTrack });
+    const navigationMode = ["automatic", "line", "grid"].includes(settings.navigationMode) ? settings.navigationMode : "automatic";
+    const signature = JSON.stringify({ ambient: Boolean(ambient), fontScale, numberFormat, navigationMode, masterVolume, effectVolume, musicVolume, musicTrack });
     if (!force && signature === appliedSettingsSignature) return;
     appliedSettingsSignature = signature;
 
@@ -202,6 +203,8 @@
     if (dom.fontScaleSetting && document.activeElement !== dom.fontScaleSetting) dom.fontScaleSetting.value = String(fontScale);
     if (dom.fontScaleText) dom.fontScaleText.textContent = `${fontScale}%`;
     if (dom.numberFormatSetting && document.activeElement !== dom.numberFormatSetting) dom.numberFormatSetting.value = numberFormat;
+    document.body.dataset.navigationMode = navigationMode;
+    if (dom.navigationModeSetting && document.activeElement !== dom.navigationModeSetting) dom.navigationModeSetting.value = navigationMode;
 
     soundEngine.configure({ ...settings, masterVolume, effectVolume, musicVolume, musicTrack });
     if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(masterVolume);
@@ -231,6 +234,7 @@
       tab.setAttribute("aria-label", dom.stockNavTab.getAttribute("aria-label") || "Estoque");
       tab.style.setProperty("--stock-progress", `${usage}%`);
       tab.classList.toggle("stock-full", full);
+      tab.querySelectorAll(".mobile-stock-nav-badge, .nav-alert").forEach(badge => { badge.hidden = !full; });
     });
   }
 

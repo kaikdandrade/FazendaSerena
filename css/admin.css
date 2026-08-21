@@ -982,3 +982,11 @@ body > .admin-image-select-popover[popover] {
   .admin-image-picker-dialog-r29 .admin-image-picker-shell { max-height:calc(100dvh - 14px) !important; }
   .admin-image-picker-dialog-r29 .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
 }
+
+/* r30 — ícones e ordem das duas modalidades de navegação */
+.admin-navigation-icon-field { gap:9px !important; }
+.admin-navigation-icon-field-title { align-items:center; display:flex; gap:8px; justify-content:space-between; }
+.admin-navigation-icon-field-title > span { font-weight:850; }
+.admin-navigation-order-actions { display:flex; gap:4px; }
+.admin-icon-order-button { align-items:center; background:rgba(65,103,65,.07); border:1px solid rgba(65,103,65,.13); border-radius:8px; color:#436b43; cursor:pointer; display:flex; font-size:.8rem; font-weight:950; height:29px; justify-content:center; width:31px; }
+.admin-icon-order-button:hover { background:rgba(65,103,65,.13); }

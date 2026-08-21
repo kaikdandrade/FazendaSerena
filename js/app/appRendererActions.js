@@ -128,7 +128,7 @@
     const id = button.dataset.id;
 
     if (action === "refresh-friends") {
-      refreshFriends(true);
+      refreshFriends(true).then(() => startFriendsRealtime()).catch(() => {});
       return;
     }
     if (action === "friends-sign-in") {

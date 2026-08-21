@@ -549,6 +549,56 @@ class FirebaseManager {
     };
   }
 
+  async subscribeFriendships(listener) {
+    await this.ready();
+    const user = this.currentUser;
+    if (typeof listener !== "function" || !user || !this.available || !this.db || !this.sdk) return () => {};
+
+    const selfReference = this.getFriendProfileReference(user);
+    const relationshipsQuery = this.sdk.query(
+      this.sdk.collection(this.db, FirebaseManager.FRIENDSHIP_COLLECTION),
+      this.sdk.where("members", "array-contains", user.uid),
+      this.sdk.limit(100)
+    );
+    let generation = 0;
+    const buildResult = async relationshipsSnapshot => {
+      const currentGeneration = ++generation;
+      const [selfSnapshot] = await Promise.all([this.sdk.getDoc(selfReference)]);
+      const relationships = relationshipsSnapshot.docs.map(document => ({ id: document.id, ...document.data() }));
+      const otherUids = [...new Set(relationships.map(item =>
+        Array.isArray(item.members) ? item.members.find(uid => uid !== user.uid) : ""
+      ).filter(Boolean))];
+      const profileEntries = await Promise.all(otherUids.map(async uid => {
+        const snapshot = await this.sdk.getDoc(this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, uid));
+        return [uid, snapshot.exists() ? { uid, ...snapshot.data() } : null];
+      }));
+      if (currentGeneration !== generation) return null;
+      const profiles = new Map(profileEntries);
+      const enrich = item => {
+        const friendUid = Array.isArray(item.members) ? item.members.find(uid => uid !== user.uid) : "";
+        return { ...item, friendUid, profile: profiles.get(friendUid) || null };
+      };
+      return {
+        authenticated: true,
+        selfProfile: selfSnapshot.exists() ? { uid: user.uid, ...selfSnapshot.data() } : null,
+        friends: relationships.filter(item => item.status === "accepted").map(enrich),
+        incoming: relationships.filter(item => item.status === "pending" && item.requestedBy !== user.uid).map(enrich),
+        outgoing: relationships.filter(item => item.status === "pending" && item.requestedBy === user.uid).map(enrich)
+      };
+    };
+
+    const unsubscribe = this.sdk.onSnapshot(
+      relationshipsQuery,
+      snapshot => {
+        buildResult(snapshot)
+          .then(result => { if (result) listener(result, null); })
+          .catch(error => listener(null, error));
+      },
+      error => listener(null, error)
+    );
+    return typeof unsubscribe === "function" ? unsubscribe : () => {};
+  }
+
   async sendFriendRequest(friendCode) {
     await this.ready();
     const user = this.currentUser;

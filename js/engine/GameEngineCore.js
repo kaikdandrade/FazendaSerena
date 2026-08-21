@@ -71,6 +71,7 @@ class GameEngine {
         musicVolume: permanent.settings?.musicVolume ?? audioDefaults.musicVolume,
         musicTrack: GameEngine.MUSIC_TRACKS.includes(requestedMusicTrack) ? requestedMusicTrack : audioDefaults.musicTrack,
         numberFormat: ["brazilian", "international"].includes(requestedNumberFormat) ? requestedNumberFormat : experienceDefaults.numberFormat,
+        navigationMode: ["automatic", "line", "grid"].includes(permanent.settings?.navigationMode) ? permanent.settings.navigationMode : "automatic",
         playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
         playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
         playerRankingOptOut: Boolean(permanent.settings?.playerRankingOptOut)
@@ -255,6 +256,7 @@ class GameEngine {
       merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? audioDefaults.musicVolume) || 0 : 0));
       merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : audioDefaults.musicTrack;
       merged.settings.numberFormat = ["brazilian", "international"].includes(merged.settings.numberFormat) ? merged.settings.numberFormat : experienceDefaults.numberFormat;
+      merged.settings.navigationMode = ["automatic", "line", "grid"].includes(merged.settings.navigationMode) ? merged.settings.navigationMode : "automatic";
       merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
       merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
       merged.settings.playerRankingOptOut = Boolean(merged.settings.playerRankingOptOut);

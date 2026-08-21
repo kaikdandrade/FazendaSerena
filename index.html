@@ -105,87 +105,96 @@
     <div class="workspace-shell">
       <aside aria-label="Navegação do jogo" class="navigation-stack navigation-responsive-stack">
         <nav aria-label="Áreas do jogo" class="main-nav desktop-main-nav">
-          <button class="nav-tab active" data-view="farmView" title="Fazenda" type="button"><span
-              class="nav-tab-icon"><img alt="" data-navigation-icon="farm"
+          <button class="nav-tab active" data-navigation-key="farm" data-view="farmView" title="Fazenda"
+            type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="farm"
                 src="assets/icons/muda-vaso.webp" /></span><span class="nav-tab-label">Fazenda</span></button>
-          <button class="nav-tab stock-nav-tab" data-view="stockView" id="stockNavTab" style="--stock-progress:0%"
-            title="Estoque 0% cheio" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="stock"
-                src="assets/icons/galpao-industrial.webp" /></span><span class="nav-tab-label">Estoque</span><b
-              aria-hidden="true" class="nav-alert" hidden id="stockNavBadge">!</b></button>
-          <button class="nav-tab office-nav-tab" data-view="officeView" id="officeNavTab" title="Escritório"
-            type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="office"
+          <button class="nav-tab stock-nav-tab" data-navigation-key="stock" data-view="stockView" id="stockNavTab"
+            style="--stock-progress:0%" title="Estoque 0% cheio" type="button"><span class="nav-tab-icon"><img alt=""
+                data-navigation-icon="stock" src="assets/icons/galpao-industrial.webp" /></span><span
+              class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden
+              id="stockNavBadge">!</b></button>
+          <button class="nav-tab office-nav-tab" data-navigation-key="office" data-view="officeView" id="officeNavTab"
+            title="Escritório" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="office"
                 src="assets/icons/prancheta-tarefas.webp" /></span><span
               class="nav-tab-label">Escritório</span></button>
-          <button class="nav-tab profile-nav-tab" data-view="profileView" id="profileNavTab" title="Perfil"
-            type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="profile"
-                src="assets/icons/perfil.webp" /></span><span class="nav-tab-label">Perfil</span></button>
-          <button class="nav-tab settings-nav-tab" data-view="settingsView" title="Configurações" type="button"><span
-              class="nav-tab-icon"><img alt="" data-navigation-icon="settings"
+          <button class="nav-tab profile-nav-tab" data-navigation-key="profile" data-view="profileView"
+            id="profileNavTab" title="Perfil" type="button"><span class="nav-tab-icon"><img alt=""
+                data-navigation-icon="profile" src="assets/icons/perfil.webp" /></span><span
+              class="nav-tab-label">Perfil</span></button>
+          <button class="nav-tab settings-nav-tab" data-navigation-key="settings" data-view="settingsView"
+            title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="settings"
                 src="assets/icons/configuracoes.webp" /></span><span class="nav-tab-label">Configurações</span></button>
         </nav>
         <aside aria-label="Navegação do escritório" class="context-nav-column context-nav-block desktop-context-nav"
           data-context-for="officeView" hidden>
           <nav aria-label="Seções do escritório" class="office-tabs context-tabs" role="tablist">
             <button aria-controls="officeContractsPanel" aria-selected="true" class="office-tab active"
-              data-office-tab="contracts" id="contractsOfficeTab" role="tab" title="Contratos"
-              type="button"><span><i><img alt="" data-navigation-icon="contracts"
+              data-navigation-key="contracts" data-office-tab="contracts" id="contractsOfficeTab" role="tab"
+              title="Contratos" type="button"><span><i><img alt="" data-navigation-icon="contracts"
                     src="assets/icons/contrato-comercial.webp" /></i> Contratos</span><b id="contractTabCount"
                 hidden>0</b></button>
-            <button aria-controls="officeOrdersPanel" aria-selected="false" class="office-tab" data-office-tab="orders"
-              id="ordersOfficeTab" role="tab" title="Pedidos" type="button"><span><i><img alt=""
-                    data-navigation-icon="orders" src="assets/icons/pacote.webp" /></i> Pedidos</span><b
-                id="orderTabCount" hidden>0</b></button>
+            <button aria-controls="officeOrdersPanel" aria-selected="false" class="office-tab"
+              data-navigation-key="orders" data-office-tab="orders" id="ordersOfficeTab" role="tab" title="Pedidos"
+              type="button"><span><i><img alt="" data-navigation-icon="orders" src="assets/icons/pacote.webp" /></i>
+                Pedidos</span><b id="orderTabCount" hidden>0</b></button>
             <button aria-controls="officeEvolutionsPanel" aria-selected="false" class="office-tab"
-              data-office-tab="evolutions" id="evolutionsOfficeTab" role="tab" title="Evoluções"
-              type="button"><span><i><img alt="" data-navigation-icon="evolutions" src="assets/icons/livros.webp" /></i>
-                Evoluções</span></button>
+              data-navigation-key="evolutions" data-office-tab="evolutions" id="evolutionsOfficeTab" role="tab"
+              title="Evoluções" type="button"><span><i><img alt="" data-navigation-icon="evolutions"
+                    src="assets/icons/livros.webp" /></i> Evoluções</span></button>
           </nav>
         </aside>
         <aside aria-label="Navegação do perfil" class="context-nav-column context-nav-block desktop-context-nav"
           data-context-for="profileView" hidden>
           <nav aria-label="Seções do perfil" class="office-tabs profile-tabs context-tabs" role="tablist">
             <button aria-controls="profileAccountPanel" aria-selected="true" class="office-tab profile-tab active"
-              data-profile-tab="account" id="accountProfileTab" role="tab" title="Minha Conta"
-              type="button"><span><i><img alt="" data-navigation-icon="account"
+              data-navigation-key="account" data-profile-tab="account" id="accountProfileTab" role="tab"
+              title="Minha Conta" type="button"><span><i><img alt="" data-navigation-icon="account"
                     src="assets/icons/logo-google.webp" /></i> Minha Conta</span></button>
             <button aria-controls="profileSocialPanel" aria-selected="false" class="office-tab profile-tab"
-              data-profile-tab="social" id="socialProfileTab" role="tab" title="Social" type="button"><span><i><img
-                    alt="" data-navigation-icon="social" src="assets/icons/social.webp" /></i> Social</span><b hidden
-                id="friendsTabCount">0</b></button>
+              data-navigation-key="social" data-profile-tab="social" id="socialProfileTab" role="tab" title="Social"
+              type="button"><span><i><img alt="" data-navigation-icon="social" src="assets/icons/social.webp" /></i>
+                Social</span><b data-friends-count hidden id="friendsTabCount">0</b></button>
             <button aria-controls="profileMissionsPanel" aria-selected="false" class="office-tab profile-tab"
-              data-profile-tab="missions" id="missionsProfileTab" role="tab" title="Missões" type="button"><span><i><img
-                    alt="" data-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp" /></i>
-                Missões</span><b id="missionTabCount" hidden>0</b></button>
+              data-navigation-key="missions" data-profile-tab="missions" id="missionsProfileTab" role="tab"
+              title="Missões" type="button"><span><i><img alt="" data-navigation-icon="missions"
+                    src="assets/icons/chapeu-formatura.webp" /></i> Missões</span><b id="missionTabCount"
+                hidden>0</b></button>
           </nav>
         </aside>
-        <nav aria-label="Áreas do jogo no celular" class="main-nav main-nav-grid mobile-direct-nav">
-          <button class="nav-tab active" data-view="farmView" title="Fazenda" aria-label="Fazenda" type="button"><span
-              class="nav-tab-icon"><img alt="" data-mobile-navigation-icon="farm"
+        <nav aria-label="Tabulação em grade" class="main-nav main-nav-grid mobile-direct-nav">
+          <button data-grid-navigation-key="farm" class="nav-tab active" data-view="farmView" title="Fazenda"
+            aria-label="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="farm"
                 src="assets/icons/muda-vaso.webp" /></span></button>
-          <button class="nav-tab mobile-stock-nav-tab" data-view="stockView" title="Estoque" aria-label="Estoque"
-            type="button"><span class="nav-tab-icon"><img alt="" data-mobile-navigation-icon="stock"
-                src="assets/icons/galpao-industrial.webp" /></span></button>
-          <button class="nav-tab direct-child-tab" data-view="officeView" data-office-tab="contracts" title="Contratos"
-            aria-label="Contratos" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp" /></span></button>
-          <button class="nav-tab direct-child-tab" data-view="officeView" data-office-tab="orders" title="Pedidos"
-            aria-label="Pedidos" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="orders" src="assets/icons/pacote.webp" /></span></button>
-          <button class="nav-tab direct-child-tab" data-view="officeView" data-office-tab="evolutions" title="Evoluções"
-            aria-label="Evoluções" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="evolutions" src="assets/icons/livros.webp" /></span></button>
-          <button class="nav-tab direct-child-tab" data-view="profileView" data-profile-tab="account"
-            title="Minha Conta" aria-label="Minha Conta" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="account" src="assets/icons/logo-google.webp" /></span></button>
-          <button class="nav-tab direct-child-tab" data-view="profileView" data-profile-tab="social" title="Social"
-            aria-label="Social" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="social" src="assets/icons/social.webp" /></span></button>
-          <button class="nav-tab direct-child-tab" data-view="profileView" data-profile-tab="missions" title="Missões"
-            aria-label="Missões" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp" /></span></button>
-          <button class="nav-tab settings-nav-tab" data-view="settingsView" title="Configurações"
-            aria-label="Configurações" type="button"><span class="nav-tab-icon"><img alt=""
-                data-mobile-navigation-icon="settings" src="assets/icons/configuracoes.webp" /></span></button>
+          <button data-grid-navigation-key="stock" class="nav-tab stock-nav-tab mobile-stock-nav-tab"
+            data-view="stockView" title="Estoque" aria-label="Estoque" type="button"><span class="nav-tab-icon"><img
+                alt="" data-grid-navigation-icon="stock" src="assets/icons/galpao-industrial.webp" /></span><b
+              aria-hidden="true" class="nav-alert mobile-stock-nav-badge" hidden>!</b></button>
+          <button data-grid-navigation-key="contracts" class="nav-tab direct-child-tab" data-view="officeView"
+            data-office-tab="contracts" title="Contratos" aria-label="Contratos" type="button"><span
+              class="nav-tab-icon"><img alt="" data-grid-navigation-icon="contracts"
+                src="assets/icons/contrato-comercial.webp" /></span></button>
+          <button data-grid-navigation-key="orders" class="nav-tab direct-child-tab" data-view="officeView"
+            data-office-tab="orders" title="Pedidos" aria-label="Pedidos" type="button"><span class="nav-tab-icon"><img
+                alt="" data-grid-navigation-icon="orders" src="assets/icons/pacote.webp" /></span></button>
+          <button data-grid-navigation-key="evolutions" class="nav-tab direct-child-tab" data-view="officeView"
+            data-office-tab="evolutions" title="Evoluções" aria-label="Evoluções" type="button"><span
+              class="nav-tab-icon"><img alt="" data-grid-navigation-icon="evolutions"
+                src="assets/icons/livros.webp" /></span></button>
+          <button data-grid-navigation-key="account" class="nav-tab direct-child-tab" data-view="profileView"
+            data-profile-tab="account" title="Minha Conta" aria-label="Minha Conta" type="button"><span
+              class="nav-tab-icon"><img alt="" data-grid-navigation-icon="account"
+                src="assets/icons/logo-google.webp" /></span></button>
+          <button data-grid-navigation-key="social" class="nav-tab direct-child-tab" data-view="profileView"
+            data-profile-tab="social" title="Social" aria-label="Social" type="button"><span class="nav-tab-icon"><img
+                alt="" data-grid-navigation-icon="social" src="assets/icons/social.webp" /></span><b
+              class="nav-alert grid-friends-nav-badge" data-friends-count hidden aria-hidden="true">0</b></button>
+          <button data-grid-navigation-key="missions" class="nav-tab direct-child-tab" data-view="profileView"
+            data-profile-tab="missions" title="Missões" aria-label="Missões" type="button"><span
+              class="nav-tab-icon"><img alt="" data-grid-navigation-icon="missions"
+                src="assets/icons/chapeu-formatura.webp" /></span></button>
+          <button data-grid-navigation-key="settings" class="nav-tab settings-nav-tab" data-view="settingsView"
+            title="Configurações" aria-label="Configurações" type="button"><span class="nav-tab-icon"><img alt=""
+                data-grid-navigation-icon="settings" src="assets/icons/configuracoes.webp" /></span></button>
         </nav>
       </aside>
       <main class="game-main">
@@ -213,8 +222,7 @@
             <div>
               <p class="eyebrow">produção guardada</p>
               <h1>Estoque da fazenda</h1>
-              <p class="section-copy">Gerencie a capacidade compartilhada, as vendas manuais e a venda
-                automática por categoria.</p>
+
             </div>
             <div class="stock-toolbar">
               <select aria-label="Filtrar estoque por categoria" id="stockCategoryFilter"
@@ -234,8 +242,7 @@
                 <div>
                   <p class="eyebrow">oportunidades comerciais</p>
                   <h2>Contratos</h2>
-                  <p class="section-copy">Escolha entregas elegíveis com o ritmo da sua fazenda.
-                    Compare prazos, volumes e recompensas, e assine os contratos.</p>
+
                 </div>
               </div>
               <div class="contracts-clean-flow">
@@ -250,8 +257,7 @@
                 <div>
                   <p class="eyebrow">entregas por cultura</p>
                   <h2>Pedidos</h2>
-                  <p class="section-copy">Complete cada etapa, colete a recompensa e avance para a
-                    próxima.</p>
+
                 </div>
               </div>
               <div class="order-board">
@@ -281,8 +287,7 @@
                 <div>
                   <p class="eyebrow">conhecimento aplicado</p>
                   <h2>Centro de pesquisa</h2>
-                  <p class="section-copy" data-config-text="researchDescription">Invista pontos de pesquisa em
-                    tecnologias que aperfeiçoam toda a operação da fazenda.</p>
+
                 </div>
               </div>
               <div class="upgrade-grid" id="researchList"></div>
@@ -292,8 +297,6 @@
                   <div>
                     <p class="eyebrow">benefícios entre jornadas</p>
                     <h2 id="legacyEvolutionTitle">Legados permanentes</h2>
-                    <p class="section-copy" data-config-text="prestigeDescription">Invista pontos de prestígio em
-                      melhorias que permanecem após cada recomeço.</p>
                   </div>
                 </div>
                 <div class="upgrade-grid prestige-grid" id="prestigeList"></div>
@@ -345,8 +348,6 @@
                     <div>
                       <p class="eyebrow">novo ciclo</p>
                       <h2 id="accountPrestigeTitle">Prestigiar</h2>
-                      <p class="section-copy">Converta o progresso da jornada em pontos permanentes quando sua fazenda
-                        estiver pronta.</p>
                     </div>
                   </div>
                   <div class="prestige-hero" id="prestigeDashboard"></div>
@@ -356,8 +357,6 @@
                     <div>
                       <p class="eyebrow">histórico da conta</p>
                       <h2>Estatísticas do jogador</h2>
-                      <p class="section-copy">Recordes, totais permanentes, conquistas e tudo que conta a história da
-                        sua fazenda.</p>
                     </div>
                   </div>
                   <div class="stats-content account-stats-content">
@@ -383,11 +382,8 @@
                 <div>
                   <p class="eyebrow">comunidade da fazenda</p>
                   <h2>Social</h2>
-                  <p class="section-copy">Adicione jogadores, acompanhe suas conexões e compare o prestígio das fazendas
-                    no ranking global.</p>
+
                 </div>
-                <button class="button secondary friends-refresh-button" data-action="refresh-friends"
-                  type="button">Atualizar</button>
               </div>
               <div class="friends-content" id="friendsContent">
                 <div class="empty-state">Entre com o Google e configure seu perfil do ranking para usar o sistema de
@@ -422,9 +418,7 @@
                 <div>
                   <p class="eyebrow">metas da jornada</p>
                   <h2>Missões</h2>
-                  <p class="section-copy" data-config-text="missionsDescription">Avance em séries contínuas e receba
-                    recompensas
-                    proporcionais ao desafio.</p>
+
                 </div>
               </div>
               <div class="mission-grid" id="missionList"></div>
@@ -457,6 +451,13 @@
                         internacional.</small></span><select aria-label="Formato dos números" id="numberFormatSetting">
                       <option value="brazilian">Brasileiro (1,2K)</option>
                       <option value="international">Internacional (1.2K)</option>
+                    </select></label>
+                  <label class="setting-row navigation-mode-setting"><span><strong>Navegação</strong><small>Escolha como
+                        as áreas do jogo aparecem no menu.</small></span><select aria-label="Modo de navegação"
+                      id="navigationModeSetting">
+                      <option value="automatic">Automático</option>
+                      <option value="line">Tabulação em linha</option>
+                      <option value="grid">Tabulação em grade</option>
                     </select></label>
 
                   <label class="range-setting settings-range-row"><span><strong>Tamanho da fonte</strong><small>Aumente

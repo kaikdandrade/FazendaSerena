@@ -146,12 +146,46 @@
     if (!signedIn) setCloudSaveStatus("guest");
   }
 
+  function stopFriendsRealtime() {
+    if (typeof friendsRealtimeUnsubscribe === "function") {
+      try { friendsRealtimeUnsubscribe(); } catch (_) {}
+    }
+    friendsRealtimeUnsubscribe = null;
+  }
+
   function resetFriendsState() {
+    stopFriendsRealtime();
     friendsState = { status: "idle", selfProfile: null, friends: [], incoming: [], outgoing: [], error: null, loadedAt: 0 };
     friendsRequest = null;
     if (dom.friendsTabCount) {
       dom.friendsTabCount.textContent = "0";
       dom.friendsTabCount.hidden = true;
+    }
+  }
+
+  async function startFriendsRealtime() {
+    stopFriendsRealtime();
+    if (!window.FirebaseManager.isAuthenticated()) return;
+    const uid = window.FirebaseManager.getUser()?.uid || "";
+    try {
+      const unsubscribe = await window.FirebaseManager.subscribeFriendships((result, error) => {
+        if (uid !== (window.FirebaseManager.getUser()?.uid || "")) return;
+        if (error) {
+          friendsState = { ...friendsState, status: "error", error, loadedAt: Date.now() };
+          renderFriends();
+          return;
+        }
+        friendsState = { status: "ready", ...result, error: null, loadedAt: Date.now() };
+        renderFriends();
+      });
+      if (uid !== (window.FirebaseManager.getUser()?.uid || "")) {
+        try { unsubscribe?.(); } catch (_) {}
+        return;
+      }
+      friendsRealtimeUnsubscribe = unsubscribe;
+    } catch (error) {
+      friendsState = { ...friendsState, status: "error", error, loadedAt: Date.now() };
+      renderFriends();
     }
   }
 
@@ -206,51 +240,64 @@
     if (!dom.friendsContent) return;
     const user = window.FirebaseManager.getUser();
     const incomingCount = friendsState.incoming?.length || 0;
-    if (dom.friendsTabCount) {
-      dom.friendsTabCount.textContent = String(incomingCount);
-      dom.friendsTabCount.hidden = incomingCount < 1;
-    }
+    document.querySelectorAll("[data-friends-count]").forEach(badge => {
+      badge.textContent = String(incomingCount);
+      badge.hidden = incomingCount < 1;
+    });
+
+    // onSnapshot pode atualizar a lista enquanto o jogador está com uma opção
+    // aberta ou digitando um código. Preserve esse estado para que o tempo real
+    // não feche a sanfona nem apague o texto do formulário.
+    const openFriendOptions = new Set(
+      [...dom.friendsContent.querySelectorAll(".friends-beta-option[open][data-friend-option]")]
+        .map(option => option.dataset.friendOption)
+        .filter(Boolean)
+    );
+    const pendingFriendCode = String($("#friendCodeInput", dom.friendsContent)?.value || "");
+    const restoreFriendInteractionState = () => {
+      openFriendOptions.forEach(key => {
+        const option = dom.friendsContent.querySelector(`.friends-beta-option[data-friend-option="${key}"]`);
+        if (option) option.open = true;
+      });
+      const input = $("#friendCodeInput", dom.friendsContent);
+      if (input && pendingFriendCode && !input.value) input.value = pendingFriendCode;
+    };
 
     if (!user) {
-      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/logo-google.webp" alt=""><div><p class="eyebrow">conta necessária</p><h3>Entre para encontrar seus amigos</h3><p>As amizades pertencem à sua conta do Firebase e ficam disponíveis em qualquer dispositivo.</p></div><button class="button primary" data-action="friends-sign-in" type="button">Entrar com o Google</button></article>`;
+      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/logo-google.webp" alt=""><div><h3>Amigos (beta)</h3><p>Entre com o Google para conectar sua fazenda a outros jogadores.</p></div><button class="button primary" data-action="friends-sign-in" type="button">Entrar com o Google</button></article>`;
       return;
     }
-
-    if (friendsState.status === "loading") {
-      dom.friendsContent.innerHTML = `<div class="friends-loading"><span aria-hidden="true"></span><strong>Carregando suas conexões...</strong></div>`;
+    if (friendsState.status === "loading" || friendsState.status === "idle") {
+      dom.friendsContent.innerHTML = `<div class="friends-loading"><span aria-hidden="true"></span><strong>Carregando amigos...</strong></div>`;
       return;
     }
-
     if (friendsState.status === "error") {
-      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/social.webp" alt=""><div><p class="eyebrow">não foi possível carregar</p><h3>Suas amizades estão temporariamente indisponíveis</h3><p>${escapeHtml(window.FirebaseManager.getFriendlyError(friendsState.error))}</p></div><button class="button secondary" data-action="refresh-friends" type="button">Tentar novamente</button></article>`;
+      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/social.webp" alt=""><div><h3>Amigos (beta)</h3><p>${escapeHtml(window.FirebaseManager.getFriendlyError(friendsState.error))}</p></div><button class="button secondary" data-action="refresh-friends" type="button">Tentar novamente</button></article>`;
       return;
     }
-
     if (!friendsState.selfProfile) {
-      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/social.webp" alt=""><div><p class="eyebrow">perfil incompleto</p><h3>Configure apelido e avatar primeiro</h3><p>Seu perfil do ranking identifica você nas solicitações e nas futuras disputas entre amigos.</p></div><button class="button primary" data-action="open-account-profile" type="button">Abrir Minha Conta</button></article>`;
+      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/social.webp" alt=""><div><h3>Configure seu perfil</h3><p>Escolha apelido e avatar antes de usar amizades.</p></div><button class="button primary" data-action="open-account-profile" type="button">Abrir Minha Conta</button></article>`;
       return;
     }
 
     const code = escapeHtml(friendsState.selfProfile.friendCode || user.uid);
-    dom.friendsContent.innerHTML = `
-      <section class="friends-command-grid">
-        <article class="friend-code-card panel-card">
-          <div><p class="eyebrow">seu código de amizade</p><h3>Compartilhe para ser encontrado</h3><p>Este identificador é público e serve somente para localizar sua fazenda.</p></div>
-          <div class="friend-code-control"><code id="currentFriendCode">${code}</code><button class="button secondary" data-action="copy-friend-code" type="button">Copiar código</button></div>
-          <div aria-live="polite" class="friends-feedback" id="friendCodeFeedback"></div>
-        </article>
-        <article class="friend-search-card panel-card">
-          <div><p class="eyebrow">adicionar jogador</p><h3>Enviar solicitação</h3><p>Cole o código de amizade recebido de outro jogador.</p></div>
-          <form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código de amizade</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código aqui" required type="text"><button class="button primary" type="submit">Adicionar</button></div></form>
-          <div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div>
-        </article>
-      </section>
-      <div class="friends-lists-grid">
-        ${friendsCollection("Fazendas conectadas", "suas amizades", friendsState.friends || [], "accepted", runtimeText("emptyFriends", "Sua lista de amigos ainda está vazia."))}
-        ${friendsCollection("Solicitações recebidas", "aguardando sua decisão", friendsState.incoming || [], "incoming", runtimeText("emptyIncomingFriends", "Nenhuma solicitação recebida."))}
-        ${friendsCollection("Solicitações enviadas", "aguardando resposta", friendsState.outgoing || [], "outgoing", runtimeText("emptyOutgoingFriends", "Nenhuma solicitação enviada."))}
+    const incomingMarkup = incomingCount ? `<section class="friends-beta-incoming"><header><span>Solicitações recebidas</span><b>${incomingCount}</b></header><div class="friends-list">${friendsState.incoming.map(item => friendRelationshipCard(item, "incoming")).join("")}</div></section>` : "";
+    const acceptedMarkup = (friendsState.friends || []).length
+      ? `<div class="friends-list">${friendsState.friends.map(item => friendRelationshipCard(item, "accepted")).join("")}</div>`
+      : `<div class="friends-empty-state">Sua lista de amigos ainda está vazia.</div>`;
+    const outgoingMarkup = (friendsState.outgoing || []).length
+      ? `<section class="friends-beta-outgoing"><small>Solicitações enviadas</small><div class="friends-list">${friendsState.outgoing.map(item => friendRelationshipCard(item, "outgoing")).join("")}</div></section>`
+      : "";
+
+    dom.friendsContent.innerHTML = `<section class="friends-beta-card">
+      <header class="friends-beta-header"><div class="friends-beta-title"><img src="assets/icons/social.webp" alt=""><div><small>recurso em desenvolvimento</small><h3>Amigos <span>beta</span></h3></div></div><span class="friends-beta-count">${friendsState.friends?.length || 0} ${(friendsState.friends?.length || 0) === 1 ? "amigo" : "amigos"}</span></header>
+      ${incomingMarkup}
+      <div class="friends-beta-options">
+        <details class="friends-beta-option" data-friend-option="list"><summary><span><img src="assets/icons/perfil.webp" alt="">Ver lista de amigos</span><b>${friendsState.friends?.length || 0}</b></summary><div class="friends-beta-option-body">${acceptedMarkup}${outgoingMarkup}</div></details>
+        <details class="friends-beta-option" data-friend-option="request"><summary><span><img src="assets/icons/social.webp" alt="">Enviar pedido de amizade</span><b>+</b></summary><div class="friends-beta-option-body"><div class="friend-code-inline"><span>Seu código</span><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div><form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código do outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div><div aria-live="polite" class="friends-feedback" id="friendCodeFeedback"></div></div></details>
       </div>
-      <article class="friends-future-card"><img src="assets/icons/coroa.webp" alt=""><div><p class="eyebrow">próximos recursos</p><h3>Eventos e disputas entre amigos</h3><p>A lista de amizades já está preparada para receber desafios por tempo, comparações de contratos e eventos cooperativos em versões futuras.</p></div></article>`;
+    </section>`;
+    restoreFriendInteractionState();
   }
 
   async function refreshFriends(force = false) {
@@ -289,7 +336,7 @@
     try {
       if (action === "accept-friend") await window.FirebaseManager.acceptFriendRequest(friendshipId);
       else await window.FirebaseManager.deleteFriendship(friendshipId);
-      await refreshFriends(true);
+      if (!friendsRealtimeUnsubscribe) await refreshFriends(true);
     } catch (error) {
       setFriendsFeedback(window.FirebaseManager.getFriendlyError(error), "error");
     }
@@ -375,7 +422,7 @@
       const offlineReport = engine.consumeOfflineReport?.();
       if (offlineReport) window.setTimeout(() => showOfflineProgressDialog(offlineReport), 0);
       if (activeView === "profileView" && activeProfileTab === "social") refreshPrestigeLeaderboard(true);
-      if (user) refreshFriends(false);
+      if (user) { await refreshFriends(true); await startFriendsRealtime(); }
       lastSave = performance.now();
     } finally {
       updateAccountUI(user);
