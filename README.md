@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://fazenda-serena.web.app/">
-    <img src="assets/logo.png" width="190" alt="Logotipo do jogo Fazenda Serena">
+    <img src="assets/logo.webp" width="190" alt="Logotipo do jogo Fazenda Serena">
   </a>
 </p>
 
@@ -24,7 +24,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versão 1.0.0" src="https://img.shields.io/badge/versão-1.0.0-52765b?style=flat-square">
+  <img alt="Versão 1.0.1" src="https://img.shields.io/badge/versão-1.0.1-52765b?style=flat-square">
   <img alt="Jogo para navegador" src="https://img.shields.io/badge/plataforma-navegador-52765b?style=flat-square">
   <img alt="Licença proprietária" src="https://img.shields.io/badge/licença-proprietária-735c3d?style=flat-square">
   <img alt="Todos os direitos reservados" src="https://img.shields.io/badge/copyright-todos_os_direitos_reservados-735c3d?style=flat-square">
@@ -34,15 +34,15 @@
 
 ## Sobre o jogo
 
-**Fazenda Serena** é um jogo incremental de fazenda desenvolvido para a web. A experiência começa com uma pequena produção e cresce progressivamente até se transformar em uma operação agrícola completa, formada por dezenas de culturas, melhorias econômicas, contratos comerciais, pesquisas e bônus permanentes.
+**Fazenda Serena** é um jogo incremental de fazenda desenvolvido para a web. A experiência começa com uma pequena produção e cresce progressivamente até se transformar em uma operação agrícola completa, formada por dezenas de culturas, contratos comerciais, pesquisas e bônus permanentes.
 
 O jogador acompanha a produção em tempo real, decide o que armazenar ou vender, desenvolve cada plantação individualmente e administra três recursos principais:
 
-- **Moedas**, utilizadas para adquirir culturas e aprimorar a estrutura da fazenda;
+- **Moedas**, utilizadas para adquirir culturas, elevar plantações e ampliar o armazenamento;
 - **Pontos de pesquisa**, investidos em avanços técnicos e melhorias especializadas;
 - **Pontos de prestígio**, usados em legados que permanecem entre diferentes jornadas.
 
-A versão **1.0.0** representa o primeiro lançamento público estável do projeto e a saída oficial de sua fase beta.
+A versão **1.0.0** representou o primeiro lançamento público estável do projeto e a saída oficial de sua fase beta. A linha **1.0.1** reorganiza a navegação e concentra a evolução da jornada exclusivamente em pesquisas.
 
 ---
 
@@ -58,7 +58,7 @@ flowchart LR
     C --> E[Moedas]
     D --> E
     D --> F[Pesquisa]
-    E --> G[Aprimoramentos]
+    E --> G[Expansão e níveis]
     F --> H[Avanços tecnológicos]
     G --> A
     H --> A
@@ -77,42 +77,48 @@ Cada cultura possui identidade visual própria, nível individual, tempo de cres
 
 <table>
   <tr>
-    <td align="center"><img src="assets/plants/cenoura.png" width="72" alt="Cenoura"><br><sub>Cenoura</sub></td>
-    <td align="center"><img src="assets/plants/milho.png" width="72" alt="Milho"><br><sub>Milho</sub></td>
-    <td align="center"><img src="assets/plants/morango.png" width="72" alt="Morango"><br><sub>Morango</sub></td>
-    <td align="center"><img src="assets/plants/laranja.png" width="72" alt="Laranja"><br><sub>Laranja</sub></td>
-    <td align="center"><img src="assets/plants/melao.png" width="72" alt="Melão"><br><sub>Melão</sub></td>
-    <td align="center"><img src="assets/plants/cafe.png" width="72" alt="Café"><br><sub>Café</sub></td>
-    <td align="center"><img src="assets/plants/graviola.png" width="72" alt="Graviola"><br><sub>Graviola</sub></td>
+    <td align="center"><img src="assets/plants/cenoura.webp" width="72" alt="Cenoura"><br><sub>Cenoura</sub></td>
+    <td align="center"><img src="assets/plants/milho.webp" width="72" alt="Milho"><br><sub>Milho</sub></td>
+    <td align="center"><img src="assets/plants/morango.webp" width="72" alt="Morango"><br><sub>Morango</sub></td>
+    <td align="center"><img src="assets/plants/laranja.webp" width="72" alt="Laranja"><br><sub>Laranja</sub></td>
+    <td align="center"><img src="assets/plants/melao.webp" width="72" alt="Melão"><br><sub>Melão</sub></td>
+    <td align="center"><img src="assets/plants/cafe.webp" width="72" alt="Café"><br><sub>Café</sub></td>
+    <td align="center"><img src="assets/plants/graviola.webp" width="72" alt="Graviola"><br><sub>Graviola</sub></td>
   </tr>
 </table>
 
 ### Estoque e mercado
 
-A produção pode ser guardada em um estoque compartilhado, vendida manualmente ou direcionada à venda automática. A capacidade do estoque pode ser expandida por aprimoramentos, pesquisas e legados permanentes.
+A produção pode ser guardada em um estoque compartilhado, vendida manualmente ou direcionada à venda automática. A capacidade do estoque pode ser expandida diretamente, por pesquisas e por legados permanentes.
 
 Entre os recursos avançados está a **Central atacadista**, que mantém a produção ativa mesmo quando o armazenamento chega ao limite. O excedente passa a ser vendido automaticamente no atacado por uma fração do valor normal, impedindo que a fazenda fique completamente parada.
 
 ### Escritório
 
-O Escritório reúne as atividades comerciais e os objetivos de longo prazo:
+O Escritório concentra a operação comercial e tecnológica da fazenda:
 
 - **Contratos:** propostas de empresas com quantidades, prazos e recompensas diferentes;
 - **Pedidos:** sequências progressivas de entregas para cada cultura;
-- **Missões:** séries de objetivos que acompanham produção, vendas, estoque, níveis e prestígios;
-- **Estatísticas:** totais da conta, recordes pessoais, permanências e classificação global.
+- **Evoluções:** acesso ao Centro de Pesquisa, onde pontos de pesquisa desenvolvem tecnologias da jornada.
 
 Os contratos são divididos em propostas comerciais, emergenciais e de grandes safras. Cada tipo prioriza aspectos diferentes da economia, como valor, prazo ou quantidade de pesquisa recebida.
 
-### Evoluções
+### Evoluções e pesquisa
 
-O Centro de Evoluções é dividido em três áreas:
+A partir da versão 1.0.1, os antigos aprimoramentos comprados com moedas foram aposentados. Toda evolução renovável da fazenda acontece por meio de **Pesquisas**, reunidas dentro do Escritório.
 
-- **Aprimoramentos da fazenda:** melhorias adquiridas com moedas e aplicadas à jornada atual;
-- **Centro de pesquisa:** avanços comprados com pontos de pesquisa;
-- **Legados permanentes:** melhorias de prestígio que sobrevivem ao reinício da fazenda.
+As tecnologias afetam velocidade de crescimento, rendimento, valor das vendas, capacidade do estoque, custos, experiência, contratos, pedidos e ganho passivo de experiência. Saves anteriores convertem automaticamente os antigos aprimoramentos na pesquisa equivalente.
 
-Essas evoluções afetam velocidade de crescimento, rendimento, valor das vendas, capacidade do estoque, custos, experiência, contratos, pedidos e geração passiva de recursos.
+### Perfil
+
+O Perfil reúne sistemas ligados à identidade e ao histórico do jogador:
+
+- **Conta:** autenticação com Google, save em nuvem, perfil público, ranking global, totais permanentes, recordes e conquistas;
+- **Social:** solicitações, conexões entre fazendas, ranking global e a base para futuros eventos e disputas;
+- **Missões:** séries de objetivos que permanecem entre jornadas;
+- **Prestígio:** reinício de jornada e desenvolvimento de legados permanentes.
+
+A administração não faz parte da interface do jogo. Ela possui uma página independente na rota `/administrador`, responsável por publicar equilíbrio e catálogos no Cloud Firestore. O painel exige autenticação Google e valida o acesso exclusivamente pela coleção `administrators` do Firestore; as regras não possuem um e-mail administrativo fixo.
 
 ### Prestígio
 
@@ -122,17 +128,19 @@ Entre os legados estão bônus de produção, capital inicial, capacidade de arm
 
 ### Perfil e ranking
 
-Jogadores conectados podem definir um apelido e escolher um avatar animal para participar do ranking global de prestígio. O perfil público exibe apenas as informações necessárias para a classificação, enquanto o progresso completo permanece associado à conta autenticada.
+Jogadores conectados podem definir um apelido e escolher um avatar animal para participar do ranking global de prestígio. O mesmo perfil também gera um código de amizade, utilizado para enviar solicitações e manter uma lista de fazendas conectadas entre diferentes dispositivos.
+
+As amizades formam a camada social do projeto e foram estruturadas para receber futuramente eventos cooperativos, desafios por período e disputas como a comparação de contratos concluídos. O perfil público exibe apenas apelido, avatar e identificadores necessários para esses recursos, enquanto o progresso completo permanece associado à conta autenticada.
 
 <table>
   <tr>
-    <td align="center"><img src="assets/avatars/macaw_1.png" width="74" alt="Avatar de arara"><br><sub>Arara</sub></td>
-    <td align="center"><img src="assets/avatars/rhinoceros.png" width="74" alt="Avatar de rinoceronte"><br><sub>Rinoceronte</sub></td>
-    <td align="center"><img src="assets/avatars/fox.png" width="74" alt="Avatar de raposa"><br><sub>Raposa</sub></td>
-    <td align="center"><img src="assets/avatars/butterfly.png" width="74" alt="Avatar de borboleta"><br><sub>Borboleta</sub></td>
-    <td align="center"><img src="assets/avatars/panda.png" width="74" alt="Avatar de panda"><br><sub>Panda</sub></td>
-    <td align="center"><img src="assets/avatars/frog_1.png" width="74" alt="Avatar de sapo"><br><sub>Sapo</sub></td>
-    <td align="center"><img src="assets/avatars/otter.png" width="74" alt="Avatar de lontra"><br><sub>Lontra</sub></td>
+    <td align="center"><img src="assets/avatars/arara-azul.webp" width="74" alt="Avatar de arara"><br><sub>Arara</sub></td>
+    <td align="center"><img src="assets/avatars/rinoceronte.webp" width="74" alt="Avatar de rinoceronte"><br><sub>Rinoceronte</sub></td>
+    <td align="center"><img src="assets/avatars/raposa.webp" width="74" alt="Avatar de raposa"><br><sub>Raposa</sub></td>
+    <td align="center"><img src="assets/avatars/borboleta.webp" width="74" alt="Avatar de borboleta"><br><sub>Borboleta</sub></td>
+    <td align="center"><img src="assets/avatars/panda.webp" width="74" alt="Avatar de panda"><br><sub>Panda</sub></td>
+    <td align="center"><img src="assets/avatars/gaviao.webp" width="74" alt="Avatar de gavião"><br><sub>Gavião</sub></td>
+    <td align="center"><img src="assets/avatars/lontra.webp" width="74" alt="Avatar de lontra"><br><sub>Lontra</sub></td>
   </tr>
 </table>
 
@@ -146,17 +154,17 @@ O plano de fundo utiliza folhas sazonais e elementos animados para representar d
 
 <table>
   <tr>
-    <td align="center"><img src="assets/icons/seedling-pot.png" width="58" alt="Ícone da fazenda"><br><sub>Fazenda</sub></td>
-    <td align="center"><img src="assets/icons/warehouse.png" width="58" alt="Ícone do estoque"><br><sub>Estoque</sub></td>
-    <td align="center"><img src="assets/icons/tools.png" width="58" alt="Ícone de evoluções"><br><sub>Evoluções</sub></td>
-    <td align="center"><img src="assets/icons/commercial-contract.png" width="58" alt="Ícone de contratos"><br><sub>Contratos</sub></td>
-    <td align="center"><img src="assets/icons/books.png" width="58" alt="Ícone de pesquisa"><br><sub>Pesquisa</sub></td>
-    <td align="center"><img src="assets/icons/prestige.png" width="58" alt="Ícone de prestígio"><br><sub>Prestígio</sub></td>
-    <td align="center"><img src="assets/icons/settings.png" width="58" alt="Ícone de configurações"><br><sub>Configurações</sub></td>
+    <td align="center"><img src="assets/icons/muda-vaso.webp" width="58" alt="Ícone da fazenda"><br><sub>Fazenda</sub></td>
+    <td align="center"><img src="assets/icons/galpao-industrial.webp" width="58" alt="Ícone do estoque"><br><sub>Estoque</sub></td>
+    <td align="center"><img src="assets/icons/prancheta-tarefas.webp" width="58" alt="Ícone do escritório"><br><sub>Escritório</sub></td>
+    <td align="center"><img src="assets/icons/perfil.webp" width="58" alt="Ícone do perfil"><br><sub>Perfil</sub></td>
+    <td align="center"><img src="assets/icons/livros.webp" width="58" alt="Ícone de pesquisa"><br><sub>Pesquisa</sub></td>
+    <td align="center"><img src="assets/icons/prestigio.webp" width="58" alt="Ícone de prestígio"><br><sub>Prestígio</sub></td>
+    <td align="center"><img src="assets/icons/configuracoes.webp" width="58" alt="Ícone de configurações"><br><sub>Configurações</sub></td>
   </tr>
 </table>
 
-A ambientação sonora inclui **11 músicas de fundo** e **13 efeitos sonoros**, cobrindo navegação, compra de culturas, aprimoramentos, recompensas, vendas, contratos, aumento de nível, prestígio e movimentação dos contadores de recursos.
+A ambientação sonora inclui **11 músicas de fundo** e **13 efeitos sonoros**, cobrindo navegação, compra e evolução de culturas, pesquisas, recompensas, vendas, contratos, aumento de nível, prestígio e movimentação dos contadores de recursos.
 
 O motor de áudio possui controles independentes para volume geral, música e efeitos. As preferências são mantidas no save do jogador, e o volume inicial da música foi equilibrado para não competir com a interface.
 
@@ -164,17 +172,17 @@ O motor de áudio possui controles independentes para volume geral, música e ef
 
 ## Composição do projeto
 
-Na versão 1.0.0, o repositório contém **210 arquivos principais**. A maior parte do tamanho do projeto está concentrada nos recursos audiovisuais, especialmente nas músicas em formato WAV.
+Na versão 1.0.1, o repositório contém **266 arquivos principais**. A maior parte do tamanho do projeto está concentrada nos recursos audiovisuais, especialmente nas músicas em formato WAV.
 
 | Grupo | Conteúdo | Quantidade aproximada |
 | --- | --- | ---: |
 | Culturas | Ilustrações PNG utilizadas nos cartões e desbloqueios | 71 |
-| Avatares | Personagens animais selecionáveis no perfil | 40 |
-| Ícones | Navegação, recursos, empresas, ações e melhorias | 42 |
+| Avatares | Personagens animais selecionáveis no perfil | 31 |
+| Ícones | Navegação, recursos, empresas, ações e melhorias | 74 |
 | Músicas | Faixas ambientais reproduzidas em loop | 11 |
 | Efeitos sonoros | Sons de interface, recompensas e progressão | 13 |
-| JavaScript | Motor, dados, interface e integrações | 12 arquivos |
-| CSS | Interface principal, monetização e privacidade | 3 arquivos |
+| JavaScript | Motor, dados, interface, tutorial e integrações | 36 arquivos |
+| CSS | Interface principal, revisões, administração, tutorial, monetização e documentos públicos | 6 arquivos |
 
 Os recursos da pasta `assets/` representam mais de 99% do tamanho total do projeto. Os arquivos HTML, CSS e JavaScript concentram as regras, a interface e as integrações, mas ocupam uma parcela muito menor do armazenamento.
 
@@ -189,7 +197,7 @@ FazendaSerena/
 │   ├── icons/             # Ícones da interface, recursos, empresas e sistemas
 │   ├── plants/            # Ilustrações individuais das 71 culturas
 │   ├── sounds/
-│   │   └── music/         # Músicas de fundo reproduzidas em loop
+│   │   └── musicas/         # Músicas de fundo reproduzidas em loop
 │   ├── autumn.png         # Folhas e elementos da estação de outono
 │   ├── spring.png         # Folhas e elementos da estação de primavera
 │   ├── summer.png         # Folhas e elementos da estação de verão
@@ -198,14 +206,17 @@ FazendaSerena/
 │
 ├── css/
 │   ├── style.css          # Design do jogo, componentes, animações e responsividade
+│   ├── admin.css          # Interface exclusiva da administração
 │   ├── monetization.css   # Blocos de publicidade e interface de consentimento
-│   └── privacy.css        # Apresentação da Política de Privacidade
+│   ├── privacy.css        # Apresentação da Política de Privacidade e Termos
+│   ├── tutorial.css       # Interface isolada do tutorial interativo
+│   └── revision-1.0.1.css # Ajustes e refinamentos específicos da versão 1.0.1
 │
 ├── js/
-│   ├── GameEngine.js      # Estado, economia, produção e regras centrais do jogo
-│   ├── main.js            # Renderização da interface e interação com o jogador
-│   ├── data.js            # Culturas, melhorias, pesquisas, prestígios e missões
-│   ├── firebaseManager.js # Autenticação, save em nuvem e ranking global
+│   ├── engine/            # Motor separado em produção, estoque, progressão e sistemas
+│   ├── app/               # Interface separada em navegação, Social, cards e eventos
+│   ├── data.js            # Estruturas do jogo e fallback local somente de pesquisas/legados
+│   ├── firebaseManager.js # Autenticação, save, ranking, amizades e permissões
 │   ├── firebase-config.js # Configuração pública do aplicativo Firebase
 │   ├── soundEngine.js     # Música, efeitos, canais e preferências de volume
 │   ├── ambientBackground.js # Folhas sazonais, orbes e ambiente animado
@@ -213,9 +224,16 @@ FazendaSerena/
 │   ├── privacyConsent.js  # Preferências de cookies e Google Consent Mode
 │   ├── adsenseManager.js  # Carregamento e controle dos espaços publicitários
 │   ├── adsense-config.js  # Identificadores públicos da integração com anúncios
+│   ├── gameAdmin.js       # Modelo e validação das configurações administrativas
+│   ├── admin.js           # Autenticação e interação da página administrativa
+│   ├── adminCatalogEditor.js # Formulários e catálogos publicados no Firestore
+│   ├── tutorial.js        # Simulação didática isolada do save real
 │   └── appConfig.js       # Versão oficial e configurações globais centralizadas
 │
 ├── index.html             # Estrutura principal da aplicação
+├── admin.html             # Aplicação administrativa separada do jogo
+├── tutorial.html          # Tutorial interativo sem vínculo com o save real
+├── terms.html             # Termos de Uso
 ├── privacy.html           # Política de Privacidade e informações sobre cookies
 ├── firestore.rules        # Regras de acesso aos dados armazenados no Firestore
 ├── firebase.json          # Configuração de Hosting e cabeçalhos da aplicação
@@ -233,21 +251,23 @@ O projeto utiliza JavaScript modularizado por responsabilidade, sem concentrar t
 
 | Arquivo | Responsabilidade no projeto |
 | --- | --- |
-| `GameEngine.js` | Mantém o estado do jogo e executa produção, vendas, experiência, contratos, pedidos, missões, pesquisas e prestígio. |
-| `main.js` | Conecta o motor à página, cria os cartões, atualiza contadores, abre modais e responde às ações do jogador. |
-| `data.js` | Centraliza o conteúdo balanceável: culturas, custos, recompensas, empresas, melhorias e objetivos. |
-| `firebaseManager.js` | Controla o login com Google, a sincronização do save, o perfil público e o ranking de prestígio. |
+| `js/engine/` | Divide o motor entre núcleo do estado, produção, progressão, estoque, contratos, pedidos, missões, prestígio e formatação. |
+| `js/app/` | Divide a interface entre estado visual, utilitários, Minha Conta e Social, navegação, culturas, evoluções, comércio, estatísticas, ações, eventos e inicialização. |
+| `data.js` | Mantém as estruturas de dados do jogo; os catálogos de plantas, categorias, indústrias, contratos, pedidos e missões são carregados do Firestore. |
+| `firebaseManager.js` | Controla login, sincronização do save, ranking, perfis sociais, amizades e configuração pública. |
 | `soundEngine.js` | Gerencia músicas, efeitos simultâneos, transições e níveis de volume. |
 | `ambientBackground.js` | Produz os movimentos visuais do cenário sem interferir nas regras da fazenda. |
 | `privacyConsent.js` | Registra as escolhas de cookies e comunica o consentimento aos serviços do Google. |
 | `adsenseManager.js` | Inicializa os espaços de anúncios quando as condições necessárias estão disponíveis. |
+| `gameAdmin.js` | Define, normaliza e valida o conteúdo balanceável publicado pela administração. |
+| `admin.js` | Controla a página administrativa independente, sua autenticação e seus editores. |
 | `appConfig.js` | Atua como fonte única da versão pública e das configurações compartilhadas. |
 
 ### Camada de estilos
 
 O CSS principal reúne o sistema visual do jogo, incluindo cartões, navegação, cabeçalhos, barras de progresso, janelas modais, painéis de evolução, escritório, estoque, perfil e adaptações responsivas.
 
-Os estilos relacionados a publicidade e privacidade ficam separados para que esses componentes tenham manutenção independente da interface principal.
+Os estilos relacionados a administração, publicidade e privacidade ficam separados para que esses componentes tenham manutenção independente da interface principal.
 
 ---
 
@@ -255,14 +275,18 @@ Os estilos relacionados a publicidade e privacidade ficam separados para que ess
 
 ```mermaid
 flowchart TD
-    HTML[index.html] --> UI[main.js]
-    UI --> ENGINE[GameEngine.js]
+    HTML[index.html] --> UI[js/app/]
+    UI --> ENGINE[js/engine/]
     ENGINE --> DATA[data.js]
     UI --> AUDIO[soundEngine.js]
     UI --> AMBIENT[ambientBackground.js]
     UI --> FIREBASE[firebaseManager.js]
     FIREBASE --> AUTH[Firebase Authentication]
     FIREBASE --> STORE[Cloud Firestore]
+    FIREBASE --> SOCIAL[Perfis e amizades]
+    ADMINHTML[admin.html] --> ADMINJS[admin.js]
+    ADMINJS --> ADMINLOGIN[Sessão Google autenticada]
+    ADMINLOGIN --> STORE
     CONSENT[privacyConsent.js] --> ADS[Google AdSense]
     ADSMANAGER[adsenseManager.js] --> ADS
     CONFIG[appConfig.js] --> UI
@@ -291,9 +315,17 @@ O projeto utiliza o **Firebase Authentication** com login pelo Google. A autenti
 
 ### Cloud Firestore
 
-O **Cloud Firestore** armazena o save em nuvem e os dados públicos necessários para o ranking. As regras de segurança separam o progresso privado de cada conta das informações públicas exibidas na classificação.
+O **Cloud Firestore** armazena o save em nuvem, os dados públicos necessários para o ranking, os perfis sociais, as solicitações de amizade e a configuração publicada pela administração. Categorias de plantas, plantas, indústrias, tipos de contrato, etapas de pedidos e missões são catálogos remotos: não possuem conteúdo padrão embutido no jogo e passam a existir quando são cadastrados e publicados pelo painel administrativo.
 
 Jogadores não autenticados podem conhecer o jogo como visitantes, enquanto contas conectadas recebem sincronização automática do progresso.
+
+### Recursos visuais locais
+
+As imagens, ícones, avatares, músicas e efeitos do **Fazenda Serena** são arquivos estáticos do próprio projeto. O painel administrativo seleciona recursos já existentes no repositório e não realiza upload de imagens.
+
+### Tutorial e documentos públicos
+
+O projeto inclui um tutorial interativo em `tutorial.html`, totalmente isolado do save real, além de `privacy.html`, `terms.html` e da licença proprietária do projeto.
 
 ### Google AdSense
 
@@ -311,17 +343,17 @@ A página de Privacidade descreve as categorias utilizadas, os serviços externo
 
 ## Salvamento e dados do jogador
 
-O save reúne o estado econômico e a progressão da fazenda, incluindo moedas, culturas adquiridas, níveis, estoque, evoluções, contratos, pedidos, missões, estatísticas, perfil e preferências de áudio.
+O save reúne o estado econômico e a progressão da fazenda, incluindo moedas, culturas adquiridas, níveis, estoque, pesquisas, legados, contratos, pedidos, missões, estatísticas, perfil e preferências de áudio. As amizades são mantidas separadamente, no nível da conta, para continuarem disponíveis entre dispositivos e futuras jornadas.
 
 Quando o jogador está autenticado, esse estado é sincronizado com o Firestore. O sistema também controla a versão do save para preservar a compatibilidade entre atualizações do jogo.
 
-O ranking utiliza uma representação pública reduzida, composta somente pelos dados necessários para identificar e posicionar o jogador, como apelido, avatar e prestígio.
+O ranking utiliza uma representação pública reduzida, composta somente pelos dados necessários para identificar e posicionar o jogador, como apelido, avatar e prestígio. O sistema social mantém outro perfil mínimo para apresentar amigos e solicitações sem expor o conteúdo completo do save.
 
 ---
 
 ## Versão
 
-A versão atual é **1.0.0 — Release**.
+A versão atual é **1.0.1 — Release**.
 
 A identificação pública da versão é centralizada em `js/appConfig.js`. Essa informação é reutilizada pela interface, pelo motor e pelos dados salvos, evitando referências divergentes espalhadas pelo código.
 
@@ -344,13 +376,14 @@ Componentes e serviços de terceiros permanecem sujeitos aos termos e licenças 
 - **Jogo:** [fazenda-serena.web.app](https://fazenda-serena.web.app/)
 - **Repositório:** [github.com/kaikedandrade/paisagemserena](https://github.com/kaikedandrade/paisagemserena)
 - **Privacidade:** [fazenda-serena.web.app/privacy.html](https://fazenda-serena.web.app/privacy.html)
-- **Versão:** 1.0.0
+- **Versão:** 1.0.1
 
 <p align="center">
-  <img src="assets/logo.png" width="96" alt="Fazenda Serena">
+  <img src="assets/logo.webp" width="96" alt="Fazenda Serena">
 </p>
 
 <p align="center">
   <strong>Fazenda Serena</strong><br>
   Cultive. Evolua. Construa um legado.
 </p>
+
