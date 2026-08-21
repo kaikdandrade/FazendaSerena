@@ -45,3 +45,7 @@
   .news-card header { align-items: flex-start; flex-direction: column; }
   .news-footer { width: min(100% - 20px, 980px); }
 }
+
+.news-card-static p{margin:10px 0}.news-card-static h3{margin:22px 0 8px;color:#315b3b;font-size:1rem}
+.news-release-list{margin:8px 0 18px;padding-left:20px;color:#5f7064}.news-release-list li{margin:7px 0}
+.news-fallback-status{margin:0 0 12px;padding:10px 13px;border:1px solid rgba(65,111,72,.14);border-radius:12px;background:rgba(236,246,232,.72);color:#4f6755;font-size:.78rem;font-weight:750}

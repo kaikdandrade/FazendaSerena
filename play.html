@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="ca-pub-4578037304455366" name="google-adsense-account"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#eef4e8" name="theme-color"/>
+<meta content="Jogue Fazenda Serena, um jogo incremental de agricultura para navegador com culturas, contratos, pesquisas, eventos e prestígio." name="description"/>
+<title>Jogar Fazenda Serena — Agricultura Industrial</title>
+<link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+<link href="manifest.webmanifest" rel="manifest"/>
+<link href="assets/pwa/apple-touch-icon.png" rel="apple-touch-icon"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="default" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="Fazenda Serena" name="apple-mobile-web-app-title"/>
+<link href="https://fazenda-serena.web.app/play.html" rel="canonical"/>
+<link href="css/loading.css" rel="stylesheet"/>
+<link href="css/legacy/game-base.css" rel="stylesheet"/>
+<link href="css/legacy/game-revisions.css" rel="stylesheet"/>
+<link href="css/style.css" rel="stylesheet"/>
+<link href="css/shared-game-modals.css" rel="stylesheet"/>
+<link href="css/monetization.css" rel="stylesheet"/>
+<link href="css/release-ui.css" rel="stylesheet"/>
+<script src="js/loadingScreen.js"></script>
+<script defer="" src="js/publicCloud.js"></script>
+<script defer="" src="js/appConfig.js"></script>
+<script defer="" src="js/cacheManager.js"></script>
+<script defer="" src="js/privacyConsent.js"></script>
+<script defer="" src="js/modalGuard.js"></script>
+<script defer="" src="js/adsense-config.js"></script>
+<script defer="" src="js/firebase-config.js"></script>
+<script defer="" src="js/avatars.js"></script>
+<script defer="" src="js/firebaseManager.js"></script>
+<script defer="" src="js/data.js"></script>
+<script defer="" src="js/cropEconomy.js"></script>
+<script defer="" src="js/soundEngine.js"></script>
+<script defer="" src="js/engine/GameEngineCore.js"></script>
+<script defer="" src="js/engine/GameEngineProduction.js"></script>
+<script defer="" src="js/engine/GameEngineProgression.js"></script>
+<script defer="" src="js/engine/GameEngineStorage.js"></script>
+<script defer="" src="js/engine/GameEngineContracts.js"></script>
+<script defer="" src="js/engine/GameEngineOrdersMissions.js"></script>
+<script defer="" src="js/engine/GameEnginePrestigeSettings.js"></script>
+<script defer="" src="js/gameAdmin.js"></script>
+<script defer="" src="js/ambientBackground.js"></script>
+<script defer="" src="js/app/appState.js"></script>
+<script defer="" src="js/app/appUtils.js"></script>
+<script defer="" src="js/app/appAccountSocial.js"></script>
+<script defer="" src="js/app/appNavigation.js"></script>
+<script defer="" src="js/app/appCropsStock.js"></script>
+<script defer="" src="js/app/appEvolutions.js"></script>
+<script defer="" src="js/app/appCommerceMissions.js"></script>
+<script defer="" src="js/app/appStatistics.js"></script>
+<script defer="" src="js/app/appLiveSocial.js"></script>
+<script defer="" src="js/app/appRendererActions.js"></script>
+<script defer="" src="js/app/appEventsLoop.js"></script>
+<script defer="" src="js/app/appFeedback.js"></script>
+<script defer="" src="js/app/bootstrap.js"></script>
+</head>
+<body class="compact-cards is-loading" data-adsense-disabled="true">
+<div class="game-loading-screen" id="gameLoadingScreen" role="status" aria-live="polite" aria-busy="true">
+<div class="game-loading-card"><img class="game-loading-logo" src="assets/logo.webp" alt="Fazenda Serena"><div class="game-loading-copy"><small>Fazenda Serena</small><h1>Agricultura Industrial</h1><p id="gameLoadingStatus">Preparando sua fazenda...</p></div><div class="game-loading-spinner" aria-hidden="true"></div><div class="game-loading-progress" aria-hidden="true"><span id="gameLoadingProgress"></span></div><button class="game-loading-retry" id="gameLoadingRetry" type="button" hidden>Recarregar jogo</button></div>
+</div>
+<div aria-hidden="true" class="ambient-layer" id="ambientLayer"></div>
+<div class="app-shell">
+<header class="app-header">
+<a aria-label="Ir para a fazenda" class="brand" data-go-view="farmView" href="?view=farmView">
+<img alt="Folha da Fazenda Serena" class="brand-logo" src="assets/logo.webp"/>
+<span class="brand-copy">
+<small>Agricultura Industrial</small>
+<strong>Fazenda Serena</strong>
+</span>
+</a>
+<section aria-label="Nível da fazenda" class="farm-progress">
+<div class="farm-progress-head">
+<span>Nível da fazenda</span>
+<strong id="farmLevelLabel">1</strong>
+</div>
+<div aria-label="Experiência da fazenda" class="soft-progress" role="progressbar">
+<span id="farmXPBar"></span>
+</div>
+<small id="farmXPText">0 / 232 <img class="farm-xp-inline-icon" src="assets/icons/xp.webp" alt="XP"></small>
+</section>
+<section aria-label="Recursos do jogo" class="resource-strip">
+<article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda">
+<img alt="" src="assets/icons/moeda.webp"/>
+<span><small>Moedas</small><strong id="coinsCounter">0</strong></span>
+</article>
+<article class="resource-pill resource-shortcut" data-resource-shortcut="research" role="button" tabindex="0" title="Abrir Pesquisas">
+<img alt="" src="assets/icons/pocao-pesquisa.webp"/>
+<span><small>Pesquisa</small><strong id="researchCounter">0</strong></span>
+</article>
+<article class="resource-pill prestige-resource resource-shortcut" data-resource-shortcut="prestige" role="button" tabindex="0" title="Abrir Evoluções de prestígio">
+<img alt="" src="assets/icons/prestigio.webp"/>
+<span><small>Prestígio</small><strong id="prestigeCounter">0</strong></span>
+</article>
+</section>
+</header>
+<div class="workspace-shell">
+<aside aria-label="Navegação do jogo" class="navigation-stack navigation-responsive-stack">
+<nav aria-label="Áreas do jogo" class="main-nav desktop-main-nav">
+<button class="nav-tab active" data-navigation-key="farm" data-view="farmView" title="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="farm" src="assets/icons/muda-vaso.webp"/></span><span class="nav-tab-label">Fazenda</span></button>
+<button class="nav-tab stock-nav-tab" data-navigation-key="stock" data-view="stockView" id="stockNavTab" style="--stock-progress:0%" title="Estoque 0% cheio" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="stock" src="assets/icons/galpao-industrial.webp"/></span><span class="nav-tab-label">Estoque</span><b aria-hidden="true" class="nav-alert" hidden id="stockNavBadge">!</b></button>
+<button class="nav-tab office-nav-tab" data-navigation-key="office" data-view="officeView" id="officeNavTab" title="Escritório" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="office" src="assets/icons/prancheta-tarefas.webp"/></span><span class="nav-tab-label">Escritório</span></button>
+<button class="nav-tab profile-nav-tab" data-navigation-key="profile" data-view="profileView" id="profileNavTab" title="Perfil" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="profile" src="assets/icons/perfil.webp"/></span><span class="nav-tab-label">Perfil</span></button>
+<button class="nav-tab settings-nav-tab" data-navigation-key="settings" data-view="settingsView" title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="settings" src="assets/icons/configuracoes.webp"/></span><span class="nav-tab-label">Configurações</span></button>
+</nav>
+<aside aria-label="Navegação do escritório" class="context-nav-column context-nav-block desktop-context-nav" data-context-for="officeView" hidden>
+<nav aria-label="Seções do escritório" class="office-tabs context-tabs" role="tablist">
+<button aria-controls="officeContractsPanel" aria-selected="true" class="office-tab active" data-navigation-key="contracts" data-office-tab="contracts" id="contractsOfficeTab" role="tab" title="Contratos" type="button"><span><i><img alt="" data-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp"/></i> Contratos</span><b id="contractTabCount" hidden>0</b></button>
+<button aria-controls="officeOrdersPanel" aria-selected="false" class="office-tab" data-navigation-key="orders" data-office-tab="orders" id="ordersOfficeTab" role="tab" title="Pedidos" type="button"><span><i><img alt="" data-navigation-icon="orders" src="assets/icons/pacote.webp"/></i> Pedidos</span><b id="orderTabCount" hidden>0</b></button>
+<button aria-controls="officeEvolutionsPanel" aria-selected="false" class="office-tab" data-navigation-key="evolutions" data-office-tab="evolutions" id="evolutionsOfficeTab" role="tab" title="Evoluções" type="button"><span><i><img alt="" data-navigation-icon="evolutions" src="assets/icons/livros.webp"/></i> Evoluções</span></button>
+</nav>
+</aside>
+<aside aria-label="Navegação do perfil" class="context-nav-column context-nav-block desktop-context-nav" data-context-for="profileView" hidden>
+<nav aria-label="Seções do perfil" class="office-tabs profile-tabs context-tabs" role="tablist">
+<button aria-controls="profileAccountPanel" aria-selected="true" class="office-tab profile-tab active" data-navigation-key="account" data-profile-tab="account" id="accountProfileTab" role="tab" title="Minha Conta" type="button"><span><i><img alt="" data-navigation-icon="account" src="assets/icons/logo-google.webp"/></i> Minha Conta</span></button>
+<button aria-controls="profileSocialPanel" aria-selected="false" class="office-tab profile-tab" data-navigation-key="social" data-profile-tab="social" id="socialProfileTab" role="tab" title="Social" type="button"><span><i><img alt="" data-navigation-icon="social" src="assets/icons/social.webp"/></i> Social</span><b data-friends-count hidden id="friendsTabCount">0</b></button>
+<button aria-controls="profileMissionsPanel" aria-selected="false" class="office-tab profile-tab" data-navigation-key="missions" data-profile-tab="missions" id="missionsProfileTab" role="tab" title="Missões" type="button"><span><i><img alt="" data-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp"/></i> Missões</span><b id="missionTabCount" hidden>0</b></button>
+</nav>
+</aside>
+<nav aria-label="Tabulação em grade" class="main-nav main-nav-grid mobile-direct-nav">
+<button data-grid-navigation-key="farm" class="nav-tab active" data-view="farmView" title="Fazenda" aria-label="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="farm" src="assets/icons/muda-vaso.webp"/></span></button>
+<button data-grid-navigation-key="stock" class="nav-tab stock-nav-tab mobile-stock-nav-tab" data-view="stockView" title="Estoque" aria-label="Estoque" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="stock" src="assets/icons/galpao-industrial.webp"/></span><b aria-hidden="true" class="nav-alert mobile-stock-nav-badge" hidden>!</b></button>
+<button data-grid-navigation-key="contracts" class="nav-tab direct-child-tab" data-view="officeView" data-office-tab="contracts" title="Contratos" aria-label="Contratos" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp"/></span></button>
+<button data-grid-navigation-key="orders" class="nav-tab direct-child-tab" data-view="officeView" data-office-tab="orders" title="Pedidos" aria-label="Pedidos" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="orders" src="assets/icons/pacote.webp"/></span></button>
+<button data-grid-navigation-key="evolutions" class="nav-tab direct-child-tab" data-view="officeView" data-office-tab="evolutions" title="Evoluções" aria-label="Evoluções" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="evolutions" src="assets/icons/livros.webp"/></span></button>
+<button data-grid-navigation-key="account" class="nav-tab direct-child-tab" data-view="profileView" data-profile-tab="account" title="Minha Conta" aria-label="Minha Conta" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="account" src="assets/icons/logo-google.webp"/></span></button>
+<button data-grid-navigation-key="social" class="nav-tab direct-child-tab" data-view="profileView" data-profile-tab="social" title="Social" aria-label="Social" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="social" src="assets/icons/social.webp"/></span><b class="nav-alert grid-friends-nav-badge" data-friends-count hidden aria-hidden="true">0</b></button>
+<button data-grid-navigation-key="missions" class="nav-tab direct-child-tab" data-view="profileView" data-profile-tab="missions" title="Missões" aria-label="Missões" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp"/></span></button>
+<button data-grid-navigation-key="settings" class="nav-tab settings-nav-tab" data-view="settingsView" title="Configurações" aria-label="Configurações" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="settings" src="assets/icons/configuracoes.webp"/></span></button>
+</nav>
+</aside>
+<main class="game-main">
+<section class="view active" data-view-panel="farmView" id="farmView">
+<div class="section-heading">
+<div>
+<p class="eyebrow">área de cultivo</p>
+<h2>Culturas</h2>
+</div>
+<div class="toolbar">
+<label class="search-field">
+<span aria-hidden="true">⌕</span>
+<input autocomplete="off" id="searchCrop" placeholder="Buscar cultura..." type="search"/>
+</label>
+<select aria-label="Filtrar por categoria" id="categoryFilter">
+<option value="all">Todas as categorias</option>
+</select>
+</div>
+</div>
+<div class="crop-grid" id="cropGrid"></div>
+<div class="empty-state hidden" id="cropEmpty">Nenhuma cultura corresponde a essa busca.</div>
+</section>
+<section class="view" data-view-panel="stockView" id="stockView">
+<div class="section-heading">
+<div>
+<p class="eyebrow">produção guardada</p>
+<h1>Estoque da fazenda</h1>
+
+</div>
+<div class="stock-toolbar">
+<label class="search-field stock-search-field"><span aria-hidden="true">⌕</span><input autocomplete="off" id="stockSearch" placeholder="Buscar no estoque..." type="search" aria-label="Buscar cultura no estoque"></label>
+</div>
+</div>
+<div class="stock-summary" id="stockSummary"></div>
+<div class="stock-grid" id="stockGrid"></div>
+</section>
+<section class="view" data-view-panel="officeView" id="officeView">
+<div class="office-workspace panel-card">
+<section aria-labelledby="contractsOfficeTab" class="office-panel active" data-office-panel="contracts" id="officeContractsPanel" role="tabpanel">
+<div class="section-heading compact-heading office-panel-heading contracts-clean-heading">
+<div>
+<p class="eyebrow">oportunidades comerciais</p>
+<h2>Contratos</h2>
+
+</div>
+</div>
+<div class="contracts-clean-flow">
+<div class="active-contract-grid" id="activeContractList"></div>
+<div aria-hidden="true" class="contract-section-divider"><span></span></div>
+<div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
+</div>
+</section>
+<section aria-labelledby="ordersOfficeTab" class="office-panel" data-office-panel="orders" hidden="" id="officeOrdersPanel" role="tabpanel">
+<div class="section-heading compact-heading office-panel-heading">
+<div>
+<p class="eyebrow">entregas por cultura</p>
+<h2>Pedidos</h2>
+
+</div>
+</div>
+<div class="order-board">
+<section class="order-board-section active-order-board">
+<div class="order-board-heading order-board-heading-minimal">
+<p class="eyebrow">em andamento</p>
+</div>
+<div class="order-grid" id="orderList"></div>
+</section>
+<section class="order-board-section completed-order-board" hidden="" id="completedOrderBoard">
+<div class="order-board-heading">
+<div>
+<p class="eyebrow">histórico permanente</p>
+<h3>Pedidos finalizados</h3>
+</div><small id="completedOrderCount">Nenhum pedido finalizado ainda.</small>
+</div>
+<div class="order-grid completed-order-grid" id="completedOrderList"></div>
+</section>
+</div>
+</section>
+<section aria-labelledby="evolutionsOfficeTab" class="office-panel office-evolutions-panel evolution-panel" data-office-panel="evolutions" hidden="" id="officeEvolutionsPanel" role="tabpanel">
+<div class="section-heading compact-heading office-panel-heading">
+<div>
+<p class="eyebrow">conhecimento aplicado</p>
+<h2>Centro de pesquisa</h2>
+
+</div>
+</div>
+<div class="upgrade-grid" id="researchList"></div><section aria-labelledby="legacyEvolutionTitle" class="evolution-legacy-section"><div aria-hidden="true" class="evolution-section-divider"><span></span></div><div class="section-heading compact-heading evolution-panel-heading legacy-panel-heading"><div><p class="eyebrow">benefícios entre jornadas</p><h2 id="legacyEvolutionTitle">Legados permanentes</h2></div></div><div class="upgrade-grid prestige-grid" id="prestigeList"></div></section>
+</section></div>
+</section>
+<section class="view" data-view-panel="profileView" id="profileView">
+<div class="profile-workspace panel-card office-workspace"><section aria-labelledby="accountProfileTab" class="office-panel profile-panel profile-account-panel active" data-profile-panel="account" id="profileAccountPanel" role="tabpanel"><article class="panel-card settings-card account-settings-card">
+<div class="account-settings-head">
+<div class="account-avatar-shell">
+<img alt="" id="accountAvatar" src="assets/logo.webp"/>
+</div>
+<div class="account-identity">
+<p class="eyebrow">conta Google</p>
+<h2 id="accountName">Visitante</h2>
+<div class="account-detail-lines">
+<p class="account-email" id="accountEmail">Conta não conectada</p>
+<p class="account-privacy" id="accountDescription">Seu progresso existe somente
+                                            neste navegador e será salvo automaticamente enquanto você jogar como visitante.</p>
+</div>
+</div>
+</div>
+<div class="button-row account-actions">
+<section class="ranking-profile-launch" hidden="" id="rankingProfileLaunch">
+<div>
+<p class="eyebrow">ranking global</p>
+<h3>Perfil do ranking</h3>
+<p>Defina o apelido e o avatar usados para identificar sua fazenda no ranking global.</p>
+</div>
+<button class="button primary" id="openRankingProfileButton" type="button">Perfil do ranking</button>
+</section>
+<button class="button google-sign-in-button" id="googleSignIn" type="button"><img alt="" aria-hidden="true" src="assets/icons/logo-google.webp"/> Entrar com o
+                                    Google</button>
+<button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair
+                                    da conta</button>
+
+</div>
+</article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
+<div class="stats-grid" id="lifetimeStats"></div>
+</section><section class="stats-section stats-section-plain">
+<div class="stats-grid" id="recordStats"></div>
+</section><section class="stats-section stats-section-plain">
+<div class="achievement-summary" id="achievementSummary"></div>
+<div class="achievement-grid" id="achievementGrid"></div>
+</section></div></section></div></section><section aria-labelledby="socialProfileTab" class="office-panel profile-panel social-profile-panel" data-profile-panel="social" hidden="" id="profileSocialPanel" role="tabpanel">
+<div class="section-heading compact-heading office-panel-heading profile-panel-heading friends-panel-heading">
+<div>
+<p class="eyebrow">comunidade da fazenda</p>
+<h2>Social</h2>
+
+</div>
+</div>
+<div class="friends-content" id="friendsContent">
+<div class="empty-state">Entre com o Google e configure seu perfil do ranking para usar o sistema de amizades.</div>
+</div>
+<details class="social-events-accordion" id="socialEventsAccordion">
+<summary><span class="social-events-accordion-icon"><img src="assets/icons/calendario-eventos.webp" alt=""></span><span class="social-events-accordion-copy"><small>agenda da comunidade</small><strong>Próximos eventos</strong><em id="socialEventsSummary">Confira os eventos programados.</em></span><span class="social-events-chevron" aria-hidden="true"><img src="assets/icons/seta-cima.webp" alt=""></span></summary>
+<div class="social-events-accordion-body social-live-list" id="socialEventsList"></div>
+</details>
+<section class="stats-section global-prestige-section social-ranking-section">
+<div class="compact-section-title social-ranking-heading">
+<div class="social-ranking-title"><img src="assets/icons/ranking.webp" alt="" aria-hidden="true"><div><p class="eyebrow">competição entre fazendas</p><h2>Rank global de prestígio</h2></div></div>
+<button class="button secondary leaderboard-refresh-button" data-action="refresh-leaderboard" type="button">Atualizar rank</button>
+</div>
+<div class="prestige-leaderboard" id="prestigeLeaderboard">
+<div class="empty-state">Carregando as cinco melhores fazendas da nuvem.</div>
+</div>
+</section></section><section aria-labelledby="missionsProfileTab" class="office-panel profile-panel" data-profile-panel="missions" hidden="" id="profileMissionsPanel" role="tabpanel">
+<div class="section-heading compact-heading office-panel-heading profile-panel-heading">
+<div>
+<p class="eyebrow">metas da jornada</p>
+<h2>Missões</h2>
+
+</div>
+</div>
+<div class="mission-grid" id="missionList"></div>
+<div class="mission-history-toggle">
+<button aria-expanded="false" class="button secondary" id="toggleCompletedMissions" type="button">Mostrar missões concluídas</button>
+<small id="completedMissionCount">Nenhuma missão concluída ainda.</small>
+</div>
+</section></div>
+</section><section class="view" data-view-panel="settingsView" id="settingsView">
+<div class="panel-card settings-page-container">
+<div class="section-heading settings-page-heading"><div><p class="eyebrow">seu jeito de jogar</p><h1>Configurações</h1></div></div>
+<div class="settings-grid settings-grid-reworked">
+<article class="settings-card experience-settings-card">
+<header class="settings-card-head"><h2>Experiência visual</h2></header>
+<div class="settings-card-body">
+<label class="setting-row"><span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span><input id="ambientSetting" type="checkbox"/></label>
+<label class="setting-row number-format-setting"><span><strong>Formato dos números</strong><small>Escolha entre vírgula brasileira e ponto internacional.</small></span><select aria-label="Formato dos números" id="numberFormatSetting"><option value="brazilian">Brasileiro (1,2K)</option><option value="international">Internacional (1.2K)</option></select></label>
+<label class="setting-row navigation-mode-setting"><span><strong>Navegação</strong><small>Escolha como as áreas do jogo aparecem no menu.</small></span><select aria-label="Modo de navegação" id="navigationModeSetting"><option value="automatic">Automático</option><option value="line">Tabulação em linha</option><option value="grid">Tabulação em grade</option></select></label>
+
+</div></article>
+<article class="settings-card audio-settings-card">
+<header class="settings-card-head"><h2>Áudio</h2></header>
+<div class="settings-card-body">
+<label class="range-setting settings-range-row"><span><strong>Volume geral</strong><small>Controla todo o áudio do jogo.</small></span><output id="masterVolumeText">100%</output><input aria-label="Volume geral" id="masterVolumeSetting" max="100" min="0" step="5" type="range" value="100"/></label>
+<label class="range-setting settings-range-row"><span><strong>Volume da música</strong><small>Define a intensidade da trilha sonora.</small></span><output id="musicVolumeText">10%</output><input aria-label="Volume da música" id="musicVolumeSetting" max="100" min="0" step="5" type="range" value="10"/></label>
+<label class="range-setting settings-range-row"><span><strong>Volume dos efeitos</strong><small>Define o volume de cliques, recompensas e ações.</small></span><output id="effectVolumeText">55%</output><input aria-label="Volume dos efeitos" id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/></label>
+<label class="setting-row audio-track-setting"><span><strong>Trilha sonora</strong><small>Escolha a música ambiente da fazenda.</small></span><select id="musicTrackSetting"><option value="betweenLightAndShadows">Entre Luz e Sombras</option><option value="pixelSprouts">Brotos Pixelados</option><option value="moonlitFields">Campos ao Luar</option><option value="fieldRain">Chuva no Campo</option><option value="electricHarvest">Colheita Eletrizante</option><option value="dirtRoad">Estrada de Terra</option><option value="enchantedGreenhouse">Estufa Encantada</option><option value="solarFarm">Fazenda Solar</option><option value="barnHay">Feno do Celeiro</option><option value="harvestFestival">Festa da Colheita</option><option value="tropicalOrchard">Pomar Tropical</option></select></label>
+</div></article>
+<article class="settings-card feedback-settings-card">
+<header class="settings-card-head"><h2>Feedback e ideias</h2></header>
+<div class="settings-card-body feedback-settings-body"><div class="feedback-settings-copy"><img src="assets/icons/ideia-verde.webp" alt="" aria-hidden="true"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span></div><button class="button feedback-launch-button" id="openPlayerFeedback" type="button">Enviar feedback</button></div>
+</article>
+</div>
+</div>
+</section>
+</main>
+</div>
+<section aria-label="Publicidade" class="ad-region" data-adsense-placement="footer" hidden=""></section>
+<footer class="app-footer">
+<div class="footer-brand">
+<img alt="Folha da Fazenda Serena" src="assets/logo.webp"/>
+<span class="footer-brand-copy"><strong>Fazenda Serena</strong><small>Agricultura
+                        Industrial</small></span>
+</div>
+<nav aria-label="Informações e privacidade" class="footer-links">
+<a href="index.html">Início</a>
+<a href="noticias.html">Notícias</a>
+<a href="tutorial.html">Tutorial</a>
+<a href="terms.html">Termos de Uso</a>
+<a href="privacy.html">Política de Privacidade</a>
+<button class="footer-link-button" data-open-cookie-preferences="" type="button">Preferências de
+                    cookies</button>
+</nav>
+<p class="footer-credit"><span>Desenvolvido por</span><a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version=""></b></a></p>
+</footer>
+</div>
+<section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
+<article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda"><img alt="" src="assets/icons/moeda.webp"/><span><small>Moedas</small><strong id="floatingCoinsCounter">0</strong></span></article>
+<article class="resource-pill resource-shortcut" data-resource-shortcut="research" role="button" tabindex="0" title="Abrir Pesquisas"><img alt="" src="assets/icons/pocao-pesquisa.webp"/><span><small>Pesquisa</small><strong id="floatingResearchCounter">0</strong></span></article>
+<article class="resource-pill prestige-resource resource-shortcut" data-resource-shortcut="prestige" role="button" tabindex="0" title="Abrir Evoluções de prestígio"><img alt="" data-prestige-icon="resource" src="assets/icons/prestigio.webp"/><span><small>Prestígio</small><strong id="floatingPrestigeCounter">0</strong></span></article>
+</section>
+<button aria-label="Subir ao início da página" class="back-to-top" hidden="" id="backToTop" title="Voltar ao topo" type="button"><img alt="" src="assets/icons/seta-cima.webp"/><span class="sr-only">Voltar ao topo</span></button>
+<aside aria-label="Acompanhamento dos contratos ativos" class="contract-dock" id="contractDock"></aside>
+<dialog aria-labelledby="rankingProfileDialogTitle" class="ranking-profile-dialog" id="rankingProfileDialog"><form class="player-profile-form ranking-profile-modal-form" id="playerProfileForm" novalidate="">
+<div class="player-profile-heading">
+<div>
+<h2 id="rankingProfileDialogTitle">Perfil do ranking</h2>
+</div>
+</div>
+<div class="player-profile-fields">
+<label class="profile-nickname-field" for="playerNicknameSetting">
+<span><strong>Apelido</strong></span>
+<input autocomplete="nickname" id="playerNicknameSetting" maxlength="24" minlength="4" placeholder="Seu apelido no ranking" required="" type="text"/>
+</label>
+<div class="profile-avatar-field">
+<span class="profile-field-copy"><strong>Avatar</strong></span>
+<div class="profile-avatar-control">
+<div class="selected-avatar-preview" id="selectedAvatarPreview">
+<img alt="" id="selectedAvatarImage" src="assets/icons/perfil.webp"/>
+<span><strong id="selectedAvatarName">Nenhum avatar escolhido</strong></span>
+</div>
+<button aria-controls="avatarPickerPanel" aria-expanded="false" class="button secondary avatar-picker-toggle" id="toggleAvatarPicker" type="button">Selecionar avatar</button>
+</div>
+<input id="playerAvatarSetting" required="" type="hidden"/>
+</div>
+</div>
+<div class="avatar-picker-panel" hidden="" id="avatarPickerPanel">
+<fieldset class="avatar-picker-fieldset">
+<legend>Escolha seu avatar</legend>
+<div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
+</fieldset>
+</div>
+<div class="player-profile-actions"><button class="button secondary" id="cancelRankingProfile" type="button">Cancelar</button>
+<button class="button primary" id="savePlayerProfile" type="submit">Salvar
+                                        perfil</button>
+<small aria-live="polite" id="playerProfileFeedback"></small>
+</div>
+
+</form></dialog>
+<dialog aria-labelledby="prestigeConfirmTitle" class="confirmation-dialog confirmation-dialog-positive" id="prestigeConfirmDialog">
+<form method="dialog">
+<div aria-hidden="true" class="confirmation-dialog-icon">★</div>
+<div class="confirmation-dialog-copy">
+<p class="eyebrow">confirmação</p>
+<h2 id="prestigeConfirmTitle">Confirmar prestígio?</h2>
+<p id="prestigeConfirmText">Prestigiar reiniciará os recursos da jornada atual e converterá seu
+                    progresso em pontos de prestígio permanentes.</p>
+<strong>Você manterá seus legados, missões permanentes e todo o prestígio acumulado.</strong>
+</div>
+<div class="confirmation-dialog-actions">
+<button class="button secondary" id="cancelPrestigeConfirm" value="cancel">Continuar jornada</button>
+<button class="button gold" id="confirmPrestigeConfirm" value="confirm">Prestigiar agora</button>
+</div>
+</form>
+</dialog>
+<dialog aria-labelledby="milestoneDialogTitle" class="confirmation-dialog confirmation-dialog-milestone" id="milestoneDialog">
+<form method="dialog">
+  <header class="milestone-preview-header"><img src="assets/icons/marco-nivel.webp" alt="" aria-hidden="true"><div><small>Marco alcançado</small><h2 id="milestoneDialogTitle">Novo marco da fazenda</h2></div></header>
+  <div class="milestone-preview-body milestone-dialog-list" id="milestoneDialogList"></div>
+  <footer class="milestone-preview-actions"><button class="button primary" id="closeMilestoneDialog" value="confirm">Continuar</button></footer>
+</form>
+</dialog>
+<dialog aria-labelledby="contractBreakTitle" class="confirmation-dialog contract-break-dialog" id="contractBreakDialog">
+<form method="dialog">
+  <header class="contract-break-hero">
+    <div class="contract-break-icon"><img src="assets/icons/contrato-agricola.webp" alt="" aria-hidden="true"></div>
+    <div class="contract-break-copy"><p class="eyebrow">quebra de contrato</p><h2 id="contractBreakTitle">Encerrar este compromisso?</h2></div>
+  </header>
+  <section class="contract-break-calculation contract-break-calculation-simple" aria-label="Resumo da quebra de contrato">
+    <article><small>Falta entregar</small><strong id="contractBreakMissing">0</strong><span>unidades</span></article>
+    <article class="contract-break-amount"><small>Valor da multa</small><strong id="contractBreakAmount"></strong></article>
+  </section>
+  <div class="confirmation-dialog-actions contract-break-actions"><button class="button secondary" id="cancelContractBreak" type="button">Manter contrato</button><button class="button danger" id="confirmContractBreak" type="button">Quebrar contrato</button></div>
+</form>
+</dialog>
+<dialog aria-labelledby="offlineProgressTitle" class="confirmation-dialog offline-progress-dialog" id="offlineProgressDialog">
+<form method="dialog">
+  <header class="offline-progress-header"><div class="offline-progress-symbol"><img src="assets/icons/retorno-offline.webp" alt="" aria-hidden="true"></div><div class="offline-progress-heading"><h2 id="offlineProgressTitle">Progresso offline</h2><strong id="offlineProgressTime">15min</strong></div></header>
+  <div class="offline-progress-summary" id="offlineProgressSummary"></div>
+  <div class="confirmation-dialog-actions offline-progress-actions"><button class="button primary" value="confirm">Continuar</button></div>
+</form>
+</dialog>
+
+
+<dialog aria-labelledby="friendsListDialogTitle" class="confirmation-dialog friends-list-dialog" id="friendsListDialog">
+<form method="dialog"><header class="friends-dialog-header"><div class="friends-dialog-heading"><span class="friends-dialog-icon"><img src="assets/icons/social.webp" alt="" aria-hidden="true"></span><div><small>Social</small><h2 id="friendsListDialogTitle">Amigos e solicitações</h2></div></div><div class="friends-dialog-header-actions"><button class="dialog-icon-button" value="cancel" aria-label="Fechar" type="submit">×</button></div></header><div class="friends-dialog-body" id="friendsListDialogBody"></div><footer class="friends-dialog-actions"><button class="button secondary full" value="cancel">Fechar</button></footer></form>
+</dialog>
+<dialog aria-labelledby="removeFriendTitle" class="confirmation-dialog remove-friend-dialog" id="removeFriendDialog">
+<form method="dialog"><div class="remove-friend-hero"><img src="assets/icons/social.webp" alt=""><div><p class="eyebrow">remover amizade</p><h2 id="removeFriendTitle">Remover <span id="removeFriendName">este amigo</span>?</h2><p>Essa pessoa deixará de aparecer na sua lista de amigos.</p></div></div><div class="confirmation-dialog-actions"><button class="button secondary" value="cancel">Cancelar</button><button class="button danger" data-action="confirm-remove-friend" type="button">Remover amizade</button></div></form>
+</dialog>
+<dialog aria-labelledby="playerFeedbackTitle" class="confirmation-dialog player-feedback-dialog" id="playerFeedbackDialog">
+<form id="playerFeedbackForm" method="dialog">
+  <header class="player-feedback-heading"><span class="player-feedback-heading-icon"><img src="assets/icons/ideia-verde.webp" alt="" aria-hidden="true"></span><div><p class="eyebrow">Sua opinião importa</p><h2 id="playerFeedbackTitle">Feedback e ideias</h2><p>Conte uma ideia, sugestão ou problema de forma simples. Sua mensagem vai direto para a administração do jogo.</p></div></header>
+  <div class="player-feedback-fields">
+    <label class="player-feedback-type"><span>Tipo da mensagem</span><select id="playerFeedbackType" required><option value="idea">Ideia</option><option value="feedback">Feedback</option><option value="problem">Problema</option></select></label>
+    <label><span>Assunto</span><input autocomplete="off" id="playerFeedbackSubject" maxlength="100" required type="text" placeholder="Ex.: melhoria nos contratos"></label>
+    <label class="full player-feedback-message-field"><span>Mensagem</span><textarea id="playerFeedbackMessage" maxlength="1200" required placeholder="Explique sua ideia ou o que aconteceu..."></textarea><small>Até 1.200 caracteres.</small></label>
+    <p class="player-feedback-status" id="playerFeedbackStatus" role="status" aria-live="polite"></p>
+  </div>
+  <footer class="confirmation-dialog-actions player-feedback-actions"><button class="button secondary" id="cancelPlayerFeedback" type="button">Cancelar</button><button class="button feedback-submit-button" id="submitPlayerFeedback" type="submit">Enviar mensagem</button></footer>
+</form>
+</dialog>
+<section aria-labelledby="cookieBannerTitle" class="cookie-banner" hidden="" id="cookieBanner" role="region">
+<div class="cookie-banner-copy">
+<span aria-hidden="true" class="cookie-banner-icon"><img src="assets/icons/cookie.webp" alt=""/></span>
+<div>
+<h2 id="cookieBannerTitle">Sua privacidade na Fazenda Serena</h2>
+<p>Usamos cookies necessários e de publicidade para manter o jogo, a segurança e a monetização por anúncios. A análise de uso é opcional. Você pode aceitar tudo ou configurar essa preferência. <a href="privacy.html">Leia a Política de Privacidade</a>.</p>
+</div>
+</div>
+<div class="cookie-banner-actions">
+<button class="cookie-button secondary" id="customizeCookies" type="button">Configurar</button>
+<button class="cookie-button primary" id="acceptAllCookies" type="button">Aceitar todos</button>
+</div>
+</section>
+<dialog aria-labelledby="cookiePreferencesTitle" class="cookie-preferences-dialog" id="cookiePreferencesDialog">
+<form method="dialog">
+<div class="cookie-dialog-heading">
+<h2 id="cookiePreferencesTitle">Preferências de cookies</h2>
+</div>
+<div class="cookie-category-list">
+<article class="cookie-category">
+<div class="cookie-category-copy"><strong>Cookies necessários</strong><small>Guardam a sua escolha
+                            de cookies e permitem recursos essenciais do site.</small></div>
+<span class="cookie-state-required">Sempre ativos</span>
+</article>
+<article class="cookie-category">
+<div class="cookie-category-copy"><strong>Publicidade</strong><small>Permite carregar o Google AdSense, financiar o jogo e aplicar recursos de segurança, limitação e medição de anúncios.</small></div>
+<span class="cookie-state-required">Sempre ativos</span>
+</article>
+<article class="cookie-category">
+<div class="cookie-category-copy"><strong>Análise de uso</strong><small>Permite medir o uso do site quando uma ferramenta de análise for ativada.</small></div>
+<label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox"/><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de análise</span></label>
+</article>
+</div>
+<div class="cookie-dialog-actions">
+<button class="cookie-button ghost" id="cancelCookiePreferences" type="button">Cancelar</button>
+<button class="cookie-button primary" id="saveCookiePreferences" type="button">Salvar
+                    preferências</button>
+</div>
+</form>
+</dialog>
+</body>
+</html>

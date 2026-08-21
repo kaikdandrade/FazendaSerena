@@ -12,11 +12,95 @@
       "CHANGELOG.md",
       "ADSENSE_SETUP.md",
       "ADMIN_SETUP.md",
-      "**/.*",
       "**/node_modules/**",
-      "SECURITY_SETUP.md"
+      "SECURITY_SETUP.md",
+      "desktop-windows/**",
+      "android-twa/**",
+      ".github/**",
+      "downloads/*.aab",
+      ".gitignore",
+      ".git/**",
+      ".DS_Store",
+      "**/.DS_Store"
     ],
     "headers": [
+      {
+        "source": "/downloads/*.exe",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/vnd.microsoft.portable-executable"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          },
+          {
+            "key": "Content-Disposition",
+            "value": "attachment"
+          },
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow, noarchive"
+          }
+        ]
+      },
+      {
+        "source": "/downloads/*.apk",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/vnd.android.package-archive"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          },
+          {
+            "key": "Content-Disposition",
+            "value": "attachment"
+          },
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow, noarchive"
+          }
+        ]
+      },
+      {
+        "source": "/.well-known/assetlinks.json",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/json; charset=utf-8"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/manifest.webmanifest",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/manifest+json; charset=utf-8"
+          },
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/assets/pwa/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=604800, immutable"
+          }
+        ]
+      },
       {
         "source": "/image-index.json",
         "headers": [

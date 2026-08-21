@@ -25,7 +25,7 @@
         <img src="assets/logo.webp" alt="" fetchpriority="high" decoding="async">
         <span><small>Fazenda Serena</small><strong>Notícias</strong></span>
       </a>
-      <a class="news-back" href="index.html">Voltar ao jogo</a>
+      <a class="news-back" href="play.html">Jogar agora</a>
     </header>
 
     <section class="news-hero">
@@ -35,14 +35,35 @@
       <span class="news-current-version">Versão atual <strong data-app-version>...</strong></span>
     </section>
 
-    <section class="news-feed" id="newsFeed" aria-live="polite">
-      <div class="news-state">Carregando notícias...</div>
+    <section class="news-feed" id="newsFeed" aria-live="polite" data-static-fallback="release-1.0.0">
+      <article class="news-card latest news-card-static">
+        <header>
+          <div><span class="news-version">v1.0.0</span><span class="news-latest">lançamento oficial</span></div>
+          <time datetime="2026-08-12">12 de agosto de 2026</time>
+        </header>
+        <h2>Fazenda Serena — Versão 1.0.0</h2>
+        <p>A espera acabou. A Fazenda Serena chega oficialmente à sua primeira versão estável.</p>
+        <p>Depois de muitas revisões, testes e correções, o jogo entra em sua fase de lançamento público com uma experiência mais completa e preparada para crescer.</p>
+        <h3>Principais destaques</h3>
+        <ul class="news-release-list">
+          <li>Mais de 70 culturas com progressão individual.</li>
+          <li>Produção automática, estoque e progresso offline.</li>
+          <li>Contratos, pedidos e recompensas progressivas.</li>
+          <li>Pesquisas e evoluções que alteram a fazenda.</li>
+          <li>Sistema de prestígio com legados permanentes.</li>
+          <li>Eventos temporários com bônus e contagem regressiva.</li>
+          <li>Ranking global, perfil personalizado e sistema de amigos.</li>
+          <li>Salvamento local para visitantes e em nuvem para contas conectadas.</li>
+          <li>Interface responsiva, música, efeitos e ambientação dinâmica.</li>
+        </ul>
+        <p><strong>A versão 1.0.0 representa o início oficial da Fazenda Serena.</strong> Novas culturas, eventos, missões, recompensas e melhorias poderão chegar nas próximas atualizações.</p>
+      </article>
     </section>
   </main>
 
   <footer class="privacy-footer news-footer">
     <span>© 2026 Fazenda Serena · Versão <b data-app-version>...</b></span>
-    <span><a href="index.html">Jogar</a> · <a href="tutorial.html">Tutorial</a> · <a href="terms.html">Termos de Uso</a> · <a href="privacy.html">Privacidade</a></span>
+    <span><a href="index.html">Início</a> · <a href="play.html">Jogar</a> · <a href="tutorial.html">Tutorial</a> · <a href="terms.html">Termos de Uso</a> · <a href="privacy.html">Privacidade</a></span>
   </footer>
 </body>
 </html>

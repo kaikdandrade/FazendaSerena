@@ -199,7 +199,7 @@
     const remembered = (() => { try { return sessionStorage.getItem("fazenda-serena-admin-section") || "balance"; } catch { return "balance"; } })();
     selectWorkspace(remembered);
   }
-  const redirectUnauthorized = () => window.setTimeout(() => window.location.replace("index.html"), 900);
+  const redirectUnauthorized = () => window.setTimeout(() => window.location.replace("play.html"), 900);
   function queueCloudSave(message, task) { const run = async () => { setFeedback(message, "pending"); try { const result = await task(); setFeedback("Alteração salva na nuvem.", "success"); return result; } catch (error) { setFeedback(window.FirebaseManager.getFriendlyError(error), "error"); throw error; } }; saveQueue = saveQueue.then(run, run); return saveQueue; }
   async function publishConfig(nextConfig, successMessage = "Alteração publicada.") { if (!authorized) throw new Error("Esta conta não possui acesso administrativo."); const validated = window.GameAdminConfig.validateForSave(nextConfig); await window.FirebaseManager.savePublicGameConfig(validated); currentConfig = clone(validated); dom.cloudStatus.textContent = successMessage; return validated; }
   async function saveCatalog(name) { return queueCloudSave("Salvando na nuvem...", async () => {

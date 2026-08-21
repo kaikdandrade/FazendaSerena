@@ -75,6 +75,98 @@ service cloud.firestore {
              && state.createdAt > 0;
     }
 
+
+    // Proteção cirúrgica dos recursos de prestígio observados nos testes.
+    // Não reimplementa moedas, XP, pesquisa nem toda a economia do GameEngine.
+    function hasPrestigeAuditFields(state) {
+      return state is map
+             && state.stats is map
+             && state.stats.keys().hasAll(['prestiges', 'totalPrestigeEarned'])
+             && state.stats.prestiges is int
+             && state.stats.totalPrestigeEarned is int
+             && state.stats.prestiges >= 0
+             && state.stats.totalPrestigeEarned >= 0
+             && isNumber(state.prestigePoints)
+             && state.prestigePoints >= 0;
+    }
+
+    function isPrestigeCycleTransition(oldState, nextState) {
+      return nextState.stats.prestiges == oldState.stats.prestiges + 1
+             && nextState.farmLevel == 1
+             && nextState.farmXP == 0
+             && nextState.keys().hasAll(['activeContracts', 'contractOffers'])
+             && nextState.activeContracts is list
+             && nextState.contractOffers is list
+             && nextState.activeContracts.size() == 0
+             && nextState.contractOffers.size() == 0
+             && nextState.stats.totalPrestigeEarned >= oldState.stats.totalPrestigeEarned;
+    }
+
+    function hasPrestigeRewardSourceChanged(oldState, nextState) {
+      return (
+               oldState.stats.keys().hasAll(['ordersCompleted'])
+               && nextState.stats.keys().hasAll(['ordersCompleted'])
+               && isNumber(oldState.stats.ordersCompleted)
+               && isNumber(nextState.stats.ordersCompleted)
+               && nextState.stats.ordersCompleted > oldState.stats.ordersCompleted
+             )
+             || (
+               oldState.stats.keys().hasAll(['lifetimeOrdersCompleted'])
+               && nextState.stats.keys().hasAll(['lifetimeOrdersCompleted'])
+               && isNumber(oldState.stats.lifetimeOrdersCompleted)
+               && isNumber(nextState.stats.lifetimeOrdersCompleted)
+               && nextState.stats.lifetimeOrdersCompleted > oldState.stats.lifetimeOrdersCompleted
+             )
+             || (
+               oldState.keys().hasAll(['missionsClaimed'])
+               && nextState.keys().hasAll(['missionsClaimed'])
+               && oldState.missionsClaimed is map
+               && nextState.missionsClaimed is map
+               && nextState.missionsClaimed != oldState.missionsClaimed
+             )
+             || (
+               oldState.keys().hasAll(['activeContracts'])
+               && nextState.keys().hasAll(['activeContracts'])
+               && oldState.activeContracts is list
+               && nextState.activeContracts is list
+               && nextState.activeContracts != oldState.activeContracts
+             );
+    }
+
+    function validSensitivePrestigeTransition() {
+      let oldState = resource.data.state;
+      let nextState = request.resource.data.state;
+
+      // Compatibilidade: um save muito antigo pode ser normalizado uma vez.
+      return !hasPrestigeAuditFields(oldState)
+             || (
+               hasPrestigeAuditFields(nextState)
+               && nextState.stats.prestiges >= oldState.stats.prestiges
+               && nextState.stats.prestiges <= oldState.stats.prestiges + 1
+               && (
+                 nextState.stats.prestiges == oldState.stats.prestiges
+                 || isPrestigeCycleTransition(oldState, nextState)
+               )
+               && nextState.stats.totalPrestigeEarned >= oldState.stats.totalPrestigeEarned
+               && (
+                 nextState.stats.totalPrestigeEarned == oldState.stats.totalPrestigeEarned
+                 || isPrestigeCycleTransition(oldState, nextState)
+                 || hasPrestigeRewardSourceChanged(oldState, nextState)
+               )
+               && (
+                 nextState.prestigePoints <= oldState.prestigePoints
+                 || (
+                   nextState.stats.totalPrestigeEarned - oldState.stats.totalPrestigeEarned
+                     >= nextState.prestigePoints - oldState.prestigePoints
+                   && (
+                     isPrestigeCycleTransition(oldState, nextState)
+                     || hasPrestigeRewardSourceChanged(oldState, nextState)
+                   )
+                 )
+               )
+             );
+    }
+
     function validClientSaveEnvelope(userId) {
       return signedIn()
              && request.auth.uid == userId
@@ -250,7 +342,8 @@ service cloud.firestore {
 
       allow update: if validProfileSettingsTransition(userId)
                     || (validClientSaveEnvelope(userId)
-                        // A única trava de concorrência do save normal é a revisão
+                        && validSensitivePrestigeTransition()
+                        // A trava de concorrência do save normal continua sendo a revisão
                         // administrativa. A economia não é reimplementada nas Rules,
                         // evitando bloquear ações legítimas do GameEngine.
                         && ((!resource.data.keys().hasAny(['adminRevision'])
