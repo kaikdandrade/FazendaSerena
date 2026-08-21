@@ -317,7 +317,7 @@ O projeto utiliza o **Firebase Authentication** com login pelo Google. A autenti
 
 O **Cloud Firestore** armazena o save em nuvem, os dados públicos necessários para o ranking, os perfis sociais, as solicitações de amizade e a configuração publicada pela administração. Categorias de plantas, plantas, indústrias, tipos de contrato, etapas de pedidos e missões são catálogos remotos: não possuem conteúdo padrão embutido no jogo e passam a existir quando são cadastrados e publicados pelo painel administrativo.
 
-Jogadores não autenticados podem conhecer o jogo como visitantes, enquanto contas conectadas recebem sincronização automática do progresso.
+Jogadores não autenticados possuem save local no navegador. No primeiro login de uma conta nova, esse progresso local é promovido para a nuvem; contas que já possuem save carregam exclusivamente o progresso existente no Firestore.
 
 ### Recursos visuais locais
 
@@ -374,7 +374,7 @@ Componentes e serviços de terceiros permanecem sujeitos aos termos e licenças 
 ## Projeto oficial
 
 - **Jogo:** [fazenda-serena.web.app](https://fazenda-serena.web.app/)
-- **Repositório:** [github.com/kaikedandrade/paisagemserena](https://github.com/kaikedandrade/paisagemserena)
+- **Repositório:** [github.com/kaikdandrade/FazendaSerena](https://github.com/kaikdandrade/FazendaSerena)
 - **Privacidade:** [fazenda-serena.web.app/privacy.html](https://fazenda-serena.web.app/privacy.html)
 - **Versão:** 1.0.1
 
