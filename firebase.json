@@ -15,9 +15,8 @@
       "**/node_modules/**",
       "SECURITY_SETUP.md",
       "desktop-windows/**",
-      "android-twa/**",
       ".github/**",
-      "downloads/*.aab",
+      "downloads/*.exe",
       ".gitignore",
       ".git/**",
       ".DS_Store",
@@ -42,40 +41,6 @@
           {
             "key": "X-Robots-Tag",
             "value": "noindex, nofollow, noarchive"
-          }
-        ]
-      },
-      {
-        "source": "/downloads/*.apk",
-        "headers": [
-          {
-            "key": "Content-Type",
-            "value": "application/vnd.android.package-archive"
-          },
-          {
-            "key": "Cache-Control",
-            "value": "public, max-age=3600"
-          },
-          {
-            "key": "Content-Disposition",
-            "value": "attachment"
-          },
-          {
-            "key": "X-Robots-Tag",
-            "value": "noindex, nofollow, noarchive"
-          }
-        ]
-      },
-      {
-        "source": "/.well-known/assetlinks.json",
-        "headers": [
-          {
-            "key": "Content-Type",
-            "value": "application/json; charset=utf-8"
-          },
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, must-revalidate"
           }
         ]
       },
