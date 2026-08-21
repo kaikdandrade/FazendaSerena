@@ -172,17 +172,17 @@ O motor de áudio possui controles independentes para volume geral, música e ef
 
 ## Composição do projeto
 
-Na versão 1.0.1, o repositório contém **266 arquivos principais**. A maior parte do tamanho do projeto está concentrada nos recursos audiovisuais, especialmente nas músicas em formato WAV.
+Na versão 1.0.1, o repositório contém cerca de **269 arquivos**. A maior parte do tamanho do projeto está concentrada nos recursos audiovisuais, especialmente nas músicas em formato WAV.
 
 | Grupo | Conteúdo | Quantidade aproximada |
 | --- | --- | ---: |
-| Culturas | Ilustrações PNG utilizadas nos cartões e desbloqueios | 71 |
-| Avatares | Personagens animais selecionáveis no perfil | 31 |
+| Culturas | Ilustrações WebP utilizadas nos cartões e desbloqueios | 71 |
+| Avatares | Personagens animais selecionáveis no perfil | 29 |
 | Ícones | Navegação, recursos, empresas, ações e melhorias | 74 |
 | Músicas | Faixas ambientais reproduzidas em loop | 11 |
 | Efeitos sonoros | Sons de interface, recompensas e progressão | 13 |
-| JavaScript | Motor, dados, interface, tutorial e integrações | 36 arquivos |
-| CSS | Interface principal, revisões, administração, tutorial, monetização e documentos públicos | 6 arquivos |
+| JavaScript | Motor, dados, interface, tutorial e integrações | 41 arquivos |
+| CSS | Interface principal, administração, páginas públicas e legado isolado | 11 arquivos |
 
 Os recursos da pasta `assets/` representam mais de 99% do tamanho total do projeto. Os arquivos HTML, CSS e JavaScript concentram as regras, a interface e as integrações, mas ocupam uma parcela muito menor do armazenamento.
 
@@ -205,12 +205,15 @@ FazendaSerena/
 │   └── logo.png           # Identidade principal do Fazenda Serena
 │
 ├── css/
-│   ├── style.css          # Design do jogo, componentes, animações e responsividade
-│   ├── admin.css          # Interface exclusiva da administração
-│   ├── monetization.css   # Blocos de publicidade e interface de consentimento
-│   ├── privacy.css        # Apresentação da Política de Privacidade e Termos
-│   ├── tutorial.css       # Interface isolada do tutorial interativo
-│   └── revision-1.0.1.css # Ajustes e refinamentos específicos da versão 1.0.1
+│   ├── style.css          # Camada visual atual do jogo e responsividade
+│   ├── admin.css          # Camada visual atual da administração
+│   ├── site-pages.css     # Sistema visual compartilhado das páginas públicas
+│   ├── monetization.css   # Publicidade e consentimento
+│   ├── privacy.css        # Estrutura de Política de Privacidade e Termos
+│   ├── tutorial.css       # Estrutura do tutorial interativo
+│   ├── noticias.css       # Estrutura da página de notícias
+│   ├── loading.css        # Tela de inicialização
+│   └── legacy/            # Regras históricas isoladas para compatibilidade
 │
 ├── js/
 │   ├── engine/            # Motor separado em produção, estoque, progressão e sistemas
@@ -265,9 +268,9 @@ O projeto utiliza JavaScript modularizado por responsabilidade, sem concentrar t
 
 ### Camada de estilos
 
-O CSS principal reúne o sistema visual do jogo, incluindo cartões, navegação, cabeçalhos, barras de progresso, janelas modais, painéis de evolução, escritório, estoque, perfil e adaptações responsivas.
+A camada visual atual fica concentrada em `css/style.css`, com tokens e correções estruturais para cartões, navegação, cabeçalhos, barras de progresso, modais, Evoluções, Escritório, Estoque, Perfil e breakpoints responsivos. O ADM possui sua própria camada em `css/admin.css`, enquanto `css/site-pages.css` harmoniza Notícias, Tutorial, Termos e Privacidade.
 
-Os estilos relacionados a administração, publicidade e privacidade ficam separados para que esses componentes tenham manutenção independente da interface principal.
+Regras históricas acumuladas durante as revisões foram movidas para `css/legacy/`. Elas permanecem carregadas somente para compatibilidade com componentes antigos, mas novas alterações não devem ser adicionadas ali. Assim, o arquivo principal volta a ser legível e novas regras deixam de ser empilhadas por revisão.
 
 ---
 
