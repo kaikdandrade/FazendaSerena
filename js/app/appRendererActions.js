@@ -25,6 +25,7 @@
       if (activeProfileTab === "account") {
         renderStats();
         renderPrestigeDashboard();
+        renderPlayerTitleControl();
       }
       if (activeProfileTab === "social") {
         if (friendsState.status === "idle") refreshFriends(false);
@@ -143,6 +144,14 @@
     }
     if (action === "open-friends-list") {
       openFriendsListDialog();
+      return;
+    }
+    if (action === "open-friend-code-dialog") {
+      openFriendCodeDialog();
+      return;
+    }
+    if (action === "close-friend-code-dialog") {
+      if (dom.friendCodeDialog?.open) dom.friendCodeDialog.close("cancel");
       return;
     }
     if (action === "confirm-remove-friend") {
@@ -275,6 +284,7 @@
       const result = engine.claimMission(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, result.mission.reward || {});
+      if (result.titleUnlock?.newlyUnlocked) showPlayerTitleUnlock(result.titleUnlock.title);
       render(true);
       requestGameSave();
     }

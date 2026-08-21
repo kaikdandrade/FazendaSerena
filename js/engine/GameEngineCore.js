@@ -80,6 +80,7 @@ class GameEngine {
         navigationMode: ["automatic", "line", "grid"].includes(permanent.settings?.navigationMode) ? permanent.settings.navigationMode : "automatic",
         playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
         playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
+        playerTitle: String(permanent.settings?.playerTitle || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro",
       };
   
       const permanentEffectState = { researchTechs: {}, prestigeUpgrades };
@@ -129,6 +130,7 @@ class GameEngine {
         activeContracts: [],
         contractSerial: 1,
         missionsClaimed: { ...(permanent.missionsClaimed || {}) },
+        unlockedPlayerTitles: { fazendeiro: true, ...(permanent.unlockedPlayerTitles || {}) },
         stats: {
           totalHarvested: 0,
           lifetimeHarvested: Number(permanent.lifetimeHarvested || 0),
@@ -207,6 +209,7 @@ class GameEngine {
         prestigeUpgrades: input?.prestigeUpgrades,
         permanentBonuses: input?.permanentBonuses,
         missionsClaimed: input?.missionsClaimed,
+        unlockedPlayerTitles: input?.unlockedPlayerTitles,
         cropsDiscovered: input?.cropsDiscovered,
         prestiges: input?.stats?.prestiges,
         lifetimeCoins: input?.stats?.lifetimeCoins,
@@ -248,6 +251,7 @@ class GameEngine {
         prestigeUpgrades: { ...base.prestigeUpgrades, ...(input.prestigeUpgrades || {}) },
         permanentBonuses: { ...base.permanentBonuses, ...(input.permanentBonuses || {}) },
         missionsClaimed: { ...base.missionsClaimed, ...(input.missionsClaimed || {}) },
+        unlockedPlayerTitles: { ...base.unlockedPlayerTitles, ...(input.unlockedPlayerTitles || {}) },
         cropsDiscovered: { ...base.cropsDiscovered, ...(input.cropsDiscovered || {}) },
         stats: { ...base.stats, ...(input.stats || {}) },
         crops: {},
@@ -269,6 +273,20 @@ class GameEngine {
       merged.settings.navigationMode = ["automatic", "line", "grid"].includes(merged.settings.navigationMode) ? merged.settings.navigationMode : "automatic";
       merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
       merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+      const validPlayerTitles = new Set((this.data.playerTitles || []).map(item => String(item.id || "")).filter(Boolean));
+      validPlayerTitles.add("fazendeiro");
+      merged.unlockedPlayerTitles = Object.fromEntries(Object.entries(merged.unlockedPlayerTitles || {}).filter(([titleId, unlocked]) => unlocked === true && validPlayerTitles.has(titleId)));
+      merged.unlockedPlayerTitles.fazendeiro = true;
+      // Compatibilidade retroativa: se uma recompensa de título for adicionada
+      // a uma missão que a conta já concluiu, o título é reconhecido no próximo load.
+      (this.data.missions || []).forEach(mission => {
+        const earnedTitleId = String(mission?.reward?.titleId || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 64);
+        if (earnedTitleId && merged.missionsClaimed?.[mission.id] === true && validPlayerTitles.has(earnedTitleId)) {
+          merged.unlockedPlayerTitles[earnedTitleId] = true;
+        }
+      });
+      merged.settings.playerTitle = String(merged.settings.playerTitle || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro";
+      if (!validPlayerTitles.has(merged.settings.playerTitle) || merged.unlockedPlayerTitles[merged.settings.playerTitle] !== true) merged.settings.playerTitle = "fazendeiro";
       Reflect.deleteProperty(merged.settings, "playerRankingOptOut");
       if (legacySaveFormat < 42) {
         const legacyAvatarMap = { frog_1: "chameleon", frog_2: "frog_1", frog_3: "frog_2", owl: "hawk" };

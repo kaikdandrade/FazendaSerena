@@ -47,7 +47,7 @@
 
   const totalStock = () => state.crops.leaf.stock + state.crops.tomato.stock;
   const stockCapacity = 60;
-  const maxCropLevel = 10;
+  const TUTORIAL_MAX_CROP_LEVEL = 10;
   const researchSpeed = () => 1 + state.researchLevels.germination * .10;
   const sellMultiplier = () => 1 + state.researchLevels.prices * .15 + (state.legacy ? .10 : 0);
   const cropCycle = (c) => c.cycle / researchSpeed();
@@ -70,10 +70,6 @@
         <img src="${item.icon || "assets/icons/marco-nivel.webp"}" alt="">
         <div><strong>${item.title}</strong><span>${item.text}</span></div>
       </article>`).join("");
-    const play = $("tutorialCompletePlay");
-    const close = $("tutorialMilestoneClose");
-    if (play) play.hidden = !complete;
-    if (close) close.textContent = complete ? "Fechar" : "Continuar";
     if (typeof dialog.showModal === "function") {
       if (!dialog.open) dialog.showModal();
     } else dialog.setAttribute("open","");
@@ -85,9 +81,10 @@
     else dialog?.removeAttribute("open");
   }
 
-  function setMessage() {
-    // O tutorial usa objetivos, marcos e estados visuais em vez de uma barra
-    // de mensagens permanente no rodapé.
+  function setMessage(text,type="") {
+    const el=$("tutorialMessage");
+    el.textContent=text;
+    el.dataset.type=type;
   }
 
   function showPanel(name, { silent=false } = {}) {
@@ -115,8 +112,8 @@
       showMilestone({
         title:"Marco alcançado: nível 2",
         items:[
-          { icon:"assets/plants/tomate.webp", title:"Tomate desbloqueado", text:"Nova cultura disponível na Fazenda." },
-          { icon:"assets/icons/pacote.webp", title:"Pedidos desbloqueados", text:"Entregue culturas em três etapas." }
+          { icon:"assets/plants/tomate.webp", title:"Tomate desbloqueado", text:"Uma nova cultura já pode ser comprada na Fazenda." },
+          { icon:"assets/icons/pacote.webp", title:"Pedidos desbloqueados", text:"Entregue culturas em etapas para avançar no treinamento." }
         ]
       });
       setMessage("Nível 2 alcançado. Tomate e Pedidos foram desbloqueados.","success");
@@ -124,23 +121,23 @@
       state.unlocks.contracts = true;
       showMilestone({
         title:"Marco alcançado: nível 3",
-        items:[{ icon:"assets/icons/contrato-comercial.webp", title:"Contratos desbloqueados", text:"Assine, produza e receba moedas e pesquisa." }]
+        items:[{ icon:"assets/icons/contrato-comercial.webp", title:"Contratos desbloqueados", text:"Assine uma proposta e complete a entrega para receber moedas e pesquisa." }]
       });
       setMessage("Pedidos concluídos. Contratos foram desbloqueados.","success");
     } else if (level === 4) {
       state.unlocks.evolutions = true;
       showMilestone({
         title:"Marco alcançado: nível 4",
-        items:[{ icon:"assets/icons/livros.webp", title:"Evoluções desbloqueadas", text:"Use a pesquisa para melhorar sua produção." }]
+        items:[{ icon:"assets/icons/livros.webp", title:"Evoluções desbloqueadas", text:"Use os pontos de pesquisa recebidos no contrato para melhorar a fazenda." }]
       });
       setMessage("A recompensa do contrato liberou as Evoluções.","success");
     } else if (level === 40) {
       state.unlocks.prestige = true;
       showMilestone({
         title:"Marco alcançado: nível 40",
-        items:[{ icon:"assets/icons/prestigio.webp", title:"Prestígio desbloqueado", text:"Transforme a jornada em 1 ponto permanente." }]
+        items:[{ icon:"assets/icons/prestigio.webp", title:"Prestígio desbloqueado", text:"A jornada pode ser convertida em um ponto permanente de prestígio." }]
       });
-      setMessage("Prestígio liberado para a etapa final do tutorial.","notice");
+      setMessage("Pesquisa concluída. A demonstração avançou ao nível 40 para apresentar o Prestígio.","notice");
     }
     renderAll();
   }
@@ -171,35 +168,33 @@
     return 6;
   }
 
-  function guideCopy(step) {
-    const copy = {
-      1:["Alcance o nível 2","Produza Folha. O próximo marco libera Tomate e Pedidos."],
-      2:["Complete os Pedidos","Faça as três entregas para abrir Contratos."],
-      3:["Conclua o contrato","A recompensa traz a pesquisa necessária para evoluir."],
-      4:["Compre uma Pesquisa","Escolha uma melhoria e libere a etapa de Prestígio."],
-      5:["Faça seu primeiro Prestígio","Transforme a jornada em 1 ponto permanente."],
-      6:state.tutorialComplete
-        ? ["Tutorial concluído","Sua fazenda real está pronta para começar."]
-        : ["Crie seu primeiro Legado","Use o ponto de prestígio em um benefício permanente."]
-    };
-    return copy[step];
-  }
+  const copy={
+    1:["Produza Folha e alcance o nível 2","No começo somente a Folha está disponível. Cada ciclo rende XP. Ao subir de nível, o primeiro marco libera Tomate e Pedidos."],
+    2:["Complete as três etapas de Pedidos","O Tomate já está liberado. Produza o que cada etapa pede e entregue o estoque para avançar."],
+    3:["Assine e conclua o contrato","O contrato comercial dá moedas e, principalmente, os pontos de pesquisa necessários para continuar."],
+    4:["Invista a pesquisa em uma Evolução","Escolha uma pesquisa. Depois dela, a demonstração apresenta o desbloqueio do Prestígio."],
+    5:["Faça seu primeiro Prestígio","Converta esta jornada de treinamento em 1 ponto permanente."],
+    6:[state.tutorialComplete?"Tutorial concluído":"Compre seu primeiro Legado",state.tutorialComplete?"Você percorreu o ciclo principal da Fazenda Serena. Agora pode começar sua fazenda de verdade.":"Use o ponto de prestígio para desenvolver Colheita experiente e encerrar o tutorial."]
+  };
 
   function cropMarkup(crop) {
     const d=state.crops[crop.id];
     const levelLocked = crop.id === "tomato" && !state.unlocks.tomato;
 
     if (levelLocked) {
-      return `<article class="crop-card locked tutorial-crop-level-locked" data-tutorial-crop="${crop.id}" style="--crop-glow:${crop.glow}"><div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${maxCropLevel}</small></span></div><div class="crop-head"><div class="crop-art locked-art tutorial-level-lock"><img src="assets/icons/cadeado.webp" alt="Bloqueado"></div><div class="crop-info"><div class="crop-title-row"><h3>${crop.name}</h3></div><div class="crop-meta-row"><span class="crop-category-list">${crop.category}</span></div></div></div><button class="button secondary full crop-buy-button" type="button" disabled>Disponível no nível 2</button></article>`;
+      return `<article class="crop-card locked tutorial-crop-level-locked" data-tutorial-crop="${crop.id}" style="--crop-glow:${crop.glow}"><div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${TUTORIAL_MAX_CROP_LEVEL}</small></span></div><div class="crop-head"><div class="crop-art locked-art tutorial-level-lock"><img src="assets/icons/cadeado.webp" alt="Bloqueado"></div><div class="crop-info"><div class="crop-title-row"><h3>${crop.name}</h3></div><div class="crop-meta-row"><span class="crop-category-list">${crop.category}</span></div></div></div><button class="button secondary full crop-buy-button" type="button" disabled>Disponível no nível 2</button></article>`;
     }
 
     if(!d.owned){
       const afford=state.coins>=crop.cost;
-      return `<article class="crop-card locked ${afford?"":"insufficient"}" data-tutorial-crop="${crop.id}" style="--crop-glow:${crop.glow}"><div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${maxCropLevel}</small></span></div><div class="crop-head"><div class="crop-art locked-art crop-preview-unlocked"><img src="${crop.image}" alt="${crop.name}"></div><div class="crop-info"><div class="crop-title-row"><h3>${crop.name}</h3></div><div class="crop-meta-row"><span class="crop-category-list">${crop.category}</span></div></div></div><button class="button primary full crop-buy-button" type="button" data-buy-crop="${crop.id}" ${afford?"":"disabled"}>Comprar ${resource("coins",crop.cost,true)}</button></article>`;
+      return `<article class="crop-card locked ${afford?"":"insufficient"}" data-tutorial-crop="${crop.id}" style="--crop-glow:${crop.glow}"><div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${TUTORIAL_MAX_CROP_LEVEL}</small></span></div><div class="crop-head"><div class="crop-art locked-art crop-preview-unlocked"><img src="${crop.image}" alt="${crop.name}"></div><div class="crop-info"><div class="crop-title-row"><h3>${crop.name}</h3></div><div class="crop-meta-row"><span class="crop-category-list">${crop.category}</span></div></div></div><button class="button primary full crop-buy-button" type="button" data-buy-crop="${crop.id}" ${afford?"":"disabled"}>Comprar ${resource("coins",crop.cost,true)}</button></article>`;
     }
 
-    const cycle=cropCycle(crop), remaining=Math.max(0,(1-d.progress)*cycle), maxed=d.level>=maxCropLevel;
-    return `<article class="crop-card${maxed?" tutorial-crop-maxed":""}" data-tutorial-crop="${crop.id}" style="--crop-glow:${crop.glow}"><div class="crop-level-strip"><span class="crop-level-compact">Nível <strong>${d.level}</strong><small>/ ${maxCropLevel}</small></span></div><div class="crop-head"><div class="crop-art-progress" style="--growth-progress:${Math.floor(d.progress*100)}%"><div class="crop-art"><img src="${crop.image}" alt="${crop.name}"></div><span class="crop-progress-percent">${Math.floor(d.progress*100)}%</span></div><div class="crop-info"><div class="crop-title-row"><h3>${crop.name}</h3></div><div class="crop-meta-row"><span class="crop-category-list">${crop.category}</span></div><div class="crop-quick-stats"><span title="Tempo restante"><i class="crop-time-icon"><img src="assets/icons/relogio.webp" alt=""></i><b>${remaining.toFixed(1).replace(".",",")}s</b></span><span title="Produção por ciclo"><b>+${crop.yield + Math.floor((d.level-1)/5)}</b></span></div></div></div><div class="crop-upgrade-panel crop-upgrade-redesign"><div class="crop-upgrade-summary"><strong>${maxed?"Nível máximo do tutorial":"Aprimore até o nível 10"}</strong></div><button class="button primary full crop-upgrade-cta" type="button" data-upgrade-crop="${crop.id}" ${maxed||state.coins<20?"disabled":""}>${maxed?"Máximo":`Aprimorar ${resource("coins",20,true)}`}</button></div></article>`;
+    const cycle=cropCycle(crop), remaining=Math.max(0,(1-d.progress)*cycle);
+    const cropMaxed = d.level >= TUTORIAL_MAX_CROP_LEVEL;
+    const upgradeDisabled = cropMaxed || state.coins < 20;
+    const upgradeLabel = cropMaxed ? "Nível máximo do tutorial" : `Aprimorar ${resource("coins",20,true)}`;
+    return `<article class="crop-card ${cropMaxed ? "tutorial-crop-maxed" : ""}" data-tutorial-crop="${crop.id}" style="--crop-glow:${crop.glow}"><div class="crop-level-strip"><span class="crop-level-compact">Nível <strong>${d.level}</strong><small>/ ${TUTORIAL_MAX_CROP_LEVEL}</small></span></div><div class="crop-head"><div class="crop-art-progress" style="--growth-progress:${Math.floor(d.progress*100)}%"><div class="crop-art"><img src="${crop.image}" alt="${crop.name}"></div><span class="crop-progress-percent">${Math.floor(d.progress*100)}%</span></div><div class="crop-info"><div class="crop-title-row"><h3>${crop.name}</h3></div><div class="crop-meta-row"><span class="crop-category-list">${crop.category}</span></div><div class="crop-quick-stats"><span title="Tempo restante"><i class="crop-time-icon"><img src="assets/icons/relogio.webp" alt=""></i><b>${remaining.toFixed(1).replace(".",",")}s</b></span><span title="Produção por ciclo"><b>+${crop.yield}</b></span></div></div></div><div class="crop-upgrade-panel crop-upgrade-redesign"><div class="upgrade-mode-selector" role="group"><button class="upgrade-mode-option active" type="button">+1</button><button class="upgrade-mode-option" type="button" disabled>Max</button></div><div class="crop-upgrade-summary"><strong>${cropMaxed ? "Limite do tutorial alcançado" : "Produção automática"}</strong></div><button class="button primary full crop-upgrade-cta" type="button" data-upgrade-crop="${crop.id}" ${upgradeDisabled?"disabled":""}>${upgradeLabel}</button></div></article>`;
   }
 
   function renderCrops(){
@@ -305,13 +300,9 @@
   }
 
   function renderPrestige(){
-    const ready=state.prestigeReady||state.prestiged;
-    const owned=Object.values(state.crops).filter((crop)=>crop.owned).length;
-    const gain=state.prestiged?0:1;
-    const root=$("tutorialPrestigeDashboard");
-    const completedSteps = state.tutorialComplete ? 6 : currentStep()-1;
+    const ready=state.prestigeReady||state.prestiged, owned=Object.values(state.crops).filter((c)=>c.owned).length, avg=Math.floor(Object.values(state.crops).reduce((a,c)=>a+c.level,0)/2), gain=state.prestiged?0:1, root=$("tutorialPrestigeDashboard");
     root.classList.toggle("prestige-locked",!ready);
-    root.innerHTML=`<div class="prestige-rework-gain"><span class="prestige-rework-kicker">${ready?"Prestígio desta jornada":"Disponível no nível 40"}</span><div class="prestige-rework-icon"><img src="assets/icons/prestigio.webp" alt=""></div><strong>${resource("prestige",ready?gain:0)}</strong>${ready&&!state.prestiged?'<small>Transforme esta jornada em um ponto permanente.</small>':''}<div class="prestige-rework-details"><article><small>Etapas</small><strong>${completedSteps} / 6</strong></article><article><small>Culturas</small><strong>${owned} / 2</strong></article><article><small>Pedidos</small><strong>${state.orderStage} / 3</strong></article><article><small>Contrato</small><strong>${state.contract.claimed?"Concluído":"Pendente"}</strong></article></div></div>${ready&&!state.prestiged?'<footer class="prestige-rework-footer"><p>Recomece a jornada e leve seus benefícios permanentes com você.</p><button class="button prestige-rework-action" type="button" data-prestige-action>Prestigiar</button></footer>':state.prestiged?'<footer class="prestige-rework-footer"><p>Seu ponto permanente está pronto para virar um Legado.</p><button class="button prestige-rework-action" type="button" data-go-evolutions>Ver legados</button></footer>':''}`;
+    root.innerHTML=`<div class="prestige-rework-gain"><span class="prestige-rework-kicker">${ready?"Prestígio desta jornada":"Disponível no nível 40"}</span><div class="prestige-rework-icon"><img src="assets/icons/prestigio.webp" alt=""></div><strong>${resource("prestige",ready?gain:0)}</strong>${ready&&!state.prestiged?'<small>Converta a jornada de demonstração em um ponto permanente.</small>':''}<div class="prestige-rework-details"><article><small>Níveis úteis</small><strong>${ready?"1":"0"} / 960</strong></article><article><small>Culturas</small><strong>${owned} / 2</strong></article><article><small>Nível médio</small><strong>${avg} / ${TUTORIAL_MAX_CROP_LEVEL}</strong></article><article><small>Platinadas</small><strong>0 / 2</strong></article></div></div>${ready&&!state.prestiged?'<footer class="prestige-rework-footer"><p>Converta a jornada atual em pontos permanentes. A fazenda recomeça; seus legados continuam.</p><button class="button prestige-rework-action" type="button" data-prestige-action>Prestigiar</button></footer>':state.prestiged?'<footer class="prestige-rework-footer"><p>Prestígio concluído. O ponto recebido já pode ser usado em um legado permanente.</p><button class="button prestige-rework-action" type="button" data-go-evolutions>Ver legados</button></footer>':''}`;
   }
 
   function renderHeader(){
@@ -343,7 +334,7 @@
 
   function renderGuide(){
     const step=currentStep();
-    let [title,hint]=guideCopy(step);
+    let [title,hint]=copy[step];
     if(step===6 && state.tutorialComplete){
       title="Tutorial concluído";
       hint="Você percorreu o ciclo principal da Fazenda Serena. Agora pode começar sua fazenda de verdade.";
@@ -387,7 +378,13 @@
     const up=e.target.closest("[data-upgrade-crop]");
     if(up){
       const d=state.crops[up.dataset.upgradeCrop];
-      if(d.owned&&d.level<maxCropLevel&&state.coins>=20){ state.coins-=20;d.level=Math.min(maxCropLevel,d.level+1);addXP(5);renderAll(); }
+      if(d.owned && d.level < TUTORIAL_MAX_CROP_LEVEL && state.coins>=20){
+        state.coins-=20;
+        d.level=Math.min(TUTORIAL_MAX_CROP_LEVEL,d.level+1);
+        addXP(5);
+        setMessage(d.level >= TUTORIAL_MAX_CROP_LEVEL ? "Nível 10 alcançado. Este é o limite das plantas dentro do tutorial." : "Plantação aprimorada. No jogo, os níveis aumentam a eficiência da cultura.","success");
+        renderAll();
+      }
       return;
     }
 
@@ -455,8 +452,8 @@
           eyebrow:"Sua primeira jornada está pronta",
           complete:true,
           items:[
-            {icon:"assets/icons/prestigio.webp",title:"Colheita experiente desenvolvida",text:"Seu primeiro benefício permanente está pronto."},
-            {icon:"assets/logo.webp",title:"Hora de começar sua fazenda",text:"Agora é hora de começar sua fazenda real."}
+            {icon:"assets/icons/prestigio.webp",title:"Colheita experiente desenvolvida",text:"Você aprendeu como pontos de prestígio se transformam em benefícios permanentes."},
+            {icon:"assets/logo.webp",title:"Hora de começar sua fazenda",text:"O treinamento terminou. Seu progresso real continua separado desta demonstração."}
           ]
         });
         setMessage("Tutorial concluído. Você percorreu cultivo, pedidos, contratos, pesquisa, prestígio e legado.","success");

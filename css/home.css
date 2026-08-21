@@ -268,24 +268,3 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
 .native-download-card[data-native-card="windows"] .native-card-note-compact {
   margin-bottom: 16px !important;
 }
-
-
-/* R36 — logos horizontais com melhor presença */
-.home-header-inner{min-height:84px}
-.home-brand img{width:140px!important;height:auto!important;flex:0 0 auto}
-.home-brand{gap:14px}
-.home-footer-brand img{width:108px!important;height:auto!important}
-.pwa-install-dialog-icon img{width:78px!important;height:auto!important}
-@media(max-width:680px){
-  .home-header-inner{min-height:70px}
-  .home-brand img{width:92px!important;height:auto!important}
-  .home-brand span{display:none}
-  .home-footer-brand img{width:90px!important;height:auto!important}
-}
-
-/* Espaço claro entre a alternativa ARM64 e o download principal */
-.native-download-card[data-native-card="windows"] .native-card-note{
-  margin-bottom:18px!important;
-}
-
-.home-cta>img{width:108px!important;height:auto!important}

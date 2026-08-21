@@ -49,6 +49,7 @@ window.GameData = (() => {
   const orderSteps = [];
 
   const missions = [];
+  const playerTitles = [];
 
-  return { categories, crops, upgrades, research, prestigeUpgrades, companies, contractTypes, contractSlots, orderSteps, missions };
+  return { categories, crops, upgrades, research, prestigeUpgrades, companies, contractTypes, contractSlots, orderSteps, missions, playerTitles };
 })();

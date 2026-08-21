@@ -20,9 +20,20 @@
     ["harvested", "Quantidade colhida"], ["owned", "Quantidade possuída"], ["cropPurchases", "Compras de plantas"], ["sold", "Itens vendidos"],
     ["cropLevels", "Níveis de plantas"], ["cropUpgrades", "Melhorias de plantas"], ["orders", "Pedidos entregues"], ["contracts", "Contratos concluídos"],
     ["maxCropLevel", "Maior nível de planta"], ["farmLevel", "Nível da fazenda"], ["stock", "Quantidade em estoque"], ["coinsEarned", "Moedas obtidas"],
-    ["prestiges", "Prestígios realizados"], ["categorySold", "Itens vendidos por categoria"]
+    ["prestiges", "Prestígios realizados"], ["categorySold", "Itens vendidos por categoria"], ["cropUnlocked", "Desbloqueio de planta"]
   ]);
   const rewardOptions = fixedOptions([["coins", "Moedas"], ["research", "Pesquisa"], ["prestige", "Prestígio"]]);
+  const playerTitleRarityOptions = fixedOptions([["common", "Comum"], ["uncommon", "Incomum"], ["rare", "Raro"], ["epic", "Épico"], ["legendary", "Lendário"]]);
+  const playerTitleRarityLabel = value => playerTitleRarityOptions.find(entry => entry.value === value)?.label || "Comum";
+  const titleCatalogOptions = () => [{ value: "", label: "Sem título nesta série" }, ...((window.AdminCatalogEditors?.get?.("playerTitles") || [])
+    .filter(item => item.id !== "fazendeiro" && item.default !== true)
+    .map(item => option(item.id, `${item.name || item.id} · ${playerTitleRarityLabel(item.rarity)}`)))];
+  const cropMilestoneOptions = currentValue => {
+    const items = (window.AdminCatalogEditors?.get?.("crops") || []).map(item => option(item.id, `${item.name || item.id} · libera no nível ${Math.max(1, Number(item.unlockLevel) || 1)}`));
+    const current = String(currentValue || "");
+    if (current && !items.some(entry => entry.value === current)) items.unshift(option(current, `Planta atual: ${current}`));
+    return [{ value: "", label: "Selecione a planta do marco" }, ...items];
+  };
   const rewardSelectionLabel = value => {
     const selected = Array.isArray(value) ? value : [];
     return selected.length ? selected.map(key => rewardOptions.find(option => option.value === key)?.label || key).join(" + ") : "Sem recompensa de recursos";
@@ -67,6 +78,10 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
     pointTypes: { label: "tipo de ponto", idSource: "key", idTarget: "key", title: item => item.key ? `[[${item.key}]]` : "Novo tipo de ponto", subtitle: item => item.icon || "Ícone não definido", fields: [
       { key: "key", label: "Chave", type: "text", required: true, placeholder: "coin", transform: "slug" }, imageField("icon", "Ícone", "icone")
     ]},
+    playerTitles: { label: "título de jogador", idSource: "name", title: item => item.name || "Novo título", subtitle: item => playerTitleRarityLabel(item.rarity), fields: [
+      { key: "name", label: "Nome do título", type: "text", required: true, placeholder: "Ex.: Mestre da Colheita" },
+      { key: "rarity", label: "Raridade", type: "select", required: true, options: playerTitleRarityOptions, defaultValue: "common" }
+    ]},
     categories: { label: "categoria", idSource: "name", title: item => item.name || "Nova categoria", subtitle: item => `${item.baseGrowth || 0}s por ciclo`, fields: [
       { key: "name", label: "Nome da categoria", type: "text", required: true },
       numberField("baseGrowth", "Tempo para produção (segundos)", { min: 0.01, required: true, defaultValue: 0 })
@@ -110,7 +125,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
     ]},
     missions: { label: "missão", idSource: "title", title: item => item.title || "Nova missão", subtitle: item => `${Array.isArray(item.series) ? item.series.length : 0} ${Array.isArray(item.series) && item.series.length === 1 ? "série" : "séries"}`, fields: [
       { key: "title", label: "Título da missão", type: "text", required: true }, { key: "desc", label: "Descrição", type: "textarea", required: true },
-      { key: "metric", label: "O que será medido", type: "select", required: true, options: metricOptions },
+      { key: "metric", label: "O que será medido", type: "select", required: true, options: metricOptions, help: "Em Desbloqueio de planta, cada série permite escolher uma planta específica como marco de nível." },
       { key: "category", label: "Categoria da planta, quando necessária", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Não se aplica" }
     ]},
     research: { label: "pesquisa", idSource: "name", title: item => item.name || "Nova pesquisa", subtitle: item => `${item.max || 1} níveis · ${(item.bonuses || []).map(bonus => effectLabel(bonus.type)).filter(Boolean).join(" + ") || effectLabel(item.bonusType)}`, fields: evolutionFields(false) },
@@ -187,6 +202,10 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
     missionSeriesRowMarkup(serie = {}, index = 0, missionIndex = 0) {
       const reward = serie.reward || {};
       const numeric = value => sanitizePositive(value ?? "", true);
+      const cropMilestone = this.items[missionIndex]?.metric === "cropUnlocked";
+      const goalField = cropMilestone
+        ? `<label class="admin-series-crop-milestone"><span>Planta do marco</span><select data-series-field="cropId">${cropMilestoneOptions(serie.cropId).map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(serie.cropId || "") ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select><small>A série fica concluída quando o nível da fazenda já tiver liberado esta planta. Não é necessário comprá-la.</small></label>`
+        : `<label><span>Meta da série</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="target" value="${escapeHtml(numeric(serie.target || 1))}"></label>`;
       return `<article class="admin-series-card admin-series-inline-card" data-series-index="${index}">
         <header><strong>Série ${index + 1}</strong><div class="admin-series-card-actions">
           <button class="admin-button compact secondary" data-series-action="up" data-mission-index="${missionIndex}" data-series-index="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button>
@@ -194,10 +213,11 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
           <button class="admin-button compact danger" data-series-action="remove" data-mission-index="${missionIndex}" data-series-index="${index}" type="button">Excluir</button>
         </div></header>
         <div class="admin-series-fields">
-          <label><span>Meta da série</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="target" value="${escapeHtml(numeric(serie.target || 1))}"></label>
+          ${goalField}
           <label><span>Recompensa em moedas</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="reward.coins" value="${escapeHtml(numeric(reward.coins || 0))}"></label>
           <label><span>Recompensa em pesquisa</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="reward.research" value="${escapeHtml(numeric(reward.research || 0))}"></label>
           <label><span>Recompensa em prestígio</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="reward.prestige" value="${escapeHtml(numeric(reward.prestige || 0))}"></label>
+          <label class="admin-series-title-reward"><span>Título de jogador</span><select data-series-field="reward.titleId">${titleCatalogOptions().map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(reward.titleId || "") ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select><small>Opcional. O título é desbloqueado ao receber a recompensa desta série.</small></label>
         </div>
       </article>`;
     }
@@ -221,6 +241,17 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
         const serie = { target: 1, reward: {} };
         card.querySelectorAll("[data-series-field]").forEach(input => {
           const path = input.dataset.seriesField;
+          if (path === "reward.titleId") {
+            const titleId = String(input.value || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+            if (titleId) serie.reward.titleId = titleId;
+            return;
+          }
+          if (path === "cropId") {
+            const cropId = String(input.value || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+            if (cropId) serie.cropId = cropId;
+            serie.target = 1;
+            return;
+          }
           input.value = sanitizePositive(input.value, true);
           const value = Math.max(0, Math.floor(Number(input.value) || 0));
           if (path === "target") serie.target = Math.max(1, value || 1);
@@ -245,7 +276,12 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       const action = button.dataset.seriesAction;
 
       if (action === "save") {
-        this.syncMissionSeriesFromDom(missionIndex);
+        const collected = this.collectMissionSeries(missionIndex);
+        if (this.items[missionIndex]?.metric === "cropUnlocked" && collected.some(serie => !serie.cropId)) {
+          window.AdminCloudActions?.showError?.(new Error("Selecione uma planta para cada série desta missão antes de salvar as séries."));
+          return;
+        }
+        this.items[missionIndex].series = collected;
         button.disabled = true;
         try { await window.AdminCloudActions?.saveCatalog?.("missions"); }
         catch (error) { window.AdminCloudActions?.showError?.(error); }
@@ -260,7 +296,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
         const nextSeries = current.map(serie => clone(serie));
         if (action === "add") {
           if (nextSeries.length >= 200) throw new Error("Uma missão pode possuir no máximo 200 séries.");
-          nextSeries.push({ target: 1, reward: {} });
+          nextSeries.push({ target: 1, ...(this.items[missionIndex]?.metric === "cropUnlocked" ? { cropId: "" } : {}), reward: {} });
         } else if (action === "remove" && Number.isInteger(seriesIndex) && seriesIndex >= 0 && seriesIndex < nextSeries.length) {
           nextSeries.splice(seriesIndex, 1);
         } else if (action === "up" && seriesIndex > 0 && seriesIndex < nextSeries.length) {
@@ -282,29 +318,33 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       if (this.count) this.count.textContent = String(this.items.length);
       if (!this.list) return;
       this.list.innerHTML = this.items.length ? this.items.map((item, index) => {
-        const locked = this.name === "pointTypes" && item.locked === true;
+        const locked = ["pointTypes", "playerTitles"].includes(this.name) && item.locked === true;
         const actions = locked
           ? '<span class="admin-fixed-point-badge">Padrão</span>'
           : `<button aria-label="Mover para cima" class="admin-button compact secondary" data-catalog-action="up" data-index="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button><button aria-label="Mover para baixo" class="admin-button compact secondary" data-catalog-action="down" data-index="${index}" type="button" ${index === this.items.length - 1 ? "disabled" : ""}>↓</button><button class="admin-button compact secondary" data-catalog-action="edit" data-index="${index}" type="button">Editar</button><button class="admin-button compact danger" data-catalog-action="delete" data-index="${index}" type="button">Excluir</button>`;
         const evolutionCosts = (this.name === "research" || this.name === "prestigeUpgrades") ? evolutionCostPreviewMarkup(item) : "";
-        return `<article class="admin-catalog-item ${this.name === "missions" ? "admin-mission-catalog-item" : ""} ${locked ? "admin-fixed-point-item" : ""}" data-mission-index="${this.name === "missions" ? index : ""}"><div class="admin-catalog-item-main"><div><strong>${escapeHtml(this.schema.title(item, index))}</strong><small>${escapeHtml(this.schema.subtitle(item, index))}</small></div><div class="admin-catalog-item-actions">${actions}</div></div>${evolutionCosts}${this.name === "missions" ? this.missionSeriesMarkup(item, index) : ""}</article>`;
+        const titleRarity = this.name === "playerTitles" ? ` title-rarity-${escapeHtml(item.rarity || "common")}` : "";
+        return `<article class="admin-catalog-item ${this.name === "missions" ? "admin-mission-catalog-item" : ""} ${locked ? "admin-fixed-point-item" : ""}${titleRarity}" data-mission-index="${this.name === "missions" ? index : ""}"><div class="admin-catalog-item-main"><div><strong>${escapeHtml(this.schema.title(item, index))}</strong><small>${escapeHtml(this.schema.subtitle(item, index))}</small></div><div class="admin-catalog-item-actions">${actions}</div></div>${evolutionCosts}${this.name === "missions" ? this.missionSeriesMarkup(item, index) : ""}</article>`;
       }).join("") : `<div class="admin-catalog-empty">Nenhum conteúdo cadastrado.</div>`;
     }
     open(index) {
-      if (this.name === "pointTypes" && index >= 0 && this.items[index]?.locked) return;
+      if (["pointTypes", "playerTitles"].includes(this.name) && index >= 0 && this.items[index]?.locked) return;
       const item = index >= 0 ? clone(this.items[index]) : {};
       window.AdminItemDialog.open({ title: index >= 0 ? `Editar ${this.schema.label}` : `Adicionar ${this.schema.label}`, fields: this.schema.fields, item, saveLabel: index >= 0 ? "Salvar alteração" : "Cadastrar", onSave: async value => {
         const previous = index >= 0 ? clone(this.items[index]) : null;
         if (this.name === "orderSteps") value.name = `Etapa ${index >= 0 ? index + 1 : this.items.length + 1}`;
         if (this.name === "missions" && !Array.isArray(value.series)) value.series = Array.isArray(previous?.series) ? clone(previous.series) : [];
-        value.id = this.makeUniqueId(getPath(value, this.schema.idSource), index); if (this.schema.idTarget) setPath(value, this.schema.idTarget, value.id);
+        value.id = this.name === "playerTitles" && previous?.id
+          ? previous.id
+          : this.makeUniqueId(getPath(value, this.schema.idSource), index);
+        if (this.schema.idTarget) setPath(value, this.schema.idTarget, value.id);
         if (index >= 0) this.items[index] = value; else this.items.push(value); this.normalizeOrderedLabels(); this.render();
         try { await window.AdminCloudActions?.beforeCatalogSave?.(this.name, previous, value); await window.AdminCloudActions?.saveCatalog?.(this.name); }
         catch (error) { if (index >= 0) this.items[index] = previous; else this.items.pop(); this.render(); window.AdminCloudActions?.restoreEditors?.(); throw error; }
       }});
     }
-    async move(index, direction) { if (this.name === "pointTypes" && this.items[index]?.locked) return; const target = index + direction; if (index < 0 || target < 0 || index >= this.items.length || target >= this.items.length) return; if (this.name === "pointTypes" && this.items[target]?.locked) return; [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); window.AdminCloudActions?.showError?.(error); } }
-    async remove(index) { const item = this.items[index]; if (this.name === "pointTypes" && item?.locked) return; if (!item || !confirm(`Excluir “${this.schema.title(item, index)}” da nuvem?`)) return; const previous = clone(item); this.items.splice(index, 1); this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { this.items.splice(index, 0, previous); this.render(); window.AdminCloudActions?.showError?.(error); } }
+    async move(index, direction) { if (["pointTypes", "playerTitles"].includes(this.name) && this.items[index]?.locked) return; const target = index + direction; if (index < 0 || target < 0 || index >= this.items.length || target >= this.items.length) return; if (["pointTypes", "playerTitles"].includes(this.name) && this.items[target]?.locked) return; [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); window.AdminCloudActions?.showError?.(error); } }
+    async remove(index) { const item = this.items[index]; if (["pointTypes", "playerTitles"].includes(this.name) && item?.locked) return; if (!item || !confirm(`Excluir “${this.schema.title(item, index)}” da nuvem?`)) return; const previous = clone(item); this.items.splice(index, 1); this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { this.items.splice(index, 0, previous); this.render(); window.AdminCloudActions?.showError?.(error); } }
   }
 
   class ItemDialog {
@@ -621,7 +661,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
   window.AdminInputTools = { sanitizePositive, numberValue, percentDisplay };
   window.AdminCatalogEditors = {
     set(name, value) { editors.get(name)?.setValue(value); }, get(name) { return editors.get(name)?.getValue() || []; }, options(name, mapper = item => option(item.id, item.name || item.label || item.title || item.id)) { return (editors.get(name)?.getValue() || []).map(mapper); },
-    updateReferences(kind, oldId, newId) { if (!oldId || !newId || oldId === newId) return; if (kind === "categories") { const crops = editors.get("crops"), missions = editors.get("missions"), companies = editors.get("companies"); crops?.items.forEach(item => { if (item.category === oldId) item.category = newId; }); missions?.items.forEach(item => { if (item.category === oldId) item.category = newId; }); companies?.items.forEach(item => { if (item.category === oldId) item.category = newId; }); crops?.render(); missions?.render(); companies?.render(); } },
+    updateReferences(kind, oldId, newId) { if (!oldId || !newId || oldId === newId) return; if (kind === "categories") { const crops = editors.get("crops"), missions = editors.get("missions"), companies = editors.get("companies"); crops?.items.forEach(item => { if (item.category === oldId) item.category = newId; }); missions?.items.forEach(item => { if (item.category === oldId) item.category = newId; }); companies?.items.forEach(item => { if (item.category === oldId) item.category = newId; }); crops?.render(); missions?.render(); companies?.render(); } if (kind === "playerTitles") { const missions = editors.get("missions"); missions?.items.forEach(item => (item.series || []).forEach(serie => { if (serie?.reward?.titleId === oldId) serie.reward.titleId = newId; })); missions?.render(); } },
     setBusy(busy) { document.querySelectorAll("[data-catalog-editor] button").forEach(button => { button.disabled = Boolean(busy); }); }
   };
 })();

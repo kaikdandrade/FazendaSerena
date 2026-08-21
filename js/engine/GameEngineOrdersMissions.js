@@ -89,7 +89,12 @@ Object.assign(GameEngine.prototype, {
         stock: this.state.stats.maxStorageUsed,
         coinsEarned: this.state.stats.lifetimeCoins,
         prestiges: this.state.stats.prestiges,
-        categorySold: mission?.category ? Number(this.state.stats.lifetimeSoldByCategory[mission.category] || 0) : 0
+        categorySold: mission?.category ? Number(this.state.stats.lifetimeSoldByCategory[mission.category] || 0) : 0,
+        cropUnlocked: (() => {
+          const crop = mission?.cropId ? this.getCrop(mission.cropId) : null;
+          if (!crop) return 0;
+          return Math.max(Number(this.state.farmLevel) || 1, Number(this.state.stats.maxFarmLevel) || 1) >= Number(crop.unlockLevel || 1) ? 1 : 0;
+        })()
       };
       return Number(map[metric] || 0);
     },
@@ -111,6 +116,21 @@ Object.assign(GameEngine.prototype, {
       return this.getActiveMissions().filter(mission => this.missionValue(mission.metric, mission) >= mission.target).length;
     },
 
+  unlockPlayerTitle(titleId) {
+      const safeId = String(titleId || "").replace(/[^a-z0-9_-]/gi, "").slice(0, 64);
+      const title = (this.data.playerTitles || []).find(item => item.id === safeId);
+      if (!title) return null;
+      this.state.unlockedPlayerTitles ||= { fazendeiro: true };
+      const newlyUnlocked = this.state.unlockedPlayerTitles[title.id] !== true;
+      this.state.unlockedPlayerTitles[title.id] = true;
+      return { title, newlyUnlocked };
+    },
+
+  getUnlockedPlayerTitles() {
+      const unlocked = this.state.unlockedPlayerTitles || {};
+      return (this.data.playerTitles || []).filter(title => title.default === true || unlocked[title.id] === true);
+    },
+
   claimMission(id) {
       const mission = this.data.missions.find(item => item.id === id);
       if (!mission || this.state.missionsClaimed[id]) return { ok: false, message: "Missão indisponível." };
@@ -119,7 +139,8 @@ Object.assign(GameEngine.prototype, {
       if (reward.coins) this.addCoins(reward.coins);
       if (reward.research) this.addResearch(reward.research);
       if (reward.prestige) this.addPrestigePoints(reward.prestige);
+      const titleUnlock = reward.titleId ? this.unlockPlayerTitle(reward.titleId) : null;
       this.state.missionsClaimed[id] = true;
-      return { ok: true, mission };
+      return { ok: true, mission, titleUnlock };
     }
 });

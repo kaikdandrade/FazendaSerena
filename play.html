@@ -22,41 +22,40 @@
 <link href="css/style.css" rel="stylesheet"/>
 <link href="css/shared-game-modals.css" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
-<link href="css/release-ui.css" rel="stylesheet"/>
+<link href="css/release-ui.css?v=r37e" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
-<script defer="" src="js/appConfig.js"></script>
-<script defer="" src="js/siteVersion.js"></script>
+<script defer="" src="js/appConfig.js?v=r37e"></script>
 <script defer="" src="js/cacheManager.js"></script>
 <script defer="" src="js/privacyConsent.js"></script>
 <script defer="" src="js/modalGuard.js"></script>
 <script defer="" src="js/adsense-config.js"></script>
 <script defer="" src="js/firebase-config.js"></script>
 <script defer="" src="js/avatars.js"></script>
-<script defer="" src="js/firebaseManager.js"></script>
-<script defer="" src="js/data.js"></script>
+<script defer="" src="js/firebaseManager.js?v=r37e"></script>
+<script defer="" src="js/data.js?v=r37e"></script>
 <script defer="" src="js/cropEconomy.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
-<script defer="" src="js/engine/GameEngineCore.js"></script>
+<script defer="" src="js/engine/GameEngineCore.js?v=r37e"></script>
 <script defer="" src="js/engine/GameEngineProduction.js"></script>
 <script defer="" src="js/engine/GameEngineProgression.js"></script>
 <script defer="" src="js/engine/GameEngineStorage.js"></script>
 <script defer="" src="js/engine/GameEngineContracts.js"></script>
-<script defer="" src="js/engine/GameEngineOrdersMissions.js"></script>
-<script defer="" src="js/engine/GameEnginePrestigeSettings.js"></script>
-<script defer="" src="js/gameAdmin.js"></script>
+<script defer="" src="js/engine/GameEngineOrdersMissions.js?v=r37e"></script>
+<script defer="" src="js/engine/GameEnginePrestigeSettings.js?v=r37e"></script>
+<script defer="" src="js/gameAdmin.js?v=r37e"></script>
 <script defer="" src="js/ambientBackground.js"></script>
-<script defer="" src="js/app/appState.js"></script>
-<script defer="" src="js/app/appUtils.js"></script>
-<script defer="" src="js/app/appAccountSocial.js"></script>
+<script defer="" src="js/app/appState.js?v=r37e"></script>
+<script defer="" src="js/app/appUtils.js?v=r37e"></script>
+<script defer="" src="js/app/appAccountSocial.js?v=r37e"></script>
 <script defer="" src="js/app/appNavigation.js"></script>
-<script defer="" src="js/app/appCropsStock.js"></script>
+<script defer="" src="js/app/appCropsStock.js?v=r37e"></script>
 <script defer="" src="js/app/appEvolutions.js"></script>
-<script defer="" src="js/app/appCommerceMissions.js"></script>
-<script defer="" src="js/app/appStatistics.js"></script>
+<script defer="" src="js/app/appCommerceMissions.js?v=r37e"></script>
+<script defer="" src="js/app/appStatistics.js?v=r37e"></script>
 <script defer="" src="js/app/appLiveSocial.js"></script>
-<script defer="" src="js/app/appRendererActions.js"></script>
-<script defer="" src="js/app/appEventsLoop.js"></script>
+<script defer="" src="js/app/appRendererActions.js?v=r37e"></script>
+<script defer="" src="js/app/appEventsLoop.js?v=r37e"></script>
 <script defer="" src="js/app/appFeedback.js"></script>
 <script defer="" src="js/app/bootstrap.js"></script>
 </head>
@@ -230,6 +229,7 @@
 <div class="account-identity">
 <p class="eyebrow">conta Google</p>
 <h2 id="accountName">Visitante</h2>
+<div class="account-player-title" id="accountPlayerTitle" aria-label="Título equipado"></div>
 <div class="account-detail-lines">
 <p class="account-email" id="accountEmail">Conta não conectada</p>
 <p class="account-privacy" id="accountDescription">Seu progresso existe somente
@@ -242,7 +242,7 @@
 <div>
 <p class="eyebrow">ranking global</p>
 <h3>Perfil do ranking</h3>
-<p>Defina o apelido e o avatar usados para identificar sua fazenda no ranking global.</p>
+
 </div>
 <button class="button primary" id="openRankingProfileButton" type="button">Perfil do ranking</button>
 </section>
@@ -252,6 +252,10 @@
                                     da conta</button>
 
 </div>
+<section class="player-title-panel" id="playerTitlePanel" aria-labelledby="playerTitlePanelTitle">
+  <div class="player-title-panel-copy"><p class="eyebrow">identidade da fazenda</p><h3 id="playerTitlePanelTitle">Título do jogador</h3><small id="playerTitleUnlockCount">1 título desbloqueado</small></div>
+  <div class="player-title-control"><div class="equipped-player-title-preview" id="equippedPlayerTitlePreview"></div></div>
+</section>
 </article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
 <div class="stats-grid" id="lifetimeStats"></div>
 </section><section class="stats-section stats-section-plain">
@@ -341,7 +345,7 @@
 <button class="footer-link-button" data-open-cookie-preferences="" type="button">Preferências de
                     cookies</button>
 </nav>
-<p class="footer-credit"><span>Desenvolvido por</span><a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version="">1.0.0</b></a></p>
+<p class="footer-credit"><span>Desenvolvido por</span><a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version=""></b></a></p>
 </footer>
 </div>
 <section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
@@ -357,6 +361,7 @@
 <h2 id="rankingProfileDialogTitle">Perfil do ranking</h2>
 </div>
 </div>
+<div class="player-profile-scroll">
 <div class="player-profile-fields">
 <label class="profile-nickname-field" for="playerNicknameSetting">
 <span><strong>Apelido</strong></span>
@@ -373,12 +378,24 @@
 </div>
 <input id="playerAvatarSetting" required="" type="hidden"/>
 </div>
+<div class="profile-player-title-field">
+  <span class="profile-field-copy"><strong>Título de jogador</strong></span>
+  <div class="custom-player-title-select" id="playerTitleSelect">
+    <button aria-controls="playerTitleSelectMenu" aria-expanded="false" class="player-title-select-trigger" id="playerTitleSelectButton" type="button">
+      <span class="player-title-select-current" id="selectedPlayerTitlePreview"></span>
+      <span aria-hidden="true" class="player-title-select-chevron"></span>
+    </button>
+    <div aria-label="Títulos desbloqueados" class="player-title-select-menu" hidden="" id="playerTitleSelectMenu" role="listbox"></div>
+    <input id="playerTitleSetting" type="hidden" value="fazendeiro"/>
+  </div>
+</div>
 </div>
 <div class="avatar-picker-panel" hidden="" id="avatarPickerPanel">
 <fieldset class="avatar-picker-fieldset">
 <legend>Escolha seu avatar</legend>
 <div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
 </fieldset>
+</div>
 </div>
 <div class="player-profile-actions"><button class="button secondary" id="cancelRankingProfile" type="button">Cancelar</button>
 <button class="button primary" id="savePlayerProfile" type="submit">Salvar
@@ -433,7 +450,10 @@
 
 
 <dialog aria-labelledby="friendsListDialogTitle" class="confirmation-dialog friends-list-dialog" id="friendsListDialog">
-<form method="dialog"><header class="friends-dialog-header"><div class="friends-dialog-heading"><span class="friends-dialog-icon"><img src="assets/icons/social.webp" alt="" aria-hidden="true"></span><div><small>Social</small><h2 id="friendsListDialogTitle">Amigos e solicitações</h2></div></div><div class="friends-dialog-header-actions"><button class="dialog-icon-button" value="cancel" aria-label="Fechar" type="submit">×</button></div></header><div class="friends-dialog-body" id="friendsListDialogBody"></div><footer class="friends-dialog-actions"><button class="button secondary full" value="cancel">Fechar</button></footer></form>
+<form method="dialog"><header class="friends-dialog-header"><div class="friends-dialog-heading"><span class="friends-dialog-icon"><img src="assets/icons/social.webp" alt="" aria-hidden="true"></span><div><small>Social</small><h2 id="friendsListDialogTitle">Amigos e solicitações</h2></div></div><div class="friends-dialog-header-actions"><button class="dialog-icon-button friends-dialog-refresh-icon" data-action="refresh-friends" aria-label="Atualizar amigos" title="Atualizar" type="button">↻</button><button class="dialog-icon-button" value="cancel" aria-label="Fechar" title="Fechar" type="submit">×</button></div></header><div class="friends-dialog-body" id="friendsListDialogBody"></div></form>
+</dialog>
+<dialog aria-labelledby="friendCodeDialogTitle" class="confirmation-dialog friend-code-dialog" id="friendCodeDialog">
+<div class="friend-code-dialog-shell"><header class="friends-dialog-header friend-code-dialog-header"><div class="friends-dialog-heading"><span class="friends-dialog-icon"><img src="assets/icons/social.webp" alt="" aria-hidden="true"></span><div><small>Conectar fazendas</small><h2 id="friendCodeDialogTitle">Adicionar amigo</h2></div></div><div class="friends-dialog-header-actions"><button class="dialog-icon-button" data-action="close-friend-code-dialog" aria-label="Fechar" title="Fechar" type="button">×</button></div></header><div class="friend-code-dialog-body" id="friendCodeDialogBody"></div></div>
 </dialog>
 <dialog aria-labelledby="removeFriendTitle" class="confirmation-dialog remove-friend-dialog" id="removeFriendDialog">
 <form method="dialog"><div class="remove-friend-hero"><img src="assets/icons/social.webp" alt=""><div><p class="eyebrow">remover amizade</p><h2 id="removeFriendTitle">Remover <span id="removeFriendName">este amigo</span>?</h2><p>Essa pessoa deixará de aparecer na sua lista de amigos.</p></div></div><div class="confirmation-dialog-actions"><button class="button secondary" value="cancel">Cancelar</button><button class="button danger" data-action="confirm-remove-friend" type="button">Remover amizade</button></div></form>

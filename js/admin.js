@@ -23,7 +23,7 @@
     ["ordersUnlockLevel", dom.ordersUnlockLevel, false, true], ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["prestigeBonus", dom.prestigeBonus, false, true], ["startingCoins", dom.startingCoins, false, true], ["storageCapacity", dom.storageCapacity, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
     ["contractSignedCooldownRange", dom.contractSignedCooldown, false, false, true], ["contractExpiredCooldownRange", dom.contractExpiredCooldown, false, false, true], ["contractDeclinedCooldownRange", dom.contractDeclinedCooldown, false, false, true], ["contractBrokenCooldownRange", dom.contractBrokenCooldown, false, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
-  const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
+  const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
 
   const navigationIconFields = Object.freeze([
@@ -207,12 +207,14 @@
     const editors = getCatalogEditors();
     next[name] = editors.get(name);
     if (name === "categories") { next.crops = editors.get("crops"); next.missions = editors.get("missions"); }
+    if (name === "playerTitles") next.missions = editors.get("missions");
     if (name === "prestigeUpgrades") next.missions = editors.get("missions");
     if (name === "updateNotes") {
       const newest = next.updateNotes.slice().sort((a, b) => Number(b.publishedAt || 0) - Number(a.publishedAt || 0))[0];
       if (newest?.version) next.gameVersion = newest.version;
     }
     const published = await publishConfig(next, name === "updateNotes" ? "Nota publicada e versão do jogo atualizada." : "Alteração publicada.");
+    if (name === "playerTitles") editors.set("missions", published.missions);
     window.FazendaSerenaPublicCloud?.clearCache?.();
     window.FazendaSerenaConfig?.applyCloudVersion?.(published.gameVersion);
     return published;

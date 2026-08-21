@@ -823,13 +823,3 @@ dialog::backdrop { background: rgba(18,28,19,.42); backdrop-filter: blur(4px); }
   .contract-break-hero { grid-template-columns: 54px minmax(0,1fr) !important; }
   .contract-break-calculation-simple { grid-template-columns: 1fr !important; padding: 14px !important; }
 }
-
-
-/* R36 — pequeno ganho de presença para a marca sem alterar a estrutura do jogo */
-.app-header .brand-logo{width:clamp(108px,10vw,150px)!important;height:auto!important}
-@media(max-width:768px){
-  .app-header .brand-logo{width:104px!important;height:auto!important}
-}
-@media(max-width:480px){
-  .app-header .brand-logo{width:96px!important;height:auto!important}
-}

@@ -192,7 +192,10 @@
   }
 
   function rewardHtml(reward) {
-    return resourceRewards(reward) || "";
+    const resources = resourceRewards(reward) || "";
+    const title = reward?.titleId ? getPlayerTitleEntry(reward.titleId) : null;
+    const titleReward = title ? `<span class="mission-title-reward"><small>Título</small>${playerTitleMarkup(title, { showRarity: true, compact: true })}</span>` : "";
+    return resources + titleReward;
   }
 
   function renderMissions() {
@@ -212,9 +215,15 @@
       const progress = percent((value / mission.target) * 100);
       const seriesMissions = engine.data.missions.filter(item => (item.series || item.id) === (mission.series || mission.id));
       const stage = mission.stage || 1;
-      return `<article class="mission-card ${claimed ? "claimed" : ""}">
+      const cropMilestone = mission.metric === "cropUnlocked" ? engine.getCrop(mission.cropId) : null;
+      const cropWasUnlocked = Boolean(cropMilestone && value >= 1);
+      const milestoneBadge = cropMilestone ? `<div class="mission-crop-milestone ${cropWasUnlocked ? "unlocked" : "locked"}"><img src="${cropWasUnlocked ? escapeHtml(cropMilestone.image) : "assets/icons/cadeado.webp"}" alt=""><span><small>Marco de desbloqueio</small><strong>${cropWasUnlocked ? escapeHtml(cropMilestone.name) : "Cultura misteriosa"}</strong><em>${cropWasUnlocked ? "Desbloqueada pela fazenda" : `Libera no nível ${Math.max(1, Number(cropMilestone.unlockLevel) || 1)}`}</em></span></div>` : "";
+      const progressLabel = cropMilestone ? "Desbloqueio por nível" : "Progresso acumulado";
+      const progressValue = cropMilestone ? (cropWasUnlocked ? "Concluído" : `Nível ${Math.max(1, Number(cropMilestone.unlockLevel) || 1)}`) : `${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}`;
+      return `<article class="mission-card ${claimed ? "claimed" : ""} ${cropMilestone ? "mission-crop-unlock-card" : ""}">
         <div class="mission-head"><div><span class="mission-stage-label">Série ${stage} de ${seriesMissions.length}</span><h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></div>
-        <div class="mission-progress"><div class="progress-label"><span>Progresso acumulado</span><strong>${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}</strong></div><div class="progress-track growth"><span style="width:${progress}%"></span></div></div>
+        ${milestoneBadge}
+        <div class="mission-progress"><div class="progress-label"><span>${progressLabel}</span><strong>${progressValue}</strong></div><div class="progress-track growth"><span style="width:${progress}%"></span></div></div>
         <div class="mission-reward"><span>Recompensa</span><strong class="resource-reward-group">${rewardHtml(mission.reward)}</strong></div>
         ${claimed ? `<div class="mission-claimed-mark">✓ Recompensa recebida</div>` : `<button class="button ${completed ? "primary" : "secondary"} full" type="button" data-action="claim-mission" data-id="${mission.id}" ${completed ? "" : "disabled"}>Receber recompensa</button>`}
       </article>`;

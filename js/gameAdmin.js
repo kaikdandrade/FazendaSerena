@@ -261,8 +261,33 @@
     Object.freeze({ id: "xp", key: "xp", icon: "assets/icons/xp.webp", locked: true })
   ]);
 
+  const playerTitleRarities = Object.freeze(["common", "uncommon", "rare", "epic", "legendary"]);
+  const defaultPlayerTitle = Object.freeze({
+    id: "fazendeiro",
+    name: "Fazendeiro",
+    rarity: "common",
+    default: true,
+    locked: true
+  });
+
+  function normalizePlayerTitles(raw) {
+    const reservedId = defaultPlayerTitle.id;
+    const custom = Array.isArray(raw) ? uniqueById(raw.slice(0, 300).map((item, index) => {
+      const titleId = id(item?.id, `titulo_${index + 1}`);
+      const rarity = playerTitleRarities.includes(item?.rarity) ? item.rarity : "common";
+      return {
+        id: titleId,
+        name: text(item?.name, 60, `Título ${index + 1}`),
+        rarity,
+        default: false,
+        locked: false
+      };
+    }).filter(item => item.id !== reservedId)) : [];
+    return [clone(defaultPlayerTitle), ...custom];
+  }
+
   const defaults = Object.freeze({
-    schemaVersion: 18,
+    schemaVersion: 20,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -273,6 +298,7 @@
     contractSlots: clone(defaultContractSlots),
     orderSteps: [],
     missions: [],
+    playerTitles: [clone(defaultPlayerTitle)],
     research: clone(window.GameData.research),
     prestigeUpgrades: clone(window.GameData.prestigeUpgrades),
     events: [],
@@ -471,7 +497,7 @@
   const missionMetrics = new Set([
     "harvested", "owned", "cropPurchases", "sold", "cropLevels", "cropUpgrades",
     "orders", "contracts", "maxCropLevel", "farmLevel", "stock", "coinsEarned",
-    "prestiges", "categorySold"
+    "prestiges", "categorySold", "cropUnlocked"
   ]);
 
   function normalizeReward(raw = {}) {
@@ -480,6 +506,8 @@
       const value = integer(raw?.[key], 0, Number.MAX_SAFE_INTEGER, 0);
       if (value > 0) reward[key] = value;
     });
+    const titleId = id(raw?.titleId, "");
+    if (titleId) reward.titleId = titleId;
     return reward;
   }
 
@@ -496,7 +524,8 @@
           desc: text(item?.desc, 500, "Conclua o objetivo desta missão."),
           metric,
           series: item.series.slice(0, 200).map(serie => ({
-            target: integer(serie?.target, 1, Number.MAX_SAFE_INTEGER, 1),
+            target: metric === "cropUnlocked" ? 1 : integer(serie?.target, 1, Number.MAX_SAFE_INTEGER, 1),
+            ...(metric === "cropUnlocked" ? { cropId: id(serie?.cropId, "") } : {}),
             reward: normalizeReward(serie?.reward)
           }))
         };
@@ -519,7 +548,8 @@
       }
       legacyGroups.get(legacyKey).legacySeries.push({
         order: integer(item?.stage, 1, 1000, index + 1),
-        target: integer(item?.target, 1, Number.MAX_SAFE_INTEGER, 1),
+        target: metric === "cropUnlocked" ? 1 : integer(item?.target, 1, Number.MAX_SAFE_INTEGER, 1),
+        ...(metric === "cropUnlocked" ? { cropId: id(item?.cropId, "") } : {}),
         reward: normalizeReward(item?.reward)
       });
     });
@@ -531,7 +561,7 @@
         desc: group.desc,
         metric: group.metric,
         ...(group.category ? { category: group.category } : {}),
-        series: group.legacySeries.map(({ target, reward }) => ({ target, reward }))
+        series: group.legacySeries.map(({ target, cropId, reward }) => ({ target, ...(cropId ? { cropId } : {}), reward }))
       });
     });
     return uniqueById(normalized.slice(0, 300));
@@ -549,7 +579,8 @@
         desc: mission.desc,
         metric: mission.metric,
         ...(mission.category ? { category: mission.category } : {}),
-        target: serie.target,
+        ...(mission.metric === "cropUnlocked" && serie.cropId ? { cropId: serie.cropId } : {}),
+        target: mission.metric === "cropUnlocked" ? 1 : serie.target,
         reward: clone(serie.reward || {})
       }));
     });
@@ -702,7 +733,7 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 18,
+      schemaVersion: 20,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -712,6 +743,7 @@
       contractTypes: acceptsRemoteCatalogs ? normalizeContractTypes(source?.contractTypes, balance) : [],
       contractSlots: normalizeContractSlots(source?.contractSlots),
       orderSteps: acceptsRemoteCatalogs ? normalizeOrderSteps(source?.orderSteps, balance) : [],
+      playerTitles: normalizePlayerTitles(source?.playerTitles),
       missions: acceptsRemoteCatalogs ? normalizeMissions(source?.missions) : [],
       research: normalizeEvolution(source?.research, defaults.research, false),
       prestigeUpgrades: normalizeEvolution(source?.prestigeUpgrades, defaults.prestigeUpgrades, true),
@@ -846,6 +878,7 @@
     replaceArray(window.GameData.contractTypes, config.contractTypes);
     replaceArray(window.GameData.contractSlots, config.contractSlots);
     replaceArray(window.GameData.orderSteps, config.orderSteps);
+    replaceArray(window.GameData.playerTitles, config.playerTitles);
     replaceArray(window.GameData.missions, flattenMissions(config.missions));
     replaceArray(window.GameData.research, config.research);
     replaceArray(window.GameData.prestigeUpgrades, config.prestigeUpgrades);
@@ -887,7 +920,7 @@
   function validateForSave(raw) {
     if (!raw || typeof raw !== "object") throw new Error("A configuração precisa ser um objeto JSON.");
     const requiredArrays = [
-      "pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "missions", "research", "prestigeUpgrades", "events", "updateNotes"
+      "pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"
     ];
     requiredArrays.forEach(key => {
       if (!Array.isArray(raw[key])) throw new Error(`A seção “${key}” precisa ser uma lista.`);
@@ -896,7 +929,7 @@
     const sourceIds = [
       ["tipos de pontos", normalized.pointTypes], ["categorias", normalized.categories], ["plantas", normalized.crops], ["indústrias", normalized.companies],
       ["tipos de contrato", normalized.contractTypes], ["slots de contrato", normalized.contractSlots], ["etapas de pedidos", normalized.orderSteps],
-      ["missões", normalized.missions], ["pesquisas", normalized.research], ["legados", normalized.prestigeUpgrades], ["eventos", normalized.events], ["notas", normalized.updateNotes]
+      ["títulos de jogador", normalized.playerTitles], ["missões", normalized.missions], ["pesquisas", normalized.research], ["legados", normalized.prestigeUpgrades], ["eventos", normalized.events], ["notas", normalized.updateNotes]
     ];
     sourceIds.forEach(([label, items]) => {
       if (new Set(items.map(item => item.id)).size !== items.length) throw new Error(`Existem IDs duplicados em ${label}.`);
@@ -906,6 +939,14 @@
     if (invalidCrop) throw new Error(`A planta “${invalidCrop.name}” usa uma categoria que não existe.`);
     const invalidMission = normalized.missions.find(mission => mission.metric === "categorySold" && !categoryIds.has(mission.category));
     if (invalidMission) throw new Error(`A missão “${invalidMission.title}” usa uma categoria que não existe.`);
+    const cropIds = new Set(normalized.crops.map(item => item.id));
+    const invalidCropMilestone = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))
+      .find(entry => entry.mission.metric === "cropUnlocked" && entry.serie.cropId && !cropIds.has(entry.serie.cropId));
+    if (invalidCropMilestone) throw new Error(`A missão “${invalidCropMilestone.mission.title}”, série ${invalidCropMilestone.index + 1}, aponta para uma planta que não existe.`);
+    const titleIds = new Set(normalized.playerTitles.map(item => item.id));
+    const invalidTitleReward = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))
+      .find(entry => entry.serie?.reward?.titleId && !titleIds.has(entry.serie.reward.titleId));
+    if (invalidTitleReward) throw new Error(`A missão “${invalidTitleReward.mission.title}”, série ${invalidTitleReward.index + 1}, usa um título de jogador que não existe.`);
     const invalidCompany = normalized.companies.find(company => company.category && !categoryIds.has(company.category));
     if (invalidCompany) throw new Error(`A indústria “${invalidCompany.name}” usa uma categoria que não existe.`);
     return normalized;

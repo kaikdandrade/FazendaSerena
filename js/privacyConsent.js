@@ -92,8 +92,12 @@
   function setFormValues(dialog) {
     const advertising = dialog?.querySelector("#advertisingCookiesSetting");
     const analytics = dialog?.querySelector("#analyticsCookiesSetting");
-    if (advertising) advertising.checked = currentConsent.advertising;
-    if (analytics) analytics.checked = currentConsent.analytics;
+    // Na primeira configuração, os opcionais aparecem pré-selecionados para que
+    // o visitante apenas desligue o que não quiser. O consentimento real continua
+    // negado até "Salvar preferências" ou "Aceitar todos" ser acionado.
+    const preselectOptional = !readStoredConsent();
+    if (advertising) advertising.checked = preselectOptional ? true : currentConsent.advertising;
+    if (analytics) analytics.checked = preselectOptional ? true : currentConsent.analytics;
   }
 
   function initPrivacyControls() {

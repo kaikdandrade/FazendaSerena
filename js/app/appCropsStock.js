@@ -66,6 +66,7 @@
     const unlocked = engine.isCropUnlocked(crop.id);
     const buyCost = engine.getBuyCost(crop.id);
     const canAffordPurchase = engine.state.coins >= buyCost;
+    const mysteryNameGlyphs = "•".repeat(Math.max(1, Array.from(String(crop.name || "")).length));
 
     if (!data.owned) {
       const purchaseLabel = !unlocked
@@ -77,7 +78,7 @@
           <div class="crop-head">
             <div class="crop-art locked-art ${unlocked ? "crop-preview-unlocked" : "crop-preview-level-locked"}"><img src="${unlocked ? crop.image : "assets/icons/cadeado.webp"}" alt="${unlocked ? escapeHtml(crop.name) : "Cultura bloqueada"}" loading="lazy"></div>
             <div class="crop-info">
-              <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
+              <div class="crop-title-row"><h3>${unlocked ? escapeHtml(crop.name) : `<span class="mystery-crop-name" aria-hidden="true"><span class="mystery-crop-glyphs">${mysteryNameGlyphs}</span></span><span class="sr-only">Nome oculto até o desbloqueio</span>`}</h3></div>
               <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>
             </div>
           </div>
@@ -148,7 +149,8 @@
       const matchesCategory = category === "locked"
         ? !cropState.owned
         : category === "all" || crop.category === category;
-      return matchesCategory && (!term || normalize(`${crop.name} ${categoryName}`).includes(term));
+      const searchableName = engine.isCropUnlocked(crop.id) ? crop.name : "";
+      return matchesCategory && (!term || normalize(`${searchableName} ${categoryName}`).includes(term));
     }).sort((a, b) => a.index - b.index);
 
     dom.cropGrid.innerHTML = list.map(renderCropCard).join("");

@@ -58,6 +58,41 @@
       : "O serviço de nuvem não pôde ser carregado. A sessão continuará como visitante.";
   }
 
+  function renderPlayerTitleControl() {
+    if (!engine?.state) return;
+    const titles = Array.isArray(engine.data?.playerTitles) ? engine.data.playerTitles : [];
+    const unlocked = titles.filter(title => isPlayerTitleUnlocked(title));
+    const equipped = getEquippedPlayerTitle();
+    const preserveDraft = Boolean(dom.rankingProfileDialog?.open && dom.playerProfileForm?.dataset.dirty === "true");
+
+    if (dom.accountPlayerTitle) dom.accountPlayerTitle.innerHTML = playerTitleMarkup(equipped, { compact: true });
+    if (dom.equippedPlayerTitlePreview) dom.equippedPlayerTitlePreview.innerHTML = `<small>Equipado</small>${playerTitleMarkup(equipped, { showRarity: true })}`;
+    if (dom.playerTitleUnlockCount) dom.playerTitleUnlockCount.textContent = `${unlocked.length} ${unlocked.length === 1 ? "título desbloqueado" : "títulos desbloqueados"} de ${titles.length}`;
+
+    if (!dom.playerTitleSetting || !dom.playerTitleSelectMenu || !dom.playerTitleSelectButton) return;
+    let selected = preserveDraft ? getPlayerTitleEntry(dom.playerTitleSetting.value) : equipped;
+    if (!isPlayerTitleUnlocked(selected)) selected = equipped;
+    dom.playerTitleSetting.value = selected.id;
+
+    const signature = unlocked.map(title => `${title.id}:${title.name}:${title.rarity}`).join("|");
+    if (dom.playerTitleSelectMenu.dataset.signature !== signature) {
+      dom.playerTitleSelectMenu.innerHTML = unlocked.map(title => {
+        const rarity = PLAYER_TITLE_RARITY_LABELS[title.rarity] ? title.rarity : "common";
+        return `<button class="player-title-select-option" data-player-title-id="${escapeHtml(title.id)}" data-player-title-rarity="${rarity}" role="option" type="button">${playerTitleMarkup(title, { showRarity: true })}<span aria-hidden="true" class="player-title-select-check">✓</span></button>`;
+      }).join("");
+      dom.playerTitleSelectMenu.dataset.signature = signature;
+    }
+
+    if (dom.selectedPlayerTitlePreview) dom.selectedPlayerTitlePreview.innerHTML = `${playerTitleMarkup(selected, { showRarity: true })}<small>${unlocked.length > 1 ? "Clique para escolher outro título" : "Conclua missões para desbloquear novos títulos"}</small>`;
+    dom.playerTitleSelectButton.disabled = unlocked.length === 0;
+    dom.playerTitleSelectButton.setAttribute("aria-label", `Título selecionado: ${selected.name}. ${unlocked.length > 1 ? "Abrir lista de títulos" : "Nenhum outro título desbloqueado"}.`);
+    [...dom.playerTitleSelectMenu.querySelectorAll("[data-player-title-id]")].forEach(option => {
+      const active = option.dataset.playerTitleId === selected.id;
+      option.classList.toggle("selected", active);
+      option.setAttribute("aria-selected", String(active));
+    });
+  }
+
   function updateAccountUI(user = window.FirebaseManager.getUser()) {
     const signedIn = Boolean(user);
     const firebaseAvailable = window.FirebaseManager.isAvailable();
@@ -76,6 +111,8 @@
         ? (storedNickname || user.displayName || user.email || "Jogador")
         : "Visitante";
     }
+
+    renderPlayerTitleControl();
 
     if (dom.accountEmail) {
       dom.accountEmail.textContent = signedIn
@@ -187,12 +224,13 @@
     return {
       name: sanitizeNickname(profile?.displayName) || "Perfil indisponível",
       avatarSrc: avatar?.src || "assets/logo.webp",
-      avatarAlt: avatar ? `Avatar de ${sanitizeNickname(profile?.displayName) || "jogador"}` : ""
+      avatarAlt: avatar ? `Avatar de ${sanitizeNickname(profile?.displayName) || "jogador"}` : "",
+      title: getPlayerTitleEntry(profile?.playerTitleId || "fazendeiro")
     };
   }
 
   function setFriendsFeedback(message = "", type = "", targetId = "friendsFeedback") {
-    const feedback = $(`#${targetId}`, dom.friendsContent || document);
+    const feedback = $(`#${targetId}`, dom.friendCodeDialog || document) || $(`#${targetId}`, dom.friendsContent || document) || document.getElementById(targetId);
     if (!feedback) return;
     feedback.textContent = message;
     feedback.dataset.type = type;
@@ -201,7 +239,6 @@
   function friendRelationshipCard(item, mode) {
     const profile = getFriendProfilePresentation(item?.profile);
     const relationshipId = escapeHtml(item?.id || "");
-    const friendCode = escapeHtml(item?.profile?.friendCode || item?.friendUid || "");
     let actions = "";
     let status = "Amigo da sua fazenda";
 
@@ -215,9 +252,10 @@
       actions = `<button class="button secondary compact-friend-button" data-action="remove-friend" data-friendship-id="${relationshipId}" type="button">Remover</button>`;
     }
 
+    const titleRarity = ["common", "uncommon", "rare", "epic", "legendary"].includes(profile.title?.rarity) ? profile.title.rarity : "common";
     return `<article class="friend-card" data-friend-mode="${mode}">
       <img class="friend-avatar" src="${escapeHtml(profile.avatarSrc)}" alt="${escapeHtml(profile.avatarAlt)}" loading="lazy">
-      <div class="friend-card-copy"><strong>${escapeHtml(profile.name)}</strong><small>${escapeHtml(status)}</small>${friendCode ? `<code title="Código de amizade">${friendCode}</code>` : ""}</div>
+      <div class="friend-card-copy"><div class="friend-card-identity"><strong>${escapeHtml(profile.name)}</strong><span class="social-title-dot" data-title-rarity="${titleRarity}" aria-hidden="true"></span>${playerTitleMarkup(profile.title, { compact: true })}</div><small>${escapeHtml(status)}</small></div>
       <div class="friend-card-actions">${actions}</div>
     </article>`;
   }
@@ -278,13 +316,12 @@
     const friendCount = friendsState.friends?.length || 0;
     const outgoingCount = friendsState.outgoing?.length || 0;
     dom.friendsContent.innerHTML = `<section class="friends-beta-card friends-hub-card">
-      <header class="friends-beta-header friends-hub-header"><div class="friends-beta-title"><div><small>conexões da fazenda</small><h3>Amigos</h3></div></div><div class="friends-hub-counters"><span><b>${friendCount}</b> ${friendCount === 1 ? "amigo" : "amigos"}</span>${incomingCount ? `<span class="has-pending"><b>${incomingCount}</b> pendente${incomingCount === 1 ? "" : "s"}</span>` : ""}</div></header>
-      <div class="friends-beta-options friends-hub-actions">
-        <button class="friends-beta-option friends-list-launch friends-hub-launch" data-action="open-friends-list" type="button"><span><img src="assets/icons/perfil.webp" alt=""><span><strong>Amigos e solicitações</strong></span></span><b>${friendCount + incomingCount + outgoingCount}</b></button>
-        <details class="friends-beta-option friends-request-option" data-friend-option="request"><summary><span><img src="assets/icons/social.webp" alt=""><span><strong>Código de amizades</strong><small>Compartilhe o seu código ou informe o de outro jogador</small></span></span><b>+</b></summary><div class="friends-beta-option-body"><div class="friend-code-inline"><span>Seu código</span><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div><form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código do outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div></div></details>
+      <header class="friends-beta-header friends-hub-header"><div class="friends-beta-title"><div><small>conexões da fazenda</small><h3>Amigos <span>beta</span></h3></div></div><div class="friends-hub-counters"><span><b>${friendCount}</b> ${friendCount === 1 ? "amigo" : "amigos"}</span>${incomingCount ? `<span class="has-pending"><b>${incomingCount}</b> pendente${incomingCount === 1 ? "" : "s"}</span>` : ""}</div></header>
+      <div class="friends-beta-options friends-hub-actions friends-hub-actions-restored">
+        <button class="friends-beta-option friends-list-launch friends-hub-launch" data-action="open-friends-list" type="button"><span><img src="assets/icons/perfil.webp" alt=""><span><strong>Amigos e solicitações</strong><small>Veja conexões, pedidos recebidos e enviados</small></span></span><b>${friendCount + incomingCount + outgoingCount}</b></button>
+        <button class="friends-beta-option friends-list-launch friends-hub-launch friends-add-launch" data-action="open-friend-code-dialog" type="button"><span><img src="assets/icons/social.webp" alt=""><span><strong>Adicionar amigo</strong><small>Compartilhe seu código ou conecte outra fazenda</small></span></span><b>+</b></button>
       </div>
     </section>`;
-    restoreFriendInteractionState();
     if (dom.friendsListDialog?.open) openFriendsListDialog();
   }
 
@@ -311,8 +348,16 @@
       "outgoing",
       "Nenhuma solicitação enviada."
     );
-    dom.friendsListDialogBody.innerHTML = `<div class="friends-dialog-toolbar"><button class="button secondary friends-dialog-refresh" data-action="refresh-friends" type="button">Atualizar</button></div><div class="friends-dialog-sections">${incoming}${accepted}${outgoing}</div>`;
+    dom.friendsListDialogBody.innerHTML = `<div class="friends-dialog-sections">${incoming}${accepted}${outgoing}</div>`;
     if (typeof dom.friendsListDialog.showModal === "function" && !dom.friendsListDialog.open) dom.friendsListDialog.showModal();
+  }
+
+  function openFriendCodeDialog() {
+    if (!dom.friendCodeDialog || !dom.friendCodeDialogBody) return;
+    const user = window.FirebaseManager.getUser();
+    const code = escapeHtml(friendsState.selfProfile?.friendCode || user?.uid || "");
+    dom.friendCodeDialogBody.innerHTML = `<section class="friend-code-share"><small>Seu código de amizade</small><div><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div></section><div class="friend-code-divider"><span>ou</span></div><form class="friend-request-form friend-request-form-dialog" id="friendRequestForm"><label for="friendCodeInput">Código de outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div>`;
+    if (typeof dom.friendCodeDialog.showModal === "function" && !dom.friendCodeDialog.open) dom.friendCodeDialog.showModal();
   }
 
   function requestFriendRemoval(friendshipId) {
@@ -385,6 +430,8 @@
     if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = profileDisabled;
+    if (dom.playerTitleSelectButton) dom.playerTitleSelectButton.disabled = profileDisabled;
+    $$(".player-title-select-option", dom.playerTitleSelectMenu || document).forEach(button => { button.disabled = profileDisabled; });
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
     $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
   }

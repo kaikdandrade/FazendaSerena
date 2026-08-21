@@ -39,6 +39,48 @@
     return nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
   }
 
+  const PLAYER_TITLE_RARITY_LABELS = Object.freeze({ common: "Comum", uncommon: "Incomum", rare: "Raro", epic: "Épico", legendary: "Lendário" });
+
+  function getPlayerTitleEntry(titleId) {
+    const safeId = String(titleId || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro";
+    const titles = engine?.data?.playerTitles || window.GameData?.playerTitles || [];
+    return titles.find(title => title.id === safeId) || titles.find(title => title.id === "fazendeiro") || { id: "fazendeiro", name: "Fazendeiro", rarity: "common", default: true };
+  }
+
+  function playerTitleRarityLabel(rarity) {
+    return PLAYER_TITLE_RARITY_LABELS[rarity] || PLAYER_TITLE_RARITY_LABELS.common;
+  }
+
+  function isPlayerTitleUnlocked(title, state = engine?.state) {
+    const entry = typeof title === "string" ? getPlayerTitleEntry(title) : title;
+    return Boolean(entry && (entry.default === true || entry.id === "fazendeiro" || state?.unlockedPlayerTitles?.[entry.id] === true));
+  }
+
+  function getEquippedPlayerTitle(state = engine?.state) {
+    const entry = getPlayerTitleEntry(state?.settings?.playerTitle || "fazendeiro");
+    return isPlayerTitleUnlocked(entry, state) ? entry : getPlayerTitleEntry("fazendeiro");
+  }
+
+  function playerTitleMarkup(titleOrId, { showRarity = false, compact = false } = {}) {
+    const title = typeof titleOrId === "object" && titleOrId ? titleOrId : getPlayerTitleEntry(titleOrId);
+    const rarity = PLAYER_TITLE_RARITY_LABELS[title?.rarity] ? title.rarity : "common";
+    const rarityMarkup = showRarity ? `<small>${escapeHtml(playerTitleRarityLabel(rarity))}</small>` : "";
+    return `<span class="player-title player-title-${rarity}${compact ? " player-title-compact" : ""}" data-player-title-rarity="${rarity}"><span class="player-title-name">${escapeHtml(title?.name || "Fazendeiro")}</span>${rarityMarkup}</span>`;
+  }
+
+  function showPlayerTitleUnlock(title) {
+    if (!title) return;
+    document.querySelector(".player-title-unlock-toast")?.remove();
+    const toast = document.createElement("div");
+    toast.className = "player-title-unlock-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.innerHTML = `<div class="player-title-unlock-icon">✦</div><div><small>Novo título desbloqueado</small>${playerTitleMarkup(title, { showRarity: true })}</div>`;
+    document.body.appendChild(toast);
+    window.requestAnimationFrame(() => toast.classList.add("visible"));
+    window.setTimeout(() => { toast.classList.remove("visible"); window.setTimeout(() => toast.remove(), 260); }, 4300);
+  }
+
   function setProfileFeedback(message = "", type = "") {
     if (!dom.playerProfileFeedback) return;
     dom.playerProfileFeedback.textContent = message;

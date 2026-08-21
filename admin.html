@@ -9,29 +9,28 @@
 <title>Administração — Fazenda Serena</title>
 <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="css/legacy/admin-legacy.css">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/admin.css?v=r37c">
 <link rel="stylesheet" href="css/shared-game-modals.css">
 <script defer src="js/publicCloud.js"></script>
 <script defer src="js/modalGuard.js"></script>
-<script defer src="js/appConfig.js"></script>
-<script defer src="js/siteVersion.js"></script>
+<script defer src="js/appConfig.js?v=r37c"></script>
 <script defer src="js/cacheManager.js"></script>
 <script defer src="js/firebase-config.js"></script>
 <script defer src="js/localAssets.js"></script>
-<script defer src="js/firebaseManager.js"></script>
-<script defer src="js/data.js"></script>
+<script defer src="js/firebaseManager.js?v=r37c"></script>
+<script defer src="js/data.js?v=r37c"></script>
 <script defer src="js/cropEconomy.js"></script>
-<script defer src="js/gameAdmin.js"></script>
+<script defer src="js/gameAdmin.js?v=r37c"></script>
 <script defer src="js/adminImageSelect.js"></script>
-<script defer src="js/adminCatalogEditor.js"></script>
-<script defer src="js/admin.js"></script>
+<script defer src="js/adminCatalogEditor.js?v=r37c"></script>
+<script defer src="js/admin.js?v=r37c"></script>
 </head>
 <body>
 <main class="admin-shell">
 <header class="admin-header">
   <a class="admin-brand" href="play.html" aria-label="Voltar ao Fazenda Serena">
     <img src="assets/logo.webp" alt="">
-    <span><strong>Fazenda Serena</strong><small>Administração · v<span data-app-version>1.0.0</span></small></span>
+    <span><strong>Fazenda Serena</strong><small>Administração</small></span>
   </a>
   <div class="admin-user-actions" id="adminUserActions" hidden>
     <span id="adminUserLabel"></span>
@@ -69,6 +68,7 @@
       <option value="playerFeedback">Feedback e ideias</option>
       <option value="navigationIcons">Ícones da navegação</option>
       <option value="missions">Missões</option>
+      <option value="playerTitles">Títulos de jogador</option>
       <option value="updateNotes">Notas de atualização</option>
       <option value="balance">Parâmetros principais</option>
       <option value="evolutionsCatalog">Pesquisas e evoluções</option>
@@ -225,6 +225,12 @@
     <section class="admin-panel admin-catalog-editor" data-catalog-editor="missions" data-admin-section="missions" hidden>
       <div class="admin-section-heading"><h2>Missões</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar missão</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor admin-player-titles-editor" data-catalog-editor="playerTitles" data-admin-section="playerTitles" hidden>
+      <div class="admin-section-heading"><div><h2>Títulos de jogador</h2><p class="admin-section-description">Cadastre títulos que podem ser entregues pelas séries das missões. A raridade define automaticamente a aparência no jogo.</p></div><button class="admin-button primary compact" data-catalog-add type="button">Adicionar título</button></div>
+      <div class="admin-title-rarity-guide" aria-label="Cores das raridades"><span data-title-rarity="common">Comum</span><span data-title-rarity="uncommon">Incomum</span><span data-title-rarity="rare">Raro</span><span data-title-rarity="epic">Épico</span><span data-title-rarity="legendary">Lendário</span></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
     <section class="admin-panel admin-catalog-editor" data-catalog-editor="research" data-admin-section="evolutionsCatalog" hidden>

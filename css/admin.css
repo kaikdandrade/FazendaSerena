@@ -92,10 +92,28 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
 .admin-dialog-checkbox{display:flex!important;align-items:center;gap:9px;grid-column:1/-1}.admin-dialog-checkbox input{width:18px!important;height:18px!important;min-height:18px!important;padding:0!important}.admin-subsection-heading{margin:20px 0 8px}.admin-subsection-heading h3{margin:0 0 4px}.admin-subsection-heading p{margin:0;color:var(--a-muted);font-size:.82rem}.admin-dialog-field textarea{min-height:112px;resize:vertical}.admin-dialog-field input[type="time"]{font-variant-numeric:tabular-nums}
 
 
-/* R36 — identidade visual do cabeçalho */
-.admin-brand img{width:140px!important;height:auto!important;flex:0 0 auto}
-.admin-brand{gap:14px}
-.admin-brand small span[data-app-version]{font:inherit;color:inherit}
-@media(max-width:640px){
-  .admin-brand img{width:108px!important;height:auto!important}
-}
+/* R37b — editor de títulos de jogador */
+.admin-section-description { margin: .28rem 0 0; max-width: 70ch; color: var(--admin-muted, #64716c); font-size: .86rem; }
+.admin-title-rarity-guide { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 1rem; }
+.admin-title-rarity-guide span { border: 1px solid currentColor; border-radius: 999px; padding: .25rem .58rem; font-size: .72rem; font-weight: 850; background: rgba(255,255,255,.72); }
+.admin-title-rarity-guide [data-title-rarity="common"] { color: #6f7778; }
+.admin-title-rarity-guide [data-title-rarity="uncommon"] { color: #278653; }
+.admin-title-rarity-guide [data-title-rarity="rare"] { color: #2d6fd3; }
+.admin-title-rarity-guide [data-title-rarity="epic"] { color: #864bc7; }
+.admin-title-rarity-guide [data-title-rarity="legendary"] { color: #b68114; box-shadow: 0 0 0 3px rgba(207,157,40,.07); }
+.admin-player-titles-editor .admin-catalog-item { position: relative; overflow: hidden; }
+.admin-player-titles-editor .admin-catalog-item::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: currentColor; opacity: .72; }
+.admin-player-titles-editor .title-rarity-common { color: #6f7778; }
+.admin-player-titles-editor .title-rarity-uncommon { color: #278653; }
+.admin-player-titles-editor .title-rarity-rare { color: #2d6fd3; }
+.admin-player-titles-editor .title-rarity-epic { color: #864bc7; }
+.admin-player-titles-editor .title-rarity-legendary { color: #b68114; background: linear-gradient(90deg, rgba(255,247,218,.52), rgba(255,255,255,0) 44%); }
+.admin-player-titles-editor .admin-catalog-item-main > div:first-child > small { color: currentColor; font-weight: 800; }
+.admin-series-title-reward { grid-column: 1 / -1; }
+.admin-series-title-reward small { display: block; margin-top: .25rem; color: var(--admin-muted, #6e7874); font-size: .72rem; }
+
+
+/* R37c — marco de desbloqueio de planta nas séries de missões */
+.admin-series-fields .admin-series-crop-milestone { grid-column: 1 / -1; }
+.admin-series-crop-milestone small { display:block; margin-top:.3rem; color:var(--muted,#68766f); line-height:1.4; }
+.admin-series-crop-milestone select { width:100%; }

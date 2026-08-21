@@ -488,6 +488,15 @@ class FirebaseManager {
       .slice(0, 24);
   }
 
+  normalizePlayerTitleId(state) {
+    const requested = String(state?.settings?.playerTitle || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro";
+    const titles = window.GameData?.playerTitles || window.FazendaSerenaRuntimeConfig?.playerTitles || [];
+    const entry = titles.find(title => title.id === requested) || titles.find(title => title.id === "fazendeiro");
+    if (!entry) return "fazendeiro";
+    const unlocked = entry.default === true || entry.id === "fazendeiro" || state?.unlockedPlayerTitles?.[entry.id] === true;
+    return unlocked ? entry.id : "fazendeiro";
+  }
+
   getRankingIdentity(state, user = this.currentUser) {
     if (!user) return null;
     const displayName = this.normalizeNickname(state?.settings?.playerNickname);
@@ -506,6 +515,7 @@ class FirebaseManager {
     return {
       displayName: identity.displayName,
       avatarId: identity.avatarId,
+      playerTitleId: this.normalizePlayerTitleId(state),
       profileComplete: true,
       prestigeTotal: Math.max(0, Math.floor(Number(state?.stats?.totalPrestigeEarned) || 0)),
       prestigeCount: Math.max(0, Math.floor(Number(state?.stats?.prestiges) || 0)),
@@ -528,11 +538,28 @@ class FirebaseManager {
     return {
       displayName: this.normalizeNickname(state.settings.playerNickname),
       avatarId: avatar.id,
+      playerTitleId: this.normalizePlayerTitleId(state),
       friendCode: user.uid,
       profileComplete: true,
       updatedAt: this.sdk.serverTimestamp(),
       updatedAtClient: Date.now()
     };
+  }
+
+  async syncOwnFriendProfile(state) {
+    await this.ready();
+    const user = this.currentUser;
+    const reference = this.getFriendProfileReference(user);
+    if (!user || !reference) return { ok: false, reason: "guest" };
+    const entry = this.buildFriendProfileEntry(state, user);
+    if (entry) {
+      await this.sdk.setDoc(reference, entry, { merge: false });
+      this.friendProfileSignatureByUid.set(user.uid, `${entry.displayName}\u0000${entry.avatarId}\u0000${entry.playerTitleId || "fazendeiro"}`);
+      return { ok: true, visible: true };
+    }
+    try { await this.sdk.deleteDoc(reference); } catch (_) {}
+    this.friendProfileSignatureByUid.set(user.uid, "");
+    return { ok: true, visible: false };
   }
 
   async syncOwnLeaderboard(state, { forceModeration = false } = {}) {
@@ -715,7 +742,7 @@ class FirebaseManager {
               if (friendProfileEntry) await this.sdk.setDoc(friendProfileReference, friendProfileEntry, { merge: false });
               else await this.sdk.deleteDoc(friendProfileReference);
               const friendProfileSignature = friendProfileEntry
-                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}`
+                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}\u0000${friendProfileEntry.playerTitleId || "fazendeiro"}`
                 : "";
               this.friendProfileSignatureByUid.set(user.uid, friendProfileSignature);
             }
@@ -798,7 +825,7 @@ class FirebaseManager {
             if (friendProfileReference) {
               const friendProfileEntry = this.buildFriendProfileEntry(snapshot, user);
               const friendProfileSignature = friendProfileEntry
-                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}`
+                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}\u0000${friendProfileEntry.playerTitleId || "fazendeiro"}`
                 : "";
               const shouldSyncFriendProfile = this.friendProfileSignatureByUid.get(user.uid) !== friendProfileSignature;
               if (shouldSyncFriendProfile) {
