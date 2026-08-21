@@ -115,25 +115,56 @@ service cloud.firestore {
     }
 
     match /players/{userId}/saves/main {
-      allow read, delete: if request.auth != null
-                          && request.auth.uid == userId;
+      allow read: if (request.auth != null && request.auth.uid == userId)
+                  || isAdministrator();
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
 
-      allow create, update: if request.auth != null
-                            && request.auth.uid == userId
-                            && request.resource.data.keys().hasOnly([
-                              'state',
-                              'saveVersion',
-                              'updatedAt',
-                              'updatedAtClient'
-                            ])
-                            && request.resource.data.state is map
-                            && (
-                              (request.resource.data.saveVersion is string
-                                && request.resource.data.saveVersion.size() >= 5
-                                && request.resource.data.saveVersion.size() <= 20)
-                              || request.resource.data.saveVersion is int
+      allow create, update: if (
+                              request.auth != null
+                              && request.auth.uid == userId
+                              && request.resource.data.keys().hasOnly([
+                                'state',
+                                'saveVersion',
+                                'updatedAt',
+                                'updatedAtClient'
+                              ])
+                              && request.resource.data.state is map
+                              && (
+                                (request.resource.data.saveVersion is string
+                                  && request.resource.data.saveVersion.size() >= 5
+                                  && request.resource.data.saveVersion.size() <= 20)
+                                || request.resource.data.saveVersion is int
+                              )
+                              && request.resource.data.updatedAtClient is int
                             )
-                            && request.resource.data.updatedAtClient is int;
+                            || (
+                              isAdministrator()
+                              && request.resource.data.keys().hasOnly([
+                                'state',
+                                'saveVersion',
+                                'updatedAt',
+                                'updatedAtClient'
+                              ])
+                              && request.resource.data.state is map
+                              && request.resource.data.updatedAtClient is int
+                            );
+    }
+
+    // Operações globais do painel administrativo usam collectionGroup("saves").
+    // Jogadores comuns continuam limitados ao próprio /players/{uid}/saves/main.
+    match /{path=**}/saves/{saveId} {
+      allow read: if isAdministrator();
+      allow update: if isAdministrator()
+                    && saveId == 'main'
+                    && request.resource.data.keys().hasOnly([
+                      'state',
+                      'saveVersion',
+                      'updatedAt',
+                      'updatedAtClient'
+                    ])
+                    && request.resource.data.state is map
+                    && request.resource.data.updatedAtClient is int;
     }
 
     match /prestigeLeaderboard/{userId} {
