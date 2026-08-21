@@ -6,7 +6,8 @@
   const kindMap = Object.freeze({
     icons: "icone",
     plants: "planta",
-    avatars: "avatar"
+    avatars: "avatar",
+    backgrounds: "fundo"
   });
 
   const cleanText = (value, max = 120) => String(value ?? "").trim().slice(0, max);

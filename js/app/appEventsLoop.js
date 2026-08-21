@@ -171,7 +171,7 @@
     dom.cancelRankingProfile?.addEventListener("click", () => {
       if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
       updateAccountUI();
-      closePlayerTitleSelect();
+      closePlayerTitlePicker();
       dom.rankingProfileDialog?.close("cancel");
     });
 
@@ -180,34 +180,34 @@
     });
 
     dom.rankingProfileDialog?.addEventListener("close", () => {
-      closePlayerTitleSelect();
+      closePlayerTitlePicker();
       if (dom.rankingProfileDialog.returnValue === "saved") return;
       if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
       updateAccountUI();
     });
 
-    const closePlayerTitleSelect = () => {
-      if (!dom.playerTitleSelectMenu || !dom.playerTitleSelectButton) return;
-      dom.playerTitleSelectMenu.hidden = true;
-      dom.playerTitleSelectButton.setAttribute("aria-expanded", "false");
-      dom.playerTitleSelect?.classList.remove("open");
+    const closePlayerTitlePicker = () => {
+      if (!dom.playerTitlePickerPanel || !dom.togglePlayerTitlePicker) return;
+      dom.playerTitlePickerPanel.hidden = true;
+      dom.togglePlayerTitlePicker.setAttribute("aria-expanded", "false");
     };
 
-    dom.playerTitleSelectButton?.addEventListener("click", () => {
-      if (dom.playerTitleSelectButton.disabled || !dom.playerTitleSelectMenu) return;
-      const willOpen = dom.playerTitleSelectMenu.hidden;
-      dom.playerTitleSelectMenu.hidden = !willOpen;
-      dom.playerTitleSelectButton.setAttribute("aria-expanded", String(willOpen));
-      dom.playerTitleSelect?.classList.toggle("open", willOpen);
+    dom.togglePlayerTitlePicker?.addEventListener("click", () => {
+      if (dom.togglePlayerTitlePicker.disabled || !dom.playerTitlePickerPanel) return;
+      if (dom.avatarPickerPanel) {
+        dom.avatarPickerPanel.hidden = true;
+        dom.toggleAvatarPicker?.setAttribute("aria-expanded", "false");
+      }
+      const willOpen = dom.playerTitlePickerPanel.hidden;
+      dom.playerTitlePickerPanel.hidden = !willOpen;
+      dom.togglePlayerTitlePicker.setAttribute("aria-expanded", String(willOpen));
       if (willOpen) window.requestAnimationFrame(() => {
-        dom.playerTitleSelectButton?.scrollIntoView?.({ block: "nearest", behavior: "smooth" });
-        const selectedOption = dom.playerTitleSelectMenu.querySelector('[aria-selected="true"]');
-        selectedOption?.focus?.({ preventScroll: true });
-        selectedOption?.scrollIntoView?.({ block: "nearest" });
+        dom.playerTitlePickerPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        dom.playerTitlePickerGrid?.querySelector('[aria-checked="true"]')?.scrollIntoView?.({ block: "nearest" });
       });
     });
 
-    dom.playerTitleSelectMenu?.addEventListener("click", event => {
+    dom.playerTitlePickerGrid?.addEventListener("click", event => {
       const option = event.target.closest("[data-player-title-id]");
       if (!option) return;
       const title = getPlayerTitleEntry(option.dataset.playerTitleId);
@@ -215,20 +215,9 @@
       if (dom.playerTitleSetting) dom.playerTitleSetting.value = title.id;
       if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
       renderPlayerTitleControl();
-      closePlayerTitleSelect();
-      dom.playerTitleSelectButton?.focus?.({ preventScroll: true });
+      closePlayerTitlePicker();
+      dom.togglePlayerTitlePicker?.focus?.({ preventScroll: true });
       setProfileFeedback("Título selecionado. Salve o perfil para publicar a alteração.", "pending");
-    });
-
-    dom.playerTitleSelectMenu?.addEventListener("keydown", event => {
-      if (event.key !== "Escape") return;
-      event.preventDefault();
-      closePlayerTitleSelect();
-      dom.playerTitleSelectButton?.focus?.({ preventScroll: true });
-    });
-
-    document.addEventListener("click", event => {
-      if (!dom.playerTitleSelect?.contains(event.target)) closePlayerTitleSelect();
     });
 
     dom.playerNicknameSetting?.addEventListener("input", () => {
@@ -239,7 +228,7 @@
 
     dom.toggleAvatarPicker?.addEventListener("click", () => {
       if (!dom.avatarPickerPanel) return;
-      closePlayerTitleSelect();
+      closePlayerTitlePicker();
       const willOpen = dom.avatarPickerPanel.hidden;
       dom.avatarPickerPanel.hidden = !willOpen;
       dom.toggleAvatarPicker.setAttribute("aria-expanded", String(willOpen));
@@ -298,7 +287,7 @@
       if (!playerTitle || !isPlayerTitleUnlocked(playerTitle)) {
         setProfileFeedback("Escolha um título que já esteja desbloqueado na sua conta.", "error");
         renderPlayerTitleControl();
-        dom.playerTitleSelectButton?.focus?.({ preventScroll: true });
+        dom.togglePlayerTitlePicker?.focus?.({ preventScroll: true });
         return;
       }
 
@@ -315,6 +304,7 @@
         updateAccountUI();
         if (dom.avatarPickerPanel) dom.avatarPickerPanel.hidden = true;
         if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.setAttribute("aria-expanded", "false");
+        closePlayerTitlePicker();
         setProfileFeedback("Perfil salvo na nuvem e atualizado no ranking global.", "success");
         dom.rankingProfileDialog?.close("saved");
         resetFriendsState();

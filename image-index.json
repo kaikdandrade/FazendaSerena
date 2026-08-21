@@ -714,5 +714,11 @@
       "name": "Zebra",
       "path": "assets/avatars/zebra.webp"
     }
+  ],
+  "backgrounds": [
+    {
+      "name": "Fundo página 404",
+      "path": "assets/backgrounds/404-fazenda.webp"
+    }
   ]
 }

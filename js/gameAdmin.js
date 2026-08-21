@@ -118,6 +118,7 @@
     emptyIncomingFriends: "Nenhuma solicitação recebida.",
     emptyOutgoingFriends: "Nenhuma solicitação enviada.",
     emptyMissionHistory: "Nenhuma missão concluída ainda.",
+    completedMissionHistoryDescription: "As missões que você concluir aparecerão aqui para registrar as conquistas da sua fazenda.",
     leaderboardLoadingTitle: "Atualizando o ranking global...",
     leaderboardLoadingText: "Consultando as fazendas com maior prestígio e nível atual.",
     leaderboardErrorTitle: "Não foi possível carregar o ranking",

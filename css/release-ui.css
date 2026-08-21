@@ -2187,3 +2187,276 @@
 #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed::after {
   background: linear-gradient(180deg, #74479a, #a878cc) !important;
 }
+
+/* ========================================================================== */
+/* R37f — Minha Conta, galeria de títulos, ranking e foco das tabs           */
+/* ========================================================================== */
+
+/* Minha Conta: título integra a identidade principal, sem painel duplicado. */
+#profileAccountPanel .account-name-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+#profileAccountPanel .account-name-title-line > h2 { margin: 0 !important; min-width: 0; }
+#profileAccountPanel .account-title-dot { margin-left: 3px; }
+#profileAccountPanel .account-player-title { margin: 0 !important; min-height: 0 !important; }
+#profileAccountPanel .account-player-title .player-title { font-size: .82rem !important; }
+#profileAccountPanel .account-player-title .player-title-legendary::before,
+#profileAccountPanel .account-player-title .player-title-legendary::after { display: none !important; }
+
+/* Perfil do ranking: título usa uma galeria no mesmo espírito da escolha de avatar. */
+#rankingProfileDialog .profile-title-control {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+#rankingProfileDialog .selected-player-title-card {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border: 1px solid rgba(55,91,66,.11);
+  border-radius: 13px;
+  background: rgba(255,255,255,.88);
+  min-width: 0;
+}
+#rankingProfileDialog .selected-player-title-card .player-title { min-width: 0; }
+#rankingProfileDialog .title-picker-toggle { min-height: 48px; white-space: nowrap; }
+#rankingProfileDialog .player-title-picker-panel[hidden] { display: none !important; }
+#rankingProfileDialog .player-title-picker-panel {
+  margin-top: 11px;
+  padding: 10px;
+  border: 1px solid var(--border, rgba(55,91,66,.13));
+  border-radius: 16px;
+  background: rgba(250,252,249,.96);
+}
+#rankingProfileDialog .player-title-picker-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+#rankingProfileDialog .player-title-picker-heading > div { display: grid; gap: 2px; }
+#rankingProfileDialog .player-title-picker-heading strong { font-size: .82rem; }
+#rankingProfileDialog .player-title-picker-heading small { color: #77837d; font-size: .66rem; font-weight: 750; }
+#rankingProfileDialog .player-title-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 7px;
+  max-height: min(260px, 34dvh);
+  overflow-y: auto;
+  padding: 2px;
+}
+#rankingProfileDialog .player-title-picker-option {
+  width: 100%;
+  min-width: 0;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid rgba(55,91,66,.10);
+  border-radius: 13px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+#rankingProfileDialog .player-title-picker-option:hover { border-color: rgba(67,115,72,.22); background: #fbfdf9; }
+#rankingProfileDialog .player-title-picker-option.selected {
+  border-color: color-mix(in srgb, var(--title-accent, #55795b) 38%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--title-accent, #55795b) 9%, transparent);
+}
+#rankingProfileDialog .player-title-picker-option-copy { display: grid; gap: 3px; min-width: 0; }
+#rankingProfileDialog .player-title-picker-option-copy > small { color: #7d8983; font-size: .58rem; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; }
+#rankingProfileDialog .player-title-picker-check { opacity: 0; color: #4f8157; font-weight: 950; }
+#rankingProfileDialog .player-title-picker-option.selected .player-title-picker-check { opacity: 1; }
+@media (max-width: 620px) {
+  #rankingProfileDialog .profile-title-control { grid-template-columns: 1fr; }
+  #rankingProfileDialog .title-picker-toggle { width: 100%; }
+  #rankingProfileDialog .player-title-picker-grid { grid-template-columns: 1fr; }
+}
+
+/* Prestígio: uma única superfície visual; sem cartão roxo encaixado dentro do pai. */
+#profileAccountPanel .account-prestige-section { overflow: hidden; }
+#profileAccountPanel .account-prestige-section .prestige-rework { padding: 0 !important; gap: 0 !important; }
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  min-height: clamp(300px, 34vw, 390px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 30px 22px 24px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong {
+  min-width: min(100%, 360px);
+  margin: 12px auto 10px !important;
+  font-size: clamp(3rem, 7vw, 5.8rem) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  min-width: min(100%, 340px) !important;
+  min-height: 64px !important;
+  padding: 10px 22px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  margin: 0 16px 16px !important;
+}
+
+/* Estatísticas: estado vazio usa somente uma descrição configurável. */
+.stats-mission-empty { display: block !important; }
+.stats-mission-empty small { display: block; font-size: .78rem !important; line-height: 1.5 !important; }
+
+/* Ranking: recupera um pouco de presença vertical e aumenta o avatar. */
+.social-ranking-section .leaderboard-list { gap: 8px !important; }
+.social-ranking-section .leaderboard-row {
+  grid-template-columns: 56px 46px minmax(0,1fr) !important;
+  gap: 10px !important;
+  min-height: 70px !important;
+  padding: 8px 10px !important;
+}
+.social-ranking-section .leaderboard-position { min-height: 54px !important; height: 54px !important; }
+.social-ranking-section .leaderboard-position > .leaderboard-rank-badge { width: 54px !important; height: 54px !important; max-width: 54px !important; }
+.social-ranking-section .leaderboard-row > .leaderboard-avatar { width: 44px !important; height: 44px !important; border-radius: 12px !important; }
+
+/* Tabs secundárias: remove o outline quadrado e mantém foco arredondado. */
+.context-tabs :is(.office-tab,.evolution-tab):focus,
+.context-tabs :is(.office-tab,.evolution-tab):focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+.context-tabs :is(.office-tab,.evolution-tab):focus-visible {
+  border-radius: 999px !important;
+  box-shadow: 0 0 0 3px rgba(57,120,73,.16) !important;
+}
+#rankingProfileDialog .player-title-picker-option[data-title-rarity="common"] { --title-accent:#6f7778; }
+#rankingProfileDialog .player-title-picker-option[data-title-rarity="uncommon"] { --title-accent:#278653; }
+#rankingProfileDialog .player-title-picker-option[data-title-rarity="rare"] { --title-accent:#2d6fd3; }
+#rankingProfileDialog .player-title-picker-option[data-title-rarity="epic"] { --title-accent:#864bc7; }
+#rankingProfileDialog .player-title-picker-option[data-title-rarity="legendary"] { --title-accent:#b68114; }
+#profileAccountPanel .account-prestige-section .prestige-rework-gain::before { display: none !important; }
+
+
+/* R37g — Feedback e ideias: mesmo padrão visual de Experiência visual e Áudio. */
+#settingsView .feedback-settings-card {
+  background: color-mix(in srgb, var(--surface, #fff) 90%, var(--green-soft, #eef6ea)) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent) !important;
+  border-radius: 19px !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-rows: auto 1fr !important;
+  height: auto !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+#settingsView .feedback-settings-card > .settings-card-head {
+  align-items: center !important;
+  background: color-mix(in srgb, var(--green-soft, #eef6ea) 52%, transparent) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent) !important;
+  display: flex !important;
+  min-height: 0 !important;
+  padding: 16px 17px 14px !important;
+}
+#settingsView .feedback-settings-card > .settings-card-head h2 {
+  font-size: clamp(1.38rem, 2vw, 1.72rem) !important;
+  letter-spacing: -.035em !important;
+  line-height: 1.12 !important;
+  margin: 0 !important;
+}
+#settingsView .feedback-settings-card > .feedback-settings-body {
+  align-content: start !important;
+  background: transparent !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 12px !important;
+  width: 100% !important;
+}
+#settingsView .feedback-settings-body > .feedback-setting-row {
+  align-items: center !important;
+  background: var(--surface, #fff) !important;
+  border: 1px solid color-mix(in srgb, var(--border) 76%, transparent) !important;
+  border-radius: 14px !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 10px 14px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  margin: 0 !important;
+  min-height: 74px !important;
+  min-width: 0 !important;
+  padding: 12px 13px !important;
+  width: 100% !important;
+}
+#settingsView .feedback-settings-body > .feedback-setting-row > span {
+  align-content: start !important;
+  display: grid !important;
+  gap: 3px !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+#settingsView .feedback-settings-body > .feedback-setting-row > span > strong {
+  color: var(--ink) !important;
+  display: block !important;
+  font-size: max(.94rem, 15px) !important;
+  line-height: 1.25 !important;
+}
+#settingsView .feedback-settings-body > .feedback-setting-row > span > small {
+  color: var(--ink-soft) !important;
+  display: block !important;
+  font-size: max(.78rem, 13px) !important;
+  line-height: 1.42 !important;
+  margin: 0 !important;
+  max-width: 54ch !important;
+}
+#settingsView .feedback-settings-body .feedback-launch-button {
+  align-self: center !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  justify-content: center !important;
+  justify-self: end !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 150px !important;
+  width: auto !important;
+}
+@media (max-width: 768px) {
+  #settingsView .feedback-settings-body > .feedback-setting-row {
+    align-items: stretch !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #settingsView .feedback-settings-body .feedback-launch-button {
+    justify-self: stretch !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* R37h — correção mínima: o botão de Feedback não pode ter o topo recortado. */
+#settingsView .feedback-settings-body {
+  overflow: visible !important;
+}
+#settingsView .feedback-settings-body .feedback-launch-button {
+  height: auto !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 10px 18px !important;
+  border-radius: 12px !important;
+  line-height: 1.2 !important;
+  overflow: visible !important;
+  transform: none !important;
+}

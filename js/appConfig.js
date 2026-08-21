@@ -34,7 +34,7 @@
 
   const config = Object.freeze({
     get appVersion(){ return currentVersion; },
-    assetCacheVersion: "assets-r37e",
+    assetCacheVersion: "assets-r37f",
     releaseChannel: "release",
     experienceDefaults,
     audioDefaults,

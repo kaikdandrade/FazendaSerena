@@ -66,31 +66,38 @@
     const preserveDraft = Boolean(dom.rankingProfileDialog?.open && dom.playerProfileForm?.dataset.dirty === "true");
 
     if (dom.accountPlayerTitle) dom.accountPlayerTitle.innerHTML = playerTitleMarkup(equipped, { compact: true });
-    if (dom.equippedPlayerTitlePreview) dom.equippedPlayerTitlePreview.innerHTML = `<small>Equipado</small>${playerTitleMarkup(equipped, { showRarity: true })}`;
-    if (dom.playerTitleUnlockCount) dom.playerTitleUnlockCount.textContent = `${unlocked.length} ${unlocked.length === 1 ? "título desbloqueado" : "títulos desbloqueados"} de ${titles.length}`;
+    if (dom.accountTitleDot) dom.accountTitleDot.dataset.titleRarity = PLAYER_TITLE_RARITY_LABELS[equipped?.rarity] ? equipped.rarity : "common";
+    if (dom.playerTitleUnlockCount) dom.playerTitleUnlockCount.textContent = `${unlocked.length} de ${titles.length} ${unlocked.length === 1 ? "desbloqueado" : "desbloqueados"}`;
 
-    if (!dom.playerTitleSetting || !dom.playerTitleSelectMenu || !dom.playerTitleSelectButton) return;
+    if (!dom.playerTitleSetting) return;
     let selected = preserveDraft ? getPlayerTitleEntry(dom.playerTitleSetting.value) : equipped;
     if (!isPlayerTitleUnlocked(selected)) selected = equipped;
     dom.playerTitleSetting.value = selected.id;
 
-    const signature = unlocked.map(title => `${title.id}:${title.name}:${title.rarity}`).join("|");
-    if (dom.playerTitleSelectMenu.dataset.signature !== signature) {
-      dom.playerTitleSelectMenu.innerHTML = unlocked.map(title => {
-        const rarity = PLAYER_TITLE_RARITY_LABELS[title.rarity] ? title.rarity : "common";
-        return `<button class="player-title-select-option" data-player-title-id="${escapeHtml(title.id)}" data-player-title-rarity="${rarity}" role="option" type="button">${playerTitleMarkup(title, { showRarity: true })}<span aria-hidden="true" class="player-title-select-check">✓</span></button>`;
-      }).join("");
-      dom.playerTitleSelectMenu.dataset.signature = signature;
+    if (dom.selectedPlayerTitlePreview) {
+      const rarity = PLAYER_TITLE_RARITY_LABELS[selected?.rarity] ? selected.rarity : "common";
+      dom.selectedPlayerTitlePreview.innerHTML = `<span class="social-title-dot" data-title-rarity="${rarity}" aria-hidden="true"></span>${playerTitleMarkup(selected, { showRarity: true })}`;
     }
 
-    if (dom.selectedPlayerTitlePreview) dom.selectedPlayerTitlePreview.innerHTML = `${playerTitleMarkup(selected, { showRarity: true })}<small>${unlocked.length > 1 ? "Clique para escolher outro título" : "Conclua missões para desbloquear novos títulos"}</small>`;
-    dom.playerTitleSelectButton.disabled = unlocked.length === 0;
-    dom.playerTitleSelectButton.setAttribute("aria-label", `Título selecionado: ${selected.name}. ${unlocked.length > 1 ? "Abrir lista de títulos" : "Nenhum outro título desbloqueado"}.`);
-    [...dom.playerTitleSelectMenu.querySelectorAll("[data-player-title-id]")].forEach(option => {
-      const active = option.dataset.playerTitleId === selected.id;
-      option.classList.toggle("selected", active);
-      option.setAttribute("aria-selected", String(active));
-    });
+    if (dom.playerTitlePickerGrid) {
+      const signature = unlocked.map(title => `${title.id}:${title.name}:${title.rarity}`).join("|");
+      if (dom.playerTitlePickerGrid.dataset.signature !== signature) {
+        dom.playerTitlePickerGrid.innerHTML = unlocked.map(title => {
+          const rarity = PLAYER_TITLE_RARITY_LABELS[title.rarity] ? title.rarity : "common";
+          return `<button class="player-title-picker-option" data-player-title-id="${escapeHtml(title.id)}" data-title-rarity="${rarity}" role="radio" type="button"><span class="social-title-dot" data-title-rarity="${rarity}" aria-hidden="true"></span><span class="player-title-picker-option-copy">${playerTitleMarkup(title)}<small>${escapeHtml(playerTitleRarityLabel(rarity))}</small></span><span aria-hidden="true" class="player-title-picker-check">✓</span></button>`;
+        }).join("");
+        dom.playerTitlePickerGrid.dataset.signature = signature;
+      }
+      [...dom.playerTitlePickerGrid.querySelectorAll("[data-player-title-id]")].forEach(option => {
+        const active = option.dataset.playerTitleId === selected.id;
+        option.classList.toggle("selected", active);
+        option.setAttribute("aria-checked", String(active));
+      });
+    }
+    if (dom.togglePlayerTitlePicker) {
+      dom.togglePlayerTitlePicker.disabled = unlocked.length === 0;
+      dom.togglePlayerTitlePicker.textContent = unlocked.length > 1 ? "Selecionar título" : "Título disponível";
+    }
   }
 
   function updateAccountUI(user = window.FirebaseManager.getUser()) {
@@ -167,10 +174,15 @@
     }
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = !signedIn;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = !signedIn;
+    if (dom.togglePlayerTitlePicker) dom.togglePlayerTitlePicker.disabled = !signedIn;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = !signedIn;
     if (!signedIn && dom.avatarPickerPanel) {
       dom.avatarPickerPanel.hidden = true;
       dom.toggleAvatarPicker?.setAttribute("aria-expanded", "false");
+    }
+    if (!signedIn && dom.playerTitlePickerPanel) {
+      dom.playerTitlePickerPanel.hidden = true;
+      dom.togglePlayerTitlePicker?.setAttribute("aria-expanded", "false");
     }
 
     if (!signedIn) setCloudSaveStatus("guest");
@@ -430,8 +442,8 @@
     if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = profileDisabled;
-    if (dom.playerTitleSelectButton) dom.playerTitleSelectButton.disabled = profileDisabled;
-    $$(".player-title-select-option", dom.playerTitleSelectMenu || document).forEach(button => { button.disabled = profileDisabled; });
+    if (dom.togglePlayerTitlePicker) dom.togglePlayerTitlePicker.disabled = profileDisabled;
+    $$(".player-title-picker-option", dom.playerTitlePickerGrid || document).forEach(button => { button.disabled = profileDisabled; });
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
     $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
   }

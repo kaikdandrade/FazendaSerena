@@ -22,40 +22,40 @@
 <link href="css/style.css" rel="stylesheet"/>
 <link href="css/shared-game-modals.css" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
-<link href="css/release-ui.css?v=r37e" rel="stylesheet"/>
+<link href="css/release-ui.css?v=r37h" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
-<script defer="" src="js/appConfig.js?v=r37e"></script>
+<script defer="" src="js/appConfig.js?v=r37f"></script>
 <script defer="" src="js/cacheManager.js"></script>
 <script defer="" src="js/privacyConsent.js"></script>
 <script defer="" src="js/modalGuard.js"></script>
 <script defer="" src="js/adsense-config.js"></script>
 <script defer="" src="js/firebase-config.js"></script>
 <script defer="" src="js/avatars.js"></script>
-<script defer="" src="js/firebaseManager.js?v=r37e"></script>
-<script defer="" src="js/data.js?v=r37e"></script>
+<script defer="" src="js/firebaseManager.js?v=r37f"></script>
+<script defer="" src="js/data.js?v=r37f"></script>
 <script defer="" src="js/cropEconomy.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
-<script defer="" src="js/engine/GameEngineCore.js?v=r37e"></script>
+<script defer="" src="js/engine/GameEngineCore.js?v=r37f"></script>
 <script defer="" src="js/engine/GameEngineProduction.js"></script>
 <script defer="" src="js/engine/GameEngineProgression.js"></script>
 <script defer="" src="js/engine/GameEngineStorage.js"></script>
 <script defer="" src="js/engine/GameEngineContracts.js"></script>
-<script defer="" src="js/engine/GameEngineOrdersMissions.js?v=r37e"></script>
-<script defer="" src="js/engine/GameEnginePrestigeSettings.js?v=r37e"></script>
-<script defer="" src="js/gameAdmin.js?v=r37e"></script>
+<script defer="" src="js/engine/GameEngineOrdersMissions.js?v=r37f"></script>
+<script defer="" src="js/engine/GameEnginePrestigeSettings.js?v=r37f"></script>
+<script defer="" src="js/gameAdmin.js?v=r37f"></script>
 <script defer="" src="js/ambientBackground.js"></script>
-<script defer="" src="js/app/appState.js?v=r37e"></script>
-<script defer="" src="js/app/appUtils.js?v=r37e"></script>
-<script defer="" src="js/app/appAccountSocial.js?v=r37e"></script>
+<script defer="" src="js/app/appState.js?v=r37f"></script>
+<script defer="" src="js/app/appUtils.js?v=r37f"></script>
+<script defer="" src="js/app/appAccountSocial.js?v=r37f"></script>
 <script defer="" src="js/app/appNavigation.js"></script>
-<script defer="" src="js/app/appCropsStock.js?v=r37e"></script>
+<script defer="" src="js/app/appCropsStock.js?v=r37f"></script>
 <script defer="" src="js/app/appEvolutions.js"></script>
-<script defer="" src="js/app/appCommerceMissions.js?v=r37e"></script>
-<script defer="" src="js/app/appStatistics.js?v=r37e"></script>
+<script defer="" src="js/app/appCommerceMissions.js?v=r37f"></script>
+<script defer="" src="js/app/appStatistics.js?v=r37f"></script>
 <script defer="" src="js/app/appLiveSocial.js"></script>
-<script defer="" src="js/app/appRendererActions.js?v=r37e"></script>
-<script defer="" src="js/app/appEventsLoop.js?v=r37e"></script>
+<script defer="" src="js/app/appRendererActions.js?v=r37f"></script>
+<script defer="" src="js/app/appEventsLoop.js?v=r37f"></script>
 <script defer="" src="js/app/appFeedback.js"></script>
 <script defer="" src="js/app/bootstrap.js"></script>
 </head>
@@ -228,8 +228,7 @@
 </div>
 <div class="account-identity">
 <p class="eyebrow">conta Google</p>
-<h2 id="accountName">Visitante</h2>
-<div class="account-player-title" id="accountPlayerTitle" aria-label="Título equipado"></div>
+<div class="account-name-title-line"><h2 id="accountName">Visitante</h2><span class="social-title-dot account-title-dot" id="accountTitleDot" data-title-rarity="common" aria-hidden="true"></span><div class="account-player-title" id="accountPlayerTitle" aria-label="Título equipado"></div></div>
 <div class="account-detail-lines">
 <p class="account-email" id="accountEmail">Conta não conectada</p>
 <p class="account-privacy" id="accountDescription">Seu progresso existe somente
@@ -252,10 +251,6 @@
                                     da conta</button>
 
 </div>
-<section class="player-title-panel" id="playerTitlePanel" aria-labelledby="playerTitlePanelTitle">
-  <div class="player-title-panel-copy"><p class="eyebrow">identidade da fazenda</p><h3 id="playerTitlePanelTitle">Título do jogador</h3><small id="playerTitleUnlockCount">1 título desbloqueado</small></div>
-  <div class="player-title-control"><div class="equipped-player-title-preview" id="equippedPlayerTitlePreview"></div></div>
-</section>
 </article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
 <div class="stats-grid" id="lifetimeStats"></div>
 </section><section class="stats-section stats-section-plain">
@@ -320,11 +315,13 @@
 <label class="range-setting settings-range-row"><span><strong>Volume dos efeitos</strong><small>Define o volume de cliques, recompensas e ações.</small></span><output id="effectVolumeText">55%</output><input aria-label="Volume dos efeitos" id="effectVolumeSetting" max="100" min="0" step="5" type="range" value="55"/></label>
 <label class="setting-row audio-track-setting"><span><strong>Trilha sonora</strong><small>Escolha a música ambiente da fazenda.</small></span><select id="musicTrackSetting"><option value="betweenLightAndShadows">Entre Luz e Sombras</option><option value="pixelSprouts">Brotos Pixelados</option><option value="moonlitFields">Campos ao Luar</option><option value="fieldRain">Chuva no Campo</option><option value="electricHarvest">Colheita Eletrizante</option><option value="dirtRoad">Estrada de Terra</option><option value="enchantedGreenhouse">Estufa Encantada</option><option value="solarFarm">Fazenda Solar</option><option value="barnHay">Feno do Celeiro</option><option value="harvestFestival">Festa da Colheita</option><option value="tropicalOrchard">Pomar Tropical</option></select></label>
 </div></article>
+</div>
 <article class="settings-card feedback-settings-card">
 <header class="settings-card-head"><h2>Feedback e ideias</h2></header>
-<div class="settings-card-body feedback-settings-body"><div class="feedback-settings-copy"><img src="assets/icons/ideia-verde.webp" alt="" aria-hidden="true"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span></div><button class="button feedback-launch-button" id="openPlayerFeedback" type="button">Enviar feedback</button></div>
-</article>
+<div class="settings-card-body feedback-settings-body">
+<div class="setting-row feedback-setting-row"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span><button class="button feedback-launch-button" id="openPlayerFeedback" type="button">Enviar feedback</button></div>
 </div>
+</article>
 </div>
 </section>
 </main>
@@ -380,14 +377,11 @@
 </div>
 <div class="profile-player-title-field">
   <span class="profile-field-copy"><strong>Título de jogador</strong></span>
-  <div class="custom-player-title-select" id="playerTitleSelect">
-    <button aria-controls="playerTitleSelectMenu" aria-expanded="false" class="player-title-select-trigger" id="playerTitleSelectButton" type="button">
-      <span class="player-title-select-current" id="selectedPlayerTitlePreview"></span>
-      <span aria-hidden="true" class="player-title-select-chevron"></span>
-    </button>
-    <div aria-label="Títulos desbloqueados" class="player-title-select-menu" hidden="" id="playerTitleSelectMenu" role="listbox"></div>
-    <input id="playerTitleSetting" type="hidden" value="fazendeiro"/>
+  <div class="profile-title-control">
+    <div class="selected-player-title-card" id="selectedPlayerTitlePreview"></div>
+    <button aria-controls="playerTitlePickerPanel" aria-expanded="false" class="button secondary title-picker-toggle" id="togglePlayerTitlePicker" type="button">Selecionar título</button>
   </div>
+  <input id="playerTitleSetting" type="hidden" value="fazendeiro"/>
 </div>
 </div>
 <div class="avatar-picker-panel" hidden="" id="avatarPickerPanel">
@@ -395,6 +389,10 @@
 <legend>Escolha seu avatar</legend>
 <div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
 </fieldset>
+</div>
+<div class="player-title-picker-panel" hidden="" id="playerTitlePickerPanel">
+  <div class="player-title-picker-heading"><div><strong>Escolha seu título</strong><small id="playerTitleUnlockCount">1 de 1 desbloqueado</small></div></div>
+  <div aria-label="Títulos desbloqueados" class="player-title-picker-grid" id="playerTitlePickerGrid" role="radiogroup"></div>
 </div>
 </div>
 <div class="player-profile-actions"><button class="button secondary" id="cancelRankingProfile" type="button">Cancelar</button>
