@@ -64,10 +64,14 @@
       { key: "category", label: "Categoria de plantas", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Todas as categorias" },
       imageField("icon", "Ícone", "icone")
     ]},
-    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => `${item.durationSeconds || 0}s · ${item.chancePercent ?? 100}% chance · ${rewardSelectionLabel(item.rewards)} · ${item.xpPercent || 0}% XP`, fields: [
+    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => `${item.minDurationSeconds || item.durationSeconds || 0}s–${item.maxDurationSeconds || item.durationSeconds || 0}s · ${item.chancePercent ?? 100}% chance · prioridade ${item.priority || 0} · multa ${item.penaltyPercent ?? 20}% · ${item.offerCountdown === false ? "prazo após assinatura" : "prazo desde a proposta"} · ${rewardSelectionLabel(item.rewards)} · ${item.xpPercent || 0}% XP`, fields: [
       { key: "label", label: "Nome do tipo de contrato", type: "text", required: true },
       percentField("chancePercent", "Chance de aparecer (%)", { min: 0, max: 100, required: true, defaultValue: 100, help: "Use como peso de raridade. Ex.: comum 100%, raro 20% e muito raro 5%." }),
-      numberField("durationSeconds", "Prazo (segundos)", { min: 5, integer: true, required: true }),
+      numberField("priority", "Prioridade de entrega", { min: 0, integer: true, required: true, defaultValue: 0, help: "Quando dois contratos pedirem a mesma planta, a produção é entregue primeiro ao contrato com maior prioridade." }),
+      percentField("penaltyPercent", "Multa / quebra do contrato (%)", { min: 0, required: true, defaultValue: 20, help: "Percentual adicional aplicado sobre (quantidade que falta × valor unitário atual da planta)." }),
+      { key: "offerCountdown", label: "O prazo diminui antes da assinatura?", type: "select", required: true, defaultValue: "true", options: fixedOptions([["true", "Sim, começa quando a proposta aparece"], ["false", "Não, começa somente ao assinar"]]) },
+      numberField("minDurationSeconds", "Tempo mínimo (segundos)", { min: 5, integer: true, required: true, defaultValue: 60, help: "Menor prazo que um contrato deste tipo pode receber." }),
+      numberField("maxDurationSeconds", "Tempo máximo (segundos)", { min: 5, integer: true, required: true, defaultValue: 360, help: "Maior prazo possível. Cada nova proposta sorteia um valor entre o mínimo e o máximo." }),
       numberField("quantityMultiplier", "Multiplicador de quantidade", { min: 0.01, required: true }),
       { key: "rewards", label: "Recompensas do contrato", type: "checkboxes", required: true, options: rewardOptions, help: "Marque uma ou mais recompensas. Os campos correspondentes aparecem abaixo." },
       percentField("coinMultiplierPercent", "Multiplicador de moedas (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "coins" }, defaultValue: 100 }),
@@ -499,7 +503,10 @@
           const bonuses = [...(root?.querySelectorAll("[data-effect-row]") || [])].map(row => {
             const type = row.querySelector("[data-effect-type]")?.value || "";
             const amount = Number(sanitizePositive(row.querySelector("[data-effect-amount]")?.value || "")) || 0;
-            const stageValues = String(row.querySelector("[data-effect-stages]")?.value || "").split(",").map(part => Number(sanitizePositive(part))).filter(Number.isFinite);
+            const rawStages = String(row.querySelector("[data-effect-stages]")?.value || "").trim();
+            const stageValues = rawStages
+              ? rawStages.split(",").map(part => sanitizePositive(part)).filter(part => part !== "").map(Number).filter(Number.isFinite)
+              : [];
             return { type, amount, ...(stageValues.length ? { stageValues } : {}) };
           }).filter(effect => effect.type);
           output.bonuses = bonuses;

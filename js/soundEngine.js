@@ -43,6 +43,12 @@ class SoundEngine {
     harvestFestival: "assets/sounds/musicas/festival-da-colheita.wav",
     tropicalOrchard: "assets/sounds/musicas/pomar-tropical.wav"
   });
+  static MUSIC_LABELS = Object.freeze({
+    betweenLightAndShadows: "Entre Luz e Sombras", pixelSprouts: "Brotos Pixelados", moonlitFields: "Campos ao Luar",
+    fieldRain: "Chuva no Campo", electricHarvest: "Colheita Eletrizante", dirtRoad: "Estrada de Terra",
+    enchantedGreenhouse: "Estufa Encantada", solarFarm: "Fazenda Solar", barnHay: "Feno do Celeiro",
+    harvestFestival: "Festa da Colheita", tropicalOrchard: "Pomar Tropical"
+  });
 
   constructor() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -74,6 +80,8 @@ class SoundEngine {
     this.musicChannel.loop = true;
     this.musicChannel.playsInline = true;
     this.musicStarted = false;
+    this.musicReleased = false;
+    this.releasedMusicTime = 0;
     try { this.musicChannel.load(); } catch (_) {}
 
     this.preloadEffects();
@@ -92,22 +100,21 @@ class SoundEngine {
     if (requestedTrack !== this.musicTrack) {
       this.musicTrack = requestedTrack;
       const source = SoundEngine.MUSIC_SOURCES[this.musicTrack];
-      const absoluteSource = new URL(source, document.baseURI).href;
-      const wasPlaying = !this.musicChannel.paused;
-      this.musicChannel.pause();
-      if (this.musicChannel.src !== absoluteSource) {
-        this.musicChannel.src = source;
-        try { this.musicChannel.load(); } catch (_) {}
-      }
-      try { this.musicChannel.currentTime = 0; } catch (_) {}
+      const wasPlaying = !this.musicChannel.paused && this.getEffectiveMusicVolume() > 0;
+      this.releaseMusicSource();
+      this.releasedMusicTime = 0;
       if (wasPlaying) this.playMusic();
     }
 
-    this.musicChannel.volume = this.getEffectiveMusicVolume();
-
-    if (this.getEffectiveEffectVolume() <= 0) this.stop();
-    if (this.getEffectiveMusicVolume() <= 0) this.pauseMusic();
-    else this.playMusic();
+    const effectVolume = this.getEffectiveEffectVolume();
+    const musicVolume = this.getEffectiveMusicVolume();
+    if (effectVolume <= 0) this.stop();
+    if (musicVolume <= 0) this.deactivateMusic();
+    else {
+      this.ensureMusicSource();
+      this.musicChannel.volume = musicVolume;
+      this.playMusic();
+    }
   }
 
   static toVolume(value) {
@@ -353,16 +360,80 @@ class SoundEngine {
     this.concurrentFallbackChannels.clear();
   }
 
+  ensureMusicSource() {
+    const source = SoundEngine.MUSIC_SOURCES[this.musicTrack];
+    if (!source) return false;
+    const absoluteSource = new URL(source, document.baseURI).href;
+    if (!this.musicReleased && this.musicChannel.src === absoluteSource) return true;
+    this.musicChannel.src = source;
+    this.musicReleased = false;
+    try { this.musicChannel.load(); } catch (_) {}
+    if (this.releasedMusicTime > 0) {
+      const restore = () => {
+        try { this.musicChannel.currentTime = Math.min(this.releasedMusicTime, Number(this.musicChannel.duration) || this.releasedMusicTime); } catch (_) {}
+        this.musicChannel.removeEventListener("loadedmetadata", restore);
+      };
+      this.musicChannel.addEventListener("loadedmetadata", restore, { once: true });
+    }
+    return true;
+  }
+
+  releaseMusicSource() {
+    try { this.releasedMusicTime = Number(this.musicChannel.currentTime) || 0; } catch (_) { this.releasedMusicTime = 0; }
+    this.musicChannel.pause();
+    this.musicStarted = false;
+    try {
+      this.musicChannel.removeAttribute("src");
+      this.musicChannel.load();
+      this.musicReleased = true;
+    } catch (_) {}
+    this.clearMediaSession();
+  }
+
+  updateMediaSession() {
+    if (!("mediaSession" in navigator) || typeof MediaMetadata !== "function") return;
+    const title = SoundEngine.MUSIC_LABELS[this.musicTrack] || "Trilha da Fazenda Serena";
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title,
+        artist: "Fazenda Serena",
+        album: "Agricultura Industrial",
+        artwork: [
+          { src: new URL("assets/favicon.ico", document.baseURI).href, sizes: "96x96", type: "image/x-icon" },
+          { src: new URL("assets/logo.webp", document.baseURI).href, sizes: "640x332", type: "image/webp" }
+        ]
+      });
+      navigator.mediaSession.playbackState = "playing";
+      navigator.mediaSession.setActionHandler("play", () => this.playMusic());
+      navigator.mediaSession.setActionHandler("pause", () => this.pauseMusic());
+      navigator.mediaSession.setActionHandler("stop", () => this.deactivateMusic());
+    } catch (_) {}
+  }
+
+  clearMediaSession() {
+    if (!("mediaSession" in navigator)) return;
+    try { navigator.mediaSession.metadata = null; } catch (_) {}
+    try { navigator.mediaSession.playbackState = "none"; } catch (_) {}
+    ["play", "pause", "stop", "seekbackward", "seekforward", "previoustrack", "nexttrack"].forEach(action => {
+      try { navigator.mediaSession.setActionHandler(action, null); } catch (_) {}
+    });
+  }
+
+  deactivateMusic() {
+    this.releaseMusicSource();
+  }
+
   playMusic() {
     const volume = this.getEffectiveMusicVolume();
-    if (volume <= 0) return false;
+    if (volume <= 0) { this.deactivateMusic(); return false; }
 
+    this.ensureMusicSource();
     this.unlockAudio();
     this.musicChannel.volume = volume;
     const playback = this.musicChannel.play();
     if (playback && typeof playback.then === "function") {
       playback
-        .then(() => { this.musicStarted = true; })
+        .then(() => { this.musicStarted = true; this.updateMediaSession(); })
         .catch(() => { this.musicStarted = false; });
     }
     return true;
@@ -371,6 +442,8 @@ class SoundEngine {
   pauseMusic() {
     this.musicChannel.pause();
     this.musicStarted = false;
+    if (this.getEffectiveMusicVolume() <= 0) this.clearMediaSession();
+    else if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = "paused"; } catch (_) {} }
   }
 
   resumeMusic() {

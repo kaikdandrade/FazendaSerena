@@ -7,9 +7,9 @@
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
     actionXP: $("#adminActionXP"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
     ordersUnlockLevel: $("#adminOrdersUnlockLevel"), evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), startingCoins: $("#adminStartingCoins"), storageCapacity: $("#adminStorageCapacity"),
-    contractSignedCooldown: $("#adminContractSignedCooldown"), contractExpiredCooldown: $("#adminContractExpiredCooldown"), contractDeclinedCooldown: $("#adminContractDeclinedCooldown"), contractBrokenCooldown: $("#adminContractBrokenCooldown"), contractOfferCount: $("#adminContractOfferCount"),
+    contractSignedCooldown: $("#adminContractSignedCooldown"), contractExpiredCooldown: $("#adminContractExpiredCooldown"), contractDeclinedCooldown: $("#adminContractDeclinedCooldown"), contractBrokenCooldown: $("#adminContractBrokenCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
-    navigationIconGrid: $("#adminNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
+    navigationIconGrid: $("#adminNavigationIconGrid"), mobileNavigationIconGrid: $("#adminMobileNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
     playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"),
     textsEditor: $("#adminTextsEditor"), saveBalance: $("#adminSaveBalance"), saveTexts: $("#adminSaveTexts"),
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
@@ -21,7 +21,7 @@
     ["passiveXPPercentPerSecond", dom.passiveXP, true, false],
     ["passiveResearchPercentPerSecond", dom.passiveResearch, true, false],
     ["ordersUnlockLevel", dom.ordersUnlockLevel, false, true], ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["startingCoins", dom.startingCoins, false, true], ["storageCapacity", dom.storageCapacity, false, true],
-    ["contractSignedCooldownSeconds", dom.contractSignedCooldown, false, true], ["contractExpiredCooldownSeconds", dom.contractExpiredCooldown, false, true], ["contractDeclinedCooldownSeconds", dom.contractDeclinedCooldown, false, true], ["contractBrokenCooldownSeconds", dom.contractBrokenCooldown, false, true], ["contractOfferCount", dom.contractOfferCount, false, true]
+    ["contractSignedCooldownSeconds", dom.contractSignedCooldown, false, true], ["contractExpiredCooldownSeconds", dom.contractExpiredCooldown, false, true], ["contractDeclinedCooldownSeconds", dom.contractDeclinedCooldown, false, true], ["contractBrokenCooldownSeconds", dom.contractBrokenCooldown, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
   const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
@@ -30,20 +30,35 @@
     ["farm", "Fazenda"], ["stock", "Estoque"], ["office", "Escritório"], ["profile", "Perfil"], ["settings", "Configurações"],
     ["contracts", "Contratos"], ["orders", "Pedidos"], ["evolutions", "Evoluções"], ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"]
   ]);
+  const mobileNavigationIconFields = Object.freeze([
+    ["farm", "Fazenda"], ["stock", "Estoque"], ["contracts", "Contratos"], ["orders", "Pedidos"], ["evolutions", "Evoluções"],
+    ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"], ["settings", "Configurações"]
+  ]);
   let playerFeedbackLoaded = false;
   const escapeHtml = value => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
-  function buildNavigationIconFields(values = {}) {
-    if (!dom.navigationIconGrid) return;
+  function navigationIconFieldMarkup(fields, values, attribute) {
     const options = window.AdminAssetRegistry?.options?.("icone") || [];
-    dom.navigationIconGrid.innerHTML = navigationIconFields.map(([key, label]) => {
+    return fields.map(([key, label]) => {
       const current = values?.[key] || options[0]?.value || "";
-      return `<section class="admin-navigation-icon-field"><span>${escapeHtml(label)}</span><select autocomplete="off" data-image-select data-navigation-icon-field="${key}">${options.map(item => `<option value="${escapeHtml(item.value)}" ${item.value === current ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></section>`;
+      return `<section class="admin-navigation-icon-field"><span>${escapeHtml(label)}</span><select autocomplete="off" data-image-select ${attribute}="${key}">${options.map(item => `<option value="${escapeHtml(item.value)}" ${item.value === current ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></section>`;
     }).join("");
-    window.AdminImageSelect?.enhance?.(dom.navigationIconGrid);
+  }
+  function buildNavigationIconFields(values = {}, mobileValues = {}) {
+    if (dom.navigationIconGrid) {
+      dom.navigationIconGrid.innerHTML = navigationIconFieldMarkup(navigationIconFields, values, "data-navigation-icon-field");
+      window.AdminImageSelect?.enhance?.(dom.navigationIconGrid);
+    }
+    if (dom.mobileNavigationIconGrid) {
+      dom.mobileNavigationIconGrid.innerHTML = navigationIconFieldMarkup(mobileNavigationIconFields, mobileValues, "data-mobile-navigation-icon-field");
+      window.AdminImageSelect?.enhance?.(dom.mobileNavigationIconGrid);
+    }
   }
   function navigationIconsFromForm() {
     return Object.fromEntries(navigationIconFields.map(([key]) => [key, dom.navigationIconGrid?.querySelector(`[data-navigation-icon-field="${key}"]`)?.value || ""]));
+  }
+  function mobileNavigationIconsFromForm() {
+    return Object.fromEntries(mobileNavigationIconFields.map(([key]) => [key, dom.mobileNavigationIconGrid?.querySelector(`[data-mobile-navigation-icon-field="${key}"]`)?.value || ""]));
   }
   async function renderPlayerFeedback() {
     if (!authorized || !dom.playerFeedbackList) return;
@@ -107,7 +122,7 @@
   function fillEditors(input, { source = "editor" } = {}) {
     const config = window.GameAdminConfig.normalize(input); currentConfig = clone(config);
     balanceFields.forEach(([key, element, isPercent]) => { const value = String(config.balance[key]); element.value = isPercent ? `${value}%` : value; });
-    catalogNames.forEach(name => window.AdminCatalogEditors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
+    catalogNames.forEach(name => window.AdminCatalogEditors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.mobileNavigationIcons); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
   function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
@@ -152,8 +167,12 @@
     next.lastUpdate = Date.now();
     const result = await window.FirebaseManager.saveGame(next);
     if (!result?.ok) throw result?.error || new Error("Não foi possível salvar a conta de teste.");
-    setTestFeedback("Conta de teste atualizada. Reabra o jogo para conferir.", "success");
-    return next;
+    const verified = await window.FirebaseManager.loadGame();
+    if (Number(verified?.farmLevel) !== Number(next.farmLevel)) throw new Error("A nuvem não confirmou a alteração do nível. Feche qualquer aba do jogo aberta e tente novamente.");
+    if (dom.testFarmLevel) dom.testFarmLevel.value = String(verified.farmLevel || 1);
+    if (dom.testPrestigeLevel) dom.testPrestigeLevel.value = String(verified.stats?.prestiges || 0);
+    setTestFeedback(`Conta atualizada: nível ${verified.farmLevel}, prestígios ${verified.stats?.prestiges || 0}. Reabra o jogo para conferir.`, "success");
+    return verified;
   }
   function resetCropsInState(state) {
     Object.values(state.crops || {}).forEach(crop => Object.assign(crop, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0, autoSell: false, productionBuffer: 0 }));
@@ -205,6 +224,7 @@
   dom.saveNavigationIcons?.addEventListener("click", () => queueCloudSave("Salvando ícones de navegação...", async () => {
     const next = clone(currentConfig);
     next.navigationIcons = navigationIconsFromForm();
+    next.mobileNavigationIcons = mobileNavigationIconsFromForm();
     return publishConfig(next, "Ícones de navegação atualizados.");
   }).catch(() => {}));
   dom.refreshPlayerFeedback?.addEventListener("click", () => renderPlayerFeedback());
@@ -224,8 +244,15 @@
   dom.applyTestProgress?.addEventListener("click", () => mutateOwnTestSave("Atualizando progressão", state => {
     const farmLevel = Math.max(1, Math.min(1000, parsePositive(dom.testFarmLevel?.value || state.farmLevel, true) || 1));
     const prestiges = Math.max(0, parsePositive(dom.testPrestigeLevel?.value || state.stats?.prestiges || 0, true));
-    state.farmLevel = farmLevel; state.farmXP = 0;
-    state.stats = state.stats || {}; state.stats.prestiges = prestiges; state.stats.maxFarmLevel = Math.max(farmLevel, Number(state.stats.maxFarmLevel) || 1);
+    state.farmLevel = farmLevel;
+    state.farmXP = 0;
+    state.stats = state.stats || {};
+    state.stats.prestiges = prestiges;
+    state.stats.maxFarmLevel = farmLevel;
+    state.contractOffers = [];
+    state.contractCooldowns = [];
+    state.activeContracts = [];
+    state.__adminTestAppliedAt = Date.now();
   }).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
   dom.resetTestCrops?.addEventListener("click", () => { if (!confirm("Resetar as plantas da sua conta administrativa?")) return; mutateOwnTestSave("Resetando plantas", resetCropsInState).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
   dom.resetTestOrders?.addEventListener("click", () => { if (!confirm("Resetar os pedidos da sua conta administrativa?")) return; mutateOwnTestSave("Resetando pedidos", resetOrdersInState).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });

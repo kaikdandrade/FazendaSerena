@@ -41,6 +41,9 @@
   let friendsState = { status: "idle", selfProfile: null, friends: [], incoming: [], outgoing: [], error: null, loadedAt: 0 };
   let friendsRequest = null;
   let pendingOfflineMilestones = [];
+  let pendingContractBreakId = "";
+  let lastResearchRenderSignature = "";
+  let lastPrestigeRenderSignature = "";
   const cropUpgradeModes = new Map();
 
   // Elementos persistentes da interface.
@@ -71,7 +74,7 @@
     officePanels: $$("[data-office-panel]"),
     profileTabs: $$("[data-profile-tab]"),
     profilePanels: $$("[data-profile-panel]"),
-    contextNavBlocks: $$("[data-context-for]"),
+    contextNavBlocks: $$(`[data-context-for]`),
     contractTabCount: $("#contractTabCount"),
     orderTabCount: $("#orderTabCount"),
     missionTabCount: $("#missionTabCount"),
@@ -88,7 +91,6 @@
     farmXPText: $("#farmXPText"),
     stockNavTab: $("#stockNavTab"),
     stockNavBadge: $("#stockNavBadge"),
-    officeNavTab: $("#officeNavTab"),
     contractsOfficeTab: $("#contractsOfficeTab"),
     ordersOfficeTab: $("#ordersOfficeTab"),
     evolutionsOfficeTab: $("#evolutionsOfficeTab"),
@@ -107,7 +109,6 @@
     fontScaleSetting: $("#fontScaleSetting"),
     fontScaleText: $("#fontScaleText"),
     numberFormatSetting: $("#numberFormatSetting"),
-    navigationModeSetting: $("#navigationModeSetting"),
     masterVolumeSetting: $("#masterVolumeSetting"),
     masterVolumeText: $("#masterVolumeText"),
     effectVolumeSetting: $("#effectVolumeSetting"),
@@ -152,6 +153,14 @@
     offlineProgressDialog: $("#offlineProgressDialog"),
     offlineProgressTime: $("#offlineProgressTime"),
     offlineProgressSummary: $("#offlineProgressSummary"),
+    contractBreakDialog: $("#contractBreakDialog"),
+    contractBreakText: $("#contractBreakText"),
+    contractBreakMissing: $("#contractBreakMissing"),
+    contractBreakUnitPrice: $("#contractBreakUnitPrice"),
+    contractBreakPercent: $("#contractBreakPercent"),
+    contractBreakAmount: $("#contractBreakAmount"),
+    cancelContractBreak: $("#cancelContractBreak"),
+    confirmContractBreak: $("#confirmContractBreak"),
     openPlayerFeedback: $("#openPlayerFeedback"),
     playerFeedbackHint: $("#playerFeedbackHint"),
     playerFeedbackDialog: $("#playerFeedbackDialog"),

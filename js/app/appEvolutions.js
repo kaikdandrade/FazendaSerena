@@ -13,42 +13,6 @@
     </section>`;
   }
 
-  function getEvolutionEffectLabel(type) {
-    const options = window.GameAdminConfig?.getEvolutionEffectOptions?.() || [];
-    return options.find(option => option.value === type)?.label || String(type || "Bônus");
-  }
-
-  function getEvolutionBonuses(item) {
-    if (Array.isArray(item?.bonuses) && item.bonuses.length) return item.bonuses;
-    return [
-      { type: item?.bonusType, amount: item?.bonusAmount, stageValues: item?.stageRates },
-      { type: item?.bonus2Type, amount: item?.bonus2Amount },
-      { type: item?.bonus3Type, amount: item?.bonus3Amount }
-    ].filter(effect => Boolean(effect.type));
-  }
-
-  function getEvolutionStageAmount(effect, levelIndex) {
-    if (Array.isArray(effect?.stageValues) && Number.isFinite(Number(effect.stageValues[levelIndex]))) {
-      return Math.max(0, Number(effect.stageValues[levelIndex]) || 0);
-    }
-    return Math.max(0, Number(effect?.amount) || 0);
-  }
-
-  function evolutionBonusMarkup(item, level, { showNext = true } = {}) {
-    const effects = getEvolutionBonuses(item);
-    if (!effects.length) return "";
-    const current = effects.map(effect => {
-      let total = 0;
-      for (let index = 0; index < level; index += 1) total += getEvolutionStageAmount(effect, index);
-      return total > 0 ? `${escapeHtml(getEvolutionEffectLabel(effect.type))}: <b>${engine.formatNumber(total, 3)}</b>` : "";
-    }).filter(Boolean);
-    const next = level < Number(item.max || 0) ? effects.map(effect => {
-      const amount = getEvolutionStageAmount(effect, level);
-      return amount > 0 ? `${escapeHtml(getEvolutionEffectLabel(effect.type))}: +${engine.formatNumber(amount, 3)}` : "";
-    }).filter(Boolean) : [];
-    return `${current.length ? `<span class="evolution-configured-bonus">Atual: ${current.join(" · ")}</span>` : ""}${showNext && next.length ? `<span class="evolution-configured-next">Próximo estágio: ${next.join(" · ")}</span>` : ""}`;
-  }
-
   function renderUpgradeCard(item, kind) {
     const prestigeKind = kind === "prestige";
     const source = prestigeKind ? engine.state.prestigeUpgrades : engine.state.researchTechs;
@@ -60,12 +24,12 @@
     const journeyLocked = !engine.isEvolutionUnlocked();
     const affordable = !maxed && !journeyLocked && availableResource >= cost;
     const action = prestigeKind ? "buy-prestige-upgrade" : "buy-research";
-    const iconMarkup = typeof item.icon === "string" && /^(?:data:image\/|.*\.(?:png|webp|svg)$)/i.test(item.icon)
-      ? `<img src="${escapeHtml(item.icon)}" alt="">`
-      : escapeHtml(item.icon);
-    const passiveResearch = getEvolutionBonuses(item).some(effect => effect.type === "passiveResearchPercentPerSecond");
-    const laboratoryProgress = passiveResearch ? Math.max(0, Math.min(1, Number(engine.state.passiveResearchProgress) || 0)) * 100 : 0;
-    const descriptionHtml = `${enrichResourceText(item.desc)}${evolutionBonusMarkup(item, level, { showNext: !prestigeKind })}${passiveResearch && level > 0 ? `<span class="laboratory-progress-value">Progresso do próximo ponto de pesquisa: <b>${laboratoryProgress.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</b>.</span>` : ""}`;
+    const iconMarkup = journeyLocked
+      ? `<img src="assets/icons/cadeado.webp" alt="Bloqueado">`
+      : (typeof item.icon === "string" && /^(?:data:image\/|.*\.(?:png|webp|svg)$)/i.test(item.icon)
+        ? `<img src="${escapeHtml(item.icon)}" alt="">`
+        : escapeHtml(item.icon));
+    const descriptionHtml = enrichResourceText(item.desc);
     const buttonLabel = maxed
       ? "Concluído"
       : journeyLocked
@@ -73,7 +37,7 @@
         : `${prestigeKind ? "Desenvolver" : "Pesquisar"} ${resourceAmount(resourceType, -cost, { compact: true })}`;
     return `
       <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${maxed ? "evolution-upgrade-completed" : ""} ${journeyLocked ? "upgrade-card-preview" : ""}" data-upgrade-kind="${kind}" data-upgrade-completed="${String(maxed)}">
-        <div class="upgrade-level-badge">${maxed ? "Nível máximo" : `Nível ${level} / ${item.max}`}</div>
+        <div class="upgrade-level-badge" aria-label="${maxed ? `Nível máximo ${item.max}` : `Nível ${level} de ${item.max}`}"><strong>${maxed ? "Máximo" : `Nível ${level}/${item.max}`}</strong></div>
         <div class="upgrade-card-identity">
           <span class="upgrade-icon" aria-hidden="true">${iconMarkup}</span>
           <h3>${escapeHtml(item.name)}</h3>
@@ -83,7 +47,48 @@
       </article>`;
   }
 
+  function evolutionRenderSignature(items, levels, unlocked) {
+    // A assinatura contém apenas o que muda a ESTRUTURA do card. Saldo de
+    // pesquisa/prestígio, XP e ticks passivos jamais entram aqui. Assim o DOM
+    // da tela de Evoluções permanece estável e não é destruído/recriado no
+    // game loop — o antigo efeito visual de "refresh" desaparece.
+    return JSON.stringify({
+      unlocked: Boolean(unlocked),
+      cards: (items || []).map(item => {
+        const level = Math.max(0, Number(levels?.[item.id]) || 0);
+        const maxed = level >= Number(item.max || 0);
+        return [
+          item.id, item.name, item.icon, item.desc, item.max, item.baseCost, item.growth,
+          item.stageCosts || [], item.bonuses || [], level, maxed
+        ];
+      })
+    });
+  }
+
+  function updateEvolutionAffordability(kind) {
+    const prestigeKind = kind === "prestige";
+    const list = prestigeKind ? dom.prestigeList : dom.researchList;
+    const items = prestigeKind ? engine.data.prestigeUpgrades : engine.data.research;
+    const source = prestigeKind ? engine.state.prestigeUpgrades : engine.state.researchTechs;
+    const available = prestigeKind ? engine.state.prestigePoints : engine.state.research;
+    const unlocked = engine.isEvolutionUnlocked();
+    if (!list) return;
+    list.querySelectorAll(`[data-upgrade-kind="${kind}"]`).forEach(card => {
+      const button = card.querySelector(`[data-action="${prestigeKind ? "buy-prestige-upgrade" : "buy-research"}"]`);
+      const id = button?.dataset.id;
+      const item = items.find(entry => entry.id === id);
+      if (!button || !item) return;
+      const level = Math.max(0, Number(source[item.id]) || 0);
+      const maxed = level >= Number(item.max || 0);
+      const cost = maxed ? 0 : engine.getUpgradeCost(item, source);
+      button.disabled = maxed || !unlocked || Number(available || 0) < cost;
+    });
+  }
+
   function renderResearch() {
+    const signature = evolutionRenderSignature(engine.data.research, engine.state.researchTechs, engine.isEvolutionUnlocked());
+    if (signature === lastResearchRenderSignature) return;
+    lastResearchRenderSignature = signature;
     if (!engine.data.research.length) {
       dom.researchList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyResearchCatalog", "Nenhuma pesquisa foi publicada no catálogo administrativo.")}</div>`;
       return;
@@ -96,9 +101,13 @@
       level: GameEngine.EVOLUTION_UNLOCK_LEVEL
     });
     dom.researchList.innerHTML = `${researchGate}${engine.data.research.map(item => renderUpgradeCard(item, "research")).join("")}`;
+    updateEvolutionAffordability("research");
   }
 
   function renderPrestigeUpgrades() {
+    const signature = evolutionRenderSignature(engine.data.prestigeUpgrades, engine.state.prestigeUpgrades, engine.isEvolutionUnlocked());
+    if (signature === lastPrestigeRenderSignature) return;
+    lastPrestigeRenderSignature = signature;
     if (!engine.data.prestigeUpgrades.length) {
       dom.prestigeList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyPrestigeCatalog", "Nenhum legado permanente foi publicado no catálogo administrativo.")}</div>`;
       return;
@@ -111,6 +120,7 @@
       level: GameEngine.EVOLUTION_UNLOCK_LEVEL
     });
     dom.prestigeList.innerHTML = `${gate}${engine.data.prestigeUpgrades.map(item => renderUpgradeCard(item, "prestige")).join("")}`;
+    updateEvolutionAffordability("prestige");
   }
 
   function renderPrestigeDashboard() {
@@ -135,9 +145,10 @@
   function showOfficeTab(tabId) {
     activeOfficeTab = ["contracts", "orders", "evolutions"].includes(tabId) ? tabId : "contracts";
     dom.officeTabs.forEach(tab => {
-      const active = tab.dataset.officeTab === activeOfficeTab;
+      const active = activeView === "officeView" && tab.dataset.officeTab === activeOfficeTab;
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
+      if (active) tab.setAttribute("aria-current", "page"); else tab.removeAttribute("aria-current");
     });
     dom.officePanels.forEach(panel => {
       const active = panel.dataset.officePanel === activeOfficeTab;
@@ -150,9 +161,10 @@
     const allowedTabs = ["account", "social", "missions"];
     activeProfileTab = allowedTabs.includes(tabId) ? tabId : "account";
     dom.profileTabs.forEach(tab => {
-      const active = tab.dataset.profileTab === activeProfileTab;
+      const active = activeView === "profileView" && tab.dataset.profileTab === activeProfileTab;
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
+      if (active) tab.setAttribute("aria-current", "page"); else tab.removeAttribute("aria-current");
     });
     dom.profilePanels.forEach(panel => {
       const active = panel.dataset.profilePanel === activeProfileTab;

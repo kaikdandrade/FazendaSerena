@@ -17,10 +17,16 @@ Object.assign(GameEngine.prototype, {
             ];
         bonuses.forEach(bonus => {
           if (bonus?.type !== requested) return;
-          if (Array.isArray(bonus.stageValues) && bonus.stageValues.length) {
-            total += bonus.stageValues.slice(0, level).reduce((value, rate) => value + Math.max(0, Number(rate) || 0), 0);
+          const stageValues = Array.isArray(bonus.stageValues)
+            ? bonus.stageValues.map(value => Math.max(0, Number(value) || 0))
+            : [];
+          const amountPerLevel = Math.max(0, Number(bonus?.amount) || 0);
+          if (stageValues.length && stageValues.some(value => value > 0)) {
+            total += stageValues.slice(0, level).reduce((value, rate) => value + rate, 0);
           } else {
-            total += level * Math.max(0, Number(bonus?.amount) || 0);
+            // Compatibilidade com configurações gravadas pela r27 ou anteriores:
+            // um campo de estágios vazio podia virar [0], anulando qualquer bônus.
+            total += level * amountPerLevel;
           }
         });
         return sum + total;
@@ -284,7 +290,7 @@ Object.assign(GameEngine.prototype, {
       const cropState = this.state.crops[cropId];
       if (!cropState?.owned) return { ok: false, message: "Compre a cultura primeiro." };
   
-      if (cropState.level >= GameEngine.MAX_CROP_LEVEL) return { ok: false, message: "Esta plantação já alcançou o nível máximo 300." };
+      if (cropState.level >= GameEngine.MAX_CROP_LEVEL) return { ok: false, message: "Esta plantação já alcançou o nível máximo 500." };
       const target = Math.min(GameEngine.MAX_BATCH_UPGRADES, GameEngine.MAX_CROP_LEVEL - cropState.level, Math.max(1, Math.floor(Number(requestedLevels) || 1)));
       let purchased = 0;
       let totalCost = 0;
@@ -332,18 +338,41 @@ Object.assign(GameEngine.prototype, {
       return Math.max(0, Math.ceil(item.baseCost * Math.pow(item.growth, level)));
     },
 
+  getEvolutionStageEffects(item, currentLevel = 0) {
+      const level = Math.max(0, Math.floor(Number(currentLevel) || 0));
+      const bonuses = Array.isArray(item?.bonuses) && item.bonuses.length
+        ? item.bonuses
+        : [
+            { type: item?.bonusType, amount: item?.bonusAmount, stageValues: item?.stageRates },
+            { type: item?.bonus2Type, amount: item?.bonus2Amount },
+            { type: item?.bonus3Type, amount: item?.bonus3Amount }
+          ];
+      return bonuses.filter(bonus => bonus?.type).map(bonus => {
+        const stages = Array.isArray(bonus.stageValues)
+          ? bonus.stageValues.map(value => Math.max(0, Number(value) || 0))
+          : [];
+        const hasRealStages = stages.some(value => value > 0);
+        const value = hasRealStages
+          ? Math.max(0, Number(stages[Math.min(level, stages.length - 1)]) || 0)
+          : Math.max(0, Number(bonus.amount) || 0);
+        return { type: bonus.type, value };
+      }).filter(effect => effect.value > 0);
+    },
+
   buyResearch(id) {
       if (!this.isEvolutionUnlocked()) return { ok: false, message: `As pesquisas liberam no nível ${GameEngine.EVOLUTION_UNLOCK_LEVEL} da fazenda.` };
       const item = this.data.research.find(entry => entry.id === id);
       if (!item) return { ok: false };
       const level = Number(this.state.researchTechs[id] || 0);
       if (level >= item.max) return { ok: false, message: "Tecnologia já está no nível máximo." };
+      const effects = this.getEvolutionStageEffects(item, level);
+      if (!effects.length) return { ok: false, message: "Este nível da pesquisa não possui um bônus válido configurado. Corrija a pesquisa no painel administrativo antes de comprá-la." };
       const cost = this.getUpgradeCost(item, this.state.researchTechs);
       if (this.state.research < cost) return { ok: false, message: `São necessários ${cost} pontos de pesquisa.` };
       this.state.research -= cost;
       this.state.researchTechs[id] = level + 1;
       this.addFarmXPPercent(GameEngine.ACTION_XP_RATE);
-      return { ok: true };
+      return { ok: true, level: level + 1, effects };
     },
 
   buyPrestigeUpgrade(id) {
@@ -352,11 +381,13 @@ Object.assign(GameEngine.prototype, {
       if (!item) return { ok: false };
       const level = Number(this.state.prestigeUpgrades[id] || 0);
       if (level >= item.max) return { ok: false, message: "Legado já está no nível máximo." };
+      const effects = this.getEvolutionStageEffects(item, level);
+      if (!effects.length) return { ok: false, message: "Este nível do legado não possui um bônus válido configurado. Corrija o legado no painel administrativo antes de comprá-lo." };
       const cost = this.getUpgradeCost(item, this.state.prestigeUpgrades);
       if (this.state.prestigePoints < cost) return { ok: false, message: `São necessários ${cost} pontos de prestígio.` };
       this.state.prestigePoints -= cost;
       this.state.prestigeUpgrades[id] = level + 1;
       this.addFarmXPPercent(GameEngine.ACTION_XP_RATE);
-      return { ok: true };
+      return { ok: true, level: level + 1, effects };
     }
 });

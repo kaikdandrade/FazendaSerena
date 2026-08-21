@@ -99,7 +99,7 @@
 
     return `
       <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""} ${mastered ? "crop-mastered" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip" title="${mastered ? "Cultura platinada: nível 300 alcançado e bônus de 10% de XP recebido" : speedMaxed ? "Velocidade máxima; ao alcançar o nível 300 esta cultura concede 10% de XP" : "Ao alcançar o nível 300 esta cultura concede 10% de XP"}">
+        <div class="crop-level-strip" title="${mastered ? "Cultura platinada: nível 500 alcançado e bônus de 10% de XP recebido" : speedMaxed ? "Velocidade máxima; ao alcançar o nível 500 esta cultura concede 10% de XP" : "Ao alcançar o nível 500 esta cultura concede 10% de XP"}">
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
           ${mastered ? `<span class="crop-mastery-badge"><img alt="" src="assets/icons/estrela-dominio-cultura.webp">Platinada</span>` : ""}
         </div>

@@ -6,16 +6,30 @@ async function boot() {
   let initialState = null;
   let publicGameConfig = null;
   let cloudLoadFailed = false;
+  let initialCloudSaveMissing = false;
+  let promotedInitialGuest = false;
   try {
     initialUser = await window.FirebaseManager.ready();
+    if (initialUser) window.FirebaseManager.lockCloudWrites?.();
     loading?.update(initialUser ? "Carregando sua fazenda..." : "Carregando catálogo da fazenda...", 38);
     currentAuthUid = initialUser?.uid || null;
     const [loadedState, loadedConfig] = await Promise.all([
-      initialUser ? window.FirebaseManager.loadGame() : Promise.resolve(null),
+      initialUser ? window.FirebaseManager.loadGame() : Promise.resolve(window.FirebaseManager.loadGuestGame?.() || null),
       window.FirebaseManager.loadPublicGameConfig()
     ]);
     initialState = loadedState;
     publicGameConfig = loadedConfig;
+    if (initialUser) {
+      initialCloudSaveMissing = !loadedState;
+      if (initialCloudSaveMissing) {
+        const localGuest = window.FirebaseManager.loadGuestGame?.();
+        if (localGuest) {
+          initialState = localGuest;
+          promotedInitialGuest = true;
+        }
+      }
+      window.FirebaseManager.unlockCloudWrites?.();
+    }
     loading?.update("Organizando dados e catálogos...", 58);
   } catch (error) {
     cloudLoadFailed = true;
@@ -39,7 +53,7 @@ async function boot() {
   applySettings();
   loading?.update("Finalizando sua fazenda...", 88);
   updateAccountUI(initialUser);
-  if (initialUser && initialState) setCloudSaveStatus("loaded");
+  if (initialUser && initialState && !initialCloudSaveMissing) setCloudSaveStatus("loaded");
   render(true);
 
   // Só retira a tela de carregamento depois de confirmar que o shell e uma view
@@ -52,7 +66,11 @@ async function boot() {
 
   const initialOfflineReport = engine.consumeOfflineReport?.();
   if (initialOfflineReport) window.setTimeout(() => showOfflineProgressDialog(initialOfflineReport), 240);
-  if (initialUser && !initialState && !cloudLoadFailed) engine.save().catch(error => setCloudSaveStatus("error", { error }));
+  if (initialUser && initialCloudSaveMissing && !cloudLoadFailed) {
+    engine.save()
+      .then(result => { if (result?.ok && promotedInitialGuest) window.FirebaseManager.clearGuestGame?.(); })
+      .catch(error => setCloudSaveStatus("error", { error }));
+  }
   scheduleGameLoop(0);
 }
 boot().catch(error => {

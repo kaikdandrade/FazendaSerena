@@ -17,6 +17,8 @@
       if (activeOfficeTab === "evolutions") {
         renderResearch();
         renderPrestigeUpgrades();
+        updateEvolutionAffordability("research");
+        updateEvolutionAffordability("prestige");
       }
       showOfficeTab(activeOfficeTab);
     } else if (activeView === "profileView") {
@@ -48,7 +50,8 @@
     const counters = {
       coins: [dom.floatingCoinsCounter, dom.coinsCounter],
       research: [dom.floatingResearchCounter, dom.researchCounter],
-      prestige: [dom.floatingPrestigeCounter, dom.prestigeCounter]
+      prestige: [dom.floatingPrestigeCounter, dom.prestigeCounter],
+      xp: [dom.farmXPText, dom.farmProgress]
     }[type] || [];
 
     return counters.find(counter => {
@@ -70,7 +73,8 @@
     const types = [
       ["coins", reward.coins],
       ["research", reward.research],
-      ["prestige", reward.prestige]
+      ["prestige", reward.prestige],
+      ["xp", reward.xp]
     ].map(([type, value]) => [type, value, getVisibleResourceCounter(type)])
       .filter(([, value, target]) => Number(value) > 0 && target);
 
@@ -209,15 +213,32 @@
       act(result);
     }
     if (action === "break-contract") {
-      const result = engine.breakContract(id);
-      if (result.ok) soundEngine.play("contractRefusal");
-      act(result);
+      const contract = engine.state.activeContracts.find(item => item.id === id);
+      if (!contract) return;
+      const penalty = engine.calculateContractPenalty(contract);
+      pendingContractBreakId = id;
+      if (dom.contractBreakAmount) dom.contractBreakAmount.innerHTML = resourceAmount("coins", -penalty);
+      const missing = Math.max(0, Math.floor(Number(contract.amount || 0) - Number(contract.delivered || 0)));
+      const type = engine.getContractDifficulty(contract.difficulty);
+      const penaltyPercent = Math.max(0, Number(contract.penaltyPercent ?? type?.penaltyPercent ?? 20) || 0);
+      const unitPrice = Math.max(1, Number(engine.getSalePrice(contract.cropId)) || 1);
+      if (dom.contractBreakMissing) dom.contractBreakMissing.textContent = engine.formatNumber(missing);
+      if (dom.contractBreakUnitPrice) dom.contractBreakUnitPrice.innerHTML = resourceAmount("coins", unitPrice, { compact: true });
+      if (dom.contractBreakPercent) dom.contractBreakPercent.textContent = `${engine.formatNumber(penaltyPercent)}%`;
+      if (dom.contractBreakText) dom.contractBreakText.textContent = `A multa considera apenas as ${engine.formatNumber(missing)} unidades que ainda faltam neste contrato.`;
+      if (typeof dom.contractBreakDialog?.showModal === "function") dom.contractBreakDialog.showModal();
+      else if (window.confirm(`Quebrar contrato e pagar ${engine.formatNumber(penalty)} moedas?`)) {
+        pendingContractBreakId = "";
+        const result = engine.breakContract(id);
+        if (result.ok) soundEngine.play("contractRefusal");
+        act(result);
+      }
     }
     if (action === "refresh-leaderboard") refreshPrestigeLeaderboard(true);
     if (action === "claim-contract") {
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
-      animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch });
+      animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch, prestige: result.contract.rewardPrestige, xp: result.xpAward });
       render(true);
     }
     if (action === "pay-contract-penalty") act(engine.payContractPenalty(id));

@@ -2739,3 +2739,362 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
 .contract-focus-pulse { animation:contractFocusPulse 1.3s ease both; }
 @keyframes contractFocusPulse { 0%,100%{box-shadow:0 10px 28px rgba(31,54,35,.055)} 35%{box-shadow:0 0 0 5px rgba(92,145,87,.15),0 18px 38px rgba(31,54,35,.11);transform:translateY(-2px)} }
 @media (max-width:600px) { .feedback-settings-body{align-items:stretch !important;flex-direction:column !important}.feedback-launch-button{width:100% !important}.player-feedback-dialog{border-radius:18px !important;width:calc(100vw - 12px) !important}.player-feedback-heading{grid-template-columns:54px minmax(0,1fr) !important;padding:16px !important}.player-feedback-heading-icon{border-radius:14px;height:52px;width:52px}.player-feedback-heading-icon>img{height:40px !important;width:40px !important}.player-feedback-heading h2{font-size:1.12rem !important}.player-feedback-heading p:not(.eyebrow){font-size:.65rem}.player-feedback-fields{grid-template-columns:1fr !important;padding:14px 16px !important}.player-feedback-fields>label.full{grid-column:auto}.player-feedback-actions{padding:11px 16px 14px !important}.player-feedback-actions .button{flex:1 1 0;min-width:0} }
+
+
+/* ========================================================================== */
+/* r26 — renovação, feedback, ranking prata e descrições multiline            */
+/* ========================================================================== */
+.contract-cooldown-card { min-height:168px !important; display:grid !important; place-items:center !important; background:linear-gradient(145deg,rgba(247,250,245,.98),rgba(238,245,235,.98)) !important; border:1px dashed rgba(76,111,76,.18) !important; }
+.contract-cooldown-v2 { align-items:center !important; display:flex !important; flex-direction:column !important; gap:8px !important; justify-content:center !important; padding:22px 18px !important; text-align:center !important; }
+.contract-cooldown-v2 > img { height:62px !important; width:62px !important; padding:7px !important; }
+.contract-cooldown-v2 > div { align-items:center !important; display:grid !important; gap:4px !important; justify-items:center; }
+.contract-cooldown-v2 strong { font-size:1rem !important; line-height:1.15; }
+.contract-cooldown-v2 span { color:var(--green-deep); font-size:1.12rem; font-weight:900; }
+.contract-cooldown-card > .progress-track { display:none !important; }
+.upgrade-description br { display:block; content:""; margin-top:.35em; }
+.leaderboard-row.rank-position-2 { background:linear-gradient(90deg,rgba(190,201,212,.78),rgba(237,242,246,.92) 35%,#fff 75%) !important; border-color:rgba(119,135,150,.34) !important; box-shadow:inset 4px 0 0 rgba(148,164,179,.76),0 6px 16px rgba(75,91,105,.06) !important; }
+.feedback-settings-card { border:1px solid rgba(73,116,75,.14) !important; background:linear-gradient(145deg,#fbfdf9,#f1f8ee) !important; box-shadow:0 8px 22px rgba(43,73,45,.055) !important; }
+.feedback-settings-card .settings-card-head { border-bottom:1px solid rgba(74,108,75,.08); }
+.feedback-settings-body { align-items:center !important; display:grid !important; gap:16px !important; grid-template-columns:minmax(0,1fr) auto !important; padding:17px 18px !important; }
+.feedback-settings-copy { align-items:center !important; display:grid !important; gap:12px !important; grid-template-columns:54px minmax(0,1fr); }
+.feedback-settings-copy > img { height:54px !important; width:54px !important; border-radius:15px !important; padding:7px !important; }
+.feedback-settings-copy strong { font-size:.9rem !important; }
+.feedback-settings-copy small { font-size:.73rem !important; line-height:1.5 !important; }
+.feedback-launch-button { align-items:center; background:linear-gradient(135deg,#5c915a,#3f7545) !important; border:0 !important; border-radius:11px !important; box-shadow:0 7px 17px rgba(54,104,57,.18) !important; color:#fff !important; display:inline-flex; font-size:.76rem !important; font-weight:900 !important; gap:7px; min-height:44px; padding:10px 15px !important; }
+.feedback-launch-button img { filter:brightness(0) invert(1); height:20px; width:20px; }
+.player-feedback-dialog { background:#fff !important; border:0 !important; border-radius:20px !important; box-shadow:0 30px 90px rgba(21,40,25,.28) !important; max-height:min(90dvh,760px) !important; overflow:hidden !important; padding:0 !important; width:min(620px,calc(100vw - 24px)) !important; }
+.player-feedback-dialog > form { display:flex !important; flex-direction:column !important; max-height:min(90dvh,760px) !important; min-height:0; }
+.player-feedback-heading { align-items:center !important; background:linear-gradient(135deg,#eaf5e5,#f8fbf6) !important; border-bottom:1px solid rgba(65,99,67,.09) !important; display:grid !important; gap:14px !important; grid-template-columns:64px minmax(0,1fr) !important; padding:18px 20px !important; }
+.player-feedback-heading-icon { border-radius:16px !important; height:60px !important; width:60px !important; }
+.player-feedback-heading-icon > img { height:46px !important; width:46px !important; }
+.player-feedback-heading h2 { font-size:1.25rem !important; }
+.player-feedback-heading p:not(.eyebrow) { font-size:.72rem !important; line-height:1.45 !important; margin:4px 0 0 !important; }
+.player-feedback-fields { display:grid !important; gap:12px !important; grid-template-columns:1fr 1fr !important; min-height:0 !important; overflow-y:auto !important; padding:18px 20px !important; }
+.player-feedback-fields > label { gap:6px !important; }
+.player-feedback-fields > label.full { grid-column:1/-1 !important; }
+.player-feedback-fields input,.player-feedback-fields select,.player-feedback-fields textarea { box-sizing:border-box !important; font-size:.78rem !important; min-height:46px !important; padding:10px 12px !important; }
+.player-feedback-fields textarea { min-height:180px !important; max-height:320px !important; }
+.player-feedback-actions { flex:0 0 auto; padding:12px 20px 16px !important; }
+.feedback-submit-button { background:#4f844f !important; border-color:#4f844f !important; color:#fff !important; }
+@media(max-width:600px){.feedback-settings-body{grid-template-columns:1fr !important}.feedback-launch-button{width:100% !important;justify-content:center}.player-feedback-dialog{width:calc(100vw - 12px) !important}.player-feedback-heading{grid-template-columns:50px minmax(0,1fr) !important;padding:14px !important}.player-feedback-heading-icon{height:48px !important;width:48px !important}.player-feedback-heading-icon>img{height:37px !important;width:37px !important}.player-feedback-fields{grid-template-columns:1fr !important;padding:14px !important}.player-feedback-fields>label.full{grid-column:auto !important}.player-feedback-actions{display:grid !important;grid-template-columns:1fr 1fr !important;padding:11px 14px 14px !important}}
+
+
+/* ========================================================================== */
+/* r27 — navegação plana, evoluções estáveis e quebra de contrato             */
+/* ========================================================================== */
+.navigation-grid-stack { width:100% !important; overflow:visible !important; }
+.main-nav-grid {
+  display:grid !important;
+  grid-template-columns:repeat(9,minmax(0,1fr)) !important;
+  gap:8px !important;
+  overflow:visible !important;
+  width:100% !important;
+}
+.main-nav-grid .nav-tab {
+  align-items:center !important;
+  aspect-ratio:auto !important;
+  display:flex !important;
+  justify-content:center !important;
+  min-height:64px !important;
+  padding:8px !important;
+  width:100% !important;
+}
+.main-nav-grid .nav-tab-icon { align-items:center !important; display:flex !important; flex:0 0 auto !important; justify-content:center !important; }
+.main-nav-grid .nav-tab-icon img { height:36px !important; max-height:none !important; max-width:none !important; object-fit:contain; width:36px !important; }
+.main-nav-grid .nav-tab.active .nav-tab-icon img { transform:scale(1.08); }
+.main-nav-grid .nav-tab > b { position:absolute !important; right:7px !important; top:6px !important; }
+.main-nav-grid .stock-nav-tab::before { border-radius:12px !important; }
+@media (max-width:768px) {
+  .main-nav-grid { grid-template-columns:repeat(5,minmax(0,1fr)) !important; }
+  .main-nav-grid .nav-tab { min-height:58px !important; }
+  .main-nav-grid .nav-tab-icon img { height:32px !important; width:32px !important; }
+}
+@media (max-width:480px) {
+  .main-nav-grid { grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:7px !important; }
+  .main-nav-grid .nav-tab { min-height:56px !important; }
+}
+
+/* O cadeado substitui o ícone real enquanto Evoluções estiver bloqueada. */
+.redesigned-evolution-card.upgrade-card-preview .upgrade-icon { background:rgba(242,245,240,.92) !important; }
+.redesigned-evolution-card.upgrade-card-preview .upgrade-icon img { filter:none !important; opacity:.72 !important; }
+.redesigned-evolution-card .upgrade-level-badge {
+  align-items:center !important; display:flex !important; gap:5px !important; line-height:1 !important;
+  min-height:28px !important; padding:6px 9px !important; white-space:nowrap !important;
+}
+.redesigned-evolution-card .upgrade-level-badge span { font-size:.58rem !important; font-weight:850 !important; text-transform:uppercase; }
+.redesigned-evolution-card .upgrade-level-badge strong { font-size:.72rem !important; font-weight:950 !important; }
+
+.contract-break-dialog { width:min(520px,calc(100vw - 20px)) !important; }
+.contract-break-dialog > form { display:grid !important; grid-template-columns:72px minmax(0,1fr) !important; gap:14px !important; padding:18px !important; }
+.contract-break-icon { align-items:center !important; background:rgba(194,91,75,.08) !important; border:1px solid rgba(194,91,75,.12) !important; border-radius:16px !important; display:flex !important; height:64px !important; justify-content:center !important; width:64px !important; }
+.contract-break-icon img { height:46px !important; object-fit:contain; width:46px !important; }
+.contract-break-copy { min-width:0; width:100%; }
+.contract-break-copy > p:not(.eyebrow) { margin-bottom:12px !important; }
+.contract-break-amount { align-items:center; background:#fff7f4; border:1px solid rgba(190,79,62,.12); border-radius:12px; display:flex; justify-content:space-between; gap:12px; padding:10px 12px; }
+.contract-break-amount > span { color:var(--ink-soft); font-size:.7rem; font-weight:800; }
+.contract-break-actions { grid-column:1 / -1 !important; display:grid !important; grid-template-columns:1fr 1fr !important; gap:8px !important; margin:0 !important; padding:0 !important; }
+@media(max-width:520px){ .contract-break-dialog > form{grid-template-columns:1fr !important;} .contract-break-icon{margin:auto;} .contract-break-actions{grid-template-columns:1fr !important;} }
+
+
+/* ==========================================================================
+   r27 final — navegação em grade, evoluções estáveis e multa explícita
+   ========================================================================== */
+.main-nav.main-nav-grid { display:grid !important; grid-template-columns:repeat(9,minmax(58px,1fr)) !important; align-items:stretch !important; gap:8px !important; width:100% !important; }
+.main-nav.main-nav-grid .nav-tab { align-items:center !important; aspect-ratio:1.08/1; display:flex !important; justify-content:center !important; min-height:64px !important; padding:8px !important; width:100% !important; }
+.main-nav.main-nav-grid .nav-tab .nav-tab-icon { align-items:center; display:flex; height:42px !important; justify-content:center; width:42px !important; }
+.main-nav.main-nav-grid .nav-tab .nav-tab-icon img { height:38px !important; object-fit:contain; width:38px !important; }
+.redesigned-evolution-card .upgrade-level-badge { align-items:center !important; display:flex !important; justify-content:center !important; min-height:28px !important; padding:5px 9px !important; white-space:nowrap !important; }
+.redesigned-evolution-card .upgrade-level-badge strong { font-size:.69rem !important; line-height:1 !important; }
+.redesigned-evolution-card .upgrade-level-badge span { display:none !important; }
+.redesigned-evolution-card.upgrade-card-preview .upgrade-icon { background:rgba(242,245,240,.96) !important; }
+.redesigned-evolution-card.upgrade-card-preview .upgrade-icon img { height:66% !important; opacity:.82 !important; width:66% !important; }
+.contract-card-footer-v2 { align-items:center !important; display:flex !important; gap:10px !important; justify-content:space-between !important; }
+.contract-break-estimate { align-items:flex-start; display:flex; flex-direction:column; gap:2px; min-width:0; }
+.contract-break-estimate small { color:var(--ink-soft); font-size:.58rem; font-weight:800; text-transform:uppercase; }
+.contract-break-estimate strong { font-size:.72rem; }
+@media (max-width: 768px) { .main-nav.main-nav-grid { grid-template-columns:repeat(5,minmax(54px,1fr)) !important; } }
+@media (max-width: 480px) { .main-nav.main-nav-grid { grid-template-columns:repeat(3,minmax(58px,1fr)) !important; gap:7px !important; } .main-nav.main-nav-grid .nav-tab { min-height:60px !important; } .main-nav.main-nav-grid .nav-tab .nav-tab-icon img { height:34px !important; width:34px !important; } }
+/* r27 — a grade cresce pela própria quantidade de linhas; neutraliza a altura de 54px da navegação antiga. */
+.navigation-stack > .main-nav.main-nav-grid {
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  overflow:visible !important;
+  padding:8px !important;
+}
+.main-nav.main-nav-grid .nav-tab {
+  min-width:0 !important;
+  max-width:100% !important;
+  box-sizing:border-box !important;
+}
+
+
+/* ==========================================================================
+   r28 — navegação clássica acima de 480px; grade somente em celular
+   ========================================================================== */
+.mobile-direct-nav { display:none !important; }
+.navigation-responsive-stack > .desktop-main-nav { display:flex !important; }
+@media (max-width:480px) {
+  .navigation-responsive-stack > .desktop-main-nav,
+  .navigation-responsive-stack > .desktop-context-nav { display:none !important; }
+  .navigation-responsive-stack > .mobile-direct-nav {
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(58px,1fr)) !important;
+    gap:7px !important;
+    height:auto !important; max-height:none !important; min-height:0 !important;
+    overflow:visible !important; padding:8px !important; width:100% !important;
+  }
+  .mobile-direct-nav .nav-tab { min-height:60px !important; min-width:0 !important; width:100% !important; padding:8px !important; }
+  .mobile-direct-nav .nav-tab-icon { height:42px !important; width:42px !important; }
+  .mobile-direct-nav .nav-tab-icon img { height:36px !important; width:36px !important; object-fit:contain !important; }
+}
+@media (min-width:481px) {
+  .navigation-responsive-stack > .mobile-direct-nav { display:none !important; }
+}
+
+/* r28 — ações destrutivas dos contratos com vermelho suave. */
+.contract-break-button-v2,.contract-decline-button-v2 {
+  background:rgba(190,76,61,.075) !important;
+  border-color:rgba(190,76,61,.18) !important;
+  color:#93483d !important;
+}
+.contract-break-button-v2:hover:not(:disabled),.contract-decline-button-v2:hover:not(:disabled) {
+  background:rgba(190,76,61,.13) !important; border-color:rgba(190,76,61,.28) !important; color:#7f392f !important;
+}
+
+
+/* ========================================================================== */
+/* r29 — estabilidade de Evoluções, contratos e navegação mobile configurável */
+/* ========================================================================== */
+@media (max-width: 768px) {
+  .redesigned-evolution-card .upgrade-level-badge,
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge {
+    aspect-ratio: auto !important;
+    border-radius: 999px !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    justify-self: end !important;
+    max-width: 100% !important;
+    min-height: 27px !important;
+    min-width: 74px !important;
+    padding: 6px 10px !important;
+    position: static !important;
+    right: auto !important;
+    top: auto !important;
+    width: max-content !important;
+  }
+  .redesigned-evolution-card .upgrade-card-identity,
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity {
+    padding-right: 0 !important;
+  }
+}
+
+.contract-dock-item-v2 .contract-dock-rewards {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 7px;
+  margin: 3px 0 2px;
+  min-width: 0;
+}
+.contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  font-size: .58rem !important;
+  gap: 3px !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+}
+.contract-dock-item-v2 .contract-dock-rewards .resource-amount img {
+  height: 13px !important;
+  width: 13px !important;
+}
+.contract-dock-item-v2.reward-ready { cursor: pointer; }
+.contract-dock-item-v2.reward-ready::after {
+  background: rgba(190,145,35,.12);
+  border-radius: 999px;
+  color: #7a5a13;
+  content: "coletar";
+  font-size: .5rem;
+  font-weight: 950;
+  letter-spacing: .04em;
+  padding: 3px 6px;
+  position: absolute;
+  right: 7px;
+  top: 7px;
+  text-transform: uppercase;
+}
+
+.contract-break-dialog {
+  background: transparent !important;
+  border: 0 !important;
+  max-width: none !important;
+  padding: 0 !important;
+  width: min(590px, calc(100vw - 20px)) !important;
+}
+.contract-break-dialog::backdrop { background: rgba(35,24,22,.48) !important; backdrop-filter: blur(4px); }
+.contract-break-dialog > form {
+  background: linear-gradient(180deg,#fffefd 0%,#fffaf8 100%) !important;
+  border: 1px solid rgba(154,71,57,.16) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 28px 80px rgba(60,31,27,.28) !important;
+  display: grid !important;
+  gap: 14px !important;
+  grid-template-columns: 1fr !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+.contract-break-hero {
+  align-items: center;
+  background: linear-gradient(135deg,rgba(176,67,51,.10),rgba(225,142,89,.06));
+  border-bottom: 1px solid rgba(170,76,61,.10);
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 74px minmax(0,1fr);
+  padding: 20px 20px 16px;
+  position: relative;
+}
+.contract-break-hero::before {
+  background: linear-gradient(90deg,#b74d3e,#de8b59);
+  content: "";
+  height: 4px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.contract-break-icon {
+  align-items: center !important;
+  background: rgba(255,255,255,.76) !important;
+  border: 1px solid rgba(177,75,59,.12) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 24px rgba(112,55,45,.08);
+  display: flex !important;
+  height: 66px !important;
+  justify-content: center !important;
+  width: 66px !important;
+}
+.contract-break-icon img { height: 48px !important; object-fit: contain; width: 48px !important; }
+.contract-break-copy { min-width: 0; width: 100%; }
+.contract-break-copy .eyebrow { color: #9c4d40 !important; margin: 0 0 3px !important; }
+.contract-break-copy h2 { color: #4b2e29; font-size: 1.32rem !important; letter-spacing: -.035em; margin: 0 0 5px !important; }
+.contract-break-copy > p:not(.eyebrow) { color: #7a625d; font-size: .76rem; line-height: 1.45; margin: 0 !important; }
+.contract-break-calculation {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  padding: 0 20px;
+}
+.contract-break-calculation article {
+  background: #fff;
+  border: 1px solid rgba(116,83,76,.10);
+  border-radius: 13px;
+  box-shadow: 0 7px 18px rgba(74,48,42,.035);
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 11px 12px;
+}
+.contract-break-calculation small { color: #8b756f; font-size: .58rem; font-weight: 850; text-transform: uppercase; }
+.contract-break-calculation strong { color: #51342f; font-size: .92rem; min-width: 0; }
+.contract-break-calculation span { color: #9a827c; font-size: .58rem; font-weight: 700; }
+.contract-break-amount {
+  align-items: center !important;
+  background: linear-gradient(135deg,#fff0eb,#fff7f3) !important;
+  border: 1px solid rgba(190,79,62,.16) !important;
+  border-radius: 15px !important;
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: space-between !important;
+  margin: 0 20px !important;
+  padding: 13px 15px !important;
+}
+.contract-break-amount > span { color: #8c493e !important; font-size: .68rem !important; font-weight: 900 !important; text-transform: uppercase; }
+.contract-break-amount > strong { font-size: 1rem; }
+.contract-break-warning { color: #846e68; font-size: .66rem; line-height: 1.45; margin: -3px 20px 0 !important; }
+.contract-break-actions {
+  background: rgba(252,247,245,.9);
+  border-top: 1px solid rgba(116,83,76,.08);
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: 1fr 1fr !important;
+  margin: 0 !important;
+  padding: 13px 20px 18px !important;
+}
+@media (max-width: 520px) {
+  .contract-break-hero { grid-template-columns: 58px minmax(0,1fr); gap: 11px; padding: 17px 14px 14px; }
+  .contract-break-icon { height: 54px !important; width: 54px !important; }
+  .contract-break-icon img { height: 38px !important; width: 38px !important; }
+  .contract-break-calculation { grid-template-columns: 1fr; padding: 0 14px; }
+  .contract-break-amount { margin-inline: 14px !important; }
+  .contract-break-warning { margin-inline: 14px !important; }
+  .contract-break-actions { grid-template-columns: 1fr !important; padding: 12px 14px 15px !important; }
+}
+
+
+/* r29 final — badges legíveis em telas menores */
+@media (max-width:768px) {
+  .redesigned-evolution-card .upgrade-level-badge {
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    inline-size: auto !important;
+    max-inline-size: 100% !important;
+    min-inline-size: 0 !important;
+    white-space: nowrap !important;
+  }
+  .redesigned-evolution-card .upgrade-level-badge strong {
+    font-size: .66rem !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* r29 final — recompensas do atalho continuam compactas, porém legíveis */
+.contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  font-size: .64rem !important;
+  font-weight: 850 !important;
+}
+.contract-dock-item-v2 .contract-dock-rewards .resource-amount img {
+  height: 15px !important;
+  width: 15px !important;
+}
+.contract-dock-item-v2.reward-ready::after { font-size: .55rem !important; }

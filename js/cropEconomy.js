@@ -34,8 +34,23 @@
     return Math.max(1, Math.round(yieldValue * 100) / 100);
   };
 
+  // Aprimorar uma cultura melhora os três pilares do idle: tempo, quantidade
+  // por ciclo e valor unitário. Isso permite sentir progresso no início sem
+  // tornar as últimas culturas triviais antes dos prestígios e legados.
+  const levelValueMultiplier = levelValue => {
+    const level = Math.max(1, Math.min(500, Math.floor(Number(levelValue) || 1)));
+    const steps = Math.floor((level - 1) / 25);
+    return Math.pow(1.018, level - 1) * (1 + steps * 0.06);
+  };
+
+  const levelYieldMultiplier = levelValue => {
+    const level = Math.max(1, Math.min(500, Math.floor(Number(levelValue) || 1)));
+    const steps = Math.floor((level - 1) / 25);
+    return Math.pow(1.022, level - 1) * (1 + steps * 0.05);
+  };
+
   Object.defineProperty(window, "FazendaSerenaCropEconomy", {
-    value: Object.freeze({ purchaseCost, upgradeBase, basePrice, baseYield }),
+    value: Object.freeze({ purchaseCost, upgradeBase, basePrice, baseYield, levelValueMultiplier, levelYieldMultiplier }),
     configurable: false,
     enumerable: true,
     writable: false

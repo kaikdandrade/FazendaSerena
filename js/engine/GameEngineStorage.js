@@ -38,7 +38,7 @@ Object.assign(GameEngine.prototype, {
       const crop = this.getCrop(cropId);
       if (!crop || !state) return 0;
       const cropLevel = Math.max(1, Number(state.crops?.[cropId]?.level || 1));
-      const cultivationValue = 1 + Math.max(0, cropLevel - 1) * 0.0035;
+      const cultivationValue = window.FazendaSerenaCropEconomy?.levelValueMultiplier?.(cropLevel) ?? 1;
       return Math.max(1, crop.basePrice * cultivationValue * (1 + Math.max(0, this.getEvolutionBonus("salePricePercent", state)) / 100));
     },
 

@@ -204,8 +204,10 @@ service cloud.firestore {
     }
 
     match /friendships/{friendshipId} {
-      allow read: if signedIn()
-                  && request.auth.uid in resource.data.members;
+      // Consultas da lista usam array-contains(members, uid), portanto todo
+      // documento retornado precisa pertencer à própria conta autenticada.
+      allow get, list: if signedIn()
+                       && request.auth.uid in resource.data.members;
 
       allow create: if signedIn()
                     && request.resource.data.keys().hasOnly([
@@ -221,11 +223,18 @@ service cloud.firestore {
                     && request.resource.data.members[0] is string
                     && request.resource.data.members[1] is string
                     && request.resource.data.members[0] != request.resource.data.members[1]
+                    && friendshipId == request.resource.data.members[0] + '__' + request.resource.data.members[1]
                     && request.auth.uid in request.resource.data.members
                     && request.resource.data.requestedBy == request.auth.uid
                     && request.resource.data.status == 'pending'
-                    && request.resource.data.updatedAtClient is int;
+                    && request.resource.data.createdAt is timestamp
+                    && request.resource.data.updatedAt is timestamp
+                    && request.resource.data.updatedAtClient is int
+                    && exists(/databases/$(database)/documents/friendProfiles/$(request.resource.data.members[0]))
+                    && exists(/databases/$(database)/documents/friendProfiles/$(request.resource.data.members[1]));
 
+      // Somente o destinatário de uma solicitação pendente pode aceitá-la.
+      // Nenhum campo estrutural da amizade pode ser trocado na aceitação.
       allow update: if signedIn()
                     && request.auth.uid in resource.data.members
                     && resource.data.status == 'pending'
@@ -234,6 +243,7 @@ service cloud.firestore {
                     && request.resource.data.requestedBy == resource.data.requestedBy
                     && request.resource.data.createdAt == resource.data.createdAt
                     && request.resource.data.status == 'accepted'
+                    && request.resource.data.updatedAt is timestamp
                     && request.resource.data.updatedAtClient is int
                     && request.resource.data.keys().hasOnly([
                       'members',
@@ -244,6 +254,7 @@ service cloud.firestore {
                       'updatedAtClient'
                     ]);
 
+      // Tanto quem enviou quanto quem recebeu pode cancelar/recusar/remover.
       allow delete: if signedIn()
                     && request.auth.uid in resource.data.members;
     }

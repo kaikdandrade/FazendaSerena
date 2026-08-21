@@ -4,24 +4,40 @@
       if (event.target?.closest?.("img")) event.preventDefault();
     }, true);
 
-    setupDragNavigation(document.querySelector(".main-nav"));
+    setupDragNavigation(document.querySelector(".desktop-main-nav"));
     dom.contextNavBlocks.forEach(setupDragNavigation);
     dom.tabs.forEach(tab => tab.addEventListener("click", () => {
       if (tab.disabled) return;
       soundEngine.playNavigation();
+      if (tab.dataset.officeTab) {
+        activeOfficeTab = tab.dataset.officeTab;
+        showView("officeView");
+        showOfficeTab(activeOfficeTab);
+        render(true);
+        return;
+      }
+      if (tab.dataset.profileTab) {
+        activeProfileTab = tab.dataset.profileTab;
+        showView("profileView");
+        showProfileTab(activeProfileTab);
+        render(true);
+        return;
+      }
       showView(tab.dataset.view);
     }));
-    dom.officeTabs.forEach(tab => tab.addEventListener("click", () => {
+    dom.officeTabs.filter(tab => !tab.dataset.view).forEach(tab => tab.addEventListener("click", () => {
       if (tab.disabled) return;
       soundEngine.playNavigation();
-      showOfficeTab(tab.dataset.officeTab);
+      activeOfficeTab = tab.dataset.officeTab;
+      showOfficeTab(activeOfficeTab);
       window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
     }));
-    dom.profileTabs.forEach(tab => tab.addEventListener("click", () => {
+    dom.profileTabs.filter(tab => !tab.dataset.view).forEach(tab => tab.addEventListener("click", () => {
       if (tab.disabled) return;
       soundEngine.playNavigation();
-      showProfileTab(tab.dataset.profileTab);
+      activeProfileTab = tab.dataset.profileTab;
+      showProfileTab(activeProfileTab);
       window.requestAnimationFrame(() => revealTabHorizontally(tab.closest(".context-nav-column"), tab));
       render(true);
     }));
@@ -41,6 +57,27 @@
       const contractShortcut = event.target.closest("[data-go-office-contracts]");
       if (contractShortcut) {
         const focusContractId = contractShortcut.dataset.focusContract || "";
+        const behavior = contractShortcut.dataset.contractDockBehavior || "navigate";
+        if (focusContractId && behavior === "claim") {
+          const contract = engine.state.activeContracts.find(item => item.id === focusContractId);
+          const progress = contract ? engine.getContractProgress(contract) : null;
+          if (contract && progress?.completed && !progress?.defaulted) {
+            const result = engine.claimContractReward(focusContractId);
+            if (result.ok) {
+              soundEngine.play("reward");
+              animateResourceReward(contractShortcut, {
+                coins: result.contract.rewardCoins,
+                research: result.contract.rewardResearch,
+                prestige: result.contract.rewardPrestige,
+                xp: result.xpAward
+              });
+              render(true);
+              return;
+            }
+          }
+        }
+        // Contratos vencidos (ou qualquer estado sem recompensa coletável)
+        // apenas conduzem o jogador ao card correspondente.
         showView("officeView");
         showOfficeTab("contracts");
         render(true);
@@ -258,6 +295,23 @@
       act(result);
     });
 
+    dom.cancelContractBreak?.addEventListener("click", event => {
+      event.preventDefault();
+      pendingContractBreakId = "";
+      dom.contractBreakDialog?.close("cancel");
+    });
+    dom.confirmContractBreak?.addEventListener("click", event => {
+      event.preventDefault();
+      const id = pendingContractBreakId;
+      pendingContractBreakId = "";
+      dom.contractBreakDialog?.close("confirm");
+      if (!id) return;
+      const result = engine.breakContract(id);
+      if (result.ok) soundEngine.play("contractRefusal");
+      act(result);
+    });
+    dom.contractBreakDialog?.addEventListener("close", () => { pendingContractBreakId = ""; });
+
     dom.closeMilestoneDialog?.addEventListener("click", event => {
       event.preventDefault();
       dom.milestoneDialog?.close("confirm");
@@ -334,12 +388,6 @@
       render(true);
     });
 
-    dom.navigationModeSetting?.addEventListener("change", () => {
-      const mode = dom.navigationModeSetting.value === "sidebar" ? "sidebar" : "tabs";
-      engine.setSetting("navigationMode", mode);
-      applySettings(true);
-      window.scrollTo({ top: 0, behavior: "auto" });
-    });
 
     dom.masterVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("masterVolume", Number(dom.masterVolumeSetting.value));
@@ -381,7 +429,8 @@
     syncScrollUI();
 
     window.addEventListener("pagehide", () => {
-      if (window.FirebaseManager.isAuthenticated()) engine.save();
+      // Visitantes também persistem no localStorage; contas conectadas persistem na nuvem.
+      engine.save();
     });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
@@ -389,9 +438,9 @@
       } else {
         soundEngine.resumeMusic();
         const now = Date.now();
-        const elapsed = Math.max(0, Math.min(engine.getMaxOfflineSeconds?.() ?? GameEngine.BASE_MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
+        const elapsed = Math.max(0, (now - Number(engine.state.lastUpdate || now)) / 1000);
         if (elapsed > 0.05) {
-          engine.simulate(elapsed, true);
+          engine.simulate(elapsed, true, elapsed);
           engine.state.lastUpdate = now;
           render(true);
           const offlineReport = engine.consumeOfflineReport?.();

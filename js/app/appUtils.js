@@ -64,7 +64,7 @@
 
     const selectedAvatar = getAvatarEntry(selectedId);
     if (dom.selectedAvatarImage) {
-      dom.selectedAvatarImage.src = selectedAvatar?.src || "assets/icons/cadeado.webp";
+      dom.selectedAvatarImage.src = selectedAvatar?.src || "assets/icons/perfil.webp";
       dom.selectedAvatarImage.alt = selectedAvatar ? `Avatar selecionado: ${selectedAvatar.label}` : "Nenhum avatar selecionado";
     }
     if (dom.selectedAvatarName) dom.selectedAvatarName.textContent = selectedAvatar?.label || "Nenhum avatar escolhido";

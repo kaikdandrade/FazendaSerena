@@ -1,9 +1,9 @@
 "use strict";
 
 /*
- * Integração exclusiva com Firebase Authentication e Cloud Firestore.
- * O jogo nunca grava progresso no localStorage. Visitantes jogam apenas em
- * memória; usuários autenticados mantêm um único save privado na nuvem.
+ * Firebase Authentication + Cloud Firestore para contas conectadas.
+ * Visitantes usam um save local no navegador; no primeiro login, esse save é
+ * enviado para a nuvem apenas quando a conta ainda não possui progresso.
  */
 class FirebaseManager {
   static SDK_VERSION = "12.17.0";
@@ -17,6 +17,8 @@ class FirebaseManager {
   static GAME_CONFIG_DOCUMENT = "public";
   static ADMIN_COLLECTION = "administrators";
   static FEEDBACK_COLLECTION = "playerFeedback";
+  static GUEST_SAVE_KEY = "fazenda-serena-guest-save-v1";
+  static cloudWritesLocked = false;
 
   constructor() {
     this.available = false;
@@ -145,6 +147,44 @@ class FirebaseManager {
       detail: { status, ...extra }
     }));
   }
+
+
+  loadGuestGame() {
+    try {
+      const raw = window.localStorage?.getItem(FirebaseManager.GUEST_SAVE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed?.state && typeof parsed.state === "object" ? parsed.state : null;
+    } catch (error) {
+      console.warn("Não foi possível ler o save local do visitante:", error);
+      return null;
+    }
+  }
+
+  saveGuestGame(state) {
+    try {
+      const snapshot = JSON.parse(JSON.stringify(state || {}));
+      window.localStorage?.setItem(FirebaseManager.GUEST_SAVE_KEY, JSON.stringify({
+        state: snapshot,
+        savedAt: Date.now(),
+        saveVersion: String(snapshot.version || window.FazendaSerenaConfig?.appVersion || "1.0.1")
+      }));
+      this.emitSaveStatus("local", { savedAt: new Date() });
+      return { ok: true, local: true, savedAt: new Date() };
+    } catch (error) {
+      console.warn("Não foi possível salvar o progresso local do visitante:", error);
+      this.emitSaveStatus("error", { error });
+      return { ok: false, reason: "local-storage", error };
+    }
+  }
+
+  clearGuestGame() {
+    try { window.localStorage?.removeItem(FirebaseManager.GUEST_SAVE_KEY); } catch (_) {}
+  }
+
+  lockCloudWrites() { FirebaseManager.cloudWritesLocked = true; }
+  unlockCloudWrites() { FirebaseManager.cloudWritesLocked = false; }
+  areCloudWritesLocked() { return Boolean(FirebaseManager.cloudWritesLocked); }
 
   getSaveReference(user = this.currentUser) {
     if (!user || !this.db || !this.sdk) return null;
@@ -381,6 +421,9 @@ class FirebaseManager {
   }
 
   saveGame(state) {
+    if (FirebaseManager.cloudWritesLocked) {
+      return Promise.resolve({ ok: false, reason: "cloud-read-unconfirmed" });
+    }
     const snapshot = JSON.parse(JSON.stringify(state || {}));
 
     this.saveQueue = this.saveQueue
@@ -526,20 +569,42 @@ class FirebaseManager {
     const members = [user.uid, targetUid].sort();
     const friendshipId = this.makeFriendshipId(user.uid, targetUid);
     const reference = this.getFriendshipReference(friendshipId);
-    const existing = await this.sdk.getDoc(reference);
-    if (existing.exists()) {
-      const status = existing.data()?.status;
-      throw new Error(status === "accepted" ? "Esse jogador já está na sua lista de amigos." : "Já existe uma solicitação entre essas contas.");
-    }
 
-    await this.sdk.setDoc(reference, {
-      members,
-      requestedBy: user.uid,
-      status: "pending",
-      createdAt: this.sdk.serverTimestamp(),
-      updatedAt: this.sdk.serverTimestamp(),
-      updatedAtClient: Date.now()
-    });
+    // Não faça get() antes da criação. Para um documento inexistente, as regras
+    // não têm resource.data.members para provar que o usuário faz parte da
+    // amizade e a leitura seria corretamente negada. A própria regra de create
+    // garante que somente um dos dois membros possa criar o vínculo pendente.
+    try {
+      await this.sdk.setDoc(reference, {
+        members,
+        requestedBy: user.uid,
+        status: "pending",
+        createdAt: this.sdk.serverTimestamp(),
+        updatedAt: this.sdk.serverTimestamp(),
+        updatedAtClient: Date.now()
+      });
+    } catch (error) {
+      // Se o documento já existir, setDoc passa a ser um update e as regras
+      // recusam a sobrescrita. Nesse cenário o documento existe e a leitura é
+      // permitida ao membro, permitindo apresentar uma mensagem amigável.
+      if (["permission-denied", "already-exists", "failed-precondition"].includes(String(error?.code || ""))) {
+        try {
+          const existing = await this.sdk.getDoc(reference);
+          if (existing.exists()) {
+            const data = existing.data() || {};
+            const existingMembers = Array.isArray(data.members) ? data.members : [];
+            if (existingMembers.includes(user.uid)) {
+              throw new Error(data.status === "accepted"
+                ? "Esse jogador já está na sua lista de amigos."
+                : "Já existe uma solicitação entre essas contas.");
+            }
+          }
+        } catch (lookupError) {
+          if (!String(lookupError?.code || "").includes("permission-denied") && lookupError?.message) throw lookupError;
+        }
+      }
+      throw error;
+    }
     return { ok: true, friendshipId };
   }
 

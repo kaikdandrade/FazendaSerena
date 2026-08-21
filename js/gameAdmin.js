@@ -66,7 +66,7 @@
     "assets/icons/silo.webp": "assets/icons/silo.webp",
     "assets/icons/social.webp": "assets/icons/social.webp",
     "assets/icons/tools.png": "assets/icons/ferramentas.webp",
-    "assets/icons/upgrade-anvil.png": "assets/icons/ferramentas-manutencao.webp",
+    "assets/icons/upgrade-anvil.png": "assets/icons/ferramentas.webp",
     "assets/icons/warehouse.png": "assets/icons/galpao-industrial.webp",
     "assets/icons/xp.webp": "assets/icons/xp.webp",
     // Nomes antigos de plantas que também mudaram a grafia do arquivo.
@@ -142,7 +142,8 @@
     contractExpiredCooldownSeconds: 30,
     contractDeclinedCooldownSeconds: 60,
     contractBrokenCooldownSeconds: 240,
-    contractOfferCount: 6
+    contractOfferCount: 6,
+    maxOfflineMinutes: 15
   });
 
   const effectLabels = Object.freeze({
@@ -217,6 +218,20 @@
   function normalizeNavigationIcons(raw = {}) {
     return Object.fromEntries(Object.entries(defaultNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
   }
+  const defaultMobileNavigationIcons = Object.freeze({
+    farm: defaultNavigationIcons.farm,
+    stock: defaultNavigationIcons.stock,
+    contracts: defaultNavigationIcons.contracts,
+    orders: defaultNavigationIcons.orders,
+    evolutions: defaultNavigationIcons.evolutions,
+    account: defaultNavigationIcons.account,
+    social: defaultNavigationIcons.social,
+    missions: defaultNavigationIcons.missions,
+    settings: defaultNavigationIcons.settings
+  });
+  function normalizeMobileNavigationIcons(raw = {}, desktop = defaultNavigationIcons) {
+    return Object.fromEntries(Object.entries(defaultMobileNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], desktop?.[key] || fallback)]));
+  }
 
   const standardPointTypes = Object.freeze([
     Object.freeze({ id: "coin", key: "coin", icon: "assets/icons/moeda.webp", locked: true }),
@@ -226,7 +241,7 @@
   ]);
 
   const defaults = Object.freeze({
-    schemaVersion: 10,
+    schemaVersion: 13,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -242,6 +257,7 @@
     events: [],
     updateNotes: [],
     navigationIcons: clone(defaultNavigationIcons),
+    mobileNavigationIcons: clone(defaultMobileNavigationIcons),
     texts: clone(defaultTexts)
   });
 
@@ -275,7 +291,8 @@
       contractExpiredCooldownSeconds: integer(raw.contractExpiredCooldownSeconds, 1, 86400, defaultBalance.contractExpiredCooldownSeconds),
       contractDeclinedCooldownSeconds: integer(raw.contractDeclinedCooldownSeconds, 1, 86400, defaultBalance.contractDeclinedCooldownSeconds),
       contractBrokenCooldownSeconds: integer(raw.contractBrokenCooldownSeconds, 1, 86400, defaultBalance.contractBrokenCooldownSeconds),
-      contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount)
+      contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount),
+      maxOfflineMinutes: integer(raw.maxOfflineMinutes ?? (Number(raw.maxOfflineSeconds) / 60), 1, 43200, defaultBalance.maxOfflineMinutes)
     };
   }
 
@@ -329,7 +346,7 @@
   function normalizeContractTypes(raw, balance = defaultBalance) {
     if (!Array.isArray(raw)) return [];
     const toneColors = { normal: "#e6c35f", urgent: "#d96d5d", bulk: "#6fa4cc" };
-    return uniqueById(raw.slice(0, 100).map((item, index) => {
+    const normalizedTypes = uniqueById(raw.slice(0, 100).map((item, index) => {
       const oldQuantity = (Number(item?.load) || 1) * (Number(item?.volumeMultiplier) || 1);
       const inferredLegacyMode = item?.researchMode && item.researchMode !== "none" ? "both" : "coins";
       const rewards = Array.isArray(item?.rewards)
@@ -342,7 +359,11 @@
         id: id(item?.id, `contract_type_${index + 1}`),
         label: text(item?.label || item?.name, 80, `Tipo de contrato ${index + 1}`),
         chancePercent: clamp(item?.chancePercent, 0, 100, 100),
-        durationSeconds: integer(item?.durationSeconds ?? item?.duration, 5, 604800, 360),
+        priority: integer(item?.priority, 0, 1000, 0),
+        penaltyPercent: clamp(item?.penaltyPercent ?? item?.finePercent, 0, 100000, 20),
+        offerCountdown: item?.offerCountdown === false || item?.offerCountdown === "false" ? false : true,
+        minDurationSeconds: integer(item?.minDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360),
+        maxDurationSeconds: integer(item?.maxDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360),
         quantityMultiplier: clamp(item?.quantityMultiplier, 0.01, 1000, Math.max(0.01, oldQuantity || 1)),
         rewards,
         coinMultiplierPercent: clamp(item?.coinMultiplierPercent, 0, 100000, legacyCoinPercent),
@@ -353,6 +374,11 @@
         colorAlpha: clamp(item?.colorAlpha, 0, 100, 18)
       };
     }));
+    return normalizedTypes.map(type => {
+      const minDurationSeconds = Math.min(type.minDurationSeconds, type.maxDurationSeconds);
+      const maxDurationSeconds = Math.max(type.minDurationSeconds, type.maxDurationSeconds);
+      return { ...type, minDurationSeconds, maxDurationSeconds };
+    });
   }
 
   function normalizeContractSlots(raw) {
@@ -501,7 +527,19 @@
           amount: clamp(row?.amount, 0, Number.MAX_SAFE_INTEGER, 0)
         };
         if (Array.isArray(row?.stageValues)) {
-          normalizedBonus.stageValues = row.stageValues.slice(0, 1000).map(value => clamp(value, 0, Number.MAX_SAFE_INTEGER, 0));
+          let stageValues = row.stageValues.slice(0, 1000).map(value => clamp(value, 0, Number.MAX_SAFE_INTEGER, 0));
+          // Migração defensiva: algumas configurações antigas gravaram um zero
+          // na posição 0 e o primeiro upgrade acabava sem efeito real.
+          const originalStageCount = stageValues.length;
+          while (stageValues.length > 1 && stageValues[0] <= 0 && stageValues.slice(1).some(value => value > 0)) stageValues.shift();
+          while (stageValues.length < originalStageCount && stageValues.length) stageValues.push(stageValues.at(-1));
+          // r28: o editor antigo convertia o campo vazio em [0]. Isso fazia o
+          // nível ser comprado normalmente, mas o bônus configurado em `amount`
+          // nunca era aplicado. Um vetor sem nenhum valor positivo é tratado
+          // como ausente quando existe quantidade por nível.
+          if (stageValues.some(value => value > 0) || normalizedBonus.amount <= 0) {
+            if (stageValues.length) normalizedBonus.stageValues = stageValues;
+          }
         }
         return normalizedBonus;
       }).filter(Boolean);
@@ -574,7 +612,7 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 10,
+      schemaVersion: 13,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -590,6 +628,7 @@
       events: normalizeEvents(source?.events),
       updateNotes,
       navigationIcons: normalizeNavigationIcons(source?.navigationIcons),
+      mobileNavigationIcons: normalizeMobileNavigationIcons(source?.mobileNavigationIcons, normalizeNavigationIcons(source?.navigationIcons)),
       texts: normalizeTexts(source?.texts)
     };
   }
@@ -609,7 +648,7 @@
     const formatNumber = typeof numberFormatter === "function"
       ? numberFormatter
       : number => new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(number);
-    let html = escapeHtml(value);
+    let html = escapeHtml(value).replace(/\r?\n/g, "<br>");
     html = html.replace(/\[\[([a-z0-9_-]{1,64})(?:\.([+-]?\d+(?:[.,]\d+)?))?\]\]/gi, (token, rawKey, rawAmount) => {
       const point = byKey.get(String(rawKey).toLowerCase());
       if (!point) return token;
@@ -638,9 +677,14 @@
   }
 
 
-  function applyNavigationIcons(icons = {}) {
+  function applyNavigationIcons(icons = {}, mobileIcons = {}) {
     Object.entries(icons).forEach(([key, src]) => {
       document.querySelectorAll(`[data-navigation-icon="${key}"]`).forEach(image => {
+        if (image instanceof HTMLImageElement) image.src = src;
+      });
+    });
+    Object.entries(mobileIcons).forEach(([key, src]) => {
+      document.querySelectorAll(`[data-mobile-navigation-icon="${key}"]`).forEach(image => {
         if (image instanceof HTMLImageElement) image.src = src;
       });
     });
@@ -662,6 +706,8 @@
     GameEngine.CONTRACT_DECLINED_COOLDOWN_SECONDS = balance.contractDeclinedCooldownSeconds;
     GameEngine.CONTRACT_BROKEN_COOLDOWN_SECONDS = balance.contractBrokenCooldownSeconds;
     GameEngine.CONTRACT_OFFER_COUNT = balance.contractOfferCount;
+    GameEngine.BASE_MAX_OFFLINE_SECONDS = Math.max(60, Math.floor(balance.maxOfflineMinutes * 60));
+    GameEngine.MAX_OFFLINE_SECONDS = GameEngine.BASE_MAX_OFFLINE_SECONDS;
     GameEngine.BASE_STORAGE_CAPACITY = balance.storageCapacity;
     // Recompensa, prazo e XP dos contratos/pedidos pertencem aos próprios
     // catálogos administrativos, não aos parâmetros globais.
@@ -684,7 +730,7 @@
     window.FazendaSerenaRuntimeConfig = runtimeConfig;
     window.FazendaSerenaConfig?.applyCloudVersion?.(config.gameVersion);
     applyTexts(config.texts, config.pointTypes);
-    applyNavigationIcons(config.navigationIcons);
+    applyNavigationIcons(config.navigationIcons, config.mobileNavigationIcons);
     window.dispatchEvent(new CustomEvent("fazenda-runtime-config", { detail: clone(runtimeConfig) }));
     return clone(config);
   }
@@ -699,7 +745,8 @@
     window.FazendaSerenaRuntimeConfig = current;
     applyTexts(current.texts, current.pointTypes || []);
     current.navigationIcons = clone(normalized.navigationIcons);
-    applyNavigationIcons(current.navigationIcons);
+    current.mobileNavigationIcons = clone(normalized.mobileNavigationIcons);
+    applyNavigationIcons(current.navigationIcons, current.mobileNavigationIcons);
     window.dispatchEvent(new CustomEvent("fazenda-live-content", { detail: { events: clone(current.events) } }));
   }
 

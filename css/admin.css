@@ -828,3 +828,157 @@ body > .admin-image-select-popover {
 .admin-image-select-popover[popover]:popover-open { display:block !important; }
 .admin-image-select-popover .admin-image-select-search { position:sticky; top:0; z-index:2; }
 .admin-image-select-options { overscroll-behavior:contain; }
+
+
+/* ========================================================================== */
+/* r26 — sanfona plena e seletor ancorado                                     */
+/* ========================================================================== */
+.admin-mission-catalog-item,
+.admin-mission-series-accordion,
+.admin-mission-series-body,
+.admin-series-inline-list { width: 100% !important; max-width: none !important; }
+.admin-mission-series-accordion { overflow: visible !important; }
+.admin-mission-series-body,
+.admin-series-inline-list { max-height: none !important; overflow: visible !important; contain: none !important; }
+.admin-series-inline-actions { position: static !important; margin: 0 !important; }
+body > .admin-image-select-popover[popover] {
+  position: fixed !important; inset: auto !important; margin: 0 !important;
+  transform: none !important; min-width: 0 !important; z-index: 2147483646 !important;
+}
+@media (max-width:760px) {
+  body > .admin-image-select-popover[popover] { transform:none !important; min-width:0 !important; }
+}
+
+
+/* ========================================================================== */
+/* r27 — seletor visual ancorado sem deslocamento cumulativo                  */
+/* ========================================================================== */
+.admin-image-select { position:relative !important; width:100% !important; }
+.admin-image-select-popover[popover] {
+  background:#fff !important;
+  border:1px solid rgba(62,88,64,.14) !important;
+  border-radius:14px !important;
+  box-shadow:0 22px 60px rgba(29,50,32,.22) !important;
+  inset:auto !important;
+  margin:0 !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  padding:0 !important;
+  position:fixed !important;
+  transform:none !important;
+  z-index:2147483647 !important;
+}
+.admin-image-select-popover[popover]:popover-open { display:block !important; }
+.admin-image-select-popover .admin-image-select-options { overflow:auto !important; overscroll-behavior:contain; }
+@media(max-width:760px){
+  .admin-image-select-popover[popover] { min-width:0 !important; transform:none !important; }
+}
+
+
+/* ==========================================================================
+   r27 final — seletor visual em dialog centralizado (sem cálculo de posição)
+   ========================================================================== */
+.admin-image-select-native { position:absolute !important; inline-size:1px !important; block-size:1px !important; opacity:0 !important; pointer-events:none !important; }
+.admin-image-select { min-width:0 !important; position:relative !important; width:100% !important; }
+.admin-image-picker-dialog { background:transparent; border:0; inset:0; margin:auto; max-height:min(86dvh,760px); max-width:none; padding:0; width:min(760px,calc(100vw - 24px)); }
+.admin-image-picker-dialog::backdrop { background:rgba(22,34,24,.52); backdrop-filter:blur(3px); }
+.admin-image-picker-shell { background:#fff; border:1px solid rgba(60,89,63,.14); border-radius:18px; box-shadow:0 28px 80px rgba(22,40,25,.28); display:grid; grid-template-rows:auto auto minmax(0,1fr); max-height:min(86dvh,760px); overflow:hidden; }
+.admin-image-picker-head { align-items:center; background:linear-gradient(135deg,#f8fbf6,#eef5eb); border-bottom:1px solid rgba(60,89,63,.1); display:flex; gap:16px; justify-content:space-between; padding:16px 18px 14px; }
+.admin-image-picker-head small { color:var(--green); display:block; font-size:.62rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+.admin-image-picker-head h2 { font-size:1.08rem; margin:2px 0 0; }
+.admin-image-picker-close { align-items:center; background:#fff; border:1px solid rgba(60,89,63,.14); border-radius:10px; color:var(--ink); cursor:pointer; display:flex; font-size:1.25rem; height:38px; justify-content:center; width:38px; }
+.admin-image-picker-search { background:#fff; border-bottom:1px solid rgba(60,89,63,.08); display:grid; gap:5px; padding:12px 18px; }
+.admin-image-picker-search span { color:var(--muted); font-size:.64rem; font-weight:850; }
+.admin-image-picker-search input { width:100%; }
+.admin-image-picker-options { display:grid; gap:9px; grid-template-columns:repeat(5,minmax(0,1fr)); min-height:0; overflow:auto; overscroll-behavior:contain; padding:14px 18px 18px; }
+.admin-image-picker-options > button { align-content:start; background:#fbfcfa; border:1px solid rgba(60,89,63,.11); border-radius:12px; color:var(--ink); cursor:pointer; display:grid; gap:6px; min-height:112px; padding:8px; position:relative; text-align:center; }
+.admin-image-picker-options > button:hover { background:#f2f7ef; border-color:rgba(71,116,70,.32); }
+.admin-image-picker-options > button.is-selected { background:#edf5ea; border-color:#7fa37b; box-shadow:inset 0 0 0 1px #7fa37b; }
+.admin-image-picker-options > button img { height:64px; margin:auto; object-fit:contain; width:64px; }
+.admin-image-picker-options > button span { font-size:.64rem; line-height:1.2; overflow-wrap:anywhere; }
+.admin-image-picker-options > button b { background:var(--green); border-radius:999px; color:#fff; font-size:.52rem; padding:3px 6px; position:absolute; right:6px; top:6px; }
+@media (max-width:720px) { .admin-image-picker-options { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:440px) { .admin-image-picker-dialog { max-height:92dvh; width:calc(100vw - 12px); } .admin-image-picker-shell { max-height:92dvh; } .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)); padding:10px 12px 14px; } }
+
+
+/* ========================================================================== */
+/* r29 — galeria de imagens sem posicionamento flutuante e ícones responsivos */
+/* ========================================================================== */
+.admin-navigation-icon-group { background:#f8faf7; border:1px solid rgba(61,88,63,.10); border-radius:16px; display:grid; gap:12px; padding:14px; }
+.admin-navigation-icon-group + .admin-navigation-icon-group { margin-top:12px; }
+.admin-navigation-icon-group > header { display:grid; gap:2px; }
+.admin-navigation-icon-group > header strong { color:var(--ink); font-size:.88rem; }
+.admin-navigation-icon-group > header small { color:var(--muted); font-size:.66rem; line-height:1.4; }
+
+.admin-image-picker-layer[hidden] { display:none !important; }
+.admin-image-picker-layer {
+  align-items:center;
+  background:rgba(22,34,24,.52);
+  display:grid;
+  inset:0;
+  justify-items:center;
+  padding:12px;
+  position:fixed;
+  z-index:2147483000;
+}
+.admin-image-picker-layer .admin-image-picker-shell {
+  background:#fff;
+  border:1px solid rgba(60,89,63,.14);
+  border-radius:19px;
+  box-shadow:0 30px 90px rgba(22,40,25,.34);
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr);
+  max-height:min(88dvh,780px);
+  overflow:hidden;
+  width:min(780px,calc(100vw - 24px));
+}
+.admin-image-picker-layer .admin-image-picker-options {
+  display:grid;
+  gap:9px;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  min-height:0;
+  overflow:auto;
+  overscroll-behavior:contain;
+  padding:14px 18px 18px;
+  scrollbar-gutter:stable;
+}
+.admin-image-picker-layer .admin-image-picker-options > button { min-width:0; }
+@media(max-width:720px){ .admin-image-picker-layer .admin-image-picker-options{grid-template-columns:repeat(3,minmax(0,1fr));} }
+@media(max-width:440px){
+  .admin-image-picker-layer { padding:6px; }
+  .admin-image-picker-layer .admin-image-picker-shell { max-height:94dvh; width:100%; }
+  .admin-image-picker-layer .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)); padding:10px 12px 14px; }
+}
+
+
+/* r29 final — seletor de imagem como modal da Top Layer, sem coordenadas manuais */
+.admin-image-picker-dialog-r29 {
+  background: transparent !important;
+  border: 0 !important;
+  inset: 0 !important;
+  margin: auto !important;
+  max-height: none !important;
+  max-width: none !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  width: min(800px, calc(100vw - 24px)) !important;
+}
+.admin-image-picker-dialog-r29::backdrop { background: rgba(20,31,22,.58); backdrop-filter: blur(3px); }
+.admin-image-picker-dialog-r29 .admin-image-picker-shell {
+  max-height: min(88dvh, 790px) !important;
+  width: 100% !important;
+}
+.admin-image-picker-dialog-r29 .admin-image-picker-options {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0,1fr)) !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+@media (max-width:720px) { .admin-image-picker-dialog-r29 .admin-image-picker-options { grid-template-columns:repeat(3,minmax(0,1fr)) !important; } }
+@media (max-width:440px) {
+  .admin-image-picker-dialog-r29 { width:calc(100vw - 10px) !important; }
+  .admin-image-picker-dialog-r29 .admin-image-picker-shell { max-height:calc(100dvh - 14px) !important; }
+  .admin-image-picker-dialog-r29 .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+}

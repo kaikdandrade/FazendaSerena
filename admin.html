@@ -8,19 +8,19 @@
 <meta name="theme-color" content="#f3f6f0">
 <title>Administração — Fazenda Serena</title>
 <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="css/admin.css?v=r25">
-<script defer src="js/publicCloud.js?v=r25"></script>
-<script defer src="js/appConfig.js?v=r25"></script>
-<script defer src="js/cacheManager.js?v=r25"></script>
-<script defer src="js/firebase-config.js?v=r25"></script>
-<script defer src="js/localAssets.js?v=r25"></script>
-<script defer src="js/firebaseManager.js?v=r25"></script>
-<script defer src="js/data.js?v=r25"></script>
-<script defer src="js/cropEconomy.js?v=r25"></script>
-<script defer src="js/gameAdmin.js?v=r25"></script>
-<script defer src="js/adminImageSelect.js?v=r25"></script>
-<script defer src="js/adminCatalogEditor.js?v=r25"></script>
-<script defer src="js/admin.js?v=r25"></script>
+<link rel="stylesheet" href="css/admin.css">
+<script defer src="js/publicCloud.js"></script>
+<script defer src="js/appConfig.js"></script>
+<script defer src="js/cacheManager.js"></script>
+<script defer src="js/firebase-config.js"></script>
+<script defer src="js/localAssets.js"></script>
+<script defer src="js/firebaseManager.js"></script>
+<script defer src="js/data.js"></script>
+<script defer src="js/cropEconomy.js"></script>
+<script defer src="js/gameAdmin.js"></script>
+<script defer src="js/adminImageSelect.js"></script>
+<script defer src="js/adminCatalogEditor.js"></script>
+<script defer src="js/admin.js"></script>
 </head>
 <body>
 <main class="admin-shell">
@@ -94,6 +94,7 @@
       <label><span>Nova proposta após recusar (segundos)</span><input autocomplete="off" id="adminContractDeclinedCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nova proposta após quebrar (segundos)</span><input autocomplete="off" id="adminContractBrokenCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Quantidade de contratos livres para assinatura</span><input autocomplete="off" id="adminContractOfferCount" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Tempo máximo de geração offline (minutos)</span><input autocomplete="off" id="adminMaxOfflineMinutes" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
     </div>
     <div class="admin-section-save"><button class="admin-button primary" id="adminSaveBalance" type="button">Salvar parâmetros</button></div>
   </section>
@@ -109,8 +110,9 @@
   </section>
 
   <section class="admin-panel admin-navigation-icons-section" data-admin-section="navigationIcons" hidden>
-    <div class="admin-section-heading"><div><h2>Ícones da navegação</h2><p>Escolha os ícones exibidos nas abas principais e nas abas internas.</p></div></div>
-    <div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div>
+    <div class="admin-section-heading"><div><h2>Ícones da navegação</h2><p>Configure separadamente a navegação clássica e a grade usada em celulares de até 480px.</p></div></div>
+    <section class="admin-navigation-icon-group"><header><strong>Desktop e tablet</strong><small>Navegação principal e abas internas acima de 480px.</small></header><div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div></section>
+    <section class="admin-navigation-icon-group"><header><strong>Celular · até 480px</strong><small>Grade direta somente com ícones.</small></header><div class="admin-navigation-icon-grid" id="adminMobileNavigationIconGrid"></div></section>
     <div class="admin-section-save"><button class="admin-button primary" id="adminSaveNavigationIcons" type="button">Salvar ícones</button></div>
   </section>
 

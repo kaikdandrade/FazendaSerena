@@ -155,13 +155,16 @@
     activeView = requestedView;
     dom.views.forEach(view => view.classList.toggle("active", view.id === activeView));
     dom.tabs.forEach(tab => {
-      const active = tab.dataset.view === activeView;
+      const sameView = tab.dataset.view === activeView;
+      const active = sameView
+        && (!tab.dataset.officeTab || tab.dataset.officeTab === activeOfficeTab)
+        && (!tab.dataset.profileTab || tab.dataset.profileTab === activeProfileTab);
       tab.classList.toggle("active", active);
       if (active) tab.setAttribute("aria-current", "page");
       else tab.removeAttribute("aria-current");
     });
     window.requestAnimationFrame(() => {
-      const activeTab = dom.tabs.find(tab => tab.dataset.view === activeView);
+      const activeTab = dom.tabs.find(tab => tab.classList.contains("active"));
       revealTabHorizontally(activeTab?.closest(".main-nav"), activeTab);
     });
     dom.contextNavBlocks.forEach(block => {
@@ -182,28 +185,23 @@
     const numberFormat = ["brazilian", "international"].includes(settings.numberFormat)
       ? settings.numberFormat
       : experienceDefaults.numberFormat;
-    const navigationMode = ["tabs", "sidebar"].includes(settings.navigationMode)
-      ? settings.navigationMode
-      : experienceDefaults.navigationMode;
     const masterVolume = settings.masterVolume ?? audioDefaults.masterVolume;
     const effectVolume = settings.effectVolume ?? audioDefaults.effectVolume;
     const musicVolume = settings.musicVolume ?? audioDefaults.musicVolume;
     const musicTrack = SoundEngine.MUSIC_SOURCES[settings.musicTrack]
       ? settings.musicTrack
       : audioDefaults.musicTrack;
-    const signature = JSON.stringify({ ambient: Boolean(ambient), fontScale, numberFormat, navigationMode, masterVolume, effectVolume, musicVolume, musicTrack });
+    const signature = JSON.stringify({ ambient: Boolean(ambient), fontScale, numberFormat, masterVolume, effectVolume, musicVolume, musicTrack });
     if (!force && signature === appliedSettingsSignature) return;
     appliedSettingsSignature = signature;
 
     document.body.dataset.ambient = String(Boolean(ambient));
-    document.body.dataset.navigationMode = navigationMode;
     document.documentElement.style.setProperty("--font-scale", String(Number(fontScale) / 100));
 
     if (dom.ambientSetting && document.activeElement !== dom.ambientSetting) dom.ambientSetting.checked = Boolean(ambient);
     if (dom.fontScaleSetting && document.activeElement !== dom.fontScaleSetting) dom.fontScaleSetting.value = String(fontScale);
     if (dom.fontScaleText) dom.fontScaleText.textContent = `${fontScale}%`;
     if (dom.numberFormatSetting && document.activeElement !== dom.numberFormatSetting) dom.numberFormatSetting.value = numberFormat;
-    if (dom.navigationModeSetting && document.activeElement !== dom.navigationModeSetting) dom.navigationModeSetting.value = navigationMode;
 
     soundEngine.configure({ ...settings, masterVolume, effectVolume, musicVolume, musicTrack });
     if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(masterVolume);
@@ -228,43 +226,49 @@
       ? `Estoque cheio: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados.`
       : `Estoque: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados, ${Math.floor(usage)} por cento.`);
     dom.stockNavTab.title = `Estoque ${Math.floor(usage)}% cheio`;
+    document.querySelectorAll(".mobile-stock-nav-tab").forEach(tab => {
+      tab.title = dom.stockNavTab.title;
+      tab.setAttribute("aria-label", dom.stockNavTab.getAttribute("aria-label") || "Estoque");
+      tab.style.setProperty("--stock-progress", `${usage}%`);
+      tab.classList.toggle("stock-full", full);
+    });
   }
 
   function updateOfficeNavigation() {
-    dom.officeNavTab.classList.remove("has-attention");
-    dom.officeNavTab.setAttribute("aria-label", "Escritório");
-    dom.officeNavTab.title = "Escritório";
+    const officeNavTab = document.querySelector("#officeNavTab");
+    if (!officeNavTab) return;
+    officeNavTab.classList.remove("has-attention");
+    officeNavTab.setAttribute("aria-label", "Escritório");
+    officeNavTab.title = "Escritório";
   }
 
   function syncFeatureLocks() {
     const researchUnlocked = engine.isEvolutionUnlocked();
-
-    if (dom.evolutionsOfficeTab) {
-      dom.evolutionsOfficeTab.disabled = false;
-      dom.evolutionsOfficeTab.classList.toggle("feature-preview", !researchUnlocked);
-      dom.evolutionsOfficeTab.setAttribute("aria-disabled", "false");
-      dom.evolutionsOfficeTab.title = researchUnlocked
+    document.querySelectorAll('[data-office-tab="evolutions"]').forEach(tab => {
+      tab.disabled = false;
+      tab.classList.toggle("feature-preview", !researchUnlocked);
+      tab.setAttribute("aria-disabled", "false");
+      tab.title = researchUnlocked
         ? "Evoluções — Centro de pesquisa"
         : `Evoluções — pesquisas liberam no nível ${GameEngine.EVOLUTION_UNLOCK_LEVEL}`;
-    }
+    });
 
-    if (dom.contractsOfficeTab) {
-      dom.contractsOfficeTab.disabled = false;
-      dom.contractsOfficeTab.classList.remove("feature-locked", "feature-preview");
-      dom.contractsOfficeTab.setAttribute("aria-disabled", "false");
-      dom.contractsOfficeTab.title = "Contratos";
-    }
+    document.querySelectorAll('[data-office-tab="contracts"]').forEach(tab => {
+      tab.disabled = false;
+      tab.classList.remove("feature-locked", "feature-preview");
+      tab.setAttribute("aria-disabled", "false");
+      tab.title = "Contratos";
+    });
 
     const ordersUnlocked = engine.isOrdersUnlocked();
-    if (dom.ordersOfficeTab) {
-      dom.ordersOfficeTab.disabled = false;
-      dom.ordersOfficeTab.classList.toggle("feature-preview", !ordersUnlocked);
-      dom.ordersOfficeTab.setAttribute("aria-disabled", "false");
-      dom.ordersOfficeTab.title = ordersUnlocked
+    document.querySelectorAll('[data-office-tab="orders"]').forEach(tab => {
+      tab.disabled = false;
+      tab.classList.toggle("feature-preview", !ordersUnlocked);
+      tab.setAttribute("aria-disabled", "false");
+      tab.title = ordersUnlocked
         ? "Pedidos"
         : `Pedidos — entregas liberadas no nível ${GameEngine.ORDER_UNLOCK_LEVEL}`;
-    }
-
+    });
   }
 
   function updateFarmProgressDisplay() {

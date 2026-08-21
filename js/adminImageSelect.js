@@ -1,99 +1,163 @@
 "use strict";
 (() => {
-  const escapeHtml = value => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+  const escapeHtml = value => String(value ?? "")
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+
   const instances = new WeakMap();
-  const allInstances = new Set();
-  let activeInstance = null;
+  const liveInstances = new Set();
+  let active = null;
+
+  const picker = document.createElement("dialog");
+  picker.className = "admin-image-picker-dialog admin-image-picker-dialog-r29";
+  picker.setAttribute("aria-labelledby", "adminImagePickerTitle");
+  picker.innerHTML = `<div class="admin-image-picker-shell">
+    <header class="admin-image-picker-head">
+      <div><small>Biblioteca local</small><h2 id="adminImagePickerTitle">Selecionar imagem</h2></div>
+      <button class="admin-image-picker-close" type="button" aria-label="Fechar">×</button>
+    </header>
+    <label class="admin-image-picker-search"><span>Buscar imagem</span><input autocomplete="off" type="search" placeholder="Digite para filtrar..."></label>
+    <div class="admin-image-picker-options" role="listbox"></div>
+  </div>`;
+  document.body.appendChild(picker);
+
+  const pickerSearch = picker.querySelector('input[type="search"]');
+  const pickerOptions = picker.querySelector(".admin-image-picker-options");
+  const pickerTitle = picker.querySelector("h2");
+
+  function closePicker({ restoreFocus = true } = {}) {
+    const previous = active;
+    if (picker.open) picker.close();
+    previous?.trigger?.setAttribute("aria-expanded", "false");
+    active = null;
+    if (restoreFocus && previous?.trigger?.isConnected) {
+      try { previous.trigger.focus({ preventScroll: true }); } catch {}
+    }
+  }
 
   class ImageSelect {
     constructor(select) {
       this.select = select;
-      select.classList.add("admin-image-select-native");
+      this.select.classList.add("admin-image-select-native");
       this.root = document.createElement("div");
       this.root.className = "admin-image-select";
-      this.root.innerHTML = `<button class="admin-image-select-trigger" type="button" aria-haspopup="listbox" aria-expanded="false"><img alt=""><span><strong></strong><small>Selecionar imagem</small></span><i aria-hidden="true">⌄</i></button>`;
+      this.root.innerHTML = `<button class="admin-image-select-trigger" type="button" aria-haspopup="dialog" aria-expanded="false">
+        <img alt=""><span><strong></strong><small>Selecionar imagem</small></span><i aria-hidden="true">›</i>
+      </button>`;
       select.insertAdjacentElement("afterend", this.root);
       this.trigger = this.root.querySelector(".admin-image-select-trigger");
-      this.popover = document.createElement("div");
-      this.popover.className = "admin-image-select-popover";
-      this.popover.innerHTML = `<label class="admin-image-select-search"><span>Buscar</span><input autocomplete="off" type="search" placeholder="Digite para filtrar..."></label><div class="admin-image-select-options" role="listbox"></div>`;
-      this.supportsPopover = typeof this.popover.showPopover === "function";
-      if (this.supportsPopover) this.popover.setAttribute("popover", "manual"); else this.popover.hidden = true;
-      this.host = select.closest("dialog") || document.body;
-      this.host.appendChild(this.popover);
-      this.optionsRoot = this.popover.querySelector(".admin-image-select-options");
-      this.search = this.popover.querySelector(".admin-image-select-search input");
-
-      this.trigger.addEventListener("click", event => { event.preventDefault(); event.stopPropagation(); this.toggle(); });
-      this.search.addEventListener("input", () => this.filter(this.search.value));
-      this.optionsRoot.addEventListener("click", event => {
-        const button = event.target.closest("[data-image-select-value]");
-        if (!button) return;
-        event.preventDefault(); event.stopPropagation();
-        this.select.value = button.dataset.imageSelectValue || "";
-        this.select.dispatchEvent(new Event("input", { bubbles: true }));
-        this.select.dispatchEvent(new Event("change", { bubbles: true }));
-        this.renderSelected(); this.close();
+      this.trigger.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.open();
       });
       this.select.addEventListener("change", () => this.renderSelected());
-      this.rebuild(); instances.set(select, this); allInstances.add(this);
-    }
-    rebuild() {
-      const options = [...this.select.options].filter(option => option.value);
-      this.optionsRoot.innerHTML = options.length ? options.map(option => `<button type="button" role="option" data-image-select-value="${escapeHtml(option.value)}" data-image-select-label="${escapeHtml(option.textContent)}"><img loading="lazy" src="${escapeHtml(option.value)}" alt=""><span>${escapeHtml(option.textContent)}</span></button>`).join("") : '<div class="admin-image-select-empty">Nenhuma imagem disponível.</div>';
       this.renderSelected();
+      instances.set(select, this);
+      liveInstances.add(this);
     }
+
+    options() {
+      return [...this.select.options].filter(option => option.value);
+    }
+
     renderSelected() {
       const selected = this.select.options[this.select.selectedIndex];
-      this.trigger.querySelector("img").src = selected?.value || "assets/logo.webp";
-      this.trigger.querySelector("strong").textContent = selected?.textContent || "Selecionar imagem";
-      this.optionsRoot.querySelectorAll("[data-image-select-value]").forEach(button => {
-        const active = button.dataset.imageSelectValue === this.select.value;
-        button.classList.toggle("is-selected", active); button.setAttribute("aria-selected", String(active));
+      const image = this.trigger.querySelector("img");
+      image.src = selected?.value || "assets/logo.webp";
+      image.alt = selected?.textContent?.trim() || "Imagem selecionada";
+      this.trigger.querySelector("strong").textContent = selected?.textContent?.trim() || "Selecionar imagem";
+    }
+
+    renderPicker(query = "") {
+      const term = String(query || "").trim().toLocaleLowerCase("pt-BR");
+      const options = this.options().filter(option => {
+        const haystack = `${option.textContent || ""} ${option.value || ""}`.toLocaleLowerCase("pt-BR");
+        return !term || haystack.includes(term);
+      });
+      pickerOptions.innerHTML = options.length ? options.map(option => {
+        const selected = option.value === this.select.value;
+        return `<button type="button" role="option" aria-selected="${String(selected)}" class="${selected ? "is-selected" : ""}" data-image-select-value="${escapeHtml(option.value)}">
+          <img loading="lazy" src="${escapeHtml(option.value)}" alt=""><span>${escapeHtml(option.textContent?.trim() || option.value)}</span>${selected ? "<b>Selecionado</b>" : ""}
+        </button>`;
+      }).join("") : '<div class="admin-image-select-empty">Nenhuma imagem encontrada.</div>';
+    }
+
+    open() {
+      if (!this.select.isConnected || !this.root.isConnected) return;
+      if (active && active !== this) closePicker({ restoreFocus: false });
+      active = this;
+      const label = this.select.closest("[data-admin-field-key], label, section")?.querySelector(":scope > span")?.textContent?.trim();
+      pickerTitle.textContent = label || "Selecionar imagem";
+      pickerSearch.value = "";
+      this.renderPicker();
+      this.trigger.setAttribute("aria-expanded", "true");
+      // Um <dialog>.showModal() sempre entra na Top Layer do navegador. Portanto
+      // funciona igual dentro de "Adicionar planta", outros modais, com scroll
+      // ou em viewport pequeno sem cálculo manual de left/top.
+      if (!picker.open) picker.showModal();
+      requestAnimationFrame(() => {
+        try { pickerSearch.focus({ preventScroll: true }); } catch {}
       });
     }
-    filter(query) {
-      const term = String(query || "").trim().toLocaleLowerCase("pt-BR");
-      this.optionsRoot.querySelectorAll("[data-image-select-value]").forEach(button => { button.hidden = Boolean(term) && !String(button.dataset.imageSelectLabel || "").toLocaleLowerCase("pt-BR").includes(term); });
+
+    choose(value) {
+      const option = this.options().find(item => item.value === value);
+      if (!option) return;
+      this.select.value = value;
+      this.renderSelected();
+      this.select.dispatchEvent(new Event("input", { bubbles: true }));
+      this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      closePicker();
     }
-    isVisible() { return activeInstance === this; }
-    placePopover() {
-      if (!this.isVisible() || !this.trigger.isConnected) return;
-      const rect = this.trigger.getBoundingClientRect();
-      const gutter = 10, vw = Math.max(320, window.innerWidth || 0), vh = Math.max(320, window.innerHeight || 0);
-      const width = Math.min(Math.max(rect.width, 460), vw - gutter * 2);
-      const below = vh - rect.bottom - gutter - 6, above = rect.top - gutter - 6;
-      const openBelow = below >= 280 || below >= above;
-      const maxHeight = Math.min(500, Math.max(190, openBelow ? below : above));
-      const left = Math.max(gutter, Math.min(rect.left, vw - width - gutter));
-      const top = openBelow ? rect.bottom + 6 : Math.max(gutter, rect.top - maxHeight - 6);
-      Object.assign(this.popover.style, { position:"fixed", left:`${left}px`, top:`${Math.min(top, vh-maxHeight-gutter)}px`, right:"auto", bottom:"auto", width:`${width}px`, maxWidth:`${vw-gutter*2}px`, maxHeight:`${maxHeight}px`, margin:"0", transform:"none" });
-      this.optionsRoot.style.maxHeight = `${Math.max(120, maxHeight - 62)}px`;
+
+    rebuild() {
+      this.renderSelected();
+      if (active === this && picker.open) this.renderPicker(pickerSearch.value);
     }
-    open() {
-      if (activeInstance && activeInstance !== this) activeInstance.close();
-      activeInstance = this; this.root.classList.add("is-open"); this.trigger.setAttribute("aria-expanded","true"); this.search.value=""; this.filter("");
-      if (this.supportsPopover) { try { this.popover.showPopover(); } catch (_) { this.popover.hidden=false; } } else this.popover.hidden=false;
-      requestAnimationFrame(() => { this.placePopover(); try { this.search.focus({preventScroll:true}); } catch (_) { this.search.focus(); } });
+
+    destroy() {
+      if (active === this) closePicker({ restoreFocus: false });
+      this.root.remove();
+      liveInstances.delete(this);
+      instances.delete(this.select);
     }
-    close() {
-      this.root.classList.remove("is-open"); this.trigger.setAttribute("aria-expanded","false");
-      if (this.supportsPopover) { try { if (this.popover.matches(":popover-open")) this.popover.hidePopover(); } catch (_) { this.popover.hidden=true; } } else this.popover.hidden=true;
-      if (activeInstance === this) activeInstance = null;
-    }
-    toggle() { this.isVisible() ? this.close() : this.open(); }
-    destroy() { this.close(); this.popover.remove(); allInstances.delete(this); }
   }
-  document.addEventListener("click", event => { if (activeInstance && !activeInstance.root.contains(event.target) && !activeInstance.popover.contains(event.target)) activeInstance.close(); });
-  document.addEventListener("keydown", event => { if (event.key === "Escape") activeInstance?.close(); });
-  window.addEventListener("resize", () => activeInstance?.placePopover(), {passive:true});
-  document.addEventListener("scroll", event => { if (activeInstance && !activeInstance.popover.contains(event.target)) requestAnimationFrame(() => activeInstance?.placePopover()); }, {capture:true, passive:true});
-  document.addEventListener("close", event => { if (event.target instanceof HTMLDialogElement && activeInstance && event.target.contains(activeInstance.select)) activeInstance.close(); }, true);
+
+  pickerSearch.addEventListener("input", () => active?.renderPicker(pickerSearch.value));
+  pickerOptions.addEventListener("click", event => {
+    const button = event.target.closest("[data-image-select-value]");
+    if (!button || !active) return;
+    event.preventDefault();
+    active.choose(button.dataset.imageSelectValue || "");
+  });
+  picker.querySelector(".admin-image-picker-close").addEventListener("click", () => closePicker());
+  picker.addEventListener("click", event => {
+    const shell = picker.querySelector(".admin-image-picker-shell");
+    if (event.target === picker && shell && !shell.contains(event.target)) closePicker();
+  });
+  picker.addEventListener("cancel", event => {
+    event.preventDefault();
+    closePicker();
+  });
+  picker.addEventListener("close", () => {
+    if (!active) return;
+    active.trigger?.setAttribute("aria-expanded", "false");
+    active = null;
+  });
+
   window.AdminImageSelect = Object.freeze({
-    enhance(container=document) {
-      [...allInstances].forEach(instance => { if (!instance.select.isConnected) instance.destroy(); });
-      container.querySelectorAll?.("select[data-image-select]").forEach(select => { const old=instances.get(select); if(old) old.rebuild(); else new ImageSelect(select); });
+    enhance(container = document) {
+      [...liveInstances].forEach(instance => {
+        if (!instance.select.isConnected) instance.destroy();
+      });
+      container.querySelectorAll?.("select[data-image-select]").forEach(select => {
+        const current = instances.get(select);
+        if (current) current.rebuild();
+        else new ImageSelect(select);
+      });
     },
-    refresh(select) { instances.get(select)?.rebuild(); }
+    refresh(select) { instances.get(select)?.rebuild(); },
+    close: closePicker
   });
 })();

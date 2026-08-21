@@ -47,8 +47,9 @@ Object.assign(GameEngine.prototype, {
       this.addCoins(order.rewardCoins);
       this.addResearch(order.rewardResearch);
       this.state.prestigePoints += order.rewardPrestige;
+      const xp = this.getFarmXPAwardForRate(order.xpRate);
       this.addFarmXPPercent(order.xpRate, 1, silent);
-      return { coins: order.rewardCoins, research: order.rewardResearch, prestige: order.rewardPrestige, xpRate: order.xpRate };
+      return { coins: order.rewardCoins, research: order.rewardResearch, prestige: order.rewardPrestige, xp, xpRate: order.xpRate };
     },
 
   deliverOrder(cropId) {

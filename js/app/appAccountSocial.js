@@ -41,6 +41,13 @@
       dom.cloudSaveStatus.textContent = "Esta conta ainda não possui progresso; a sessão atual será salva automaticamente.";
       return;
     }
+    if (status === "local") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveStatus.textContent = time
+        ? `Progresso de visitante salvo neste navegador às ${time}.`
+        : "Progresso de visitante salvo neste navegador.";
+      return;
+    }
     if (status === "error") {
       dom.cloudSaveStatus.textContent = window.FirebaseManager.getFriendlyError(detail.error);
       return;
@@ -79,7 +86,7 @@
     if (dom.accountDescription) {
       dom.accountDescription.textContent = signedIn
         ? "Seu progresso é privado e salvo automaticamente na nuvem."
-        : "Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.";
+        : "Seu progresso de visitante é salvo neste navegador e pode ser enviado para a nuvem ao entrar pela primeira vez.";
     }
 
     if (dom.accountAvatar) {
@@ -328,6 +335,7 @@
 
     try {
       if (user) {
+        window.FirebaseManager.lockCloudWrites?.();
         let cloudState = null;
         let loadFailed = false;
         try {
@@ -338,16 +346,27 @@
         }
 
         if (cloudState) {
+          // Conta já existente: o save da nuvem é soberano. O save de visitante
+          // permanece local e pode voltar a ser usado caso o jogador saia da conta.
           engine.replaceState(cloudState, { simulateOffline: true });
+          window.FirebaseManager.unlockCloudWrites?.();
         } else if (!loadFailed) {
-          engine.replaceState(guestState, { simulateOffline: false });
-          await engine.save();
+          // Conta nova: só depois de confirmar que não existe save remoto liberamos
+          // a primeira gravação e promovemos exatamente o progresso do visitante.
+          engine.replaceState(guestState || window.FirebaseManager.loadGuestGame?.(), { simulateOffline: false });
+          window.FirebaseManager.unlockCloudWrites?.();
+          const promoted = await engine.save();
+          if (promoted?.ok) window.FirebaseManager.clearGuestGame?.();
         }
+        // Em falha de leitura, a trava permanece ativa para impedir que um save
+        // local sobrescreva acidentalmente uma conta existente. Um novo login/reload
+        // tentará ler a nuvem novamente.
         if (await window.FirebaseManager.isCurrentUserAdmin()) {
           await window.FirebaseManager.removeOwnLeaderboardEntry?.();
         }
       } else {
-        engine.replaceState(null, { simulateOffline: false });
+        window.FirebaseManager.unlockCloudWrites?.();
+        engine.replaceState(window.FirebaseManager.loadGuestGame?.() || null, { simulateOffline: true });
         showView("farmView", false);
       }
 

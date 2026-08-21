@@ -13,6 +13,17 @@ Object.assign(GameEngine.prototype, {
     return { total: this.getActiveContractSlotLimit(state), base: unlocked.length, level: 0, research: 0, prestige: bonus, slots: unlocked };
   },
 
+  calculateContractPenalty(contract) {
+    const missing = Math.max(0, Math.floor((Number(contract?.amount) || 0) - (Number(contract?.delivered) || 0)));
+    if (missing < 1) return 0;
+    const unitPrice = Math.max(1, Number(this.getSalePrice(contract.cropId)) || 1);
+    const type = this.getContractDifficulty(contract?.difficulty || contract?.typeId);
+    const penaltyPercent = Math.max(0, Number(contract?.penaltyPercent ?? type?.penaltyPercent ?? 20) || 0);
+    const basePenalty = unitPrice * missing;
+    const calculated = basePenalty * (100 + penaltyPercent) / 100;
+    return Math.max(1, Math.ceil(Math.round(calculated * 1e9) / 1e9));
+  },
+
   advanceContractTimers(seconds, silent = false) {
     const elapsed = Math.max(0, Number(seconds) || 0);
     if (elapsed <= 0) return;
@@ -21,6 +32,7 @@ Object.assign(GameEngine.prototype, {
       contract.timeRemaining = Math.max(0, Number(contract.timeRemaining || 0) - elapsed);
     });
     this.state.contractOffers.forEach(contract => {
+      if (contract.offerCountdown === false) return;
       contract.timeRemaining = Math.max(0, Number(contract.timeRemaining || 0) - elapsed);
     });
     this.state.contractCooldowns.forEach(cooldown => {
@@ -39,7 +51,7 @@ Object.assign(GameEngine.prototype, {
     expired.forEach(contract => {
       contract.timeRemaining = 0;
       contract.defaultedAt = defaultedAt;
-      contract.penaltyCoins = Math.max(1, Math.ceil(Math.max(1, Number(contract.penaltyBaseCoins || contract.rewardCoins)) * 1.20));
+      contract.penaltyCoins = this.calculateContractPenalty(contract);
       this.state.stats.contractsFailed += 1;
       this.state.stats.lifetimeContractsFailed += 1;
     });
@@ -47,7 +59,7 @@ Object.assign(GameEngine.prototype, {
   },
 
   expireContractOffers() {
-    const expired = this.state.contractOffers.filter(contract => Number(contract.timeRemaining || 0) <= 0);
+    const expired = this.state.contractOffers.filter(contract => contract.offerCountdown !== false && Number(contract.timeRemaining || 0) <= 0);
     if (!expired.length) return [];
     const expiredIds = new Set(expired.map(contract => contract.id));
     this.state.contractOffers = this.state.contractOffers.filter(contract => !expiredIds.has(contract.id));
@@ -62,7 +74,8 @@ Object.assign(GameEngine.prototype, {
     if (!company || !type) return null;
     const amount = Math.max(1, Math.floor(Number(contract.amount) || 1));
     const delivered = active ? Math.max(0, Math.min(amount, Math.floor(Number(contract.delivered) || 0))) : 0;
-    const durationSeconds = Math.max(5, Math.floor(Number(contract.durationSeconds) || type.durationSeconds || 60));
+    const typeDurationFallback = Math.max(5, Math.round(((Number(type.minDurationSeconds) || 60) + (Number(type.maxDurationSeconds) || Number(type.minDurationSeconds) || 60)) / 2));
+    const durationSeconds = Math.max(5, Math.floor(Number(contract.durationSeconds) || Number(type.durationSeconds) || typeDurationFallback));
     const legacyDeadline = Number(contract.deadlineAt || 0);
     const legacyRemaining = legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : durationSeconds;
     const completedAt = active && (Number(contract.completedAt || 0) > 0 || delivered >= amount) ? Number(contract.completedAt || Date.now()) : 0;
@@ -81,13 +94,16 @@ Object.assign(GameEngine.prototype, {
       difficulty: type.id,
       typeColor: String(contract.typeColor || type.color || "#e6c35f"),
       typeColorAlpha: Math.max(0, Math.min(100, Number(contract.typeColorAlpha ?? type.colorAlpha ?? 18) || 0)),
+      priority: Math.max(0, Math.floor(Number(contract.priority ?? type.priority) || 0)),
+      penaltyPercent: Math.max(0, Number(contract.penaltyPercent ?? type.penaltyPercent ?? 20) || 0),
+      offerCountdown: contract.offerCountdown === false || contract.offerCountdown === "false" || type.offerCountdown === false ? false : true,
       durationSeconds,
       timeRemaining: defaultedAt ? 0 : Math.max(0, Number.isFinite(Number(contract.timeRemaining)) ? Number(contract.timeRemaining) : legacyRemaining),
       createdAt: Number(contract.createdAt || Date.now()),
       acceptedAt: active ? Number(contract.acceptedAt || Date.now()) : 0,
       completedAt,
       defaultedAt,
-      penaltyCoins: defaultedAt ? Math.max(1, Math.ceil(Number(contract.penaltyCoins) || Number(contract.penaltyBaseCoins || contract.rewardCoins || 1) * 1.20)) : 0
+      penaltyCoins: defaultedAt ? 0 : 0
     };
   },
 
@@ -182,7 +198,13 @@ Object.assign(GameEngine.prototype, {
       if (!type) continue;
 
       const durationBonus = Math.max(0, this.getEvolutionBonus("contractDurationPercent")) / 100;
-      const durationSeconds = Math.max(5, Math.round(Number(type.durationSeconds || 60) * (1 + durationBonus) * GameEngine.CONTRACT_DURATION_FACTOR));
+      const legacyDuration = Math.max(5, Number(type.durationSeconds || 60) || 60);
+      const configuredMin = Math.max(5, Number(type.minDurationSeconds ?? legacyDuration) || legacyDuration);
+      const configuredMax = Math.max(5, Number(type.maxDurationSeconds ?? legacyDuration) || legacyDuration);
+      const minDuration = Math.min(configuredMin, configuredMax);
+      const maxDuration = Math.max(configuredMin, configuredMax);
+      const randomBaseDuration = minDuration + Math.random() * (maxDuration - minDuration);
+      const durationSeconds = Math.max(5, Math.round(randomBaseDuration * (1 + durationBonus) * GameEngine.CONTRACT_DURATION_FACTOR));
       const rate = Math.max(0.08, this.getProductionRate(crop.id));
       const variation = 0.88 + Math.random() * 0.24;
       const minimumByProgress = 8 + this.state.farmLevel * 2.4 + eligible.length * 1.35 + Math.floor(cropLevel / 10);
@@ -213,6 +235,9 @@ Object.assign(GameEngine.prototype, {
         difficulty: type.id,
         typeColor: type.color,
         typeColorAlpha: type.colorAlpha,
+        priority: Math.max(0, Math.floor(Number(type.priority) || 0)),
+        penaltyPercent: Math.max(0, Number(type.penaltyPercent ?? 20) || 0),
+        offerCountdown: type.offerCountdown !== false,
         durationSeconds,
         timeRemaining: durationSeconds,
         createdAt: Date.now(),
@@ -270,7 +295,7 @@ Object.assign(GameEngine.prototype, {
     let stockPool = stock;
     let availableNow = 0;
     if (!completed) {
-      const queue = this.state.activeContracts.filter(item => item.cropId === contract?.cropId && item.delivered < item.amount && !item.completedAt).sort((a, b) => (Boolean(a.defaultedAt) !== Boolean(b.defaultedAt) ? (a.defaultedAt ? -1 : 1) : (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt)));
+      const queue = this.state.activeContracts.filter(item => item.cropId === contract?.cropId && item.delivered < item.amount && !item.completedAt).sort((a, b) => (Number(b.priority) - Number(a.priority)) || (Boolean(a.defaultedAt) !== Boolean(b.defaultedAt) ? (a.defaultedAt ? -1 : 1) : (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt)));
       for (const queued of queue) {
         const needed = Math.max(0, queued.amount - queued.delivered);
         const allocation = Math.min(stockPool, needed);
@@ -281,7 +306,7 @@ Object.assign(GameEngine.prototype, {
     const fulfillable = completed ? amount : Math.min(amount, delivered + availableNow);
     return {
       delivered, remaining, stock, availableNow, fulfillable, completed, defaulted,
-      penaltyCoins: defaulted ? Math.max(1, Math.ceil(Number(contract.penaltyCoins) || Number(contract.penaltyBaseCoins || contract.rewardCoins || 1) * 1.20)) : 0,
+      penaltyCoins: defaulted ? this.calculateContractPenalty(contract) : 0,
       readyToClaim: completed && !defaulted,
       readyToPayPenalty: defaulted,
       percent: completed ? 100 : Math.max(0, Math.min(100, delivered / amount * 100)),
@@ -305,7 +330,7 @@ Object.assign(GameEngine.prototype, {
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [offer] = this.state.contractOffers.splice(index, 1);
     if (offer.timeRemaining <= 0) { this.startContractCooldown(GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS, "expired"); this.ensureContractOffers(); return { ok: false, message: "O prazo desta proposta terminou." }; }
-    const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), completedAt: 0 };
+    const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), completedAt: 0, timeRemaining: offer.offerCountdown === false ? offer.durationSeconds : offer.timeRemaining };
     this.state.activeContracts.push(contract);
     const cooldown = this.startContractCooldown(GameEngine.CONTRACT_SIGNED_COOLDOWN_SECONDS, "signed", contract.id);
     const stockDelivery = this.deliverStockToContract(contract.id, true);
@@ -328,7 +353,7 @@ Object.assign(GameEngine.prototype, {
     if (index < 0) return { ok: false, message: "Contrato não encontrado." };
     const contract = this.state.activeContracts[index];
     if (contract.completedAt && !contract.defaultedAt) return { ok: false, message: "Receba a recompensa deste contrato concluído." };
-    const penaltyCoins = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || Math.max(1, Number(contract.penaltyBaseCoins || contract.rewardCoins)) * 1.20));
+    const penaltyCoins = this.calculateContractPenalty(contract);
     this.state.coins -= penaltyCoins;
     this.state.activeContracts.splice(index, 1);
     this.state.stats.contractsBroken += 1;
@@ -383,9 +408,10 @@ Object.assign(GameEngine.prototype, {
     if (contract.rewardCoins) this.addCoins(contract.rewardCoins);
     if (contract.rewardResearch) this.addResearch(contract.rewardResearch);
     if (contract.rewardPrestige) this.state.prestigePoints += contract.rewardPrestige;
+    const xpAward = this.getFarmXPAwardForRate(contract.xpRate);
     this.addFarmXPPercent(contract.xpRate);
     this.ensureContractOffers();
-    return { ok: true, contract, xpRate: contract.xpRate };
+    return { ok: true, contract, xpRate: contract.xpRate, xpAward };
   },
 
   payContractPenalty(id) {
@@ -393,7 +419,7 @@ Object.assign(GameEngine.prototype, {
     if (index < 0) return { ok: false, message: "Contrato não encontrado." };
     const contract = this.state.activeContracts[index];
     if (!contract.defaultedAt) return { ok: false, message: "Este contrato não possui multa." };
-    const penaltyCoins = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || Math.max(1, Number(contract.penaltyBaseCoins || contract.rewardCoins)) * 1.20));
+    const penaltyCoins = this.calculateContractPenalty(contract);
     this.state.coins -= penaltyCoins;
     this.state.activeContracts.splice(index, 1);
     this.ensureContractOffers();

@@ -177,12 +177,6 @@
     "source": "local"
   },
   {
-    "value": "assets/icons/ferramentas-manutencao.webp",
-    "label": "Ferramentas de manutenção",
-    "kind": "icone",
-    "source": "local"
-  },
-  {
     "value": "assets/icons/ferramentas.webp",
     "label": "Ferramentas",
     "kind": "icone",

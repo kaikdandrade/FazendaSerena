@@ -14,6 +14,12 @@
       dom.contractDock.innerHTML = `<button class="contract-dock-compact-button" type="button" data-action="toggle-contract-dock" aria-label="${toggleLabel}" title="${toggleLabel}"><img src="assets/icons/contrato-agricola.webp" alt=""><b>${contracts.length}</b></button>`;
       return;
     }
+    const dockReward = contract => resourceRewards({
+      coins: contract.rewardCoins,
+      research: contract.rewardResearch,
+      prestige: contract.rewardPrestige,
+      xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+    });
     dom.contractDock.innerHTML = `<section class="contract-dock-panel contract-dock-v2">
       <header class="contract-dock-header"><button type="button" data-go-office-contracts><img src="assets/icons/contrato-agricola.webp" alt=""><span><strong>Contratos</strong><small>${contracts.length}/${slotLimit} ativos</small></span></button><button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-label="${toggleLabel}" title="${toggleLabel}"><img src="assets/icons/seta-cima.webp" alt=""></button></header>
       <div class="contract-dock-list">${contracts.map(contract => {
@@ -21,9 +27,10 @@
         const company = engine.getCompany(contract.companyId);
         const progress = engine.getContractProgress(contract);
         const urgent = !progress.completed && !progress.defaulted && contract.timeRemaining <= 30;
-        const actionAttributes = `data-go-office-contracts data-focus-contract="${escapeHtml(contract.id)}" title="Abrir este contrato"`;
-        const state = progress.defaulted ? "Contrato vencido" : progress.completed ? "Recompensa pronta" : engine.formatTime(contract.timeRemaining);
-        return `<button class="contract-dock-item contract-dock-item-v2 ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""} ${progress.defaulted ? "contract-defaulted" : ""}" type="button" ${actionAttributes}><img class="contract-dock-crop" src="${crop.image}" alt="${escapeHtml(crop.name)}"><span class="contract-dock-copy"><span class="contract-dock-title-line"><strong>${escapeHtml(crop.name)}</strong><small>${Math.floor(progress.percent)}%</small></span><em>${escapeHtml(company.name)}</em><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${state}</u></span></button>`;
+        const canClaim = progress.completed && !progress.defaulted;
+        const actionAttributes = `data-go-office-contracts data-focus-contract="${escapeHtml(contract.id)}" data-contract-dock-behavior="${canClaim ? "claim" : "navigate"}" title="${canClaim ? "Coletar recompensa" : "Abrir este contrato"}"`;
+        const state = progress.defaulted ? "Contrato vencido" : progress.completed ? "Coletar recompensa" : engine.formatTime(contract.timeRemaining);
+        return `<button class="contract-dock-item contract-dock-item-v2 ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""} ${progress.defaulted ? "contract-defaulted" : ""}" type="button" ${actionAttributes}><img class="contract-dock-crop" src="${crop.image}" alt="${escapeHtml(crop.name)}"><span class="contract-dock-copy"><span class="contract-dock-title-line"><strong>${escapeHtml(crop.name)}</strong><small>${Math.floor(progress.percent)}%</small></span><em>${escapeHtml(company.name)}</em><span class="contract-dock-rewards" aria-label="Recompensa do contrato">${dockReward(contract)}</span><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${state}</u></span></button>`;
       }).join("")}</div>
     </section>`;
   }
@@ -72,8 +79,8 @@
       if (progress.completed) {
         return `<article class="contract-card contract-card-v2 contract-completed-card" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${rewardStrip(contract)}<button class="button gold full" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button></article>`;
       }
-      const fine = Math.max(1, Math.ceil(Number(contract.penaltyCoins) || contract.rewardCoins * 1.20));
-      return `<article class="contract-card contract-card-v2 ${urgent ? "contract-deadline-warning" : ""}" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${progressBlock(contract, progress)}${rewardStrip(contract)}<footer class="contract-card-footer-v2"><button class="button secondary" type="button" data-action="break-contract" data-id="${contract.id}" title="Sujeito a multa de ${engine.formatNumber(fine)} moedas">Quebrar contrato</button></footer></article>`;
+      const fine = Math.max(1, engine.calculateContractPenalty(contract));
+      return `<article class="contract-card contract-card-v2 ${urgent ? "contract-deadline-warning" : ""}" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${progressBlock(contract, progress)}${rewardStrip(contract)}<footer class="contract-card-footer-v2"><span class="contract-break-estimate"><small>Quebra</small><strong>${resourceAmount("coins", -fine, { compact: true })}</strong></span><button class="button secondary contract-break-button-v2" type="button" data-action="break-contract" data-id="${contract.id}" title="Quebrar contrato e pagar a multa estimada">Quebrar contrato</button></footer></article>`;
     });
     dom.activeContractList.innerHTML = [slotSummary, ...activeCards].join("");
 
@@ -81,12 +88,11 @@
       const crop = engine.getCrop(contract.cropId);
       const company = engine.getCompany(contract.companyId);
       const stock = engine.state.crops[contract.cropId]?.stock || 0;
-      return `<article class="contract-card contract-card-v2 contract-offer-card" ${contractStyle(contract)}><header class="contract-card-header-v2"><div class="contract-company-v2"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-time-v2"><img src="assets/icons/relogio.webp" alt="">${engine.formatTime(contract.timeRemaining)}</span></header><div class="contract-main-v2"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${typeBadge(contract)}<h3>${engine.formatNumber(contract.amount)} <span>${escapeHtml(crop.name)}</span></h3><div class="contract-main-meta"><span>Estoque</span>${stockChip(stock)}</div></div></div>${rewardStrip(contract)}<footer class="contract-offer-actions-v2"><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Sem vaga" : "Assinar"}</button><button class="button secondary" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button></footer></article>`;
+      return `<article class="contract-card contract-card-v2 contract-offer-card" ${contractStyle(contract)}><header class="contract-card-header-v2"><div class="contract-company-v2"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-time-v2" title="${contract.offerCountdown === false ? "O prazo começa somente após a assinatura" : "O prazo já está correndo"}"><img src="assets/icons/relogio.webp" alt="">${contract.offerCountdown === false ? `${engine.formatTime(contract.durationSeconds)} ao assinar` : engine.formatTime(contract.timeRemaining)}</span></header><div class="contract-main-v2"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${typeBadge(contract)}<h3>${engine.formatNumber(contract.amount)} <span>${escapeHtml(crop.name)}</span></h3><div class="contract-main-meta"><span>Estoque</span>${stockChip(stock)}</div></div></div>${rewardStrip(contract)}<footer class="contract-offer-actions-v2"><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>${openSlots < 1 ? "Sem vaga" : "Assinar"}</button><button class="button secondary contract-decline-button-v2" type="button" data-action="decline-contract" data-id="${contract.id}">Recusar</button></footer></article>`;
     });
     const cooldownCards = cooldowns.map(item => {
       const seconds = Math.max(0, Math.ceil(Number(item.timeRemaining) || 0));
-      const progress = percent((1 - seconds / Math.max(1, item.durationSeconds)) * 100);
-      return `<article class="contract-card contract-card-v2 contract-cooldown-card"><div class="contract-cooldown-v2"><img src="assets/icons/renovar-contrato.webp" alt=""><div><small>Renovando contrato...</small><strong>${engine.formatTime(seconds)}</strong></div></div><div class="progress-track"><span style="width:${progress}%"></span></div></article>`;
+      return `<article class="contract-card contract-card-v2 contract-cooldown-card"><div class="contract-cooldown-v2"><img src="assets/icons/renovar-contrato.webp" alt=""><div><strong>Renovando contrato...</strong><span>${engine.formatTime(seconds)}</span></div></div></article>`;
     });
     const availableCards = [...offerCards, ...cooldownCards];
     dom.contractOfferList.innerHTML = availableCards.length ? availableCards.join("") : `<div class="empty-state office-empty">${runtimeTextHtml("emptyContractRenewal", "As propostas estão em renovação. Aguarde o término dos intervalos.")}</div>`;

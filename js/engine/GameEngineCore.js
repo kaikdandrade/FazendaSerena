@@ -30,10 +30,10 @@ class GameEngine {
   static PASSIVE_RESEARCH_STAGE_RATES = Object.freeze([0.0001, 0.0002, 0.0002]);
   static WHOLESALE_SALE_MULTIPLIER = 0.50;
   static MAX_BATCH_UPGRADES = 1000;
-  static MAX_CROP_LEVEL = 300;
+  static MAX_CROP_LEVEL = 500;
   static MAX_FARM_LEVEL = 1000;
-  static INSTANT_GROWTH_LEVEL = 300;
-  static MIN_INSTANT_GROWTH_LEVEL = 250;
+  static INSTANT_GROWTH_LEVEL = 500;
+  static MIN_INSTANT_GROWTH_LEVEL = 420;
   static MUSIC_TRACKS = Object.freeze([
       "betweenLightAndShadows", "pixelSprouts", "moonlitFields", "fieldRain",
       "electricHarvest", "dirtRoad", "enchantedGreenhouse", "solarFarm",
@@ -71,7 +71,6 @@ class GameEngine {
         musicVolume: permanent.settings?.musicVolume ?? audioDefaults.musicVolume,
         musicTrack: GameEngine.MUSIC_TRACKS.includes(requestedMusicTrack) ? requestedMusicTrack : audioDefaults.musicTrack,
         numberFormat: ["brazilian", "international"].includes(requestedNumberFormat) ? requestedNumberFormat : experienceDefaults.numberFormat,
-        navigationMode: ["tabs", "sidebar"].includes(permanent.settings?.navigationMode) ? permanent.settings.navigationMode : experienceDefaults.navigationMode,
         playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
         playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
         playerRankingOptOut: Boolean(permanent.settings?.playerRankingOptOut)
@@ -170,11 +169,8 @@ class GameEngine {
   
       const now = Date.now();
       if (hasCloudState) {
-        const elapsed = Math.max(0, Math.min(
-          this.getMaxOfflineSeconds?.(state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS,
-          (now - Number(state.lastUpdate || now)) / 1000
-        ));
-        if (elapsed > 0.05) this.simulate(elapsed, true);
+        const elapsed = Math.max(0, (now - Number(state.lastUpdate || now)) / 1000);
+        if (elapsed > 0.05) this.simulate(elapsed, true, elapsed);
       }
   
       state.lastUpdate = now;
@@ -188,11 +184,8 @@ class GameEngine {
   
       const now = Date.now();
       if (hasState && simulateOffline) {
-        const elapsed = Math.max(0, Math.min(
-          this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS,
-          (now - Number(this.state.lastUpdate || now)) / 1000
-        ));
-        if (elapsed > 0.05) this.simulate(elapsed, true);
+        const elapsed = Math.max(0, (now - Number(this.state.lastUpdate || now)) / 1000);
+        if (elapsed > 0.05) this.simulate(elapsed, true, elapsed);
       }
   
       this.state.lastUpdate = now;
@@ -262,7 +255,6 @@ class GameEngine {
       merged.settings.musicVolume = Math.max(0, Math.min(100, legacyMusicEnabled ? Number(merged.settings.musicVolume ?? audioDefaults.musicVolume) || 0 : 0));
       merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : audioDefaults.musicTrack;
       merged.settings.numberFormat = ["brazilian", "international"].includes(merged.settings.numberFormat) ? merged.settings.numberFormat : experienceDefaults.numberFormat;
-      merged.settings.navigationMode = ["tabs", "sidebar"].includes(merged.settings.navigationMode) ? merged.settings.navigationMode : experienceDefaults.navigationMode;
       merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
       merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
       merged.settings.playerRankingOptOut = Boolean(merged.settings.playerRankingOptOut);
@@ -561,7 +553,7 @@ class GameEngine {
   save() {
       this.state.lastUpdate = Date.now();
       if (!window.FirebaseManager?.isAuthenticated()) {
-        return Promise.resolve({ ok: false, reason: "guest" });
+        return Promise.resolve(window.FirebaseManager?.saveGuestGame?.(this.state) || { ok: false, reason: "guest" });
       }
       return window.FirebaseManager.saveGame(this.state);
     }
@@ -574,11 +566,14 @@ class GameEngine {
       this.simulate(safe, false);
       this.addPassiveFarmXP(safe);
     }
-  simulate(seconds, offline = false) {
-      let remaining = Math.max(0, Math.min(offline ? this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS : Number.MAX_SAFE_INTEGER, Number(seconds) || 0));
-      const elapsedTotal = remaining;
+  simulate(seconds, offline = false, actualOfflineSeconds = null) {
+      const requestedSeconds = Math.max(0, Number(seconds) || 0);
+      let remaining = Math.max(0, Math.min(offline ? this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS : Number.MAX_SAFE_INTEGER, requestedSeconds));
+      const simulatedTotal = remaining;
+      const elapsedTotal = offline ? Math.max(requestedSeconds, Number(actualOfflineSeconds) || 0) : requestedSeconds;
       const offlineReport = offline ? {
         seconds: elapsedTotal,
+        simulatedSeconds: simulatedTotal,
         maxSeconds: this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS,
         coinsBefore: Number(this.state.coins) || 0,
         researchBefore: Number(this.state.research) || 0,

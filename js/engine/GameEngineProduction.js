@@ -58,7 +58,7 @@ Object.assign(GameEngine.prototype, {
   
       const contracts = this.state.activeContracts
         .filter(contract => contract.cropId === cropId && contract.delivered < contract.amount && !contract.completedAt && !contract.defaultedAt && contract.timeRemaining > 0)
-        .sort((a, b) => (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt));
+        .sort((a, b) => (Number(b.priority) - Number(a.priority)) || (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt));
   
       for (const contract of contracts) {
         if (remaining < 1) break;
@@ -158,8 +158,10 @@ Object.assign(GameEngine.prototype, {
 
   getYield(cropId) {
       const crop = this.getCrop(cropId);
+      const cropLevel = Math.max(1, Number(this.state.crops?.[cropId]?.level) || 1);
+      const levelMultiplier = window.FazendaSerenaCropEconomy?.levelYieldMultiplier?.(cropLevel) ?? 1;
       const globalYieldMultiplier = (1 + Math.max(0, this.getEvolutionBonus("yieldPercent")) / 100) * this.getEventMultiplier("harvest");
-      return crop.baseYield * globalYieldMultiplier;
+      return crop.baseYield * levelMultiplier * globalYieldMultiplier;
     },
 
   getProductionRate(cropId) {
