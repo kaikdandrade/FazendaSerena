@@ -125,7 +125,7 @@
       }
     });
 
-    [dom.searchCrop, dom.categoryFilter, dom.stockCategoryFilter].filter(Boolean).forEach(control => {
+    [dom.searchCrop, dom.categoryFilter, dom.stockSearch].filter(Boolean).forEach(control => {
       control.addEventListener(control.tagName === "INPUT" ? "input" : "change", () => render(true));
     });
 
@@ -190,11 +190,6 @@
       setProfileFeedback("Alterações ainda não salvas.", "pending");
     });
 
-    dom.playerRankingOptOut?.addEventListener("change", () => {
-      if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
-      setProfileFeedback("Alterações ainda não salvas.", "pending");
-    });
-
     dom.toggleAvatarPicker?.addEventListener("click", () => {
       if (!dom.avatarPickerPanel) return;
       const willOpen = dom.avatarPickerPanel.hidden;
@@ -234,7 +229,6 @@
 
       const nickname = sanitizeNickname(dom.playerNicknameSetting?.value);
       const avatar = getAvatarEntry(dom.playerAvatarSetting?.value);
-      const rankingOptOut = Boolean(dom.playerRankingOptOut?.checked);
       if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = nickname;
 
       if (nickname.length < 4) {
@@ -258,7 +252,6 @@
       try {
         engine.setSetting("playerNickname", nickname);
         engine.setSetting("playerAvatar", avatar.id);
-        engine.setSetting("playerRankingOptOut", rankingOptOut);
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
         leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
         const saveResult = await window.FirebaseManager.saveRankingProfile(engine.state);
@@ -266,7 +259,7 @@
         updateAccountUI();
         if (dom.avatarPickerPanel) dom.avatarPickerPanel.hidden = true;
         if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.setAttribute("aria-expanded", "false");
-        setProfileFeedback(rankingOptOut ? "Perfil salvo na nuvem. Sua fazenda não será exibida no ranking global." : "Perfil salvo na nuvem e publicado no ranking global.", "success");
+        setProfileFeedback("Perfil salvo na nuvem e atualizado no ranking global.", "success");
         dom.rankingProfileDialog?.close("saved");
         resetFriendsState();
         if (activeView === "profileView" && activeProfileTab === "social") await refreshPrestigeLeaderboard(false);
@@ -326,46 +319,17 @@
       if (milestones.length) window.setTimeout(() => showMilestoneDialog({ milestones }), 80);
     });
 
-    dom.resetProgressButton?.addEventListener("click", () => {
-      if (!window.FirebaseManager.isAuthenticated()) return;
-      if (typeof dom.resetProgressDialog?.showModal === "function") dom.resetProgressDialog.showModal();
-    });
-    dom.cancelResetProgress?.addEventListener("click", event => {
-      event.preventDefault();
-      dom.resetProgressDialog?.close("cancel");
-    });
-    dom.confirmResetProgress?.addEventListener("click", async event => {
-      event.preventDefault();
-      if (!window.FirebaseManager.isAuthenticated()) return;
-      setAuthBusy(true);
-      dom.confirmResetProgress.disabled = true;
-      try {
-        const resetState = engine.createState({ accountCreatedAt: engine.state?.createdAt });
-        const result = await window.FirebaseManager.resetProgress(resetState);
-        if (!result?.ok) throw new Error("Não foi possível resetar o progresso desta conta.");
-        engine.replaceState(result.state || resetState, { simulateOffline: false });
-        if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
-        updateAccountUI();
-        activeOfficeTab = "contracts";
-        activeProfileTab = "account";
-        leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
-        leaderboardRequest = null;
-        resetFriendsState();
-        dom.resetProgressDialog?.close("confirm");
-        showView("farmView", false);
-        applySettings();
-        render(true);
-        setCloudSaveStatus("saved", { savedAt: new Date() });
-      } catch (error) {
-        setCloudSaveStatus("error", { error });
-      } finally {
-        dom.confirmResetProgress.disabled = false;
-        setAuthBusy(false);
-      }
-    });
-
     window.addEventListener("firebase-save-status", event => {
       setCloudSaveStatus(event.detail?.status || "guest", event.detail || {});
+    });
+
+    window.addEventListener("firebase-admin-state-conflict", event => {
+      const remoteState = event.detail?.state;
+      if (!engine || !remoteState || !window.FirebaseManager.isAuthenticated()) return;
+      engine.replaceState(remoteState, { simulateOffline: false });
+      applySettings(true);
+      render(true);
+      setCloudSaveStatus("loaded", { savedAt: new Date() });
     });
 
     const bindOwnSaveRealtime = user => {
@@ -401,7 +365,7 @@
       applySettings();
       requestGameSave();
     });
-    dom.fontScaleSetting.addEventListener("input", () => {
+    dom.fontScaleSetting?.addEventListener("input", () => {
       engine.setSetting("fontScale", Number(dom.fontScaleSetting.value));
       applySettings();
       requestGameSave();
@@ -469,7 +433,7 @@
       // mutação fica registrada localmente mesmo se o navegador encerrar a aba
       // antes de receber a confirmação do servidor.
       requestGameSave({ force: true });
-      soundEngine.pauseForVisibility();
+      soundEngine.pauseForVisibility({ force: true });
     });
     window.addEventListener("pageshow", () => {
       if (!document.hidden) soundEngine.resumeAfterVisibility();

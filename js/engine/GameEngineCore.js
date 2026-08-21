@@ -10,15 +10,16 @@ class GameEngine {
   static ORDER_UNLOCK_LEVEL = 5;
   static EVOLUTION_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
+  static PRESTIGE_BONUS = 0;
   static SECOND_CONTRACT_SLOT_LEVEL = 20;
   static MAX_ACTIVE_CONTRACTS = 7;
   static CONTRACT_OFFER_COUNT = 6;
   static MAX_CONTRACT_OFFERS = 50;
   static ALLOW_CONTRACT_OFFER_CREATION = true;
-  static CONTRACT_SIGNED_COOLDOWN_SECONDS = 30;
-  static CONTRACT_EXPIRED_COOLDOWN_SECONDS = 30;
-  static CONTRACT_DECLINED_COOLDOWN_SECONDS = 60;
-  static CONTRACT_BROKEN_COOLDOWN_SECONDS = 4 * 60;
+  static CONTRACT_SIGNED_COOLDOWN_RANGE = [25, 35];
+  static CONTRACT_EXPIRED_COOLDOWN_RANGE = [25, 35];
+  static CONTRACT_DECLINED_COOLDOWN_RANGE = [45, 75];
+  static CONTRACT_BROKEN_COOLDOWN_RANGE = [210, 270];
   static CONTRACT_DURATION_FACTOR = 1;
   static CONTRACT_REWARD_FACTOR = 1;
   static BASE_STARTING_COINS = 120;
@@ -79,7 +80,6 @@ class GameEngine {
         navigationMode: ["automatic", "line", "grid"].includes(permanent.settings?.navigationMode) ? permanent.settings.navigationMode : "automatic",
         playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
         playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
-        playerRankingOptOut: Boolean(permanent.settings?.playerRankingOptOut)
       };
   
       const permanentEffectState = { researchTechs: {}, prestigeUpgrades };
@@ -269,7 +269,7 @@ class GameEngine {
       merged.settings.navigationMode = ["automatic", "line", "grid"].includes(merged.settings.navigationMode) ? merged.settings.navigationMode : "automatic";
       merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
       merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
-      merged.settings.playerRankingOptOut = Boolean(merged.settings.playerRankingOptOut);
+      Reflect.deleteProperty(merged.settings, "playerRankingOptOut");
       if (legacySaveFormat < 42) {
         const legacyAvatarMap = { frog_1: "chameleon", frog_2: "frog_1", frog_3: "frog_2", owl: "hawk" };
         merged.settings.playerAvatar = legacyAvatarMap[merged.settings.playerAvatar] || merged.settings.playerAvatar;

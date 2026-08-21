@@ -7,6 +7,7 @@ async function boot() {
   let publicGameConfig = null;
   let cloudLoadFailed = false;
   let initialCloudSaveMissing = false;
+  let migrateGuestSaveOnBoot = false;
   try {
     initialUser = await window.FirebaseManager.ready();
     if (initialUser) {
@@ -26,10 +27,13 @@ async function boot() {
     publicGameConfig = loadedConfig;
     if (initialUser) {
       initialCloudSaveMissing = !loadedState;
-      // Segurança: um save local de visitante é controlado pelo navegador e não
-      // pode ser promovido como fonte confiável para uma conta autenticada.
-      // Contas sem save remoto sempre começam de um estado novo e normalizado.
-      if (initialCloudSaveMissing) initialState = null;
+      // Conta nova: promove o save de visitante para a nuvem. A remoção do
+      // localStorage só acontece depois que a primeira gravação remota confirma.
+      if (initialCloudSaveMissing) {
+        const guestState = window.FirebaseManager.loadGuestGame?.();
+        initialState = guestState || null;
+        migrateGuestSaveOnBoot = Boolean(guestState);
+      }
       window.FirebaseManager.unlockCloudWrites?.();
     }
     loading?.update("Organizando dados e catálogos...", 58);
@@ -38,6 +42,14 @@ async function boot() {
     console.warn("Inicialização em modo resiliente:", error);
     publicGameConfig = null;
   }
+
+  const initialRoute = new URLSearchParams(window.location.search);
+  const requestedView = initialRoute.get("view");
+  if (["farmView", "stockView", "officeView", "profileView", "settingsView"].includes(requestedView)) activeView = requestedView;
+  const requestedOffice = initialRoute.get("office");
+  if (["contracts", "orders", "evolutions"].includes(requestedOffice)) activeOfficeTab = requestedOffice;
+  const requestedProfile = initialRoute.get("profile");
+  if (["account", "social", "missions"].includes(requestedProfile)) activeProfileTab = requestedProfile;
 
   loading?.update("Preparando a interface...", 70);
   const normalizedConfig = window.GameAdminConfig.apply(publicGameConfig || window.GameAdminConfig.getDefaults());
@@ -68,9 +80,32 @@ async function boot() {
 
   const initialOfflineReport = engine.consumeOfflineReport?.();
   if (initialOfflineReport) window.setTimeout(() => showOfflineProgressDialog(initialOfflineReport), 240);
-  if (initialUser && initialCloudSaveMissing && !cloudLoadFailed) {
-    engine.save().catch(error => setCloudSaveStatus("error", { error }));
+  if (initialUser && !cloudLoadFailed) {
+    // Uma gravação ao entrar garante a criação/atualização automática do ranking
+    // e conclui a migração do visitante quando esta é a primeira conta.
+    engine.save().then(async result => {
+      if (result?.ok && migrateGuestSaveOnBoot) window.FirebaseManager.clearGuestGame?.();
+      try { await window.FirebaseManager.syncOwnLeaderboard?.(engine.state, { forceModeration: true }); }
+      catch (error) { console.warn("Ranking será sincronizado novamente depois:", error); }
+    }).catch(error => setCloudSaveStatus("error", { error }));
   }
+  // Configuração administrativa em tempo real: alterações salvas no painel
+  // passam a valer no jogo aberto sem depender de F5.
+  let runtimeConfigSignature = JSON.stringify(window.GameAdminConfig.getCurrent());
+  window.FirebaseManager.subscribePublicGameConfig?.((cloudConfig) => {
+    const normalized = window.GameAdminConfig.normalize(cloudConfig);
+    const signature = JSON.stringify(normalized);
+    if (signature === runtimeConfigSignature || !engine) return;
+    runtimeConfigSignature = signature;
+    window.GameAdminConfig.apply(normalized);
+    engine.data = window.GameData;
+    engine.cropById = new Map(engine.data.crops.map(crop => [crop.id, crop]));
+    engine.replaceState(engine.state, { simulateOffline: false });
+    setupCategoryFilter();
+    applySettings(true);
+    render(true);
+  }, error => console.warn("Atualização administrativa em tempo real indisponível:", error));
+
   scheduleGameLoop(0);
 }
 boot().catch(error => {

@@ -14,7 +14,7 @@ Object.assign(GameEngine.prototype, {
       const baseOrderValue = Math.max(0, Number(step.amount) || 0) * Math.max(0, this.getSalePrice(cropId));
       const missionRewardMultiplier = 1 + Math.max(0, Number(this.state.permanentBonuses?.orderRewardPercent) || 0) / 100;
       const evolutionRewardMultiplier = 1 + Math.max(0, this.getEvolutionBonus("orderRewardPercent")) / 100;
-      const rewardMultiplier = missionRewardMultiplier * evolutionRewardMultiplier;
+      const rewardMultiplier = missionRewardMultiplier * evolutionRewardMultiplier * this.getEventMultiplier("orderRewards");
       const rewardCoins = Math.max(0, Math.floor(baseOrderValue * (1 + Math.max(0, Number(step.coinBonusPercent) || 0) / 100) * rewardMultiplier));
       const rewardResearch = Math.max(0, Math.floor((Number(step.rewardResearch) || 0) * rewardMultiplier));
       const rewardPrestige = Math.max(0, Math.floor((Number(step.rewardPrestige) || 0) * rewardMultiplier));

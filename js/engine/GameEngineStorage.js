@@ -47,7 +47,7 @@ Object.assign(GameEngine.prototype, {
     },
 
   getSalePrice(cropId) {
-      return this.getSalePriceForState(cropId, this.state);
+      return this.getSalePriceForState(cropId, this.state) * this.getEventMultiplier("salePrice");
     },
 
   getAutoSalePrice(cropId) {
@@ -73,7 +73,7 @@ Object.assign(GameEngine.prototype, {
       this.state.stats.lifetimeSold += amount;
       this.state.stats.soldByCategory[crop.category] = (this.state.stats.soldByCategory[crop.category] || 0) + amount;
       this.state.stats.lifetimeSoldByCategory[crop.category] = (this.state.stats.lifetimeSoldByCategory[crop.category] || 0) + amount;
-      this.addCoins(coins);
+      return this.addCoins(coins);
     },
 
   sellCrop(cropId, amount = Infinity) {
@@ -84,8 +84,8 @@ Object.assign(GameEngine.prototype, {
       if (sold <= 0) return { ok: false, message: "Escolha uma quantidade válida." };
       const gain = Math.floor(sold * this.getSalePrice(cropId));
       cropState.stock -= sold;
-      this.recordSale(cropId, sold, gain);
-      return { ok: true, sold, gain };
+      const credited = this.recordSale(cropId, sold, gain);
+      return { ok: true, sold, gain: Math.max(0, Number(credited) || gain) };
     },
 
   sellAll() {
@@ -146,5 +146,6 @@ Object.assign(GameEngine.prototype, {
       this.state.stats.runCoinsEarned += amount;
       this.state.stats.lifetimeCoins += amount;
       this.state.stats.maxCoinsHeld = Math.max(this.state.stats.maxCoinsHeld, this.state.coins);
+      return amount;
     }
 });

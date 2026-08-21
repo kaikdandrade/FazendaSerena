@@ -28,8 +28,9 @@
     return selected.length ? selected.map(key => rewardOptions.find(option => option.value === key)?.label || key).join(" + ") : "Sem recompensa de recursos";
   };
   const effectLabel = value => window.GameAdminConfig?.getEvolutionEffectOptions?.().find(option => option.value === value)?.label || "Bônus configurável";
-  const eventTypeOptions = fixedOptions([["harvest", "Produção das safras"], ["xp", "Experiência (XP)"], ["research", "Pontos de pesquisa"], ["coins", "Moedas recebidas"]]);
+  const eventTypeOptions = fixedOptions([["harvest", "Produção das safras"], ["growthSpeed", "Velocidade de produção"], ["salePrice", "Valor de venda"], ["xp", "Experiência (XP)"], ["research", "Pontos de pesquisa"], ["coins", "Moedas recebidas"], ["contractRewards", "Recompensas de contratos"], ["orderRewards", "Recompensas de pedidos"]]);
   const effectOptions = () => [{ value: "", label: "Sem segundo bônus" }, ...(window.GameAdminConfig?.getEvolutionEffectOptions?.() || [])];
+const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Number(value) || 60)); const hours = Math.floor(minutes / 60); const rest = minutes % 60; return hours ? `${hours}h${rest ? ` ${rest}min` : ""}` : `${minutes} min`; };
 
   const evolutionCostAt = (item, levelIndex) => {
     const level = Math.max(0, Math.floor(Number(levelIndex) || 0));
@@ -114,10 +115,15 @@
     ]},
     research: { label: "pesquisa", idSource: "name", title: item => item.name || "Nova pesquisa", subtitle: item => `${item.max || 1} níveis · ${(item.bonuses || []).map(bonus => effectLabel(bonus.type)).filter(Boolean).join(" + ") || effectLabel(item.bonusType)}`, fields: evolutionFields(false) },
     prestigeUpgrades: { label: "legado", idSource: "name", title: item => item.name || "Novo legado", subtitle: item => `${item.max || 1} níveis · ${(item.bonuses || []).map(bonus => effectLabel(bonus.type)).filter(Boolean).join(" + ") || effectLabel(item.bonusType)}`, fields: evolutionFields(true) },
-    events: { label: "evento", idSource: "name", title: item => item.name || "Novo evento", subtitle: item => `${item.bonusPercent || 0}% extra · ${new Date(Number(item.startAt) || Date.now()).toLocaleString("pt-BR")}`, fields: [
-      { key: "name", label: "Nome do evento", type: "text", required: true }, { key: "type", label: "Bônus do evento", type: "select", required: true, options: eventTypeOptions },
-      percentField("bonusPercent", "Ganho extra", { min: 0, required: true }), { key: "startAt", label: "Data e hora de início", type: "datetime", transform: "datetimeMs", required: true },
-      numberField("durationMinutes", "Duração (minutos)", { min: 1, integer: true, required: true })
+    events: { label: "evento", idSource: "name", title: item => item.name || "Novo evento", subtitle: item => `${eventWeekdayOptions.find(option => String(option.value) === String(item.weekday))?.label || "Dia"} · ${item.startTime || "12:00"} · ${eventDurationLabel(item.durationMinutes)}`, fields: [
+      { key: "name", label: "Nome do evento", type: "text", required: true },
+      { key: "description", label: "Descrição", type: "textarea", required: true },
+      { key: "type", label: "Bônus do evento", type: "select", required: true, options: eventTypeOptions },
+      percentField("bonusPercent", "Bônus", { min: 0, required: true }),
+      { key: "weekday", label: "Dia da semana", type: "select", required: true, options: eventWeekdayOptions },
+      { key: "startTime", label: "Horário", type: "time", required: true, defaultValue: "12:00" },
+      numberField("durationMinutes", "Duração (minutos)", { min: 1, integer: true, required: true }),
+      { key: "repeatWeekly", label: "Repetir toda semana", type: "checkbox" }
     ]},
     updateNotes: { label: "nota de atualização", idSource: "title", title: item => item.title || "Nova nota", subtitle: item => `${item.version || ""} · ${new Date(Number(item.publishedAt) || Date.now()).toLocaleString("pt-BR")}`, fields: [
       { key: "title", label: "Título", type: "text", required: true }, { key: "version", label: "Versão do jogo", type: "text", required: true, help: "A nota mais recente define automaticamente a versão pública exibida em todo o site." },
@@ -509,6 +515,11 @@
           if (values.length) setPath(output, field.key, values); else this.deletePath(output, field.key);
           return;
         }
+        if (field.type === "checkbox") {
+          const input = this.form.elements.namedItem(field.key);
+          setPath(output, field.key, Boolean(input?.checked));
+          return;
+        }
         if (field.type === "contractColor") {
           const colorInput = this.form.elements.namedItem(field.key);
           const alphaInput = this.form.elements.namedItem(field.alphaKey || "colorAlpha");
@@ -563,6 +574,7 @@
       const full = field.type === "textarea" || field.type === "checkboxes" || field.type === "contractColor" || field.key === "desc" || field.key === "body" ? " full" : "";
       const fieldAttr = `data-admin-field-key="${escapeHtml(field.key)}"`;
       if (field.type === "textarea") return `<label ${fieldAttr} class="admin-dialog-field${full}"><span>${escapeHtml(field.label)}</span><textarea autocomplete="off" name="${escapeHtml(field.key)}" ${required}>${escapeHtml(value)}</textarea>${help}</label>`;
+      if (field.type === "checkbox") return `<label ${fieldAttr} class="admin-dialog-field admin-dialog-checkbox"><input autocomplete="off" type="checkbox" name="${escapeHtml(field.key)}" ${value === true ? "checked" : ""}><span>${escapeHtml(field.label)}</span></label>`;
       if (field.type === "checkboxes") {
         const selected = new Set(Array.isArray(value) ? value.map(String) : []);
         const options = normalizeOptions(field, "");
@@ -585,7 +597,7 @@
         const alpha = Math.max(0, Math.min(100, Number(alphaRaw ?? field.alphaDefault ?? 18) || 0));
         return `<section ${fieldAttr} class="admin-dialog-field full admin-contract-color-field"><span>${escapeHtml(field.label)}</span><div class="admin-contract-color-controls"><label><small>Cor</small><input autocomplete="off" type="color" name="${escapeHtml(field.key)}" value="${escapeHtml(safe)}" ${required}></label><label><small>Alpha (%)</small><input autocomplete="off" type="text" inputmode="numeric" data-contract-alpha name="${escapeHtml(field.alphaKey || "colorAlpha")}" value="${escapeHtml(alpha)}%"></label></div><div class="admin-contract-color-preview" data-preview-for="${escapeHtml(field.key)}" style="--preview-color:${escapeHtml(safe)};--preview-alpha:${alpha}%"><span>Prévia da cor de destaque</span><strong>${escapeHtml(safe)} · ${alpha}%</strong></div></section>`;
       }
-      const type = field.type === "datetime" ? "datetime-local" : "text";
+      const type = field.type === "datetime" ? "datetime-local" : field.type === "time" ? "time" : "text";
       return `<label ${fieldAttr} class="admin-dialog-field${full}"><span>${escapeHtml(field.label)}</span><input autocomplete="off" type="${type}" name="${escapeHtml(field.key)}" value="${escapeHtml(value)}" placeholder="${escapeHtml(field.placeholder || "")}" ${required}>${help}</label>`;
     }
     open({ title, fields, item, onSave, saveLabel }) {

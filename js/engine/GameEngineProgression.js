@@ -39,9 +39,8 @@ Object.assign(GameEngine.prototype, {
       const events = window.FazendaSerenaRuntimeConfig?.events || [];
       return events.reduce((sum, event) => {
         if (event.type !== type) return sum;
-        const start = Number(event.startAt) || 0;
-        const end = start + Math.max(1, Number(event.durationMinutes) || 0) * 60000;
-        return now >= start && now < end ? sum + Math.max(0, Number(event.bonusPercent) || 0) : sum;
+        const occurrence = window.GameAdminConfig?.getEventOccurrence?.(event, now);
+        return occurrence?.active ? sum + Math.max(0, Number(event.bonusPercent) || 0) : sum;
       }, 0);
     },
 

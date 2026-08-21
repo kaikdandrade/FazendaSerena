@@ -36,7 +36,9 @@ Object.assign(GameEngine.prototype, {
       const base = Math.max(0, Math.floor(levelScore + ownershipScore + upgradeScore + masteryScore + 1e-9));
       const resonance = 1 + Math.max(0, this.getEvolutionBonus("prestigeGainPercent")) / 100;
       const missionMultiplier = this.state.permanentBonuses.prestigeDouble ? 2 : 1;
-      const total = Math.max(0, Math.floor(base * resonance * missionMultiplier));
+      const configuredBonus = Math.max(0, Math.floor(Number(GameEngine.PRESTIGE_BONUS) || 0));
+      const calculated = Math.max(0, Math.floor(base * resonance * missionMultiplier));
+      const total = Math.max(0, calculated + configuredBonus);
 
       return {
         level: Math.max(0, Math.floor(levelScore)),
@@ -44,6 +46,8 @@ Object.assign(GameEngine.prototype, {
         upgrades: Math.max(0, Math.floor(upgradeScore)),
         mastery: Math.max(0, Math.floor(masteryScore)),
         base,
+        calculated,
+        configuredBonus,
         total,
         owned,
         mastered,

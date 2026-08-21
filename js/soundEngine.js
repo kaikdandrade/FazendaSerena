@@ -88,7 +88,7 @@ class SoundEngine {
     // reprodução. Mantemos a ativação armada até uma interação válida iniciar
     // a música, sem obrigar o jogador a mexer novamente no slider.
     this.musicActivationHandler = () => {
-      if (document.hidden || this.getEffectiveMusicVolume() <= 0 || (!this.musicChannel.paused && this.musicStarted)) return;
+      if ((document.hidden && this.shouldPauseForHiddenPage()) || this.getEffectiveMusicVolume() <= 0 || (!this.musicChannel.paused && this.musicStarted)) return;
       this.playMusic();
     };
     document.addEventListener("pointerdown", this.musicActivationHandler, { passive: true, capture: true });
@@ -124,7 +124,7 @@ class SoundEngine {
     else {
       this.ensureMusicSource();
       this.musicChannel.volume = musicVolume;
-      if (document.hidden) this.pauseForVisibility();
+      if (document.hidden && this.shouldPauseForHiddenPage()) this.pauseForVisibility();
       else this.playMusic();
     }
   }
@@ -435,10 +435,15 @@ class SoundEngine {
     this.releaseMusicSource();
   }
 
+  shouldPauseForHiddenPage() {
+    try { return window.matchMedia("(max-width: 1024px)").matches; }
+    catch (_) { return Number(window.innerWidth || 0) <= 1024; }
+  }
+
   playMusic() {
     const volume = this.getEffectiveMusicVolume();
     if (volume <= 0) { this.deactivateMusic(); return false; }
-    if (document.hidden) return false;
+    if (document.hidden && this.shouldPauseForHiddenPage()) return false;
 
     this.ensureMusicSource();
     this.unlockAudio();
@@ -459,12 +464,15 @@ class SoundEngine {
     else if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = "paused"; } catch (_) {} }
   }
 
-  pauseForVisibility() {
-    // Sair da aba/tela pausa a trilha, mas não equivale a desligar o áudio: o
-    // arquivo e a posição permanecem prontos para retomar quando o jogo voltar.
+  pauseForVisibility({ force = false } = {}) {
+    // Em computador a trilha continua ao alternar entre abas. Em tablet/celular,
+    // ocultar o navegador ou bloquear a tela pausa imediatamente. Navegação real
+    // para fora da página usa force=true e sempre encerra a reprodução.
+    if (!force && document.hidden && !this.shouldPauseForHiddenPage()) return false;
     this.musicChannel.pause();
     this.musicStarted = false;
     this.clearMediaSession();
+    return true;
   }
 
   resumeAfterVisibility() {

@@ -30,6 +30,7 @@ class FirebaseManager {
     this.friendProfileSignatureByUid = new Map();
     this.adminAccessCache = new Map();
     this.moderationCache = new Map();
+    this.saveAdminRevisionByUid = new Map();
     this.initialization = this.initialize();
   }
 
@@ -244,7 +245,7 @@ class FirebaseManager {
     const reference = this.getLeaderboardReference(user);
     if (!user || !reference) return { ok: false, reason: "guest" };
     // O uso no painel exige administrador; fora dele, o próprio usuário já
-    // pode apagar sua entrada pelas regras quando opta por sair do ranking.
+    // pode apagar sua própria projeção; o jogo a recria automaticamente enquanto elegível.
     if (await this.isCurrentUserAdmin({ force: true })) {
       await this.sdk.deleteDoc(reference).catch(() => {});
       return { ok: true, administrator: true };
@@ -434,6 +435,28 @@ class FirebaseManager {
     }
   }
 
+  subscribePublicGameConfig(listener, errorListener = null) {
+    let unsubscribe = () => {};
+    let cancelled = false;
+    this.ready().then(() => {
+      if (cancelled || typeof listener !== "function") return;
+      const reference = this.getGameConfigReference();
+      if (!reference || !this.sdk?.onSnapshot) return;
+      unsubscribe = this.sdk.onSnapshot(reference, snapshot => {
+        if (!snapshot.exists() || snapshot.metadata?.hasPendingWrites) return;
+        const data = snapshot.data() || {};
+        const config = data.config && typeof data.config === "object" ? data.config : null;
+        if (config) listener(config, { updatedAtClient: Number(data.updatedAtClient) || 0 });
+      }, error => {
+        if (typeof errorListener === "function") errorListener(error);
+        else console.warn("Não foi possível observar a configuração pública:", error);
+      });
+    }).catch(error => {
+      if (typeof errorListener === "function") errorListener(error);
+    });
+    return () => { cancelled = true; try { unsubscribe?.(); } catch (_) {} };
+  }
+
   async savePublicGameConfig(config) {
     await this.ready();
     const user = this.currentUser;
@@ -465,20 +488,24 @@ class FirebaseManager {
       .slice(0, 24);
   }
 
-  hasCompleteLeaderboardProfile(state) {
-    const nickname = this.normalizeNickname(state?.settings?.playerNickname);
-    const avatar = this.getAvatarEntry(state?.settings?.playerAvatar);
-    const rankingOptOut = Boolean(state?.settings?.playerRankingOptOut);
-    return !rankingOptOut && nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
+  getRankingIdentity(state, user = this.currentUser) {
+    if (!user) return null;
+    const displayName = this.normalizeNickname(state?.settings?.playerNickname);
+    const storedAvatar = this.getAvatarEntry(state?.settings?.playerAvatar);
+    if (displayName.length < 4 || displayName.length > 24 || !storedAvatar) return null;
+    return { displayName, avatarId: storedAvatar.id };
+  }
+
+  hasCompleteLeaderboardProfile(state, user = this.currentUser) {
+    return Boolean(this.getRankingIdentity(state, user));
   }
 
   buildLeaderboardEntry(state, user = this.currentUser) {
-    if (!user || !this.hasCompleteLeaderboardProfile(state)) return null;
-    const displayName = this.normalizeNickname(state.settings.playerNickname);
-    const avatar = this.getAvatarEntry(state.settings.playerAvatar);
+    const identity = this.getRankingIdentity(state, user);
+    if (!identity) return null;
     return {
-      displayName,
-      avatarId: avatar.id,
+      displayName: identity.displayName,
+      avatarId: identity.avatarId,
       profileComplete: true,
       prestigeTotal: Math.max(0, Math.floor(Number(state?.stats?.totalPrestigeEarned) || 0)),
       prestigeCount: Math.max(0, Math.floor(Number(state?.stats?.prestiges) || 0)),
@@ -508,6 +535,36 @@ class FirebaseManager {
     };
   }
 
+  async syncOwnLeaderboard(state, { forceModeration = false } = {}) {
+    await this.ready();
+    const user = this.currentUser;
+    const reference = this.getLeaderboardReference(user);
+    if (!user || !reference) return { ok: false, reason: "guest" };
+
+    const administrator = await this.isCurrentUserAdmin({ force: forceModeration });
+    const moderation = administrator
+      ? { banned: false, rankingBlocked: true }
+      : await this.getOwnModeration({ force: forceModeration });
+
+    const entry = (!administrator && !moderation.banned && !moderation.rankingBlocked)
+      ? this.buildLeaderboardEntry(state, user)
+      : null;
+
+    if (entry) {
+      await this.sdk.setDoc(reference, entry, { merge: false });
+      return { ok: true, visible: true };
+    }
+
+    await this.sdk.deleteDoc(reference).catch(error => {
+      if (String(error?.code || "") !== "not-found") throw error;
+    });
+    return {
+      ok: true,
+      visible: false,
+      reason: administrator ? "administrator" : moderation.rankingBlocked ? "ranking-blocked" : moderation.banned ? "banned" : "profile-incomplete"
+    };
+  }
+
   async loadGame() {
     await this.ready();
     const user = this.currentUser;
@@ -523,6 +580,7 @@ class FirebaseManager {
       }
 
       const data = snapshot.data();
+      this.saveAdminRevisionByUid.set(user.uid, String(data?.adminRevision || ""));
       const state = data?.state && typeof data.state === "object" ? data.state : null;
       this.emitSaveStatus(state ? "loaded" : "empty", {
         savedAt: data?.updatedAt?.toDate?.() || null
@@ -545,10 +603,13 @@ class FirebaseManager {
       unsubscribe = this.sdk.onSnapshot(reference, snapshot => {
         if (!snapshot.exists() || snapshot.metadata?.hasPendingWrites) return;
         const data = snapshot.data() || {};
+        const adminRevision = String(data.adminRevision || "");
+        this.saveAdminRevisionByUid.set(user.uid, adminRevision);
         const state = data.state && typeof data.state === "object" ? data.state : null;
         if (state) listener(state, {
           updatedAtClient: Number(data.updatedAtClient) || 0,
-          savedAt: data.updatedAt?.toDate?.() || null
+          savedAt: data.updatedAt?.toDate?.() || null,
+          adminRevision
         });
       }, error => {
         if (typeof errorListener === "function") errorListener(error);
@@ -581,6 +642,7 @@ class FirebaseManager {
       resultingState = state;
       transaction.update(reference, {
         state,
+        adminRevision: mutationId,
         updatedAt: this.sdk.serverTimestamp(),
         updatedAtClient: now
       });
@@ -600,7 +662,6 @@ class FirebaseManager {
     const requestedState = JSON.parse(JSON.stringify(state || {}));
     const requestedNickname = this.normalizeNickname(requestedState?.settings?.playerNickname);
     const requestedAvatar = this.getAvatarEntry(requestedState?.settings?.playerAvatar);
-    const requestedOptOut = Boolean(requestedState?.settings?.playerRankingOptOut);
 
     this.saveQueue = this.saveQueue
       .catch(() => {})
@@ -628,29 +689,19 @@ class FirebaseManager {
           cloudState.settings = {
             ...(cloudState.settings || {}),
             playerNickname: requestedNickname,
-            playerAvatar: requestedAvatar.id,
-            playerRankingOptOut: requestedOptOut
+            playerAvatar: requestedAvatar.id
           };
 
           // Primeiro confirma o perfil dentro do save. Ranking e amizade são
           // sincronizações secundárias e nunca podem cancelar esta gravação.
           await this.sdk.updateDoc(reference, {
             "state.settings.playerNickname": requestedNickname,
-            "state.settings.playerAvatar": requestedAvatar.id,
-            "state.settings.playerRankingOptOut": requestedOptOut
+            "state.settings.playerAvatar": requestedAvatar.id
           });
 
           let socialSynced = true;
           try {
-            const administrator = await this.isCurrentUserAdmin();
-            const moderation = await this.getOwnModeration({ force: false });
-            if (leaderboardReference) {
-              const leaderboardEntry = (!administrator && !moderation.rankingBlocked && !requestedOptOut)
-                ? this.buildLeaderboardEntry(cloudState, user)
-                : null;
-              if (leaderboardEntry) await this.sdk.setDoc(leaderboardReference, leaderboardEntry, { merge: false });
-              else await this.sdk.deleteDoc(leaderboardReference);
-            }
+            if (leaderboardReference) await this.syncOwnLeaderboard(cloudState, { forceModeration: true });
           } catch (error) {
             socialSynced = false;
             console.warn("Perfil salvo, mas o ranking não pôde ser atualizado:", error);
@@ -708,6 +759,11 @@ class FirebaseManager {
         return { ok: false, reason: "guest" };
       }
 
+      // A antiga preferência de ocultação deixou de existir. O ranking passa a
+      // depender somente de perfil configurado + moderação/administração.
+      snapshot.settings = { ...(snapshot.settings || {}) };
+      delete snapshot.settings.playerRankingOptOut;
+
       const savedAt = new Date();
       this.emitSaveStatus("saving");
       try {
@@ -718,6 +774,7 @@ class FirebaseManager {
           state: snapshot,
           saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
           ownerEmail: String(user.email || "").trim(),
+          adminRevision: String(this.saveAdminRevisionByUid.get(user.uid) || ""),
           updatedAt: this.sdk.serverTimestamp(),
           updatedAtClient: savedAt.getTime()
         }, { merge: false });
@@ -730,18 +787,9 @@ class FirebaseManager {
           try {
             const leaderboardReference = this.getLeaderboardReference(user);
             const friendProfileReference = this.getFriendProfileReference(user);
-            const administrator = await this.isCurrentUserAdmin();
-            const moderation = administrator
-              ? { banned: false, rankingBlocked: true }
-              : await this.getOwnModeration({ force: false });
-
             if (leaderboardReference) {
-              const leaderboardEntry = (!administrator && !moderation.banned && !moderation.rankingBlocked)
-                ? this.buildLeaderboardEntry(snapshot, user)
-                : null;
               try {
-                if (leaderboardEntry) await this.sdk.setDoc(leaderboardReference, leaderboardEntry, { merge: false });
-                else await this.sdk.deleteDoc(leaderboardReference);
+                await this.syncOwnLeaderboard(snapshot);
               } catch (socialError) {
                 console.warn("Save concluído, mas o ranking não pôde ser sincronizado:", socialError);
               }
@@ -770,6 +818,26 @@ class FirebaseManager {
 
         return { ok: true, savedAt };
       } catch (error) {
+        // Se o Admin alterou a conta enquanto ela estava aberta, a revisão do
+        // servidor muda e um cliente antigo não pode sobrescrever a mudança.
+        if (String(error?.code || "") === "permission-denied") {
+          try {
+            const latest = await this.sdk.getDoc(reference);
+            if (latest.exists()) {
+              const payload = latest.data() || {};
+              const serverRevision = String(payload.adminRevision || "");
+              const localRevision = String(this.saveAdminRevisionByUid.get(user.uid) || "");
+              const remoteState = payload.state && typeof payload.state === "object" ? payload.state : null;
+              if (serverRevision !== localRevision && remoteState) {
+                this.saveAdminRevisionByUid.set(user.uid, serverRevision);
+                window.dispatchEvent(new CustomEvent("firebase-admin-state-conflict", {
+                  detail: { state: remoteState, adminRevision: serverRevision }
+                }));
+                return { ok: false, reason: "admin-state-changed", state: remoteState };
+              }
+            }
+          } catch (_) {}
+        }
         this.emitSaveStatus("error", { error });
         console.warn("Não foi possível salvar o progresso principal no Firestore:", error);
         return { ok: false, reason: "firestore", error };
@@ -1101,7 +1169,7 @@ class FirebaseManager {
       state.lastUpdate = now;
       state.__adminMutation = { id: mutationId, type: String(mutationType || "single-player-admin").slice(0, 48), at: now };
       resultingState = state;
-      transaction.update(reference, { state, updatedAt: this.sdk.serverTimestamp(), updatedAtClient: now });
+      transaction.update(reference, { state, adminRevision: mutationId, updatedAt: this.sdk.serverTimestamp(), updatedAtClient: now });
     });
     return { ok: true, state: resultingState, mutationId };
   }
@@ -1110,19 +1178,60 @@ class FirebaseManager {
     await this.requireAdmin();
     const uid = String(userId || "").trim();
     if (!uid) throw new Error("Selecione um jogador.");
-    const relationshipsQuery = this.sdk.query(
-      this.sdk.collection(this.db, FirebaseManager.FRIENDSHIP_COLLECTION),
-      this.sdk.where("members", "array-contains", uid),
-      this.sdk.limit(100)
-    );
-    const relationships = await this.sdk.getDocs(relationshipsQuery);
-    const batch = this.sdk.writeBatch(this.db);
-    batch.delete(this.sdk.doc(this.db, FirebaseManager.SAVE_COLLECTION, uid, FirebaseManager.SAVE_SUBCOLLECTION, FirebaseManager.SAVE_DOCUMENT));
-    batch.delete(this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, uid));
-    batch.delete(this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, uid));
-    relationships.docs.forEach(document => batch.delete(document.ref));
-    await batch.commit();
-    return { ok: true, friendshipsRemoved: relationships.size };
+    const config = window.GameAdminConfig?.getCurrent?.() || {};
+    const balance = config.balance || {};
+    const categories = Array.isArray(config.categories) ? config.categories : [];
+    const cropsCatalog = Array.isArray(config.crops) ? config.crops : [];
+    const researchCatalog = Array.isArray(config.research) ? config.research : [];
+    const prestigeCatalog = Array.isArray(config.prestigeUpgrades) ? config.prestigeUpgrades : [];
+    const startingCoins = Math.max(0, Math.floor(Number(balance.startingCoins) || 120));
+
+    const result = await this.mutatePlayerSaveForAdmin(uid, state => {
+      const preservedSettings = { ...(state.settings || {}) };
+      const preservedCreatedAt = Math.max(1, Number(state.createdAt) || Date.now());
+      state.version = window.FazendaSerenaConfig?.appVersion || state.version || "1.0.1";
+      state.coins = startingCoins;
+      state.research = 0;
+      state.prestigePoints = 0;
+      state.passiveResearchProgress = 0;
+      state.farmLevel = 1;
+      state.farmXP = 0;
+      const cropIds = new Set([...Object.keys(state.crops || {}), ...cropsCatalog.map(item => item.id).filter(Boolean)]);
+      state.crops = Object.fromEntries([...cropIds].map(id => [id, {
+        owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0,
+        autoSell: false, favorite: false, productionBuffer: 0
+      }]));
+      state.orders = Object.fromEntries([...cropIds].map(id => [id, { tier: 0, delivered: 0, autoDeliver: false }]));
+      state.upgrades = {};
+      state.storageExpansions = 0;
+      state.researchTechs = Object.fromEntries(researchCatalog.map(item => [item.id, 0]));
+      state.prestigeUpgrades = Object.fromEntries(prestigeCatalog.map(item => [item.id, 0]));
+      state.permanentBonuses = { prestigeDouble: false, passiveXPPercentPerSecond: 0, contractRewardPercent: 0, orderRewardPercent: 0 };
+      state.cropsDiscovered = {};
+      state.contractOffers = [];
+      state.contractCooldowns = [];
+      state.activeContracts = [];
+      state.contractSerial = 1;
+      state.missionsClaimed = {};
+      state.settings = preservedSettings;
+      state.createdAt = preservedCreatedAt;
+      const soldByCategory = Object.fromEntries(categories.map(item => [item.id, 0]));
+      state.stats = {
+        totalHarvested: 0, lifetimeHarvested: 0, totalSold: 0, lifetimeSold: 0, soldByCategory, lifetimeSoldByCategory: { ...soldByCategory },
+        ordersCompleted: 0, lifetimeOrdersCompleted: 0, orderUnitsDelivered: 0, lifetimeOrderUnitsDelivered: 0,
+        lifetimeCropPurchases: 0, lifetimeCropUpgrades: 0, lifetimeCropPrestiges: 0, completedOrderSeries: 0,
+        contractsCompleted: 0, lifetimeContractsCompleted: 0, contractsFailed: 0, lifetimeContractsFailed: 0,
+        contractsBroken: 0, lifetimeContractsBroken: 0, contractUnitsDelivered: 0, lifetimeContractUnitsDelivered: 0,
+        runCoinsEarned: 0, lifetimeCoins: 0, lifetimeResearchEarned: 0, lifetimeFarmXPEarned: 0, totalPrestigeEarned: 0,
+        maxFarmLevel: 1, maxCropLevel: 0, maxCropsOwned: 0, maxCoinsHeld: startingCoins, maxStorageUsed: 0, prestiges: 0
+      };
+      return true;
+    }, "full-account-reset");
+
+    // Remove apenas a projeção antiga do ranking. O perfil social e amizades
+    // permanecem, e o próprio jogo republica a posição com os valores zerados.
+    try { await this.sdk.deleteDoc(this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, uid)); } catch (_) {}
+    return { ...result, friendshipsRemoved: 0 };
   }
 
   async mutateAllPlayerSavesForAdmin(mutator, { batchSize = 8, mutationType = "global-admin" } = {}) {
@@ -1152,6 +1261,7 @@ class FirebaseManager {
         state.__adminMutation = { id: mutationId, type: String(mutationType || "global-admin").slice(0, 48), at: now };
         batch.update(document.ref, {
           state,
+          adminRevision: mutationId,
           updatedAt: this.sdk.serverTimestamp(),
           updatedAtClient: now
         });
@@ -1161,40 +1271,6 @@ class FirebaseManager {
       if (operations) await batch.commit();
     }
     return { ok: true, scanned: documents.length, updated, skipped, mutationId };
-  }
-
-  resetProgress(state) {
-    const snapshot = JSON.parse(JSON.stringify(state || {}));
-    delete snapshot.__adminMutation;
-    delete snapshot.__adminTestAppliedAt;
-    this.saveQueue = this.saveQueue
-      .catch(() => {})
-      .then(async () => {
-        await this.ready();
-        const user = this.currentUser;
-        const saveReference = this.getSaveReference(user);
-        const leaderboardReference = this.getLeaderboardReference(user);
-        const friendProfileReference = this.getFriendProfileReference(user);
-        if (!user || !saveReference || !leaderboardReference || !friendProfileReference) {
-          return { ok: false, reason: "guest" };
-        }
-        const now = Date.now();
-        snapshot.lastUpdate = now;
-        const batch = this.sdk.writeBatch(this.db);
-        batch.set(saveReference, {
-          state: snapshot,
-          saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
-          ownerEmail: String(user.email || "").trim(),
-          updatedAt: this.sdk.serverTimestamp(),
-          updatedAtClient: now
-        });
-        batch.delete(leaderboardReference);
-        batch.delete(friendProfileReference);
-        await batch.commit();
-        this.friendProfileSignatureByUid.set(user.uid, "");
-        return { ok: true, state: snapshot };
-      });
-    return this.saveQueue;
   }
 
   async signInWithGoogle() {

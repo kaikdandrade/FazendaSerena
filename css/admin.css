@@ -53,3 +53,40 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
 .admin-image-picker-dialog{width:min(920px,94vw)!important;max-width:920px!important;padding:0!important}.admin-image-picker-shell{display:flex;flex-direction:column;max-height:88vh}.admin-image-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 12px;border-bottom:1px solid var(--a-border)}.admin-image-picker-head small{color:var(--a-muted);font-weight:800}.admin-image-picker-head h2{margin:2px 0 0}.admin-image-picker-close{width:38px;height:38px;border:1px solid var(--a-border);border-radius:10px;background:var(--a-soft);font-size:1.4rem;cursor:pointer}.admin-image-picker-search{padding:12px 18px 8px}.admin-image-picker-options{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;padding:8px 18px 18px;overflow:auto}.admin-image-picker-options>button{position:relative;display:grid;gap:6px;min-width:0;padding:8px;border:1px solid var(--a-border);border-radius:12px;background:#fff;color:var(--a-text);cursor:pointer}.admin-image-picker-options>button:hover,.admin-image-picker-options>button.is-selected{border-color:rgba(47,116,66,.42);background:var(--a-green-soft)}.admin-image-picker-options img{width:100%;aspect-ratio:1/1;object-fit:contain;border-radius:9px;background:var(--a-soft)}.admin-image-picker-options span{font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.admin-image-picker-options b{position:absolute;top:13px;right:13px;padding:3px 6px;border-radius:999px;background:var(--a-green);color:#fff;font-size:.6rem}
 @media(max-width:760px){.admin-image-picker-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:480px){.admin-image-picker-options{grid-template-columns:repeat(2,minmax(0,1fr));padding-inline:12px}.admin-image-picker-head,.admin-image-picker-search{padding-inline:12px}}
+
+/* R36 — áreas agrupadas do Admin em formato sanfona. */
+.admin-accordion-section { overflow: hidden; }
+.admin-accordion-section > .admin-section-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+}
+.admin-accordion-toggle {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border: 1px solid var(--a-border);
+  border-radius: 9px;
+  background: var(--a-soft);
+  color: var(--a-muted);
+  font: inherit;
+  font-size: .75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.admin-accordion-toggle b { font-size: .95rem; line-height: 1; }
+.admin-accordion-section.is-collapsed > :not(.admin-section-heading) { display: none !important; }
+.admin-accordion-section.is-collapsed { padding-bottom: 12px !important; }
+@media (max-width: 480px) {
+  .admin-accordion-section > .admin-section-heading { grid-template-columns: 1fr 1fr; }
+  .admin-accordion-section > .admin-section-heading h2 { grid-column: 1 / -1; }
+  .admin-accordion-section > .admin-section-heading .admin-button,
+  .admin-accordion-section > .admin-section-heading .admin-accordion-toggle { width: 100%; }
+}
+
+/* R36 — eventos, checkboxes e grupos de ícones. */
+.admin-dialog-checkbox{display:flex!important;align-items:center;gap:9px;grid-column:1/-1}.admin-dialog-checkbox input{width:18px!important;height:18px!important;min-height:18px!important;padding:0!important}.admin-subsection-heading{margin:20px 0 8px}.admin-subsection-heading h3{margin:0 0 4px}.admin-subsection-heading p{margin:0;color:var(--a-muted);font-size:.82rem}.admin-dialog-field textarea{min-height:112px;resize:vertical}.admin-dialog-field input[type="time"]{font-variant-numeric:tabular-nums}

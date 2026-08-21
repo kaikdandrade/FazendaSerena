@@ -62,7 +62,7 @@ Object.assign(GameEngine.prototype, {
     if (!expired.length) return [];
     const expiredIds = new Set(expired.map(contract => contract.id));
     this.state.contractOffers = this.state.contractOffers.filter(contract => !expiredIds.has(contract.id));
-    expired.forEach(() => this.startContractCooldown(GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS, "expired"));
+    expired.forEach(() => this.startContractCooldown(this.getContractCooldownSeconds("expired"), "expired"));
     return expired;
   },
 
@@ -343,6 +343,19 @@ Object.assign(GameEngine.prototype, {
     };
   },
 
+  getContractCooldownSeconds(reason = "renewal") {
+    const ranges = {
+      signed: GameEngine.CONTRACT_SIGNED_COOLDOWN_RANGE,
+      expired: GameEngine.CONTRACT_EXPIRED_COOLDOWN_RANGE,
+      declined: GameEngine.CONTRACT_DECLINED_COOLDOWN_RANGE,
+      broken: GameEngine.CONTRACT_BROKEN_COOLDOWN_RANGE
+    };
+    const pair = Array.isArray(ranges[reason]) ? ranges[reason] : [30, 30];
+    const min = Math.max(1, Math.floor(Number(pair[0]) || 1));
+    const max = Math.max(min, Math.floor(Number(pair[1]) || min));
+    return min + Math.floor(Math.random() * (max - min + 1));
+  },
+
   startContractCooldown(durationSeconds, reason = "renewal", sourceContractId = "") {
     const seconds = Math.max(1, Math.floor(Number(durationSeconds) || 1));
     const cooldown = { reason, startedAt: Date.now(), durationSeconds: seconds, timeRemaining: seconds, sourceContractId: String(sourceContractId || "") };
@@ -357,13 +370,13 @@ Object.assign(GameEngine.prototype, {
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [offer] = this.state.contractOffers.splice(index, 1);
-    if (offer.timeRemaining <= 0) { this.startContractCooldown(GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS, "expired"); this.ensureContractOffers(); return { ok: false, message: "O prazo desta proposta terminou." }; }
+    if (offer.timeRemaining <= 0) { this.startContractCooldown(this.getContractCooldownSeconds("expired"), "expired"); this.ensureContractOffers(); return { ok: false, message: "O prazo desta proposta terminou." }; }
     // A duração sorteada pertence ao contrato. Se houver prazo de proposta, ele
     // apenas limita por quanto tempo a oferta fica disponível. Ao assinar, o
     // cronômetro de entrega sempre recomeça com a duração completa sorteada.
     const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), completedAt: 0, timeRemaining: Math.max(5, Number(offer.deliveryDurationSeconds || offer.durationSeconds) || 5) };
     this.state.activeContracts.push(contract);
-    const cooldown = this.startContractCooldown(GameEngine.CONTRACT_SIGNED_COOLDOWN_SECONDS, "signed", contract.id);
+    const cooldown = this.startContractCooldown(this.getContractCooldownSeconds("signed"), "signed", contract.id);
     const stockDelivery = this.deliverStockToContract(contract.id, true);
     this.ensureContractOffers();
     return { ok: true, contract, autoDelivered: stockDelivery.delivered || 0, completed: Boolean(contract.completedAt), cooldownSeconds: cooldown.durationSeconds };
@@ -374,7 +387,7 @@ Object.assign(GameEngine.prototype, {
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [contract] = this.state.contractOffers.splice(index, 1);
-    const cooldown = this.startContractCooldown(GameEngine.CONTRACT_DECLINED_COOLDOWN_SECONDS, "declined");
+    const cooldown = this.startContractCooldown(this.getContractCooldownSeconds("declined"), "declined");
     this.ensureContractOffers();
     return { ok: true, contract, cooldownSeconds: cooldown.durationSeconds };
   },
@@ -393,7 +406,7 @@ Object.assign(GameEngine.prototype, {
     // substituída pelo prazo de 4 min da quebra, evitando dois bloqueios para
     // a mesma proposta original.
     this.state.contractCooldowns = this.state.contractCooldowns.filter(cooldown => !(cooldown.reason === "signed" && cooldown.sourceContractId === contract.id));
-    const cooldown = this.startContractCooldown(GameEngine.CONTRACT_BROKEN_COOLDOWN_SECONDS, "broken", contract.id);
+    const cooldown = this.startContractCooldown(this.getContractCooldownSeconds("broken"), "broken", contract.id);
     this.ensureContractOffers();
     return { ok: true, contract, penaltyCoins, cooldownSeconds: cooldown.durationSeconds };
   },
@@ -429,6 +442,15 @@ Object.assign(GameEngine.prototype, {
     return contract;
   },
 
+  getEffectiveContractRewards(contract) {
+    const multiplier = this.getEventMultiplier("contractRewards");
+    return {
+      coins: Math.max(0, Math.floor((Number(contract?.rewardCoins) || 0) * multiplier)),
+      research: Math.max(0, Math.floor((Number(contract?.rewardResearch) || 0) * multiplier)),
+      prestige: Math.max(0, Math.floor((Number(contract?.rewardPrestige) || 0) * multiplier))
+    };
+  },
+
   claimContractReward(id) {
     const index = this.state.activeContracts.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Contrato não encontrado." };
@@ -436,13 +458,14 @@ Object.assign(GameEngine.prototype, {
     if (contract.defaultedAt) return { ok: false, message: "Este contrato venceu. Pague a multa para liberar o slot." };
     if (!contract.completedAt || contract.delivered < contract.amount) return { ok: false, message: "Este contrato ainda não foi concluído." };
     this.state.activeContracts.splice(index, 1);
-    if (contract.rewardCoins) this.addCoins(contract.rewardCoins);
-    if (contract.rewardResearch) this.addResearch(contract.rewardResearch);
-    if (contract.rewardPrestige) this.addPrestigePoints(contract.rewardPrestige);
+    const rewards = this.getEffectiveContractRewards(contract);
+    if (rewards.coins) this.addCoins(rewards.coins);
+    if (rewards.research) this.addResearch(rewards.research);
+    if (rewards.prestige) this.addPrestigePoints(rewards.prestige);
     const xpAward = this.getFarmXPAwardForRate(contract.xpRate);
     this.addFarmXPPercent(contract.xpRate);
     this.ensureContractOffers();
-    return { ok: true, contract, xpRate: contract.xpRate, xpAward };
+    return { ok: true, contract, rewards, xpRate: contract.xpRate, xpAward };
   },
 
   payContractPenalty(id) {

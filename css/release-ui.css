@@ -1,0 +1,1207 @@
+/* ========================================================================== */
+/* Fazenda Serena — Release UI Rework                                         */
+/* Camada única e isolada para os componentes que sofreram regressões.        */
+/* Carregada por último para neutralizar CSS legado sem alterar a economia.    */
+/* ========================================================================== */
+
+:root {
+  --release-green: #4f844f;
+  --release-green-deep: #365f3d;
+  --release-green-soft: #eef6ea;
+  --release-surface: #fbfdf9;
+  --release-border: rgba(59, 94, 62, .12);
+  --release-shadow: 0 18px 48px rgba(31, 52, 35, .12);
+  --prestige-purple: #70468b;
+  --prestige-purple-deep: #56336f;
+  --prestige-purple-soft: #f2e9f8;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 1. Atalho de contratos                                                     */
+/* -------------------------------------------------------------------------- */
+.contract-dock.visible:not(.collapsed) {
+  width: min(360px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
+  width: min(700px, calc(100vw - 24px)) !important;
+}
+.contract-dock-panel.contract-dock-v2 {
+  width: 100% !important;
+  max-width: none !important;
+  max-height: min(72dvh, 620px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border: 1px solid var(--release-border) !important;
+  border-radius: 18px !important;
+  background: rgba(252, 253, 251, .985) !important;
+  box-shadow: 0 16px 44px rgba(31, 51, 34, .17) !important;
+}
+.contract-dock-header {
+  position: relative !important;
+  min-height: 58px !important;
+  padding: 8px 52px 8px 11px !important;
+  display: flex !important;
+  align-items: center !important;
+  background: linear-gradient(180deg, #fbfdf9, #f5f9f3) !important;
+  border-bottom: 1px solid rgba(60, 92, 62, .09) !important;
+}
+.contract-dock-header > button:first-child {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.contract-dock-header .contract-dock-collapse-toggle,
+.contract-dock:not(.collapsed) .contract-dock-collapse-toggle,
+.contract-dock-v2:not(.collapsed) .contract-dock-collapse-toggle {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  left: auto !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  margin: 0 !important;
+  padding: 8px !important;
+  transform: none !important;
+  border: 1px solid rgba(60, 92, 62, .09) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 5px 14px rgba(44, 72, 47, .07) !important;
+}
+.contract-dock-header .contract-dock-collapse-toggle:hover {
+  transform: translateY(-1px) !important;
+  background: #f0f7ed !important;
+}
+.contract-dock-header .contract-dock-collapse-toggle img {
+  width: 18px !important;
+  height: 18px !important;
+}
+.contract-dock .contract-dock-list,
+.contract-dock-v2 .contract-dock-list {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76, 116, 76, .28) transparent;
+}
+.contract-dock .contract-dock-list:has(> :nth-child(4)),
+.contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+.contract-dock-list > *,
+.contract-dock-list > :only-child,
+.contract-dock-item-v2 {
+  grid-column: auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.contract-dock-item-v2 {
+  min-height: 86px !important;
+  border: 1px solid rgba(60, 92, 62, .09) !important;
+  border-radius: 13px !important;
+  background: #fff !important;
+}
+.contract-dock-item-v2:last-child { border-bottom: 1px solid rgba(60, 92, 62, .09) !important; }
+.contract-dock-item-v2.contract-defaulted {
+  background: linear-gradient(135deg, #fff5f2, #f8ddd7) !important;
+}
+.contract-dock-item-v2.reward-ready {
+  background: linear-gradient(135deg, #fffbed, #f8e9b8) !important;
+}
+@media (max-width: 760px) {
+  .contract-dock.visible:not(.collapsed),
+  .contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
+    width: min(390px, calc(100vw - 20px)) !important;
+    right: 10px !important;
+    bottom: 10px !important;
+  }
+  .contract-dock .contract-dock-list:has(> :nth-child(4)),
+  .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2. Configurações / Feedback                                                */
+/* -------------------------------------------------------------------------- */
+#settingsView .feedback-settings-card {
+  width: 100% !important;
+  max-width: none !important;
+  grid-column: 1 / -1 !important;
+  overflow: hidden !important;
+}
+#settingsView .feedback-settings-body {
+  width: 100% !important;
+  max-width: none !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 14px !important;
+  padding: 14px !important;
+  box-sizing: border-box !important;
+}
+#settingsView .feedback-settings-copy { width: 100% !important; }
+#settingsView .feedback-launch-button {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 3. Modal Feedback — header/body/footer estáveis e sem corte                */
+/* -------------------------------------------------------------------------- */
+#playerFeedbackDialog.player-feedback-dialog {
+  width: min(660px, calc(100vw - 28px)) !important;
+  max-width: none !important;
+  max-height: min(88dvh, 760px) !important;
+  margin: auto !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 30px 85px rgba(20, 38, 24, .28) !important;
+}
+#playerFeedbackDialog > form {
+  width: 100% !important;
+  max-height: min(88dvh, 760px) !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  overflow: hidden !important;
+  background: #fff !important;
+}
+#playerFeedbackDialog .player-feedback-heading {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 18px 20px !important;
+  margin: 0 !important;
+  background: linear-gradient(135deg, #eaf5e7, #f9fcf7 75%) !important;
+  border-bottom: 1px solid rgba(63, 98, 65, .08) !important;
+  box-sizing: border-box !important;
+}
+#playerFeedbackDialog .player-feedback-heading-icon {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid rgba(69, 105, 68, .09) !important;
+  box-shadow: 0 7px 18px rgba(50, 86, 52, .07) !important;
+}
+#playerFeedbackDialog .player-feedback-heading-icon img { width: 42px !important; height: 42px !important; }
+#playerFeedbackDialog .player-feedback-heading h2 { margin: 1px 0 0 !important; font-size: 1.28rem !important; }
+#playerFeedbackDialog .player-feedback-heading p:not(.eyebrow) {
+  margin: 5px 0 0 !important;
+  max-width: 54ch !important;
+  color: #68786c !important;
+  font-size: .76rem !important;
+  line-height: 1.48 !important;
+}
+#playerFeedbackDialog .player-feedback-fields {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+  outline: none !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-content: start !important;
+  gap: 13px !important;
+  padding: 18px 20px !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76, 116, 76, .25) transparent;
+}
+#playerFeedbackDialog .player-feedback-fields > label { min-width: 0 !important; }
+#playerFeedbackDialog .player-feedback-fields > label.full { grid-column: 1 / -1 !important; }
+#playerFeedbackDialog .player-feedback-fields input,
+#playerFeedbackDialog .player-feedback-fields select,
+#playerFeedbackDialog .player-feedback-fields textarea {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: 1px solid rgba(68, 101, 69, .16) !important;
+  border-radius: 12px !important;
+  background: #fbfcfa !important;
+  outline: none !important;
+}
+#playerFeedbackDialog .player-feedback-fields input:focus,
+#playerFeedbackDialog .player-feedback-fields select:focus,
+#playerFeedbackDialog .player-feedback-fields textarea:focus {
+  border-color: rgba(76, 132, 77, .55) !important;
+  box-shadow: 0 0 0 3px rgba(76, 132, 77, .10) !important;
+}
+#playerFeedbackDialog .player-feedback-fields textarea {
+  min-height: 150px !important;
+  max-height: 230px !important;
+  resize: vertical !important;
+}
+#playerFeedbackDialog .player-feedback-actions {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr) !important;
+  gap: 10px !important;
+  padding: 12px 20px 16px !important;
+  margin: 0 !important;
+  border-top: 1px solid rgba(63, 98, 65, .08) !important;
+  background: #fbfcfa !important;
+  box-sizing: border-box !important;
+}
+#playerFeedbackDialog .player-feedback-actions .button { width: 100% !important; min-width: 0 !important; }
+@media (max-width: 600px) {
+  #playerFeedbackDialog { width: calc(100vw - 12px) !important; border-radius: 18px !important; }
+  #playerFeedbackDialog > form { max-height: 92dvh !important; }
+  #playerFeedbackDialog .player-feedback-heading {
+    grid-template-columns: 46px minmax(0,1fr) !important;
+    gap: 10px !important;
+    padding: 14px !important;
+  }
+  #playerFeedbackDialog .player-feedback-heading-icon { width: 46px !important; height: 46px !important; border-radius: 13px !important; }
+  #playerFeedbackDialog .player-feedback-heading-icon img { width: 34px !important; height: 34px !important; }
+  #playerFeedbackDialog .player-feedback-heading p:not(.eyebrow) { display: none !important; }
+  #playerFeedbackDialog .player-feedback-fields { grid-template-columns: 1fr !important; padding: 14px !important; }
+  #playerFeedbackDialog .player-feedback-fields > label.full { grid-column: auto !important; }
+  #playerFeedbackDialog .player-feedback-fields textarea { min-height: 135px !important; }
+  #playerFeedbackDialog .player-feedback-actions { padding: 10px 14px 14px !important; }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 4. Social — painel principal mais limpo                                    */
+/* -------------------------------------------------------------------------- */
+#profileSocialPanel.social-profile-panel {
+  padding: 16px !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  background: linear-gradient(180deg, rgba(247,251,245,.92), rgba(241,247,239,.88)) !important;
+  box-shadow: none !important;
+}
+#profileSocialPanel .friends-content {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.friends-hub-card {
+  width: 100% !important;
+  padding: 14px !important;
+  border: 1px solid rgba(62, 98, 64, .11) !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.82) !important;
+  box-shadow: 0 8px 22px rgba(43, 69, 45, .045) !important;
+}
+.friends-hub-header {
+  min-height: 0 !important;
+  padding: 0 0 12px !important;
+  margin: 0 0 12px !important;
+  border-bottom: 1px solid rgba(62, 98, 64, .08) !important;
+  background: transparent !important;
+}
+.friends-hub-header .friends-beta-title small { color: #6c7b70 !important; }
+.friends-hub-header .friends-beta-title h3 { margin: 2px 0 0 !important; }
+.friends-hub-header .friends-beta-title h3 span { display: none !important; }
+.friends-hub-actions {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: start !important;
+  gap: 10px !important;
+}
+.friends-hub-launch,
+.friends-request-option {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 66px !important;
+  align-self: start !important;
+  margin: 0 !important;
+  border: 1px solid rgba(62, 98, 64, .10) !important;
+  border-radius: 15px !important;
+  background: #fbfdf9 !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+.friends-hub-launch {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 11px 12px !important;
+  cursor: pointer !important;
+}
+.friends-hub-launch > span,
+.friends-request-option > summary > span {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.friends-hub-launch img,
+.friends-request-option > summary img {
+  width: 38px !important;
+  height: 38px !important;
+  flex: 0 0 38px !important;
+  object-fit: contain !important;
+}
+.friends-hub-launch strong,
+.friends-request-option strong { font-size: .82rem !important; }
+.friends-hub-launch > b,
+.friends-request-option > summary > b {
+  flex: 0 0 auto !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 7px !important;
+  border-radius: 999px !important;
+  background: #edf5ea !important;
+  color: #4b784e !important;
+  font-size: .7rem !important;
+}
+.friends-request-option > summary {
+  min-height: 66px !important;
+  padding: 11px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  list-style: none !important;
+}
+.friends-request-option > summary::-webkit-details-marker { display: none !important; }
+.friends-request-option > summary small {
+  display: block !important;
+  margin-top: 2px !important;
+  color: #758279 !important;
+  font-size: .64rem !important;
+  line-height: 1.35 !important;
+}
+.friends-request-option .friends-beta-option-body {
+  border-top: 1px solid rgba(62, 98, 64, .08) !important;
+  padding: 12px !important;
+  background: rgba(247,251,245,.70) !important;
+}
+.friend-code-inline { row-gap: 7px !important; }
+.friend-code-inline > span { font-size: .84rem !important; }
+.friend-code-inline code {
+  min-height: 42px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 8px 10px !important;
+  border: 1px solid rgba(63,99,65,.10) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  font-size: .95rem !important;
+}
+@media (max-width: 768px) {
+  #profileSocialPanel.social-profile-panel { padding: 12px !important; }
+  .friends-hub-actions { grid-template-columns: 1fr !important; }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 5. Modal Amigos — uma única superfície, header correto e sanfonas          */
+/* -------------------------------------------------------------------------- */
+#friendsListDialog.friends-list-dialog {
+  width: min(650px, calc(100vw - 28px)) !important;
+  max-width: none !important;
+  max-height: min(88dvh, 760px) !important;
+  padding: 0 !important;
+  margin: auto !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(61, 95, 63, .12) !important;
+  border-radius: 22px !important;
+  background: #f8fbf6 !important;
+  box-shadow: 0 30px 86px rgba(21, 39, 25, .28) !important;
+}
+#friendsListDialog > form {
+  width: 100% !important;
+  max-height: min(88dvh, 760px) !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #f8fbf6 !important;
+}
+#friendsListDialog .friends-dialog-header {
+  width: 100% !important;
+  min-height: 74px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 13px 15px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  background: linear-gradient(135deg, #edf6ea, #f9fcf7 78%) !important;
+  border-bottom: 1px solid rgba(61, 95, 63, .09) !important;
+  overflow: visible !important;
+}
+#friendsListDialog .friends-dialog-heading {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+#friendsListDialog .friends-dialog-icon {
+  width: 48px !important;
+  height: 48px !important;
+  flex: 0 0 48px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.75) !important;
+  border: 1px solid rgba(65,100,66,.09) !important;
+}
+#friendsListDialog .friends-dialog-icon img { width: 38px !important; height: 38px !important; }
+#friendsListDialog .friends-dialog-heading h2 {
+  margin: 1px 0 0 !important;
+  font-size: 1.12rem !important;
+  line-height: 1.14 !important;
+}
+#friendsListDialog .friends-dialog-header-actions {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+#friendsListDialog .dialog-icon-button {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 0 2px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(67, 103, 68, .07) !important;
+  color: #315b38 !important;
+  font-size: 1.25rem !important;
+  line-height: 1 !important;
+  overflow: visible !important;
+}
+#friendsListDialog .friends-dialog-body {
+  min-height: 0 !important;
+  width: 100% !important;
+  overflow: auto !important;
+  outline: 0 !important;
+  padding: 14px 15px 16px !important;
+  box-sizing: border-box !important;
+  background: #f8fbf6 !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(76,116,76,.24) transparent;
+}
+#friendsListDialog .friends-dialog-toolbar {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin: 0 !important;
+  padding: 0 0 11px !important;
+}
+#friendsListDialog .friends-dialog-refresh {
+  min-height: 36px !important;
+  padding: 7px 13px !important;
+  border-radius: 10px !important;
+}
+#friendsListDialog .friends-dialog-sections { display: grid !important; gap: 9px !important; }
+#friendsListDialog .friends-list-accordion {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(61,95,63,.10) !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.82) !important;
+  box-shadow: 0 5px 14px rgba(40,63,43,.025) !important;
+}
+#friendsListDialog .friends-list-accordion > summary {
+  min-height: 66px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 11px 13px !important;
+  list-style: none !important;
+  cursor: pointer !important;
+}
+#friendsListDialog .friends-list-accordion > summary::-webkit-details-marker { display: none !important; }
+#friendsListDialog .friends-list-heading > div { min-width: 0 !important; }
+#friendsListDialog .friends-list-heading h3 { margin: 2px 0 0 !important; font-size: .86rem !important; }
+#friendsListDialog .friends-list-heading .eyebrow { margin: 0 !important; font-size: .55rem !important; }
+#friendsListDialog .friends-list-heading > span {
+  flex: 0 0 auto !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 7px !important;
+  border-radius: 999px !important;
+  background: #edf5ea !important;
+  color: #4b784e !important;
+  font-size: .68rem !important;
+}
+#friendsListDialog .friends-list-accordion > .friends-list {
+  padding: 0 11px 11px !important;
+  border-top: 1px solid rgba(61,95,63,.07) !important;
+}
+#friendsListDialog .friends-dialog-actions {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 15px 14px !important;
+  box-sizing: border-box !important;
+  background: #f8fbf6 !important;
+  border-top: 1px solid rgba(61,95,63,.08) !important;
+}
+#friendsListDialog .friends-dialog-actions .button { width: 100% !important; }
+@media (max-width: 520px) {
+  #friendsListDialog { width: calc(100vw - 12px) !important; border-radius: 17px !important; }
+  #friendsListDialog .friends-dialog-header { min-height: 66px !important; padding: 11px 12px !important; }
+  #friendsListDialog .friends-dialog-icon { width: 42px !important; height: 42px !important; flex-basis: 42px !important; }
+  #friendsListDialog .friends-dialog-icon img { width: 33px !important; height: 33px !important; }
+  #friendsListDialog .friends-dialog-body { padding: 12px !important; }
+  #friendsListDialog .friends-dialog-actions { padding: 9px 12px 12px !important; }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 6. Progresso offline — vertical, limpo e sem borda/scroll nativo feio      */
+/* -------------------------------------------------------------------------- */
+#offlineProgressDialog.offline-progress-dialog {
+  width: min(600px, calc(100vw - 28px)) !important;
+  max-width: none !important;
+  max-height: min(88dvh, 720px) !important;
+  padding: 0 !important;
+  margin: auto !important;
+  overflow: hidden !important;
+  outline: 0 !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 30px 88px rgba(20, 38, 24, .29) !important;
+}
+#offlineProgressDialog > form {
+  width: 100% !important;
+  max-height: min(88dvh, 720px) !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0,1fr) auto !important;
+  overflow: hidden !important;
+  outline: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(61,95,63,.10) !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-sizing: border-box !important;
+}
+#offlineProgressDialog .offline-progress-header {
+  min-height: 86px !important;
+  display: grid !important;
+  grid-template-columns: 58px minmax(0,1fr) !important;
+  align-items: center !important;
+  gap: 13px !important;
+  padding: 14px 18px !important;
+  margin: 0 !important;
+  background: linear-gradient(135deg, #eef6ea, #fbfdf9 76%) !important;
+  border-bottom: 1px solid rgba(61,95,63,.08) !important;
+}
+#offlineProgressDialog .offline-progress-symbol {
+  width: 56px !important;
+  height: 56px !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 1px solid rgba(66,104,67,.09) !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.72) !important;
+}
+#offlineProgressDialog .offline-progress-symbol img { width: 45px !important; height: 45px !important; }
+#offlineProgressDialog .offline-progress-heading h2 { margin: 0 !important; font-size: 1.22rem !important; }
+#offlineProgressDialog .offline-progress-heading strong {
+  margin-top: 5px !important;
+  min-height: 28px !important;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  background: #e9f3e6 !important;
+  color: #4f784f !important;
+}
+#offlineProgressDialog .offline-progress-summary {
+  width: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-content: start !important;
+  gap: 9px !important;
+  padding: 14px 18px !important;
+  margin: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  outline: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(75, 111, 74, .28) transparent !important;
+}
+#offlineProgressDialog .offline-progress-summary::-webkit-scrollbar { width: 7px !important; }
+#offlineProgressDialog .offline-progress-summary::-webkit-scrollbar-track { background: transparent !important; }
+#offlineProgressDialog .offline-progress-summary::-webkit-scrollbar-thumb { background: rgba(75,111,74,.24) !important; border-radius: 999px !important; }
+#offlineProgressDialog .offline-gain-card {
+  width: 100% !important;
+  min-height: 60px !important;
+  display: grid !important;
+  grid-template-columns: 40px minmax(0,1fr) !important;
+  align-items: center !important;
+  gap: 11px !important;
+  padding: 10px 12px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  border: 1px solid rgba(61,95,63,.09) !important;
+  border-radius: 14px !important;
+  background: #f8faf7 !important;
+  box-shadow: none !important;
+}
+#offlineProgressDialog .offline-gain-card > img { width: 36px !important; height: 36px !important; object-fit: contain !important; }
+#offlineProgressDialog .offline-gain-card > div { display: grid !important; gap: 1px !important; }
+#offlineProgressDialog .offline-gain-card span { color: #748078 !important; font-size: .62rem !important; letter-spacing: .03em !important; text-transform: uppercase !important; }
+#offlineProgressDialog .offline-gain-card strong { font-size: 1rem !important; line-height: 1.15 !important; }
+#offlineProgressDialog .offline-gain-card small { color: #6e7b72 !important; font-size: .67rem !important; }
+#offlineProgressDialog .offline-progress-actions {
+  width: 100% !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 11px 18px 15px !important;
+  box-sizing: border-box !important;
+  border-top: 1px solid rgba(61,95,63,.08) !important;
+  background: #fbfcfa !important;
+}
+#offlineProgressDialog .offline-progress-actions .button { width: 100% !important; min-height: 44px !important; }
+@media (max-width: 480px) {
+  #offlineProgressDialog { width: calc(100vw - 12px) !important; border-radius: 17px !important; }
+  #offlineProgressDialog > form { border-radius: 17px !important; }
+  #offlineProgressDialog .offline-progress-header { min-height: 74px !important; grid-template-columns: 50px minmax(0,1fr) !important; padding: 12px 14px !important; }
+  #offlineProgressDialog .offline-progress-symbol { width: 48px !important; height: 48px !important; border-radius: 13px !important; }
+  #offlineProgressDialog .offline-progress-symbol img { width: 38px !important; height: 38px !important; }
+  #offlineProgressDialog .offline-progress-summary { padding: 11px 14px !important; gap: 8px !important; }
+  #offlineProgressDialog .offline-gain-card { min-height: 58px !important; grid-template-columns: 36px minmax(0,1fr) !important; }
+  #offlineProgressDialog .offline-gain-card > img { width: 32px !important; height: 32px !important; }
+  #offlineProgressDialog .offline-progress-actions { padding: 9px 14px 13px !important; }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 7. Pesquisa / Evoluções — mesma estrutura, badge absoluto roxo             */
+/* -------------------------------------------------------------------------- */
+#officeEvolutionsPanel .redesigned-evolution-card,
+#profileAccountPanel .redesigned-evolution-card,
+#profileView .redesigned-evolution-card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+#officeEvolutionsPanel .upgrade-level-badge,
+#profileAccountPanel .upgrade-level-badge,
+#profileView .upgrade-level-badge,
+#officeEvolutionsPanel .evolution-upgrade-completed .upgrade-level-badge,
+#profileView .evolution-upgrade-completed .upgrade-level-badge {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  min-width: 72px !important;
+  max-width: 120px !important;
+  min-height: 28px !important;
+  height: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 5px 10px !important;
+  border: 1px solid rgba(107, 70, 132, .18) !important;
+  border-radius: 999px !important;
+  background: #f0e5f6 !important;
+  color: #65417c !important;
+  box-shadow: none !important;
+  font-size: .66rem !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  z-index: 4 !important;
+}
+#officeEvolutionsPanel .upgrade-card-identity,
+#profileView .upgrade-card-identity {
+  min-width: 0 !important;
+  padding-right: 92px !important;
+}
+@media (max-width: 768px) {
+  #officeEvolutionsPanel .redesigned-evolution-card,
+  #profileView .redesigned-evolution-card {
+    position: relative !important;
+  }
+  #officeEvolutionsPanel .upgrade-card-identity,
+  #profileView .upgrade-card-identity {
+    min-width: 0 !important;
+    padding-right: 90px !important;
+  }
+  #officeEvolutionsPanel .upgrade-level-badge,
+  #profileView .upgrade-level-badge {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    justify-self: auto !important;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 8. Conta — Perfil do ranking em posição previsível                         */
+/* -------------------------------------------------------------------------- */
+#profileAccountPanel .account-settings-card { position: relative !important; }
+#profileAccountPanel .ranking-profile-launch > div { display: none !important; }
+@media (min-width: 769px) {
+  #profileAccountPanel .ranking-profile-launch {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    left: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    z-index: 5 !important;
+  }
+  #profileAccountPanel .ranking-profile-launch[hidden] { display: none !important; }
+  #profileAccountPanel .ranking-profile-launch .button { width: auto !important; min-width: 150px !important; }
+  #profileAccountPanel .account-actions { padding-right: 0 !important; }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  #profileAccountPanel .account-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 8px !important;
+    padding-right: 0 !important;
+  }
+  #profileAccountPanel .ranking-profile-launch {
+    position: static !important;
+    width: 100% !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  #profileAccountPanel .ranking-profile-launch[hidden] { display: none !important; }
+  #profileAccountPanel .ranking-profile-launch .button,
+  #profileAccountPanel #googleSignOut { width: 100% !important; min-height: 44px !important; }
+}
+@media (max-width: 480px) {
+  #profileAccountPanel .account-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding-right: 0 !important;
+  }
+  #profileAccountPanel .ranking-profile-launch {
+    position: static !important;
+    order: 1 !important;
+    width: 100% !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  #profileAccountPanel .ranking-profile-launch[hidden] { display: none !important; }
+  #profileAccountPanel #googleSignOut { order: 2 !important; }
+  #profileAccountPanel .ranking-profile-launch .button,
+  #profileAccountPanel #googleSignOut { width: 100% !important; min-height: 44px !important; }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 9. Prestígio — painel principal roxo e monumental                          */
+/* -------------------------------------------------------------------------- */
+#profileAccountPanel .account-prestige-section {
+  overflow: hidden !important;
+  padding: 0 !important;
+  border: 1px solid rgba(105, 67, 135, .13) !important;
+  background: linear-gradient(150deg, #fbf9fd, #f4eef8) !important;
+}
+.prestige-rework { gap: 12px !important; padding: 14px !important; }
+.prestige-rework-gain {
+  position: relative !important;
+  isolation: isolate !important;
+  min-height: 330px !important;
+  padding: 30px 24px 24px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(110, 70, 140, .17) !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(193,151,222,.34), transparent 34%),
+    radial-gradient(circle at 88% 78%, rgba(121,84,151,.18), transparent 35%),
+    linear-gradient(145deg, #f8f1fc 0%, #eee1f6 52%, #f8f5fa 100%) !important;
+  box-shadow: 0 18px 46px rgba(79, 50, 101, .12) !important;
+}
+.prestige-rework-gain::before {
+  content: "";
+  position: absolute;
+  inset: -30% -10% auto auto;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.52), transparent 67%);
+  z-index: -1;
+  pointer-events: none;
+}
+.prestige-rework-kicker {
+  order: 0 !important;
+  margin: 0 0 8px !important;
+  padding: 6px 11px !important;
+  border: 1px solid rgba(100, 62, 128, .13) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.50) !important;
+  color: #68437f !important;
+  font-size: .68rem !important;
+  letter-spacing: .07em !important;
+  opacity: 1 !important;
+}
+.prestige-rework-icon {
+  order: 1 !important;
+  width: 86px !important;
+  height: 86px !important;
+  margin: 7px 0 2px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.prestige-rework-icon img { width: 78px !important; height: 78px !important; filter: drop-shadow(0 9px 14px rgba(79,47,104,.15)); }
+.prestige-rework-gain > strong {
+  order: 2 !important;
+  margin: 3px 0 7px !important;
+  color: #56356d !important;
+  font-size: clamp(2.7rem, 7vw, 5.3rem) !important;
+  line-height: .94 !important;
+  letter-spacing: -.035em !important;
+}
+.prestige-rework-gain > small {
+  order: 3 !important;
+  max-width: 46ch !important;
+  margin: 0 auto !important;
+  color: #765f81 !important;
+  font-size: .77rem !important;
+  line-height: 1.45 !important;
+}
+.prestige-rework-gain .prestige-rework-details {
+  order: 4 !important;
+  width: min(100%, 720px) !important;
+  margin-top: 18px !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+  gap: 8px !important;
+}
+.prestige-rework-details article {
+  min-width: 0 !important;
+  padding: 10px 11px !important;
+  border: 1px solid rgba(105,67,135,.11) !important;
+  border-radius: 13px !important;
+  background: rgba(255,255,255,.55) !important;
+  text-align: left !important;
+}
+.prestige-rework-details article small { color: #806d89 !important; font-size: .6rem !important; }
+.prestige-rework-details article strong { color: #523e5b !important; font-size: .82rem !important; }
+.prestige-rework-footer {
+  width: 100% !important;
+  min-height: 72px !important;
+  padding: 11px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  border: 1px solid rgba(103,67,132,.10) !important;
+  border-radius: 16px !important;
+  background: rgba(104,68,132,.055) !important;
+}
+.prestige-rework-footer p { margin: 0 !important; color: #6e6273 !important; font-size: .75rem !important; }
+.prestige-rework-action {
+  min-width: 230px !important;
+  min-height: 54px !important;
+  padding: 12px 26px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #7c50a0, #5d3678) !important;
+  color: #fff !important;
+  box-shadow: 0 11px 25px rgba(86, 49, 112, .23) !important;
+  font-size: 1.02rem !important;
+  font-weight: 950 !important;
+}
+.prestige-rework-action:hover:not(:disabled) { background: linear-gradient(135deg, #8758aa, #674081) !important; }
+@media (max-width: 820px) {
+  .prestige-rework-gain .prestige-rework-details { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+@media (max-width: 540px) {
+  .prestige-rework { padding: 10px !important; }
+  .prestige-rework-gain { min-height: 300px !important; padding: 22px 14px 16px !important; border-radius: 19px !important; }
+  .prestige-rework-gain .prestige-rework-details { grid-template-columns: 1fr 1fr !important; margin-top: 14px !important; }
+  .prestige-rework-footer { flex-direction: column !important; align-items: stretch !important; }
+  .prestige-rework-action { width: 100% !important; min-width: 0 !important; }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 10. Estatísticas + Ranking                                                 */
+/* -------------------------------------------------------------------------- */
+.research-benefit-section { margin-top: 26px !important; }
+.legacy-benefit-section { margin-top: 24px !important; }
+.social-ranking-section {
+  background: linear-gradient(180deg, rgba(255,255,255,.97), rgba(247,250,245,.96)) !important;
+}
+.social-ranking-section .prestige-leaderboard,
+.social-ranking-section .leaderboard-list {
+  background: transparent !important;
+}
+.social-ranking-section .leaderboard-list {
+  display: grid !important;
+  gap: 9px !important;
+  padding: 0 !important;
+}
+.social-ranking-section .leaderboard-row {
+  margin: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 11. Modais: garantia global de largura, box sizing e backdrop              */
+/* -------------------------------------------------------------------------- */
+#playerFeedbackDialog *,
+#friendsListDialog *,
+#offlineProgressDialog * { box-sizing: border-box !important; }
+#playerFeedbackDialog::backdrop,
+#friendsListDialog::backdrop,
+#offlineProgressDialog::backdrop {
+  background: rgba(20, 32, 22, .52) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 12. Responsividade de acabamento                                           */
+/* -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  #settingsView .feedback-settings-body { padding: 12px !important; }
+  .social-ranking-section { padding: 12px !important; }
+}
+@media (max-width: 480px) {
+  #profileSocialPanel.social-profile-panel { border-radius: 16px !important; padding: 9px !important; }
+  .friends-hub-card { padding: 10px !important; border-radius: 15px !important; }
+  .social-ranking-section { border-radius: 16px !important; padding: 10px !important; }
+}
+
+/* Sanfonas do modal Social usam o mesmo ícone de seta do jogo, sem caractere. */
+#friendsListDialog .friends-list-accordion > summary::after {
+  content: "";
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-left: 2px;
+  background: url("../assets/icons/seta-cima.webp") center / contain no-repeat;
+  opacity: .72;
+  transform: rotate(180deg);
+  transition: transform .18s ease;
+}
+#friendsListDialog .friends-list-accordion[open] > summary::after { transform: rotate(0deg); }
+#friendsListDialog .friends-list-heading > span { margin-left: auto !important; }
+
+/* Perfil do ranking: modal compacto, centralizado e sem herdar grids antigos. */
+#rankingProfileDialog.ranking-profile-dialog {
+  width: min(650px, calc(100vw - 28px)) !important;
+  max-width: none !important;
+  max-height: min(90dvh, 780px) !important;
+  padding: 0 !important;
+  margin: auto !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  box-shadow: 0 30px 88px rgba(20,38,24,.29) !important;
+}
+#rankingProfileDialog > form {
+  width: 100% !important;
+  max-height: min(90dvh, 780px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #fff !important;
+}
+#rankingProfileDialog .player-profile-heading {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 17px 19px !important;
+  border-bottom: 1px solid rgba(61,95,63,.08) !important;
+  background: linear-gradient(135deg,#edf6ea,#fbfdf9 78%) !important;
+}
+#rankingProfileDialog .player-profile-heading h2 { margin: 0 !important; font-size: 1.2rem !important; }
+#rankingProfileDialog .player-profile-fields {
+  width: 100% !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 11px !important;
+  padding: 16px 18px !important;
+  overflow: auto !important;
+  box-sizing: border-box !important;
+}
+#rankingProfileDialog .profile-nickname-field,
+#rankingProfileDialog .profile-avatar-field {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 12px !important;
+  border: 1px solid rgba(61,95,63,.10) !important;
+  border-radius: 14px !important;
+  background: #fafcf9 !important;
+  box-sizing: border-box !important;
+}
+#rankingProfileDialog .avatar-picker-panel {
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 0 18px 14px !important;
+}
+#rankingProfileDialog .player-profile-actions {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1.25fr !important;
+  gap: 9px !important;
+  margin: 0 !important;
+  padding: 11px 18px 15px !important;
+  border-top: 1px solid rgba(61,95,63,.08) !important;
+  background: #fbfcfa !important;
+  box-sizing: border-box !important;
+}
+#rankingProfileDialog .player-profile-actions .button { width: 100% !important; }
+#rankingProfileDialog .player-profile-actions small { grid-column: 1 / -1 !important; }
+@media (max-width: 480px) {
+  #rankingProfileDialog { width: calc(100vw - 12px) !important; border-radius: 17px !important; }
+  #rankingProfileDialog .player-profile-fields { padding: 13px !important; }
+  #rankingProfileDialog .avatar-picker-panel { padding-inline: 13px !important; }
+  #rankingProfileDialog .player-profile-actions { padding: 10px 13px 13px !important; }
+}
+
+/* Marco de nível: mantém o mesmo padrão visual e impede qualquer retorno ao fluxo horizontal. */
+#milestoneDialog.confirmation-dialog-milestone,
+#milestoneDialog.confirmation-dialog-milestone > form {
+  width: min(570px, calc(100vw - 28px)) !important;
+  max-width: none !important;
+}
+#milestoneDialog .milestone-preview-body {
+  grid-template-columns: 1fr !important;
+  outline: 0 !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(75,111,74,.24) transparent !important;
+}
+
+/* Garantias que não dependem de ancestrais legados. */
+#officeEvolutionsPanel .upgrade-card-identity,
+#profileView .prestige-grid .upgrade-card-identity {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+}
+#officeEvolutionsPanel .upgrade-card-identity .upgrade-icon,
+#profileView .prestige-grid .upgrade-card-identity .upgrade-icon {
+  flex: 0 0 auto !important;
+}
+#officeEvolutionsPanel .upgrade-card-identity h3,
+#profileView .prestige-grid .upgrade-card-identity h3 {
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+#profileAccountPanel .account-actions { position: static !important; }
+@media (min-width: 481px) and (max-width: 768px) {
+  #profileAccountPanel .ranking-profile-launch .button,
+  #profileAccountPanel #googleSignOut {
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+  }
+}
+@media (max-width: 480px) {
+  #profileAccountPanel .ranking-profile-launch .button,
+  #profileAccountPanel #googleSignOut {
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    flex: 0 0 44px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  #profileAccountPanel .ranking-profile-launch {
+    grid-area: auto !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+}
+@media (max-width: 768px) {
+  #profileAccountPanel .ranking-profile-launch {
+    flex: none !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    max-height: 44px !important;
+  }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  #profileAccountPanel .ranking-profile-launch,
+  #profileAccountPanel #googleSignOut {
+    grid-area: auto !important;
+    justify-self: stretch !important;
+    align-self: stretch !important;
+    width: 100% !important;
+  }
+  #profileAccountPanel .ranking-profile-launch { order: 1 !important; }
+  #profileAccountPanel #googleSignOut { order: 2 !important; }
+}
+
+/* O CTA de feedback encosta nas duas bordas úteis do card: sem a sobra lateral
+   que fazia o botão parecer menor que 100% no desktop. */
+#settingsView .feedback-settings-body { overflow: hidden !important; }
+#settingsView .feedback-launch-button {
+  width: calc(100% + 28px) !important;
+  max-width: none !important;
+  margin: 0 -14px -14px !important;
+  border-radius: 0 0 13px 13px !important;
+}
+@media (max-width: 768px) {
+  #settingsView .feedback-launch-button {
+    width: calc(100% + 24px) !important;
+    margin: 0 -12px -12px !important;
+  }
+}

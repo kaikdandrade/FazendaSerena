@@ -1,5 +1,5 @@
-/* Revisão 36 — modais compartilhados entre produção e Testes do Admin.
-   Este arquivo é carregado POR ÚLTIMO e vence regras legadas conflitantes. */
+/* Revisão 36 — camada final dos modais reais do jogo.
+   Este arquivo é carregado depois do CSS legado e vence regras conflitantes. */
 html.modal-open,
 body.modal-open {
   overflow: hidden !important;
@@ -328,4 +328,42 @@ dialog::backdrop {
   .offline-progress-dialog .offline-progress-actions {
     padding: 10px 14px 14px !important;
   }
+}
+
+/* R36 hotfix — blindagem de layout dos modais reais do jogo.
+   As revisões antigas deixaram regras de grid/flex concorrentes; estas regras
+   intencionalmente vencem a cascata e mantêm o conteúdo principal em coluna. */
+.confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog) > form,
+.ranking-profile-dialog > form {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: 1fr !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog) > form > *,
+.ranking-profile-dialog > form > * {
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* Os desbloqueios do marco nunca podem virar colunas lado a lado por herança
+   de CSS legado. Cada desbloqueio ocupa uma linha própria. */
+.confirmation-dialog-milestone .milestone-preview-body {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* O resumo offline também fica em fluxo vertical. Além de ser mais legível,
+   elimina o estouro horizontal quando um valor formatado fica grande. */
+.offline-progress-dialog .offline-progress-summary {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.ranking-profile-dialog .player-profile-fields {
+  grid-template-columns: minmax(0, 1fr) !important;
 }

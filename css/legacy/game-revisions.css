@@ -2948,20 +2948,7 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
   width: 13px !important;
 }
 .contract-dock-item-v2.reward-ready { cursor: pointer; }
-.contract-dock-item-v2.reward-ready::after {
-  background: rgba(190,145,35,.12);
-  border-radius: 999px;
-  color: #7a5a13;
-  content: "coletar";
-  font-size: .5rem;
-  font-weight: 950;
-  letter-spacing: .04em;
-  padding: 3px 6px;
-  position: absolute;
-  right: 7px;
-  top: 7px;
-  text-transform: uppercase;
-}
+.contract-dock-item-v2.reward-ready::after { content: none !important; display: none !important; }
 
 .contract-break-dialog {
   background: transparent !important;

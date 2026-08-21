@@ -20,7 +20,7 @@
         updateEvolutionAffordability("research");
         updateEvolutionAffordability("prestige");
       }
-      showOfficeTab(activeOfficeTab);
+      showOfficeTab(activeOfficeTab, false);
     } else if (activeView === "profileView") {
       if (activeProfileTab === "account") {
         renderStats();
@@ -31,7 +31,7 @@
         refreshPrestigeLeaderboard(false);
       }
       if (activeProfileTab === "missions") renderMissions();
-      showProfileTab(activeProfileTab);
+      showProfileTab(activeProfileTab, false);
     }
     updateLiveHeader(now);
     updateLiveFarmUI();
@@ -155,15 +155,22 @@
     }
     if (action === "copy-friend-code") {
       const code = friendsState.selfProfile?.friendCode || window.FirebaseManager.getUser()?.uid || "";
+      const codeElement = document.getElementById("currentFriendCode");
+      const showCopied = () => {
+        if (!codeElement) return;
+        codeElement.textContent = "Código copiado.";
+        codeElement.classList.add("is-copy-feedback");
+        window.clearTimeout(codeElement._restoreTimer);
+        codeElement._restoreTimer = window.setTimeout(() => {
+          if (!codeElement.isConnected) return;
+          codeElement.textContent = code;
+          codeElement.classList.remove("is-copy-feedback");
+        }, 2200);
+      };
       if (code) {
         const copyOperation = navigator.clipboard?.writeText?.(code);
-        if (copyOperation) {
-          copyOperation
-            .then(() => setFriendsFeedback("Código copiado.", "success", "friendCodeFeedback"))
-            .catch(() => setFriendsFeedback("Não foi possível copiar automaticamente. Selecione o código manualmente.", "error", "friendCodeFeedback"));
-        } else {
-          setFriendsFeedback("Selecione o código e copie manualmente.", "pending", "friendCodeFeedback");
-        }
+        if (copyOperation) copyOperation.then(showCopied).catch(() => codeElement?.select?.());
+        else { try { navigator.clipboard?.writeText?.(code); } catch (_) {} showCopied(); }
       }
       return;
     }
@@ -235,13 +242,7 @@
       pendingContractBreakId = id;
       if (dom.contractBreakAmount) dom.contractBreakAmount.innerHTML = resourceAmount("coins", -penalty);
       const missing = Math.max(0, Math.floor(Number(contract.amount || 0) - Number(contract.delivered || 0)));
-      const type = engine.getContractDifficulty(contract.difficulty);
-      const penaltyPercent = Math.max(0, Number(contract.penaltyPercent ?? type?.penaltyPercent ?? 20) || 0);
-      const unitPrice = Math.max(1, Number(engine.getSalePrice(contract.cropId)) || 1);
       if (dom.contractBreakMissing) dom.contractBreakMissing.textContent = engine.formatNumber(missing);
-      if (dom.contractBreakUnitPrice) dom.contractBreakUnitPrice.innerHTML = resourceAmount("coins", unitPrice, { compact: true });
-      if (dom.contractBreakPercent) dom.contractBreakPercent.textContent = `${engine.formatNumber(penaltyPercent)}%`;
-      if (dom.contractBreakText) dom.contractBreakText.textContent = `A multa considera apenas as ${engine.formatNumber(missing)} unidades que ainda faltam neste contrato.`;
       if (typeof dom.contractBreakDialog?.showModal === "function") dom.contractBreakDialog.showModal();
       else if (window.confirm(`Quebrar contrato e pagar ${engine.formatNumber(penalty)} moedas?`)) {
         pendingContractBreakId = "";

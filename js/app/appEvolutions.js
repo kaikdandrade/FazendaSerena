@@ -132,21 +132,29 @@
       ? Math.floor(cropStates.reduce((sum, item) => sum + Math.max(0, Number(item.level) || 0), 0) / cropStates.length)
       : 0;
     const drivers = [
-      { label: "Níveis acima do desbloqueio", value: `${Math.max(0, engine.state.farmLevel - GameEngine.PRESTIGE_UNLOCK_LEVEL)} / ${Math.max(0, GameEngine.MAX_FARM_LEVEL - GameEngine.PRESTIGE_UNLOCK_LEVEL)}`, ready: prestigeBreakdown.level > 0 },
-      { label: "Culturas compradas", value: `${prestigeBreakdown.owned || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}`, ready: (prestigeBreakdown.owned || 0) > 0 },
-      { label: "Nível médio das plantas", value: `${averageCropLevel} / ${GameEngine.MAX_CROP_LEVEL}`, ready: prestigeBreakdown.upgrades > 0 },
-      { label: "Plantas platinadas", value: `${prestigeBreakdown.mastered || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}`, ready: (prestigeBreakdown.mastered || 0) > 0 }
+      { label: "Níveis úteis", value: `${Math.max(0, engine.state.farmLevel - GameEngine.PRESTIGE_UNLOCK_LEVEL)} / ${Math.max(0, GameEngine.MAX_FARM_LEVEL - GameEngine.PRESTIGE_UNLOCK_LEVEL)}` },
+      { label: "Culturas", value: `${prestigeBreakdown.owned || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}` },
+      { label: "Nível médio", value: `${averageCropLevel} / ${GameEngine.MAX_CROP_LEVEL}` },
+      { label: "Platinadas", value: `${prestigeBreakdown.mastered || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}` },
+      ...(Number(prestigeBreakdown.configuredBonus) > 0 ? [{ label: "Bônus", value: `+${engine.formatNumber(prestigeBreakdown.configuredBonus)}` }] : [])
     ];
     dom.prestigeDashboard.innerHTML = `
-      <section class="prestige-overview-card normalized-prestige-card ${!prestigeUnlocked ? "prestige-locked" : ""}">
-        <div class="prestige-copy"><p class="eyebrow">prestígio</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : `Prestígio desbloqueado no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</h2><p>${prestigeUnlocked ? "O nível de desbloqueio é a base e não concede pontos. O ganho vem dos níveis acima dele e do progresso das plantas." : `Você já pode visualizar e comprar legados com pontos acumulados. Apenas a ação de prestigiar permanece bloqueada por mais ${Math.max(0, GameEngine.PRESTIGE_UNLOCK_LEVEL - engine.state.farmLevel)} níveis.`}</p></div>
-        <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain)}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : `Prestígio no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</span></div>
-      </section>
-      <section class="prestige-requirements normalized-prestige-requirements"><div class="prestige-requirements-head"><div><small>Requisitos da jornada</small><h3>Progresso que será convertido</h3></div><span>${prestigeUnlocked && gain > 0 ? "Pronto" : "Em progresso"}</span></div><div class="prestige-driver-grid">${drivers.map(item => `<article class="${item.ready ? "ready" : ""}"><div><small>${item.label}</small><strong>${item.value}</strong></div></article>`).join("")}</div></section>
-      <section class="prestige-action-card"><div><strong>Ao prestigiar</strong><p>Moedas, pesquisa, nível, culturas, estoque, tecnologias, contratos e pedidos da jornada serão reiniciados.</p></div><button class="button gold" type="button" data-action="perform-prestige" ${!prestigeUnlocked || gain < 1 ? "disabled" : ""}>${!prestigeUnlocked ? `Prestígio no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}` : gain < 1 ? "Ganho insuficiente" : `Prestigiar ${resourceAmount("prestige", gain, { compact: true })}`}</button></section>`;
+      <section class="prestige-rework ${!prestigeUnlocked ? "prestige-locked" : ""}">
+        <div class="prestige-rework-gain">
+          <span class="prestige-rework-kicker">${prestigeUnlocked ? "Prestígio desta jornada" : `Disponível no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</span>
+          <div class="prestige-rework-icon"><img data-prestige-icon="account" src="assets/icons/prestigio.webp" alt=""></div>
+          <strong>${resourceAmount("prestige", gain)}</strong>
+          ${prestigeUnlocked ? `<small>O valor final considera o avanço desta jornada e os bônus permanentes.</small>` : ""}
+          <div class="prestige-rework-details">${drivers.map(item => `<article><small>${escapeHtml(item.label)}</small><strong>${item.value}</strong></article>`).join("")}</div>
+        </div>
+        ${prestigeUnlocked ? `<footer class="prestige-rework-footer">
+          <p>Converta a jornada atual em pontos permanentes. A fazenda recomeça; seus legados continuam.</p>
+          <button class="button prestige-rework-action" type="button" data-action="perform-prestige" ${gain < 1 ? "disabled" : ""}>Prestigiar</button>
+        </footer>` : ""}
+      </section>`;
   }
 
-  function showOfficeTab(tabId) {
+  function showOfficeTab(tabId, updateRoute = true) {
     activeOfficeTab = ["contracts", "orders", "evolutions"].includes(tabId) ? tabId : "contracts";
     dom.officeTabs.forEach(tab => {
       const active = activeView === "officeView" && tab.dataset.officeTab === activeOfficeTab;
@@ -159,9 +167,10 @@
       panel.classList.toggle("active", active);
       panel.hidden = !active;
     });
+    if (updateRoute && activeView === "officeView") updateRouteQuery();
   }
 
-  function showProfileTab(tabId) {
+  function showProfileTab(tabId, updateRoute = true) {
     const allowedTabs = ["account", "social", "missions"];
     activeProfileTab = allowedTabs.includes(tabId) ? tabId : "account";
     dom.profileTabs.forEach(tab => {
@@ -175,6 +184,7 @@
       panel.classList.toggle("active", active);
       panel.hidden = !active;
     });
+    if (updateRoute && activeView === "profileView") updateRouteQuery();
     // O conteúdo de Social não é renderizado aqui. showProfileTab é chamado
     // também pelo ciclo de renderização do jogo; recriar o formulário a cada
     // ciclo fazia o campo de código perder o valor e o foco durante a digitação.

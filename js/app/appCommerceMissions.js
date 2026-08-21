@@ -14,12 +14,15 @@
       dom.contractDock.innerHTML = `<button class="contract-dock-compact-button" type="button" data-action="toggle-contract-dock" aria-label="${toggleLabel}" title="${toggleLabel}"><img src="assets/icons/contrato-agricola.webp" alt=""><b>${contracts.length}</b></button>`;
       return;
     }
-    const dockReward = contract => resourceRewards({
-      coins: contract.rewardCoins,
-      research: contract.rewardResearch,
-      prestige: contract.rewardPrestige,
-      xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
-    });
+    const dockReward = contract => {
+      const reward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
+      return resourceRewards({
+        coins: reward.coins,
+        research: reward.research,
+        prestige: reward.prestige,
+        xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+      });
+    };
     dom.contractDock.innerHTML = `<section class="contract-dock-panel contract-dock-v2">
       <header class="contract-dock-header"><button type="button" data-go-office-contracts><img src="assets/icons/contrato-agricola.webp" alt=""><span><strong>Contratos</strong><small>${contracts.length}/${slotLimit} ativos</small></span></button><button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock" aria-label="${toggleLabel}" title="${toggleLabel}"><img src="assets/icons/seta-cima.webp" alt=""></button></header>
       <div class="contract-dock-list">${contracts.map(contract => {
@@ -28,8 +31,8 @@
         const progress = engine.getContractProgress(contract);
         const urgent = !progress.completed && !progress.defaulted && contract.timeRemaining <= 30;
         const canClaim = progress.completed && !progress.defaulted;
-        const actionAttributes = `data-go-office-contracts data-focus-contract="${escapeHtml(contract.id)}" data-contract-dock-behavior="${canClaim ? "claim" : "navigate"}" title="${canClaim ? "Coletar recompensa" : "Abrir este contrato"}"`;
-        const state = progress.defaulted ? "Contrato vencido" : progress.completed ? "Coletar recompensa" : engine.formatTime(contract.timeRemaining);
+        const actionAttributes = `data-go-office-contracts data-focus-contract="${escapeHtml(contract.id)}" data-contract-dock-behavior="${canClaim ? "claim" : "navigate"}" title="${canClaim ? "Contrato concluído" : "Abrir este contrato"}"`;
+        const state = progress.defaulted ? "Contrato vencido" : progress.completed ? "Concluído" : engine.formatTime(contract.timeRemaining);
         return `<button class="contract-dock-item contract-dock-item-v2 ${urgent ? "deadline-warning" : ""} ${progress.completed ? "reward-ready" : ""} ${progress.defaulted ? "contract-defaulted" : ""}" type="button" ${actionAttributes}><img class="contract-dock-crop" src="${crop.image}" alt="${escapeHtml(crop.name)}"><span class="contract-dock-copy"><span class="contract-dock-title-line"><strong>${escapeHtml(crop.name)}</strong><small>${Math.floor(progress.percent)}%</small></span><em>${escapeHtml(company.name)}</em><span class="contract-dock-rewards" aria-label="Recompensa do contrato">${dockReward(contract)}</span><i><b class="delivered" style="width:${percent(progress.percent)}%"></b></i><u>${state}</u></span></button>`;
       }).join("")}</div>
     </section>`;
@@ -47,6 +50,14 @@
 
     engine.ensureContractOffers();
     const active = engine.state.activeContracts;
+    if (pendingContractBreakId) {
+      const pending = active.find(item => item.id === pendingContractBreakId);
+      const pendingProgress = pending ? engine.getContractProgress(pending) : null;
+      if (!pending || pendingProgress?.completed || pendingProgress?.defaulted) {
+        pendingContractBreakId = "";
+        if (dom.contractBreakDialog?.open) dom.contractBreakDialog.close("contract-state-changed");
+      }
+    }
     const offers = engine.state.contractOffers;
     const cooldowns = engine.state.contractCooldowns || [];
     const slotLimit = engine.getActiveContractSlotLimit();
@@ -61,7 +72,7 @@
     };
     const typeBadge = contract => `<span class="contract-type-label"><i aria-hidden="true"></i>${escapeHtml(engine.getContractDifficulty(contract.difficulty)?.label || "Contrato")}</span>`;
     const stockChip = amount => `<span class="contract-stock-chip" title="Quantidade disponível no estoque"><img src="assets/icons/galpao-industrial.webp" alt=""><b>${engine.formatNumber(amount)}</b></span>`;
-    const rewardStrip = contract => `<div class="contract-reward-strip"><span>Recompensa</span><strong>${resourceRewards({ coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige, xp: contractXPReward(contract) })}</strong></div>`;
+    const rewardStrip = contract => { const reward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige }; return `<div class="contract-reward-strip"><span>Recompensa</span><strong>${resourceRewards({ coins: reward.coins, research: reward.research, prestige: reward.prestige, xp: contractXPReward(contract) })}</strong></div>`; };
     const progressBlock = (contract, progress) => `<div class="contract-progress-v2"><div><span>Entregue</span><strong>${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}</strong></div><div class="progress-track"><span style="width:${percent(progress.percent)}%"></span></div></div>`;
 
     const slotSummary = `<article class="contract-capacity-v2"><div><img src="assets/icons/contrato-agricola.webp" alt=""><span><small>Contratos ativos</small><strong>${active.length} de ${slotLimit}</strong></span></div><b class="${openSlots ? "available" : "full"}">${openSlots ? `${openSlots} ${openSlots === 1 ? "vaga" : "vagas"}` : "Lotado"}</b></article>`;
@@ -74,10 +85,10 @@
       const head = `<header class="contract-card-header-v2"><div class="contract-company-v2"><span>${companyIconMarkup(company)}</span><div><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></div></div><span class="contract-time-v2 ${urgent ? "urgent" : ""}"><img src="assets/icons/relogio.webp" alt="">${progress.defaulted ? "Vencido" : progress.completed ? "Concluído" : engine.formatTime(contract.timeRemaining)}</span></header>`;
       const main = `<div class="contract-main-v2"><img src="${crop.image}" alt="${escapeHtml(crop.name)}"><div>${typeBadge(contract)}<h3>${engine.formatNumber(contract.amount)} <span>${escapeHtml(crop.name)}</span></h3><div class="contract-main-meta"><span>Estoque</span>${stockChip(progress.stock)}</div></div></div>`;
       if (progress.defaulted) {
-        return `<article class="contract-card contract-card-v2 contract-defaulted-card" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${progressBlock(contract, progress)}<div class="contract-penalty-v2"><span>Multa</span><strong>${resourceAmount("coins", -progress.penaltyCoins)}</strong></div><button class="button danger full" type="button" data-action="pay-contract-penalty" data-id="${contract.id}">Pagar multa</button></article>`;
+        return `<article class="contract-card contract-card-v2 contract-defaulted-card" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${progressBlock(contract, progress)}<div class="contract-penalty-v2"><span>Multa</span><strong>${resourceAmount("coins", -progress.penaltyCoins)}</strong></div><footer class="contract-card-footer-v2 contract-break-footer-v3 contract-full-action-footer"><button class="button contract-break-button-v3 contract-penalty-action" type="button" data-action="pay-contract-penalty" data-id="${contract.id}"><span>Pagar multa</span><strong>${resourceAmount("coins", -progress.penaltyCoins, { compact: true })}</strong></button></footer></article>`;
       }
       if (progress.completed) {
-        return `<article class="contract-card contract-card-v2 contract-completed-card" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${rewardStrip(contract)}<button class="button gold full" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button></article>`;
+        return `<article class="contract-card contract-card-v2 contract-completed-card" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${rewardStrip(contract)}<footer class="contract-card-footer-v2 contract-break-footer-v3 contract-full-action-footer"><button class="button gold contract-full-action contract-claim-action" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button></footer></article>`;
       }
       const fine = Math.max(1, engine.calculateContractPenalty(contract));
       return `<article class="contract-card contract-card-v2 ${urgent ? "contract-deadline-warning" : ""}" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${head}${main}${progressBlock(contract, progress)}${rewardStrip(contract)}<footer class="contract-card-footer-v2 contract-break-footer-v3"><button class="button contract-break-button-v3" type="button" data-action="break-contract" data-id="${contract.id}" title="Quebrar contrato e pagar a multa estimada"><span>Quebrar contrato</span><strong>${resourceAmount("coins", -fine, { compact: true })}</strong></button></footer></article>`;

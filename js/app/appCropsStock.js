@@ -114,7 +114,7 @@
             <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
             <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>
             <div class="crop-quick-stats">
-              <span title="Tempo restante"><i>◷</i><b data-crop-cycle>${cycleLabel}</b></span>
+              <span title="Tempo restante"><i class="crop-time-icon"><img src="assets/icons/relogio.webp" alt=""></i><b data-crop-cycle>${cycleLabel}</b></span>
             </div>
           </div>
         </div>
@@ -162,10 +162,10 @@
   }
 
   function renderStock() {
-    const categoryFilter = dom.stockCategoryFilter?.value || "all";
+    const term = normalize(dom.stockSearch?.value || "");
     const allOwned = engine.data.crops.filter(crop => engine.state.crops[crop.id].owned)
       .sort((a, b) => Number(Boolean(engine.state.crops[b.id]?.favorite)) - Number(Boolean(engine.state.crops[a.id]?.favorite)) || a.index - b.index);
-    const owned = allOwned.filter(crop => categoryFilter === "all" || crop.category === categoryFilter);
+    const owned = allOwned.filter(crop => !term || normalize(`${crop.name} ${engine.data.categories[crop.category] || ""}`).includes(term));
     const totalCapacity = engine.getStorageCap();
     const storageUsed = engine.getStorageUsed();
     const storagePct = percent((storageUsed / totalCapacity) * 100);
@@ -178,18 +178,16 @@
 
     dom.stockSummary.innerHTML = `
       <article class="summary-card storage-capacity-card normalized-summary-card">
-        <div class="summary-card-heading"><div><small>Estoque compartilhado</small><strong>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></div><span class="summary-status ${storagePct >= 100 ? "full" : ""}">${storagePct >= 100 ? "Cheio" : "Capacidade"}</span></div>
+        <div class="summary-card-heading"><div><small>Estoque</small><strong>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></div><span class="summary-status ${storagePct >= 100 ? "full" : ""}">${storagePct >= 100 ? "Cheio" : "Capacidade"}</span></div>
         <div class="progress-track growth"><span style="width:${Math.min(100, storagePct)}%"></span></div>
         <button class="button primary full storage-expand-button" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>+100 espaços de armazenamento ${resourceAmount("coins", -expansionCost, { compact: true })}</button>
       </article>
       <article class="summary-card stock-sale-summary normalized-summary-card">
         <div class="summary-card-heading"><div><small>Venda geral</small><strong>${engine.formatNumber(storageUsed)} itens</strong></div><span class="summary-status">Mercado</span></div>
-        <p>Venda todo o conteúdo armazenado de uma só vez.</p>
         <button class="button primary full" type="button" data-action="sell-all-stock" ${storageUsed <= 0 ? "disabled" : ""}>${storageUsed > 0 ? `Vender estoque ${resourceAmount("coins", totalValue, { compact: true })}` : "Estoque vazio"}</button>
       </article>
       <article class="summary-card stock-auto-summary normalized-summary-card">
         <div class="summary-card-heading"><div><small>Venda automática geral</small><strong>${enabledAutoSellCount} / ${allOwned.length} ativas</strong></div><span class="summary-status">Automação</span></div>
-        <p>Ative ou desative a venda automática de todas as culturas compradas.</p>
         <button class="auto-sell-toggle global-auto-sell-toggle ${allAutoSellEnabled ? "active" : ""}" type="button" data-action="toggle-all-auto-sell" aria-pressed="${String(allAutoSellEnabled)}" ${allOwned.length ? "" : "disabled"}><span><strong>${allAutoSellEnabled ? "Desativar todas" : "Ativar todas"}</strong><small>${allAutoSellEnabled ? "Todas as vendas estão ativas" : enabledAutoSellCount ? "Ativar as vendas restantes" : "Nenhuma venda automática ativa"}</small></span><span class="auto-sell-switch"><i></i></span></button>
       </article>`;
 

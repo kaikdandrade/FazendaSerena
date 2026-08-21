@@ -121,7 +121,7 @@ Object.assign(GameEngine.prototype, {
     },
 
   getGlobalGrowthSpeed() {
-      return 1 + Math.max(0, this.getEvolutionBonus("growthSpeedPercent")) / 100;
+      return (1 + Math.max(0, this.getEvolutionBonus("growthSpeedPercent")) / 100) * this.getEventMultiplier("growthSpeed");
     },
 
   getInstantGrowthLevel() {

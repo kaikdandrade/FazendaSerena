@@ -71,7 +71,7 @@
                                 Authentication durante o login.</li>
                             <li>Progresso do jogo, moedas, culturas, pesquisas, legados, contratos, pedidos, missões,
                                 estatísticas e preferências do jogo salvos na nuvem.</li>
-                            <li>Apelido, avatar de animal e opção de participação no ranking global.</li>
+                            <li>Apelido e avatar de animal usados na identificação social e no ranking global.</li>
                             <li>Preferências de cookies escolhidas neste site.</li>
                             <li>Dados técnicos e de publicidade que poderão ser processados pelo Google quando o AdSense estiver ativo.</li>
                         </ul>
@@ -84,7 +84,7 @@
                         <ul>
                             <li>Autenticar o jogador e vincular o progresso à conta correta.</li>
                             <li>Salvar e restaurar automaticamente a fazenda na nuvem.</li>
-                            <li>Exibir o perfil e a posição no ranking somente quando o jogador optar por participar.
+                            <li>Exibir o perfil e a posição no ranking para jogadores autenticados, exceto administradores ou contas bloqueadas pela moderação.
                             </li>
                             <li>Manter a segurança, diagnosticar falhas e impedir acesso indevido aos saves.</li>
                             <li>Exibir e medir anúncios quando o Google AdSense estiver configurado e houver
@@ -95,7 +95,7 @@
                     </section>
                     <section class="privacy-card privacy-section" id="firebase">
                         <h2>4. Firebase, login e armazenamento na nuvem</h2>
-                        <p>O jogo utiliza serviços do Google Firebase, incluindo Authentication e Cloud Firestore. O login com Google é opcional, mas necessário para manter o progresso após um reload ou em outro dispositivo. O save privado é associado ao identificador da conta autenticada e protegido por regras de acesso do Firestore. Os recursos visuais do jogo são arquivos estáticos hospedados junto do próprio projeto.</p>
+                        <p>O jogo utiliza serviços do Google Firebase, incluindo Authentication e Cloud Firestore. Enquanto o usuário joga como visitante, o progresso pode permanecer no armazenamento local deste navegador. O login com Google associa o progresso à conta e permite recuperá-lo em outros dispositivos. Na primeira entrada de uma conta sem save remoto, o progresso local de visitante é migrado para a nuvem. O save privado é associado ao identificador da conta autenticada e protegido por regras de acesso do Firestore. Os recursos visuais do jogo são arquivos estáticos hospedados junto do próprio projeto.</p>
                         <p>Os dados permanecem armazenados enquanto forem necessários para oferecer a conta e o save, ou
                             até que o usuário utilize a opção de reset total do progresso. O funcionamento e a
                             infraestrutura desses serviços também estão sujeitos à <a
@@ -105,9 +105,8 @@
                     <section class="privacy-card privacy-section" id="ranking">
                         <h2>5. Ranking global</h2>
                         <p>O ranking é público para que visitantes e jogadores possam visualizar as melhores fazendas. A
-                            participação é voluntária. Para entrar no ranking, o usuário precisa estar conectado,
-                            configurar um apelido e um avatar e manter habilitada a opção de participação.</p>
-                        <p>Quando a participação é desativada, o perfil público é removido do ranking, mas o apelido, o
+                            participação é automática para contas autenticadas que tenham configurado um apelido e um avatar no perfil do ranking. Nenhum nome ou e-mail da Conta Google é publicado automaticamente. Contas administrativas e contas bloqueadas do ranking pela moderação não são exibidas.</p>
+                        <p>Quando uma conta é bloqueada do ranking pela moderação, sua projeção pública é removida, mas o apelido, o
                             avatar e o save privado podem continuar associados à conta.</p>
                     </section>
                     <section class="privacy-card privacy-section" id="cookies">
@@ -146,7 +145,7 @@
                         <ul>
                             <li>Jogar como visitante com o progresso armazenado localmente no navegador, podendo apagá-lo pelos dados do site ou migrá-lo ao primeiro login em uma conta nova.</li>
                             <li>Entrar ou sair da conta Google.</li>
-                            <li>Alterar apelido, avatar e participação no ranking.</li>
+                            <li>Alterar apelido e avatar do perfil.</li>
                             <li>Resetar todo o progresso salvo na nuvem pela área de Conta.</li>
                             <li>Ativar ou desativar os cookies opcionais de análise a qualquer momento.</li>
                             <li>Solicitar esclarecimentos ou comunicar um problema pelos canais de contato.</li>

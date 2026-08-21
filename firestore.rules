@@ -80,7 +80,7 @@ service cloud.firestore {
              && request.auth.uid == userId
              && !isBannedUser(userId)
              && request.resource.data.keys().hasAll(['state', 'saveVersion', 'updatedAt', 'updatedAtClient'])
-             && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'updatedAt', 'updatedAtClient'])
+             && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminRevision', 'updatedAt', 'updatedAtClient'])
              && request.resource.data.state is map
              && validClientPlayerState()
              && ((request.resource.data.saveVersion is string
@@ -91,13 +91,16 @@ service cloud.firestore {
                  || (request.resource.data.ownerEmail is string
                      && request.auth.token.email is string
                      && request.resource.data.ownerEmail == request.auth.token.email))
+             && (!request.resource.data.keys().hasAny(['adminRevision'])
+                 || (request.resource.data.adminRevision is string
+                     && request.resource.data.adminRevision.size() <= 80))
              && request.resource.data.updatedAt is timestamp
              && request.resource.data.updatedAt == request.time
              && request.resource.data.updatedAtClient is int;
     }
 
     // Salvar perfil usa update parcial e propositalmente não altera updatedAt.
-    // Essa exceção continua limitada somente aos três campos públicos do perfil.
+    // Essa exceção continua limitada somente a apelido e avatar do perfil.
     function validProfileSettingsTransition(userId) {
       let oldState = resource.data.state;
       let nextState = request.resource.data.state;
@@ -111,15 +114,14 @@ service cloud.firestore {
              && oldState.settings is map
              && nextState.settings is map
              && nextState.settings.diff(oldState.settings).affectedKeys().hasOnly([
-               'playerNickname', 'playerAvatar', 'playerRankingOptOut'
+               'playerNickname', 'playerAvatar'
              ])
              && nextState.settings.playerNickname is string
              && nextState.settings.playerNickname.size() >= 4
              && nextState.settings.playerNickname.size() <= 24
              && nextState.settings.playerAvatar is string
              && nextState.settings.playerAvatar.size() >= 1
-             && nextState.settings.playerAvatar.size() <= 48
-             && nextState.settings.playerRankingOptOut is bool;
+             && nextState.settings.playerAvatar.size() <= 48;
     }
 
     function validModerationPayload() {
@@ -237,30 +239,31 @@ service cloud.firestore {
     match /players/{userId}/saves/main {
       allow read: if (signedIn() && request.auth.uid == userId && !isBannedUser(userId))
                   || isAdministrator();
-      allow delete: if (signedIn() && request.auth.uid == userId && !isBannedUser(userId))
-                    || isAdministrator();
+      allow delete: if isAdministrator();
 
       allow create: if validClientSaveEnvelope(userId)
                     || (isAdministrator()
-                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'updatedAt', 'updatedAtClient'])
+                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminRevision', 'updatedAt', 'updatedAtClient'])
                         && request.resource.data.state is map
                         && request.resource.data.updatedAt is timestamp
                         && request.resource.data.updatedAtClient is int);
 
       allow update: if validProfileSettingsTransition(userId)
                     || (validClientSaveEnvelope(userId)
+                        // A única trava de concorrência do save normal é a revisão
+                        // administrativa. A economia não é reimplementada nas Rules,
+                        // evitando bloquear ações legítimas do GameEngine.
+                        && ((!resource.data.keys().hasAny(['adminRevision'])
+                             && (!request.resource.data.keys().hasAny(['adminRevision']) || request.resource.data.adminRevision == ''))
+                            || (resource.data.keys().hasAny(['adminRevision'])
+                                && request.resource.data.keys().hasAny(['adminRevision'])
+                                && resource.data.adminRevision is string
+                                && request.resource.data.adminRevision == resource.data.adminRevision))
                         && (!resource.data.state.keys().hasAny(['createdAt'])
                             || !request.resource.data.state.keys().hasAny(['createdAt'])
-                            || request.resource.data.state.createdAt == resource.data.state.createdAt)
-                        && (!resource.data.state.keys().hasAny(['stats'])
-                            || !resource.data.state.stats.keys().hasAny(['prestiges'])
-                            || !request.resource.data.state.stats.keys().hasAny(['prestiges'])
-                            || (request.resource.data.state.stats.prestiges is int
-                                && resource.data.state.stats.prestiges is int
-                                && request.resource.data.state.stats.prestiges >= resource.data.state.stats.prestiges
-                                && request.resource.data.state.stats.prestiges <= resource.data.state.stats.prestiges + 1)))
+                            || request.resource.data.state.createdAt == resource.data.state.createdAt))
                     || (isAdministrator()
-                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'updatedAt', 'updatedAtClient'])
+                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminRevision', 'updatedAt', 'updatedAtClient'])
                         && request.resource.data.state is map
                         && request.resource.data.updatedAt is timestamp
                         && request.resource.data.updatedAtClient is int);
@@ -276,6 +279,7 @@ service cloud.firestore {
                       'state',
                       'saveVersion',
                       'ownerEmail',
+                      'adminRevision',
                       'updatedAt',
                       'updatedAtClient'
                     ])
@@ -320,8 +324,6 @@ service cloud.firestore {
                             && request.resource.data.maxFarmLevel is int
                             && request.resource.data.maxFarmLevel >= 1
                             && request.resource.data.updatedAtClient is int
-                            && request.resource.data.displayName == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.settings.playerNickname
-                            && request.resource.data.avatarId == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.settings.playerAvatar
                             && request.resource.data.prestigeTotal == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.stats.totalPrestigeEarned
                             && request.resource.data.prestigeCount == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.stats.prestiges
                             && request.resource.data.farmLevel == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.farmLevel

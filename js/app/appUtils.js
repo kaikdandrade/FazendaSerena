@@ -194,7 +194,12 @@
       dom.offlineProgressSummary.innerHTML = cards.join("");
     }
     if (gains.levels > 0) soundEngine.playConcurrent("levelUp");
-    if (typeof dom.offlineProgressDialog.showModal === "function" && !dom.offlineProgressDialog.open) dom.offlineProgressDialog.showModal();
+    if (typeof dom.offlineProgressDialog.showModal === "function" && !dom.offlineProgressDialog.open) {
+      dom.offlineProgressDialog.showModal();
+      window.requestAnimationFrame(() => {
+        if (dom.offlineProgressSummary) dom.offlineProgressSummary.scrollTop = 0;
+      });
+    }
     return true;
   }
 

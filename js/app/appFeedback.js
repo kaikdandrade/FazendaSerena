@@ -25,6 +25,10 @@ function setupFeedback() {
     setStatus("");
     if (typeof dom.playerFeedbackDialog.showModal === "function" && !dom.playerFeedbackDialog.open) {
       dom.playerFeedbackDialog.showModal();
+      window.requestAnimationFrame(() => {
+        const fields = dom.playerFeedbackDialog.querySelector(".player-feedback-fields");
+        if (fields) fields.scrollTop = 0;
+      });
     }
   });
 

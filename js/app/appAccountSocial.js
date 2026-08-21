@@ -64,7 +64,6 @@
     const storedNickname = sanitizeNickname(engine?.state?.settings?.playerNickname);
     const storedAvatarId = getAvatarEntry(engine?.state?.settings?.playerAvatar)?.id || "";
     const profileComplete = signedIn && hasCompletePlayerProfile();
-    const rankingOptOut = Boolean(engine?.state?.settings?.playerRankingOptOut);
     const profileDirty = dom.playerProfileForm?.dataset.dirty === "true";
 
     if (dom.playerProfileForm) {
@@ -108,15 +107,11 @@
       dom.googleSignOut.hidden = !signedIn;
       dom.googleSignOut.disabled = false;
     }
-    if (dom.resetProgressButton) {
-      dom.resetProgressButton.hidden = !signedIn;
-      dom.resetProgressButton.disabled = false;
-    }
 
     if (dom.rankingProfileLaunch) dom.rankingProfileLaunch.hidden = !signedIn;
     if (dom.openRankingProfileButton) {
       dom.openRankingProfileButton.disabled = !signedIn;
-      dom.openRankingProfileButton.textContent = profileComplete ? "Editar perfil do ranking" : "Configurar perfil do ranking";
+      dom.openRankingProfileButton.textContent = "Perfil do ranking";
     }
     if (!signedIn && dom.rankingProfileDialog?.open) dom.rankingProfileDialog.close("signed-out");
 
@@ -124,7 +119,6 @@
       const googleSuggestion = signedIn ? sanitizeNickname(user.displayName || "") : "";
       if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = storedNickname || (googleSuggestion.length >= 4 ? googleSuggestion : "");
       if (dom.playerAvatarSetting) dom.playerAvatarSetting.value = storedAvatarId;
-      if (dom.playerRankingOptOut) dom.playerRankingOptOut.checked = rankingOptOut;
       setProfileFeedback("");
     }
 
@@ -135,7 +129,6 @@
       dom.playerNicknameSetting.placeholder = signedIn ? "Seu apelido no ranking" : "Entre com o Google para definir";
     }
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = !signedIn;
-    if (dom.playerRankingOptOut) dom.playerRankingOptOut.disabled = !signedIn;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = !signedIn;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = !signedIn;
     if (!signedIn && dom.avatarPickerPanel) {
@@ -230,10 +223,11 @@
   }
 
   function friendsCollection(title, eyebrow, items, mode, emptyMessage) {
-    return `<section class="friends-list-section friends-list-${mode}">
-      <div class="friends-list-heading"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h3>${escapeHtml(title)}</h3></div><span>${items.length}</span></div>
+    const open = mode === "incoming" && items.length ? " open" : "";
+    return `<details class="friends-list-section friends-list-${mode} friends-list-accordion"${open}>
+      <summary class="friends-list-heading"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h3>${escapeHtml(title)}</h3></div><span>${items.length}</span></summary>
       <div class="friends-list">${items.length ? items.map(item => friendRelationshipCard(item, mode)).join("") : `<div class="friends-empty-state">${escapeHtml(emptyMessage)}</div>`}</div>
-    </section>`;
+    </details>`;
   }
 
   function renderFriends() {
@@ -283,14 +277,11 @@
     const code = escapeHtml(friendsState.selfProfile.friendCode || user.uid);
     const friendCount = friendsState.friends?.length || 0;
     const outgoingCount = friendsState.outgoing?.length || 0;
-    const incomingMarkup = incomingCount ? `<section class="friends-beta-incoming"><header><div><small>pendentes</small><span>Solicitações recebidas</span></div><b>${incomingCount}</b></header><div class="friends-list">${friendsState.incoming.map(item => friendRelationshipCard(item, "incoming")).join("")}</div></section>` : "";
-
     dom.friendsContent.innerHTML = `<section class="friends-beta-card friends-hub-card">
-      <header class="friends-beta-header friends-hub-header"><div class="friends-beta-title"><div><small>recurso em desenvolvimento</small><h3>Amigos <span>beta</span></h3></div></div><div class="friends-hub-counters"><span><b>${friendCount}</b> ${friendCount === 1 ? "amigo" : "amigos"}</span>${incomingCount ? `<span class="has-pending"><b>${incomingCount}</b> pendente${incomingCount === 1 ? "" : "s"}</span>` : ""}</div></header>
-      ${incomingMarkup}
+      <header class="friends-beta-header friends-hub-header"><div class="friends-beta-title"><div><small>conexões da fazenda</small><h3>Amigos</h3></div></div><div class="friends-hub-counters"><span><b>${friendCount}</b> ${friendCount === 1 ? "amigo" : "amigos"}</span>${incomingCount ? `<span class="has-pending"><b>${incomingCount}</b> pendente${incomingCount === 1 ? "" : "s"}</span>` : ""}</div></header>
       <div class="friends-beta-options friends-hub-actions">
-        <button class="friends-beta-option friends-list-launch friends-hub-launch" data-action="open-friends-list" type="button"><span><img src="assets/icons/perfil.webp" alt=""><span><strong>Amigos e solicitações</strong><small>Veja conexões e pedidos pendentes</small></span></span><b>${friendCount + incomingCount + outgoingCount}</b></button>
-        <details class="friends-beta-option friends-request-option" data-friend-option="request"><summary><span><img src="assets/icons/social.webp" alt=""><span><strong>Enviar pedido de amizade</strong><small>Compartilhe ou informe um código</small></span></span><b>+</b></summary><div class="friends-beta-option-body"><div class="friend-code-inline"><span>Seu código</span><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div><div aria-live="polite" class="friends-feedback friend-code-feedback" id="friendCodeFeedback"></div><form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código do outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div></div></details>
+        <button class="friends-beta-option friends-list-launch friends-hub-launch" data-action="open-friends-list" type="button"><span><img src="assets/icons/perfil.webp" alt=""><span><strong>Amigos e solicitações</strong></span></span><b>${friendCount + incomingCount + outgoingCount}</b></button>
+        <details class="friends-beta-option friends-request-option" data-friend-option="request"><summary><span><img src="assets/icons/social.webp" alt=""><span><strong>Código de amizades</strong><small>Compartilhe o seu código ou informe o de outro jogador</small></span></span><b>+</b></summary><div class="friends-beta-option-body"><div class="friend-code-inline"><span>Seu código</span><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div><form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código do outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div></div></details>
       </div>
     </section>`;
     restoreFriendInteractionState();
@@ -320,7 +311,7 @@
       "outgoing",
       "Nenhuma solicitação enviada."
     );
-    dom.friendsListDialogBody.innerHTML = `<div class="friends-dialog-summary"><span><b>${friendsState.friends?.length || 0}</b> amigos</span><span><b>${friendsState.incoming?.length || 0}</b> recebidas</span><span><b>${friendsState.outgoing?.length || 0}</b> enviadas</span></div><div class="friends-dialog-sections">${incoming}${accepted}${outgoing}</div>`;
+    dom.friendsListDialogBody.innerHTML = `<div class="friends-dialog-toolbar"><button class="button secondary friends-dialog-refresh" data-action="refresh-friends" type="button">Atualizar</button></div><div class="friends-dialog-sections">${incoming}${accepted}${outgoing}</div>`;
     if (typeof dom.friendsListDialog.showModal === "function" && !dom.friendsListDialog.open) dom.friendsListDialog.showModal();
   }
 
@@ -389,11 +380,10 @@
     const profileDisabled = busy || !window.FirebaseManager.isAuthenticated();
     if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
     if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
-    if (dom.resetProgressButton) dom.resetProgressButton.disabled = busy;
+    
     if (dom.openRankingProfileButton) dom.openRankingProfileButton.disabled = profileDisabled;
     if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
     if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
-    if (dom.playerRankingOptOut) dom.playerRankingOptOut.disabled = profileDisabled;
     if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = profileDisabled;
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
     $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
@@ -435,17 +425,28 @@
         }
 
         if (cloudState) {
-          // Conta já existente: o save da nuvem é soberano. O save de visitante
-          // permanece local e pode voltar a ser usado caso o jogador saia da conta.
+          // Conta já existente: o save remoto continua soberano.
           engine.replaceState(cloudState, { simulateOffline: true });
           window.FirebaseManager.unlockCloudWrites?.();
         } else if (!loadFailed) {
-          // Segurança: dados locais são controlados pelo navegador. Uma conta nova
-          // autenticada nunca herda automaticamente o save de visitante.
-          engine.replaceState(null, { simulateOffline: false });
+          // Primeira entrada desta conta: todo o progresso feito como visitante
+          // neste navegador é promovido para a nuvem. O localStorage só é limpo
+          // depois da confirmação da gravação remota.
+          const guestState = window.FirebaseManager.loadGuestGame?.()
+            || (!previousUid ? cloneState(engine.state) : null);
+          engine.replaceState(guestState || null, { simulateOffline: Boolean(guestState) });
           window.FirebaseManager.unlockCloudWrites?.();
-          await engine.save();
+          const migrated = await engine.save();
+          if (migrated?.ok && guestState) window.FirebaseManager.clearGuestGame?.();
         }
+        // A antiga opção de ocultação não existe mais. Ao autenticar, reconciliamos
+        // a projeção do ranking: perfil configurado entra automaticamente; perfil
+        // incompleto não publica nome/e-mail; Admin/bloqueio global continuam fora.
+        if (!loadFailed) {
+          try { await window.FirebaseManager.syncOwnLeaderboard?.(engine.state, { forceModeration: true }); }
+          catch (error) { console.warn("Não foi possível reconciliar o ranking agora:", error); }
+        }
+
         // Em falha de leitura, a trava permanece ativa para impedir que um save
         // local sobrescreva acidentalmente uma conta existente. Um novo login/reload
         // tentará ler a nuvem novamente.

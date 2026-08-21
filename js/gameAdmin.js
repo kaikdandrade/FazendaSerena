@@ -124,7 +124,7 @@
     leaderboardIntroTitle: "Top 5 global",
     leaderboardIntroText: "O ranking prioriza a quantidade de prestígios. Em caso de empate, vence o maior nível atual da fazenda.",
     leaderboardEmptyTitle: "Ainda não há fazendas classificadas",
-    leaderboardEmptyText: "Para participar, o jogador precisa estar conectado e ter apelido e avatar salvos.",
+    leaderboardEmptyText: "Jogadores conectados com apelido e avatar configurados participam automaticamente do ranking global.",
     achievementsEmpty: "Missões concluídas, bônus permanentes e legados comprados aparecerão aqui e nunca serão apagados pelo prestígio.",
     socialEventsEmpty: "Nenhum evento futuro foi anunciado."
   });
@@ -137,14 +137,15 @@
     ordersUnlockLevel: 5,
     evolutionsUnlockLevel: 5,
     prestigeUnlockLevel: 40,
+    prestigeBonus: 0,
     startingCoins: 120,
     storageCapacity: 200,
     baseProductionMin: 1,
     baseProductionCap: 10,
-    contractSignedCooldownSeconds: 30,
-    contractExpiredCooldownSeconds: 30,
-    contractDeclinedCooldownSeconds: 60,
-    contractBrokenCooldownSeconds: 240,
+    contractSignedCooldownRange: [25, 35],
+    contractExpiredCooldownRange: [25, 35],
+    contractDeclinedCooldownRange: [45, 75],
+    contractBrokenCooldownRange: [210, 270],
     contractOfferCount: 6,
     maxOfflineMinutes: 15
   });
@@ -233,6 +234,15 @@
     missions: defaultNavigationIcons.missions,
     settings: defaultNavigationIcons.settings
   });
+  const defaultPrestigeIcons = Object.freeze({
+    resource: "assets/icons/prestigio.webp",
+    account: "assets/icons/prestigio.webp",
+    legacy: "assets/icons/prestigio.webp"
+  });
+  const defaultPrestigeIconOrder = Object.freeze(["resource", "account", "legacy"]);
+  function normalizePrestigeIcons(raw = {}) {
+    return Object.fromEntries(Object.entries(defaultPrestigeIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
+  }
   const defaultLineNavigationOrder = Object.freeze(["farm", "stock", "office", "profile", "settings", "contracts", "orders", "evolutions", "account", "social", "missions"]);
   const defaultGridNavigationOrder = Object.freeze(["farm", "stock", "contracts", "orders", "evolutions", "account", "social", "missions", "settings"]);
   function normalizeGridNavigationIcons(raw = {}, line = defaultNavigationIcons) {
@@ -269,6 +279,8 @@
     updateNotes: [],
     navigationIcons: clone(defaultNavigationIcons),
     gridNavigationIcons: clone(defaultGridNavigationIcons),
+    prestigeIcons: clone(defaultPrestigeIcons),
+    prestigeIconOrder: clone(defaultPrestigeIconOrder),
     lineNavigationOrder: clone(defaultLineNavigationOrder),
     gridNavigationOrder: clone(defaultGridNavigationOrder),
     texts: clone(defaultTexts)
@@ -284,6 +296,15 @@
     });
     return output;
   };
+
+  function rangePair(value, fallback) {
+    const source = Array.isArray(value) ? value : String(value ?? "").split(",");
+    const values = source.map(item => Math.max(1, Math.min(86400, Math.floor(Number(String(item).trim().replace(",", ".")) || 0)))).filter(Boolean);
+    const base = Array.isArray(fallback) ? fallback : [Number(fallback) || 1, Number(fallback) || 1];
+    const first = values[0] || Math.max(1, Math.floor(Number(base[0]) || 1));
+    const second = values[1] || values[0] || Math.max(1, Math.floor(Number(base[1]) || first));
+    return [Math.min(first, second), Math.max(first, second)];
+  }
 
   function normalizeBalance(raw = {}) {
     const baseProductionMin = integer(raw.baseProductionMin, 1, 1000000, defaultBalance.baseProductionMin);
@@ -304,14 +325,15 @@
       ordersUnlockLevel: integer(raw.ordersUnlockLevel ?? raw.featureUnlockLevel, 1, 1000, defaultBalance.ordersUnlockLevel),
       evolutionsUnlockLevel: integer(raw.evolutionsUnlockLevel ?? raw.featureUnlockLevel, 1, 1000, defaultBalance.evolutionsUnlockLevel),
       prestigeUnlockLevel: integer(raw.prestigeUnlockLevel, 1, 1000, defaultBalance.prestigeUnlockLevel),
+      prestigeBonus: integer(raw.prestigeBonus, 0, Number.MAX_SAFE_INTEGER, defaultBalance.prestigeBonus),
       startingCoins: integer(raw.startingCoins, 0, Number.MAX_SAFE_INTEGER, defaultBalance.startingCoins),
       storageCapacity: integer(raw.storageCapacity, 1, Number.MAX_SAFE_INTEGER, defaultBalance.storageCapacity),
       baseProductionMin,
       baseProductionCap,
-      contractSignedCooldownSeconds: integer(raw.contractSignedCooldownSeconds, 1, 86400, defaultBalance.contractSignedCooldownSeconds),
-      contractExpiredCooldownSeconds: integer(raw.contractExpiredCooldownSeconds, 1, 86400, defaultBalance.contractExpiredCooldownSeconds),
-      contractDeclinedCooldownSeconds: integer(raw.contractDeclinedCooldownSeconds, 1, 86400, defaultBalance.contractDeclinedCooldownSeconds),
-      contractBrokenCooldownSeconds: integer(raw.contractBrokenCooldownSeconds, 1, 86400, defaultBalance.contractBrokenCooldownSeconds),
+      contractSignedCooldownRange: rangePair(raw.contractSignedCooldownRange ?? raw.contractSignedCooldownSeconds, defaultBalance.contractSignedCooldownRange),
+      contractExpiredCooldownRange: rangePair(raw.contractExpiredCooldownRange ?? raw.contractExpiredCooldownSeconds, defaultBalance.contractExpiredCooldownRange),
+      contractDeclinedCooldownRange: rangePair(raw.contractDeclinedCooldownRange ?? raw.contractDeclinedCooldownSeconds, defaultBalance.contractDeclinedCooldownRange),
+      contractBrokenCooldownRange: rangePair(raw.contractBrokenCooldownRange ?? raw.contractBrokenCooldownSeconds, defaultBalance.contractBrokenCooldownRange),
       contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount),
       maxOfflineMinutes: integer(raw.maxOfflineMinutes ?? (Number(raw.maxOfflineSeconds) / 60), 1, 43200, defaultBalance.maxOfflineMinutes)
     };
@@ -607,17 +629,51 @@
     }));
   }
 
-  const eventTypes = new Set(["harvest", "xp", "research", "coins"]);
+  const eventTypes = new Set(["harvest", "growthSpeed", "salePrice", "xp", "research", "coins", "contractRewards", "orderRewards"]);
+  const eventWeekdays = new Set([1, 2, 3, 4, 5, 6, 7]);
+  function mondayStart(timestamp = Date.now()) {
+    const date = new Date(Number(timestamp) || Date.now());
+    date.setHours(0, 0, 0, 0);
+    const day = date.getDay() || 7;
+    date.setDate(date.getDate() - day + 1);
+    return date.getTime();
+  }
+  function normalizeClock(value, fallback = "12:00") {
+    const match = String(value || "").match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return fallback;
+    const hour = Math.max(0, Math.min(23, Number(match[1]) || 0));
+    const minute = Math.max(0, Math.min(59, Number(match[2]) || 0));
+    return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  }
+  function eventOccurrence(event, at = Date.now()) {
+    const reference = Number(at) || Date.now();
+    const weekStart = event?.repeatWeekly === false ? Math.max(0, Number(event?.weekAnchor) || mondayStart(reference)) : mondayStart(reference);
+    const weekday = eventWeekdays.has(Number(event?.weekday)) ? Number(event.weekday) : 1;
+    const [hour, minute] = normalizeClock(event?.startTime).split(":").map(Number);
+    const start = weekStart + (weekday - 1) * 86400000 + hour * 3600000 + minute * 60000;
+    const end = start + Math.max(1, Number(event?.durationMinutes) || 60) * 60000;
+    return { start, end, weekStart, active: reference >= start && reference < end, upcoming: reference < start };
+  }
   function normalizeEvents(raw) {
     if (!Array.isArray(raw)) return [];
-    return uniqueById(raw.slice(0, 200).map((item, index) => ({
-      id: id(item?.id, `event_${index + 1}`),
-      name: text(item?.name, 100, `Evento ${index + 1}`),
-      type: eventTypes.has(item?.type) ? item.type : "harvest",
-      bonusPercent: clamp(item?.bonusPercent, 0, 100000, 100),
-      startAt: Math.max(0, Math.floor(Number(item?.startAt) || Date.now())),
-      durationMinutes: integer(item?.durationMinutes, 1, 60 * 24 * 365, 60)
-    }))).sort((a, b) => a.startAt - b.startAt);
+    return uniqueById(raw.slice(0, 200).map((item, index) => {
+      const legacyStart = Number(item?.startAt) || 0;
+      const legacyDate = legacyStart ? new Date(legacyStart) : null;
+      const legacyDay = legacyDate ? (legacyDate.getDay() || 7) : 1;
+      const legacyTime = legacyDate ? `${String(legacyDate.getHours()).padStart(2, "0")}:${String(legacyDate.getMinutes()).padStart(2, "0")}` : "12:00";
+      return {
+        id: id(item?.id, `event_${index + 1}`),
+        name: text(item?.name, 100, `Evento ${index + 1}`),
+        description: text(item?.description, 320, "Um evento especial está chegando à Fazenda Serena."),
+        type: eventTypes.has(item?.type) ? item.type : "harvest",
+        bonusPercent: clamp(item?.bonusPercent, 0, 100000, 100),
+        weekday: eventWeekdays.has(Number(item?.weekday)) ? Number(item.weekday) : legacyDay,
+        startTime: normalizeClock(item?.startTime, legacyTime),
+        durationMinutes: integer(item?.durationMinutes, 1, 60 * 24 * 7, 60),
+        repeatWeekly: item?.repeatWeekly === true,
+        weekAnchor: Math.max(0, Math.floor(Number(item?.weekAnchor) || mondayStart(legacyStart || Date.now())))
+      };
+    })).sort((a, b) => a.weekday - b.weekday || a.startTime.localeCompare(b.startTime));
   }
 
   function normalizeUpdateNotes(raw) {
@@ -663,6 +719,8 @@
       updateNotes,
       navigationIcons: normalizeNavigationIcons(source?.navigationIcons),
       gridNavigationIcons: normalizeGridNavigationIcons(source?.gridNavigationIcons || source?.mobileNavigationIcons, normalizeNavigationIcons(source?.navigationIcons)),
+      prestigeIcons: normalizePrestigeIcons(source?.prestigeIcons),
+      prestigeIconOrder: normalizeNavigationOrder(source?.prestigeIconOrder, Object.keys(defaultPrestigeIcons), defaultPrestigeIconOrder),
       lineNavigationOrder: normalizeNavigationOrder(source?.lineNavigationOrder, Object.keys(defaultNavigationIcons), defaultLineNavigationOrder),
       gridNavigationOrder: normalizeNavigationOrder(source?.gridNavigationOrder || source?.mobileNavigationOrder, Object.keys(defaultGridNavigationIcons), defaultGridNavigationOrder),
       texts: normalizeTexts(source?.texts)
@@ -714,14 +772,18 @@
 
 
   function applyNavigationIcons(lineIcons = {}, gridIcons = {}) {
+    const canReplaceNavigationIcon = image => {
+      const tab = image?.closest?.(".nav-tab, .office-tab, [data-feature-locked]");
+      return !(tab?.classList?.contains("feature-preview") || tab?.dataset?.featureLocked === "true");
+    };
     Object.entries(lineIcons).forEach(([key, src]) => {
       document.querySelectorAll(`[data-navigation-icon="${key}"]`).forEach(image => {
-        if (image instanceof HTMLImageElement) image.src = src;
+        if (image instanceof HTMLImageElement && canReplaceNavigationIcon(image)) image.src = src;
       });
     });
     Object.entries(gridIcons).forEach(([key, src]) => {
       document.querySelectorAll(`[data-grid-navigation-icon="${key}"]`).forEach(image => {
-        if (image instanceof HTMLImageElement) image.src = src;
+        if (image instanceof HTMLImageElement && canReplaceNavigationIcon(image)) image.src = src;
       });
     });
   }
@@ -732,6 +794,14 @@
     [...container.querySelectorAll(selector)]
       .sort((a, b) => (rank.get(a.getAttribute(attribute)) ?? 999) - (rank.get(b.getAttribute(attribute)) ?? 999))
       .forEach(element => container.appendChild(element));
+  }
+
+  function applyPrestigeIcons(icons = defaultPrestigeIcons) {
+    document.querySelectorAll("[data-prestige-icon]").forEach(image => {
+      const key = image.dataset.prestigeIcon;
+      const src = icons?.[key] || defaultPrestigeIcons[key];
+      if (src && image instanceof HTMLImageElement) image.src = src;
+    });
   }
 
   function applyNavigationOrder(lineOrder = defaultLineNavigationOrder, gridOrder = defaultGridNavigationOrder) {
@@ -753,11 +823,12 @@
     GameEngine.EVOLUTION_UNLOCK_LEVEL = balance.evolutionsUnlockLevel;
     GameEngine.FEATURE_UNLOCK_LEVEL = Math.min(balance.ordersUnlockLevel, balance.evolutionsUnlockLevel);
     GameEngine.PRESTIGE_UNLOCK_LEVEL = balance.prestigeUnlockLevel;
+    GameEngine.PRESTIGE_BONUS = balance.prestigeBonus;
     GameEngine.BASE_STARTING_COINS = balance.startingCoins;
-    GameEngine.CONTRACT_SIGNED_COOLDOWN_SECONDS = balance.contractSignedCooldownSeconds;
-    GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS = balance.contractExpiredCooldownSeconds;
-    GameEngine.CONTRACT_DECLINED_COOLDOWN_SECONDS = balance.contractDeclinedCooldownSeconds;
-    GameEngine.CONTRACT_BROKEN_COOLDOWN_SECONDS = balance.contractBrokenCooldownSeconds;
+    GameEngine.CONTRACT_SIGNED_COOLDOWN_RANGE = balance.contractSignedCooldownRange;
+    GameEngine.CONTRACT_EXPIRED_COOLDOWN_RANGE = balance.contractExpiredCooldownRange;
+    GameEngine.CONTRACT_DECLINED_COOLDOWN_RANGE = balance.contractDeclinedCooldownRange;
+    GameEngine.CONTRACT_BROKEN_COOLDOWN_RANGE = balance.contractBrokenCooldownRange;
     GameEngine.CONTRACT_OFFER_COUNT = balance.contractOfferCount;
     GameEngine.BASE_MAX_OFFLINE_SECONDS = Math.max(60, Math.floor(balance.maxOfflineMinutes * 60));
     GameEngine.MAX_OFFLINE_SECONDS = GameEngine.BASE_MAX_OFFLINE_SECONDS;
@@ -786,6 +857,7 @@
     window.FazendaSerenaConfig?.applyCloudVersion?.(config.gameVersion);
     applyTexts(config.texts, config.pointTypes);
     applyNavigationIcons(config.navigationIcons, config.gridNavigationIcons);
+    applyPrestigeIcons(config.prestigeIcons);
     applyNavigationOrder(config.lineNavigationOrder, config.gridNavigationOrder);
     window.dispatchEvent(new CustomEvent("fazenda-runtime-config", { detail: clone(runtimeConfig) }));
     return clone(config);
@@ -804,7 +876,10 @@
     current.gridNavigationIcons = clone(normalized.gridNavigationIcons);
     current.lineNavigationOrder = clone(normalized.lineNavigationOrder);
     current.gridNavigationOrder = clone(normalized.gridNavigationOrder);
+    current.prestigeIcons = clone(normalized.prestigeIcons);
+    current.prestigeIconOrder = clone(normalized.prestigeIconOrder);
     applyNavigationIcons(current.navigationIcons, current.gridNavigationIcons);
+    applyPrestigeIcons(current.prestigeIcons);
     applyNavigationOrder(current.lineNavigationOrder, current.gridNavigationOrder);
     window.dispatchEvent(new CustomEvent("fazenda-live-content", { detail: { events: clone(current.events) } }));
   }
@@ -840,6 +915,8 @@
     getDefaults: () => clone(defaults),
     getCurrent: () => clone(window.FazendaSerenaRuntimeConfig || defaults),
     getEvolutionEffectOptions: () => Object.entries(effectLabels).map(([value, label]) => ({ value, label })),
+    getEventOccurrence: (event, at) => eventOccurrence(event, at),
+    getWeekStart: at => mondayStart(at),
     normalize: normalizeConfig,
     validateForSave,
     renderText,

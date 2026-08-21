@@ -374,3 +374,452 @@ dialog::backdrop { background: rgba(18,28,19,.42); backdrop-filter: blur(4px); }
   .contract-card-footer-v2.contract-break-footer-v3 { min-height: 56px !important; flex-basis: 56px !important; }
   .contract-break-button-v3 { min-height: 56px !important; height: 56px !important; padding-inline: 13px !important; }
 }
+
+
+/* ===== R36 UX / contratos / social / eventos ===== */
+/* Navegação bloqueada: cadeado limpo, sem placa branca atrás do ícone. */
+.nav-tab.feature-preview .nav-tab-icon,
+.office-tab.feature-preview i,
+.profile-tab.feature-preview i,
+.nav-tab-icon,
+.office-tab i {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.nav-tab.feature-preview img,
+.office-tab.feature-preview img { background: transparent !important; }
+.nav-tab.feature-preview::after,
+.office-tab.feature-preview::after,
+.evolution-tab.feature-preview::after { content: none !important; display: none !important; }
+.context-tabs .office-tab.feature-preview i,
+.context-tabs .evolution-tab.feature-preview i { background: transparent !important; background-image: none !important; border: 0 !important; box-shadow: none !important; }
+.context-tabs .office-tab.feature-preview i img,
+.context-tabs .evolution-tab.feature-preview i img { opacity: 1 !important; visibility: visible !important; }
+
+/* Cultivo */
+.crop-level-strip { position: relative; }
+.crop-mastery-badge { margin-left: auto !important; position: absolute !important; right: 0 !important; top: 50% !important; transform: translateY(-50%); }
+.crop-quick-stats .crop-time-icon { display: inline-flex; width: 17px; height: 17px; align-items: center; justify-content: center; }
+.crop-quick-stats .crop-time-icon img { width: 17px; height: 17px; object-fit: contain; }
+.back-to-top { display: grid; place-items: center; }
+.back-to-top img { width: 22px; height: 22px; object-fit: contain; }
+
+/* Estoque mais compacto e busca no lugar do filtro. */
+.stock-toolbar { width: min(100%, 330px); }
+.stock-search-field { width: 100%; }
+.stock-grid { gap: 10px !important; align-items: start !important; }
+.stock-card { padding: 12px !important; border-radius: 16px !important; gap: 10px !important; }
+.stock-card .stock-head { gap: 8px !important; }
+.stock-card .stock-art, .stock-card .stock-image { width: 52px !important; height: 52px !important; }
+.stock-card .stock-stats, .stock-card .stock-values { gap: 6px !important; }
+.stock-card .stock-stat, .stock-card .stock-value { padding: 7px 8px !important; min-height: 0 !important; }
+.stock-card .button { min-height: 38px !important; padding-block: 8px !important; }
+
+/* Contratos: cada card cresce somente conforme o conteúdo. */
+.active-contract-grid, .contract-offer-grid, .contract-grid { align-items: start !important; grid-auto-rows: auto !important; }
+.contract-card-v2 { height: auto !important; min-height: 0 !important; align-self: start !important; }
+.contract-card-header-v2, .contract-main-v2, .contract-progress-v2, .contract-reward-strip, .contract-penalty-v2 { padding-inline: 16px !important; }
+.contract-card-header-v2 > :last-child, .contract-main-v2 > :last-child, .contract-reward-strip > :last-child { margin-right: 0 !important; }
+.contract-card-footer-v2.contract-break-footer-v3 { flex: 0 0 46px !important; min-height: 46px !important; height: 46px !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+.contract-break-button-v3, .contract-full-action { min-height: 46px !important; height: 46px !important; padding: 7px 16px !important; margin: 0 !important; }
+.contract-break-button-v3 > span, .contract-break-button-v3 > strong { font-size: .84rem !important; }
+.contract-full-action-footer { display: block !important; }
+.contract-full-action { width: 100% !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 0 !important; }
+.contract-claim-action { border: 0 !important; }
+.contract-penalty-action { color: var(--danger, #963e3e) !important; }
+.contract-cooldown-card { min-height: 180px !important; }
+.contract-cooldown-v2 { display: flex !important; min-height: 180px !important; align-items: center !important; justify-content: center !important; }
+
+/* Atalho de contratos robusto para muitos slots. */
+.contract-dock { max-width: min(94vw, 560px) !important; }
+.contract-dock-panel { max-height: min(72vh, 620px); overflow: hidden; display: flex; flex-direction: column; }
+.contract-dock-header { flex: 0 0 auto; }
+.contract-dock-collapse-toggle { margin-left: auto !important; margin-right: 5px !important; }
+.contract-dock-list { overflow-y: auto !important; overscroll-behavior: contain; scrollbar-gutter: stable; display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px !important; padding: 8px !important; }
+.contract-dock-item-v2 { min-width: 0; }
+@media (max-width: 620px) { .contract-dock-list { grid-template-columns: 1fr !important; } }
+
+/* Conta */
+.account-settings-card { position: relative; }
+.ranking-profile-launch { position: absolute !important; top: 16px !important; right: 16px !important; width: auto !important; margin: 0 !important; z-index: 2; }
+.ranking-profile-launch > div { display: none !important; }
+.ranking-profile-launch .button { white-space: nowrap; }
+.account-actions { padding-right: 180px; }
+@media (max-width: 768px) {
+  .ranking-profile-launch { position: static !important; margin: 0 !important; }
+  .account-actions { padding-right: 0; display: flex !important; flex-wrap: wrap; align-items: stretch; gap: 8px !important; }
+  .account-actions .ranking-profile-launch { order: 1; flex: 1 1 180px; min-width: 0; }
+  .account-actions .ranking-profile-launch .button { width: 100%; height: 100%; }
+  #googleSignOut { order: 2; flex: 1 1 150px; }
+  #googleSignIn { flex: 1 1 100%; }
+}
+
+/* Social */
+.friends-hub-launch > span > span > small { display: none !important; }
+.friend-code-inline { display: grid !important; grid-template-columns: 1fr auto; gap: 5px 10px !important; align-items: center; }
+.friend-code-inline > span { grid-column: 1 / -1; font-size: .92rem !important; font-weight: 850; }
+.friend-code-inline code { grid-column: 1; display: block; font-size: 1.02rem !important; font-weight: 900; letter-spacing: .02em; min-width: 0; overflow-wrap: anywhere; }
+.friend-code-inline code.is-copy-feedback { color: var(--green-700, #3c7049); }
+.friend-request-form > label { font-size: .92rem !important; font-weight: 850; }
+.friends-dialog-header { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 14px !important; }
+.friends-dialog-heading { min-width: 0; align-items: center !important; }
+.friends-dialog-header-actions { margin-left: auto !important; }
+.friends-dialog-toolbar { display: flex; justify-content: flex-end; padding: 0 0 10px; }
+.friends-dialog-summary { display: none !important; }
+.friends-dialog-sections { display: grid; gap: 10px; }
+.friends-list-accordion { border: 1px solid rgba(67,104,70,.14); border-radius: 15px; overflow: clip; background: rgba(255,255,255,.72); }
+.friends-list-accordion > summary { cursor: pointer; list-style: none; padding: 12px 14px; }
+.friends-list-accordion > summary::-webkit-details-marker { display: none; }
+.friends-list-accordion > .friends-list { padding: 0 12px 12px; }
+
+/* Ranking: o espaço entre linhas herda exatamente o fundo do painel. */
+.social-ranking-section, .prestige-leaderboard, .leaderboard-list { background: var(--surface, #fff) !important; }
+.leaderboard-list { gap: 0 !important; padding-block: 0 !important; }
+.leaderboard-list > * { margin: 0 !important; }
+.leaderboard-list > * + * { border-top: 1px solid rgba(67,104,70,.10); }
+
+/* Prestígio: painel central e monumento de ganho. */
+.account-prestige-section { margin-top: 0 !important; padding-top: 0 !important; }
+.prestige-rework { width: 100%; display: grid; gap: 14px; }
+.prestige-rework-gain { width: 100%; min-height: clamp(230px, 31vw, 330px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px 18px; border: 1px solid rgba(118,91,25,.20); border-radius: 24px; background: radial-gradient(circle at 50% 30%, rgba(255,244,188,.92), rgba(249,244,225,.90) 45%, rgba(240,247,236,.96)); box-shadow: 0 16px 42px rgba(73,61,31,.09); }
+.prestige-rework-icon { width: 64px; height: 64px; display: grid; place-items: center; margin-bottom: 8px; }
+.prestige-rework-icon img { width: 58px; height: 58px; object-fit: contain; }
+.prestige-rework-gain > span { font-size: .78rem; text-transform: uppercase; letter-spacing: .13em; font-weight: 900; opacity: .66; }
+.prestige-rework-gain > strong { margin: 8px 0 6px; font-size: clamp(2.2rem, 6vw, 4.8rem); line-height: .98; }
+.prestige-rework-gain > small { font-size: .9rem; opacity: .72; }
+.prestige-rework-details { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 8px; }
+.prestige-rework-details article { padding: 12px 14px; border: 1px solid rgba(67,104,70,.13); border-radius: 14px; background: rgba(255,255,255,.78); }
+.prestige-rework-details small, .prestige-rework-details strong { display: block; }
+.prestige-rework-details small { opacity: .65; font-size: .72rem; }
+.prestige-rework-details strong { margin-top: 4px; font-size: .96rem; }
+.prestige-rework-footer { display: flex; align-items: center; gap: 16px; justify-content: space-between; padding: 14px; border-radius: 16px; background: rgba(50,73,53,.055); }
+.prestige-rework-footer p { margin: 0; max-width: 62ch; font-size: .84rem; opacity: .78; }
+.prestige-rework-action { min-width: 230px; }
+@media (max-width: 700px) { .prestige-rework-footer { flex-direction: column; align-items: stretch; } .prestige-rework-action { width: 100%; min-width: 0; } }
+
+/* Estatísticas menos poluídas. */
+.account-statistics-section { margin-top: 28px !important; }
+.account-stats-content { display: grid; gap: 14px !important; }
+.account-stats-content .stats-grid { grid-template-columns: repeat(auto-fit,minmax(170px,1fr)) !important; gap: 8px !important; }
+.account-stats-content .stat-card { padding: 11px 12px !important; min-height: 84px !important; box-shadow: none !important; }
+.achievement-summary { gap: 8px !important; }
+.stats-benefit-section { grid-column: 1 / -1; display: grid; gap: 9px; }
+.stats-benefit-section > header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 4px; }
+.stats-benefit-section > header small { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; opacity: .6; }
+.stats-benefit-section > header h3 { margin: 2px 0 0; }
+.stats-benefit-section > header > img { width: 30px; height: 30px; object-fit: contain; }
+.legacy-benefit-section { margin-top: 22px !important; padding-top: 18px; border-top: 1px solid rgba(67,104,70,.12); }
+.stats-benefit-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 8px; }
+.progression-benefit-card { min-height: 0 !important; padding: 11px !important; }
+.progression-benefit-card p { font-size: .78rem !important; line-height: 1.35 !important; }
+.stats-mission-history { grid-column: 1 / -1; margin-top: 14px; border-top: 1px solid rgba(67,104,70,.12); padding-top: 12px; }
+.stats-mission-history > summary { cursor: pointer; font-weight: 850; display: flex; justify-content: space-between; }
+.stats-mission-history[open] > summary { margin-bottom: 10px; }
+
+/* Eventos semanais */
+.social-live-card { align-items: center !important; }
+.social-event-copy { min-width: 0; flex: 1; }
+.social-event-copy p { margin: 5px 0 0 !important; font-weight: 500 !important; opacity: .78; }
+.social-event-time { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 999px; background: rgba(67,104,70,.075); white-space: nowrap; }
+.social-event-time img { width: 17px; height: 17px; }
+.social-event-time.is-running { background: rgba(240,187,58,.14); }
+.social-event-time b { font-variant-numeric: tabular-nums; }
+
+/* Admin */
+.admin-dialog-checkbox { display: flex !important; align-items: center; gap: 9px; }
+.admin-dialog-checkbox input { width: 18px; height: 18px; }
+.admin-subsection-heading { margin: 20px 0 8px; }
+.admin-subsection-heading h3 { margin: 0 0 4px; }
+.admin-subsection-heading p { margin: 0; opacity: .68; font-size: .82rem; }
+
+@media (max-width: 480px) {
+  .contract-card-footer-v2.contract-break-footer-v3, .contract-break-button-v3, .contract-full-action { min-height: 44px !important; height: 44px !important; }
+  .contract-card-footer-v2.contract-break-footer-v3 { flex-basis: 44px !important; margin: 0 !important; }
+  .ranking-profile-launch .button { width: 100%; }
+  .friend-code-inline { grid-template-columns: 1fr; }
+  .friend-code-inline code, .friend-code-inline .button { grid-column: 1; }
+}
+
+
+/* ========================================================================== */
+/* R36 RELEASE HOTFIX — navegação, dock, social, prestígio, responsividade   */
+/* ========================================================================== */
+
+/* Cadeados: a configuração administrativa nunca deve produzir placa branca. */
+.nav-tab.feature-preview .nav-tab-icon,
+.nav-tab[data-feature-locked="true"] .nav-tab-icon,
+.context-tabs .office-tab.feature-preview i,
+.context-tabs .office-tab[data-feature-locked="true"] i,
+.context-tabs .evolution-tab.feature-preview i,
+.context-tabs .evolution-tab[data-feature-locked="true"] i {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.nav-tab.feature-preview img,
+.nav-tab[data-feature-locked="true"] img,
+.office-tab.feature-preview img,
+.office-tab[data-feature-locked="true"] img,
+.evolution-tab.feature-preview img,
+.evolution-tab[data-feature-locked="true"] img {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Atalho de contratos: 1 item ocupa tudo; múltiplos itens se adaptam e rolam. */
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list {
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)) !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  align-items: start !important;
+}
+.contract-dock-list > :only-child { grid-column: 1 / -1 !important; width: 100% !important; }
+.contract-dock-item-v2 { width: 100% !important; min-width: 0 !important; }
+.contract-dock:not(.collapsed) .contract-dock-collapse-toggle,
+.contract-dock-v2:not(.collapsed) .contract-dock-collapse-toggle {
+  position: absolute !important;
+  top: 6px !important;
+  right: 6px !important;
+  left: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  width: 34px !important;
+  height: 34px !important;
+}
+.contract-dock:not(.collapsed) .contract-dock-collapse-toggle:hover,
+.contract-dock-v2:not(.collapsed) .contract-dock-collapse-toggle:hover { transform: translateY(-1px) !important; }
+.contract-dock-header { padding-right: 45px !important; position: relative !important; }
+@media (max-width: 620px) {
+  .contract-dock-v2 .contract-dock-list, .contract-dock .contract-dock-list { grid-template-columns: 1fr !important; }
+}
+
+/* Pedidos: cabeçalho interno reduzido ao estado. */
+.order-board-heading-minimal { display: block !important; min-height: 0 !important; padding-bottom: 4px !important; }
+.order-board-heading-minimal .eyebrow { margin: 0 !important; }
+
+/* Pesquisa e Evoluções compartilham o mesmo badge roxo em qualquer estado. */
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card {
+  position: relative !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge,
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .upgrade-level-badge,
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .upgrade-level-badge {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+  width: max-content !important;
+  min-width: 74px !important;
+  min-height: 28px !important;
+  height: auto !important;
+  padding: 6px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(239, 223, 247, .92) !important;
+  border: 1px solid rgba(113, 71, 139, .20) !important;
+  color: #6c4a82 !important;
+  box-shadow: none !important;
+  z-index: 2 !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity {
+  padding-right: 96px !important;
+  min-height: 46px !important;
+}
+@media (max-width: 768px) {
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-level-badge,
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge {
+    position: absolute !important;
+    top: 11px !important;
+    right: 11px !important;
+    justify-self: auto !important;
+    max-width: calc(100% - 22px) !important;
+  }
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity {
+    padding-right: 96px !important;
+  }
+}
+
+/* Conta: desktop no topo direito; tablet lado a lado; celular empilhado. */
+#profileAccountPanel .account-settings-card { position: relative !important; }
+@media (min-width: 769px) {
+  #profileAccountPanel .ranking-profile-launch {
+    display: block;
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    left: auto !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  #profileAccountPanel .account-actions { padding-right: 190px !important; }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  #profileAccountPanel .account-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    padding-right: 0 !important;
+  }
+  #profileAccountPanel .ranking-profile-launch {
+    position: static !important;
+    order: 1 !important;
+    flex: 1 1 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  #profileAccountPanel #googleSignOut { order: 2 !important; flex: 1 1 0 !important; width: auto !important; }
+  #profileAccountPanel .ranking-profile-launch .button,
+  #profileAccountPanel #googleSignOut { min-height: 44px !important; height: 100% !important; }
+}
+@media (max-width: 480px) {
+  #profileAccountPanel .account-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    padding-right: 0 !important;
+  }
+  #profileAccountPanel .ranking-profile-launch { position: static !important; order: 1 !important; width: 100% !important; margin: 0 !important; }
+  #profileAccountPanel #googleSignOut { order: 2 !important; width: 100% !important; }
+  #profileAccountPanel .ranking-profile-launch .button { width: 100% !important; }
+}
+
+/* Prestígio volta à identidade roxa; ação só existe após o desbloqueio. */
+.prestige-rework-gain {
+  border-color: rgba(105, 67, 139, .22) !important;
+  background: radial-gradient(circle at 50% 27%, rgba(239,225,250,.96), rgba(244,237,250,.94) 46%, rgba(239,247,238,.97)) !important;
+  box-shadow: 0 16px 42px rgba(83, 55, 105, .10) !important;
+}
+.prestige-rework-kicker { order: 0; color: #69477f !important; opacity: .92 !important; }
+.prestige-rework-icon { order: 1; margin: 14px 0 7px !important; }
+.prestige-rework-gain > strong { order: 2; color: #5f3e78 !important; }
+.prestige-rework-gain > small { order: 3; }
+.prestige-rework-footer { border: 1px solid rgba(103,67,132,.10); background: rgba(109,73,137,.06) !important; }
+.prestige-rework-action {
+  min-height: 58px !important;
+  min-width: min(100%, 270px) !important;
+  padding: 13px 28px !important;
+  border-color: rgba(99,58,129,.34) !important;
+  background: linear-gradient(135deg, #76508f, #5e3d78) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(87,54,110,.22) !important;
+  font-size: 1.04rem !important;
+  font-weight: 950 !important;
+}
+.prestige-rework-action:hover:not(:disabled) { background: linear-gradient(135deg, #81589b, #674282) !important; }
+.prestige-rework-action:disabled { opacity: .52 !important; }
+
+/* Estatísticas: respiro antes dos benefícios e explicação de missões vazias. */
+.research-benefit-section { margin-top: 22px !important; }
+.stats-mission-empty { display: grid !important; gap: 5px !important; }
+.stats-mission-empty strong { color: var(--ink) !important; font-size: .84rem !important; }
+.stats-mission-empty small { color: var(--ink-soft) !important; font-size: .72rem !important; line-height: 1.45 !important; }
+
+/* Social: remove placa branca destacada e estabiliza os dois atalhos. */
+#profileSocialPanel.social-profile-panel {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding-inline: 0 !important;
+}
+#profileSocialPanel .friends-content { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.friends-hub-actions { align-items: start !important; }
+.friends-hub-launch { align-self: start !important; height: auto !important; min-height: 66px !important; }
+.friends-request-option { align-self: start !important; }
+.social-events-chevron {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  transform: none !important;
+}
+.social-events-chevron img { width: 18px !important; height: 18px !important; object-fit: contain; transition: transform .18s ease; }
+.social-events-accordion:not([open]) .social-events-chevron img { transform: rotate(180deg); }
+.social-events-accordion[open] .social-events-chevron img { transform: rotate(0deg); }
+
+/* Modal Social: header/body na mesma superfície e botão fechar sem corte. */
+.friends-list-dialog { background: #f7faf5 !important; overflow: hidden !important; }
+.friends-list-dialog > form { background: #f7faf5 !important; }
+.friends-dialog-header {
+  align-items: center !important;
+  min-height: 76px !important;
+  padding: 14px 16px !important;
+  background: #f7faf5 !important;
+  border-bottom: 1px solid rgba(63,99,64,.10) !important;
+  overflow: visible !important;
+}
+.friends-dialog-heading { align-items: center !important; min-width: 0 !important; }
+.friends-dialog-heading h2 { line-height: 1.15 !important; }
+.friends-dialog-header-actions { align-self: center !important; margin-left: auto !important; overflow: visible !important; }
+.friends-dialog-header .dialog-icon-button {
+  display: inline-grid !important;
+  place-items: center !important;
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  line-height: 1 !important;
+  font-size: 1.28rem !important;
+  overflow: visible !important;
+}
+.friends-dialog-body { background: #f7faf5 !important; padding: 12px 15px 16px !important; }
+.friends-dialog-toolbar { padding: 0 0 10px !important; }
+.friends-dialog-actions { background: #f7faf5 !important; }
+@media (max-width: 520px) {
+  .friends-dialog-header { align-items: center !important; }
+  .friends-dialog-heading { gap: 8px !important; }
+  .friends-dialog-icon { width: 40px !important; height: 40px !important; }
+  .friends-dialog-icon img { width: 31px !important; height: 31px !important; }
+}
+
+/* Ranking: devolve o espaçamento; o fundo do espaço é o próprio painel. */
+.social-ranking-section, .prestige-leaderboard, .leaderboard-list { background: var(--surface, #fff) !important; }
+.leaderboard-list { gap: 9px !important; padding-block: 0 !important; }
+.leaderboard-list > * { margin: 0 !important; }
+.leaderboard-list > * + * { border-top: 0 !important; }
+
+/* Configurações: o card de feedback e o botão ocupam a largura útil inteira. */
+#settingsView .feedback-settings-card { width: 100% !important; max-width: none !important; grid-column: 1 / -1 !important; box-sizing: border-box !important; }
+#settingsView .feedback-settings-body { display: block !important; width: 100% !important; max-width: none !important; box-sizing: border-box !important; }
+#settingsView .feedback-launch-button { display: flex !important; width: 100% !important; max-width: none !important; margin: 0 !important; box-sizing: border-box !important; flex: 1 1 100% !important; justify-content: center !important; }
+
+/* Modal de quebra: apenas o que falta e o valor final, bem alinhados. */
+.contract-break-dialog > form { grid-template-columns: 1fr !important; gap: 0 !important; }
+.contract-break-hero { grid-template-columns: 64px minmax(0,1fr) !important; }
+.contract-break-calculation-simple {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 10px !important;
+  padding: 16px 20px !important;
+}
+.contract-break-calculation-simple article,
+.contract-break-calculation-simple .contract-break-amount {
+  display: grid !important;
+  align-content: center !important;
+  justify-items: start !important;
+  min-height: 78px !important;
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  background: rgba(255,255,255,.78) !important;
+  border: 1px solid rgba(151,76,63,.12) !important;
+}
+.contract-break-calculation-simple .contract-break-amount { background: #fff5f2 !important; }
+.contract-break-calculation-simple small { color: #8b756f !important; font-size: .62rem !important; font-weight: 900 !important; text-transform: uppercase; }
+.contract-break-calculation-simple strong { margin-top: 5px !important; color: #51342f !important; font-size: 1rem !important; }
+.contract-break-calculation-simple .contract-break-amount strong { color: #8c493e !important; font-size: 1.08rem !important; }
+@media (max-width: 520px) {
+  .contract-break-hero { grid-template-columns: 54px minmax(0,1fr) !important; }
+  .contract-break-calculation-simple { grid-template-columns: 1fr !important; padding: 14px !important; }
+}

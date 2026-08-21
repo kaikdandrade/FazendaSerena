@@ -1,12 +1,10 @@
 "use strict";
   function setupCategoryFilter() {
     if (dom.categoryFilter) dom.categoryFilter.innerHTML = '<option value="all">Todas as categorias</option>';
-    if (dom.stockCategoryFilter) dom.stockCategoryFilter.innerHTML = '<option value="all">Todas as categorias</option>';
     const options = Object.entries(engine.data.categories)
       .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`)
       .join("");
     dom.categoryFilter.insertAdjacentHTML("beforeend", `<option value="locked">Safras bloqueadas</option>${options}`);
-    dom.stockCategoryFilter?.insertAdjacentHTML("beforeend", options);
   }
 
   let scrollUiFrame = 0;
@@ -150,7 +148,16 @@
     });
   }
 
-  function showView(viewId, updateHash = true) {
+  function updateRouteQuery() {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    url.searchParams.set("view", activeView);
+    if (activeView === "officeView") url.searchParams.set("office", activeOfficeTab); else url.searchParams.delete("office");
+    if (activeView === "profileView") url.searchParams.set("profile", activeProfileTab); else url.searchParams.delete("profile");
+    history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }
+
+  function showView(viewId, updateRoute = true) {
     const requestedView = dom.views.some(view => view.id === viewId) ? viewId : "farmView";
     activeView = requestedView;
     if (requestedView === "farmView") cropUpgradeModes.clear();
@@ -173,7 +180,7 @@
       block.hidden = !visible;
       block.classList.toggle("active", visible);
     });
-    if (updateHash) history.replaceState(null, "", `#${activeView}`);
+    if (updateRoute) updateRouteQuery();
     window.scrollTo({ top: 0, behavior: "auto" });
     syncScrollUI();
     render(true);
@@ -248,32 +255,20 @@
   }
 
   function syncFeatureLocks() {
-    const researchUnlocked = engine.isEvolutionUnlocked();
-    document.querySelectorAll('[data-office-tab="evolutions"]').forEach(tab => {
-      tab.disabled = false;
-      tab.classList.toggle("feature-preview", !researchUnlocked);
-      tab.setAttribute("aria-disabled", "false");
-      tab.title = researchUnlocked
-        ? "Evoluções — Centro de pesquisa"
-        : `Evoluções — pesquisas liberam no nível ${GameEngine.EVOLUTION_UNLOCK_LEVEL}`;
-    });
-
-    document.querySelectorAll('[data-office-tab="contracts"]').forEach(tab => {
-      tab.disabled = false;
-      tab.classList.remove("feature-locked", "feature-preview");
-      tab.setAttribute("aria-disabled", "false");
-      tab.title = "Contratos";
-    });
-
-    const ordersUnlocked = engine.isOrdersUnlocked();
-    document.querySelectorAll('[data-office-tab="orders"]').forEach(tab => {
-      tab.disabled = false;
-      tab.classList.toggle("feature-preview", !ordersUnlocked);
-      tab.setAttribute("aria-disabled", "false");
-      tab.title = ordersUnlocked
-        ? "Pedidos"
-        : `Pedidos — entregas liberadas no nível ${GameEngine.ORDER_UNLOCK_LEVEL}`;
-    });
+    const runtime = window.FazendaSerenaRuntimeConfig || {};
+    const iconFor = key => runtime.navigationIcons?.[key] || ({ orders: "assets/icons/pacote.webp", evolutions: "assets/icons/livros.webp" })[key] || "assets/icons/cadeado.webp";
+    const sync = (selector, key, unlocked, label, level) => {
+      document.querySelectorAll(selector).forEach(tab => {
+        tab.disabled = false; // a prévia continua acessível; somente as ações ficam bloqueadas no painel.
+        tab.classList.toggle("feature-preview", !unlocked);
+        tab.dataset.featureLocked = String(!unlocked);
+        tab.title = unlocked ? label : `${label} · libera no nível ${level}`;
+        const image = tab.querySelector("img");
+        if (image) image.src = unlocked ? iconFor(key) : "assets/icons/cadeado.webp";
+      });
+    };
+    sync('[data-office-tab="orders"]', "orders", engine.isOrdersUnlocked(), "Pedidos", GameEngine.ORDER_UNLOCK_LEVEL);
+    sync('[data-office-tab="evolutions"]', "evolutions", engine.isEvolutionUnlocked(), "Evoluções", GameEngine.EVOLUTION_UNLOCK_LEVEL);
   }
 
   function updateFarmProgressDisplay() {
