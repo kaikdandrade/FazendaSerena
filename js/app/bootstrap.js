@@ -33,6 +33,7 @@ async function boot() {
   engine = new GameEngine(handleEngineEvent, initialState);
   setupCategoryFilter();
   setupEvents();
+  setupFeedback();
   setupLiveSocialContent();
   showView(activeView, false);
   applySettings();

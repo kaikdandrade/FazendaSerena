@@ -1,7 +1,7 @@
 "use strict";
 (() => {
   if (!("serviceWorker" in navigator)) return;
-  const version = window.FazendaSerenaConfig?.assetCacheVersion || "assets-r21";
+  const version = window.FazendaSerenaConfig?.assetCacheVersion || "assets-r25";
   window.addEventListener("load", async () => {
     try {
       const registrations = await navigator.serviceWorker.getRegistrations();

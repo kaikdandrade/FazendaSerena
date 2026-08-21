@@ -24,20 +24,10 @@ class SoundEngine {
     contractSignature: "assets/sounds/assinar-contrato.wav",
     contractRefusal: "assets/sounds/recusar-contrato.wav",
     levelUp: "assets/sounds/subir-nivel.wav",
-    coinCounterHit: "assets/sounds/contador-moedas.wav",
-    researchCounterHit: "assets/sounds/contador-pesquisa.wav",
-    prestigeCounterHit: "assets/sounds/contador-prestigio.wav"
   });
 
   static DEFAULT_MAPPINGS = SoundEngine.FIXED_MAPPINGS;
 
-  static RESOURCE_COUNTER_MAPPINGS = Object.freeze({
-    coins: "coinCounterHit",
-    research: "researchCounterHit",
-    prestige: "prestigeCounterHit"
-  });
-
-  static RESOURCE_COUNTER_VOLUME = 0.08;
   static NAVIGATION_DELAY_SECONDS = 0.045;
 
   static MUSIC_SOURCES = Object.freeze({
@@ -223,12 +213,6 @@ class SoundEngine {
     return true;
   }
 
-  playResourceCounterHit(resourceType) {
-    const action = SoundEngine.RESOURCE_COUNTER_MAPPINGS[resourceType];
-    return action
-      ? this.playConcurrent(action, { fixedVolume: SoundEngine.RESOURCE_COUNTER_VOLUME })
-      : false;
-  }
 
   playNavigation() {
     const volume = this.getEffectiveEffectVolume();

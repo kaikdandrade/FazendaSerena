@@ -39,7 +39,7 @@
     "assets/icons/delivery-truck.png": "assets/icons/caminhao-entrega.webp",
     "assets/icons/feature-lock.png": "assets/icons/cadeado.webp",
     "assets/icons/fertilizer.png": "assets/icons/fertilizante.webp",
-    "assets/icons/field-map.png": "assets/icons/mapa-fazenda.webp",
+    "assets/icons/field-map.png": "assets/icons/mapa.webp",
     "assets/icons/google-logo.png": "assets/icons/logo-google.webp",
     "assets/icons/graduation-cap.png": "assets/icons/chapeu-formatura.webp",
     "assets/icons/harvest-crate.png": "assets/icons/caixa-colheita.webp",
@@ -141,7 +141,8 @@
     contractSignedCooldownSeconds: 30,
     contractExpiredCooldownSeconds: 30,
     contractDeclinedCooldownSeconds: 60,
-    contractBrokenCooldownSeconds: 240
+    contractBrokenCooldownSeconds: 240,
+    contractOfferCount: 6
   });
 
   const effectLabels = Object.freeze({
@@ -164,7 +165,8 @@
     prestigeGainPercent: "Prestígio obtido (%)",
     autoSalePricePercent: "Valor da venda automática (%)",
     wholesaleOverflowUnlock: "Desbloquear venda atacadista (1 = sim)",
-    orderRewardPercent: "Recompensas recebidas por pedidos (%)"
+    orderRewardPercent: "Recompensas recebidas por pedidos (%)",
+    offlineProductionMinutes: "Produção offline (+ minutos)"
   });
   const effectTypes = new Set(Object.keys(effectLabels));
 
@@ -198,11 +200,36 @@
     { id: "slotinicial", name: "Slot inicial", unlockLevel: 1 }
   ]);
 
+
+  const defaultNavigationIcons = Object.freeze({
+    farm: "assets/icons/muda-vaso.webp",
+    stock: "assets/icons/galpao-industrial.webp",
+    office: "assets/icons/prancheta-tarefas.webp",
+    profile: "assets/icons/perfil.webp",
+    settings: "assets/icons/configuracoes.webp",
+    contracts: "assets/icons/contrato-comercial.webp",
+    orders: "assets/icons/pacote.webp",
+    evolutions: "assets/icons/livros.webp",
+    account: "assets/icons/logo-google.webp",
+    social: "assets/icons/social.webp",
+    missions: "assets/icons/chapeu-formatura.webp"
+  });
+  function normalizeNavigationIcons(raw = {}) {
+    return Object.fromEntries(Object.entries(defaultNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
+  }
+
+  const standardPointTypes = Object.freeze([
+    Object.freeze({ id: "coin", key: "coin", icon: "assets/icons/moeda.webp", locked: true }),
+    Object.freeze({ id: "research", key: "research", icon: "assets/icons/pocao-pesquisa.webp", locked: true }),
+    Object.freeze({ id: "prestige", key: "prestige", icon: "assets/icons/prestigio.webp", locked: true }),
+    Object.freeze({ id: "xp", key: "xp", icon: "assets/icons/xp.webp", locked: true })
+  ]);
+
   const defaults = Object.freeze({
-    schemaVersion: 7,
+    schemaVersion: 10,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
     balance: clone(defaultBalance),
-    pointTypes: [],
+    pointTypes: clone(standardPointTypes),
     categories: [],
     crops: [],
     companies: [],
@@ -214,6 +241,7 @@
     prestigeUpgrades: clone(window.GameData.prestigeUpgrades),
     events: [],
     updateNotes: [],
+    navigationIcons: clone(defaultNavigationIcons),
     texts: clone(defaultTexts)
   });
 
@@ -246,7 +274,8 @@
       contractSignedCooldownSeconds: integer(raw.contractSignedCooldownSeconds, 1, 86400, defaultBalance.contractSignedCooldownSeconds),
       contractExpiredCooldownSeconds: integer(raw.contractExpiredCooldownSeconds, 1, 86400, defaultBalance.contractExpiredCooldownSeconds),
       contractDeclinedCooldownSeconds: integer(raw.contractDeclinedCooldownSeconds, 1, 86400, defaultBalance.contractDeclinedCooldownSeconds),
-      contractBrokenCooldownSeconds: integer(raw.contractBrokenCooldownSeconds, 1, 86400, defaultBalance.contractBrokenCooldownSeconds)
+      contractBrokenCooldownSeconds: integer(raw.contractBrokenCooldownSeconds, 1, 86400, defaultBalance.contractBrokenCooldownSeconds),
+      contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount)
     };
   }
 
@@ -266,17 +295,20 @@
       const requestedCategory = id(item?.category, "");
       const category = categoryIds.has(requestedCategory) ? requestedCategory : (categories[0]?.id || requestedCategory || "uncategorized");
       const categoryEntry = categories.find(entry => entry.id === category);
+      const categoryIndex = Math.max(0, categories.findIndex(entry => entry.id === category));
+      const economy = window.FazendaSerenaCropEconomy;
       return {
         id: id(item?.id, `crop_${index + 1}`),
         name: text(item?.name, 80, `Cultura ${index + 1}`),
         category,
+        categoryIndex,
         image: assetPath(item?.image, "assets/logo.webp"),
         index,
         unlockLevel: integer(item?.unlockLevel, 1, 1000, Math.max(1, index * 5 || 1)),
-        cost: window.FazendaSerenaCropEconomy?.purchaseCost(index) ?? 100,
-        basePrice: clamp(item?.basePrice, 0.01, Number.MAX_SAFE_INTEGER, 5),
+        cost: economy?.purchaseCost(index, categoryIndex) ?? 100,
+        basePrice: economy?.basePrice(index, categoryIndex) ?? 5,
         baseGrowth: clamp(categoryEntry?.baseGrowth ?? item?.baseGrowth, 0.01, 86400, 8),
-        baseYield: clamp(item?.baseYield, 0.01, Number.MAX_SAFE_INTEGER, 2)
+        baseYield: economy?.baseYield(index, categoryIndex) ?? 2
       };
     }));
   }
@@ -309,6 +341,7 @@
       return {
         id: id(item?.id, `contract_type_${index + 1}`),
         label: text(item?.label || item?.name, 80, `Tipo de contrato ${index + 1}`),
+        chancePercent: clamp(item?.chancePercent, 0, 100, 100),
         durationSeconds: integer(item?.durationSeconds ?? item?.duration, 5, 604800, 360),
         quantityMultiplier: clamp(item?.quantityMultiplier, 0.01, 1000, Math.max(0.01, oldQuantity || 1)),
         rewards,
@@ -345,11 +378,12 @@
   }
 
   function normalizePointTypes(raw) {
-    if (!Array.isArray(raw)) return [];
-    return uniqueById(raw.slice(0, 100).map((item, index) => {
+    const standardKeys = new Set(standardPointTypes.map(item => item.key));
+    const custom = Array.isArray(raw) ? uniqueById(raw.slice(0, 100).map((item, index) => {
       const key = id(item?.key || item?.id, `point${index + 1}`).toLowerCase();
       return { id: key, key, icon: assetPath(item?.icon, "assets/icons/moeda.webp") };
-    }));
+    })).filter(item => !standardKeys.has(item.key)) : [];
+    return [...custom, ...clone(standardPointTypes)];
   }
 
   const missionMetrics = new Set([
@@ -379,7 +413,7 @@
           title: text(item?.title, 100, `Missão ${index + 1}`),
           desc: text(item?.desc, 500, "Conclua o objetivo desta missão."),
           metric,
-          series: item.series.slice(0, 500).map(serie => ({
+          series: item.series.slice(0, 200).map(serie => ({
             target: integer(serie?.target, 1, Number.MAX_SAFE_INTEGER, 1),
             reward: normalizeReward(serie?.reward)
           }))
@@ -540,7 +574,7 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 7,
+      schemaVersion: 10,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -555,6 +589,7 @@
       prestigeUpgrades: normalizeEvolution(source?.prestigeUpgrades, defaults.prestigeUpgrades, true),
       events: normalizeEvents(source?.events),
       updateNotes,
+      navigationIcons: normalizeNavigationIcons(source?.navigationIcons),
       texts: normalizeTexts(source?.texts)
     };
   }
@@ -602,6 +637,15 @@
     });
   }
 
+
+  function applyNavigationIcons(icons = {}) {
+    Object.entries(icons).forEach(([key, src]) => {
+      document.querySelectorAll(`[data-navigation-icon="${key}"]`).forEach(image => {
+        if (image instanceof HTMLImageElement) image.src = src;
+      });
+    });
+  }
+
   function apply(raw = {}) {
     const config = normalizeConfig(raw);
     const balance = config.balance;
@@ -617,6 +661,7 @@
     GameEngine.CONTRACT_EXPIRED_COOLDOWN_SECONDS = balance.contractExpiredCooldownSeconds;
     GameEngine.CONTRACT_DECLINED_COOLDOWN_SECONDS = balance.contractDeclinedCooldownSeconds;
     GameEngine.CONTRACT_BROKEN_COOLDOWN_SECONDS = balance.contractBrokenCooldownSeconds;
+    GameEngine.CONTRACT_OFFER_COUNT = balance.contractOfferCount;
     GameEngine.BASE_STORAGE_CAPACITY = balance.storageCapacity;
     // Recompensa, prazo e XP dos contratos/pedidos pertencem aos próprios
     // catálogos administrativos, não aos parâmetros globais.
@@ -639,6 +684,7 @@
     window.FazendaSerenaRuntimeConfig = runtimeConfig;
     window.FazendaSerenaConfig?.applyCloudVersion?.(config.gameVersion);
     applyTexts(config.texts, config.pointTypes);
+    applyNavigationIcons(config.navigationIcons);
     window.dispatchEvent(new CustomEvent("fazenda-runtime-config", { detail: clone(runtimeConfig) }));
     return clone(config);
   }
@@ -652,6 +698,8 @@
     window.FazendaSerenaConfig?.applyCloudVersion?.(normalized.gameVersion);
     window.FazendaSerenaRuntimeConfig = current;
     applyTexts(current.texts, current.pointTypes || []);
+    current.navigationIcons = clone(normalized.navigationIcons);
+    applyNavigationIcons(current.navigationIcons);
     window.dispatchEvent(new CustomEvent("fazenda-live-content", { detail: { events: clone(current.events) } }));
   }
 

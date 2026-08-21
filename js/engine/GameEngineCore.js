@@ -4,7 +4,8 @@ class GameEngine {
   static APP_VERSION = window.FazendaSerenaConfig.appVersion;
   static EXPERIENCE_DEFAULTS = window.FazendaSerenaConfig.experienceDefaults;
   static AUDIO_DEFAULTS = window.FazendaSerenaConfig.audioDefaults;
-  static MAX_OFFLINE_SECONDS = 60 * 60 * 8;
+  static BASE_MAX_OFFLINE_SECONDS = 15 * 60;
+  static MAX_OFFLINE_SECONDS = 15 * 60; // compatibilidade; o limite efetivo usa getMaxOfflineSeconds().
   static FEATURE_UNLOCK_LEVEL = 5; // compatibilidade com saves/integrações antigas
   static ORDER_UNLOCK_LEVEL = 5;
   static EVOLUTION_UNLOCK_LEVEL = 5;
@@ -170,7 +171,7 @@ class GameEngine {
       const now = Date.now();
       if (hasCloudState) {
         const elapsed = Math.max(0, Math.min(
-          GameEngine.MAX_OFFLINE_SECONDS,
+          this.getMaxOfflineSeconds?.(state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS,
           (now - Number(state.lastUpdate || now)) / 1000
         ));
         if (elapsed > 0.05) this.simulate(elapsed, true);
@@ -188,7 +189,7 @@ class GameEngine {
       const now = Date.now();
       if (hasState && simulateOffline) {
         const elapsed = Math.max(0, Math.min(
-          GameEngine.MAX_OFFLINE_SECONDS,
+          this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS,
           (now - Number(this.state.lastUpdate || now)) / 1000
         ));
         if (elapsed > 0.05) this.simulate(elapsed, true);
@@ -574,10 +575,11 @@ class GameEngine {
       this.addPassiveFarmXP(safe);
     }
   simulate(seconds, offline = false) {
-      let remaining = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, Number(seconds) || 0));
+      let remaining = Math.max(0, Math.min(offline ? this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS : Number.MAX_SAFE_INTEGER, Number(seconds) || 0));
       const elapsedTotal = remaining;
       const offlineReport = offline ? {
         seconds: elapsedTotal,
+        maxSeconds: this.getMaxOfflineSeconds?.(this.state) ?? GameEngine.BASE_MAX_OFFLINE_SECONDS,
         coinsBefore: Number(this.state.coins) || 0,
         researchBefore: Number(this.state.research) || 0,
         levelBefore: Math.max(1, Number(this.state.farmLevel) || 1),

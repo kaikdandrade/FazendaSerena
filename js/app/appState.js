@@ -98,8 +98,7 @@
     prestigeLeaderboard: $("#prestigeLeaderboard"),
     socialEventsList: $("#socialEventsList"),
     socialEventsSummary: $("#socialEventsSummary"),
-    openSocialEvents: $("#openSocialEvents"),
-    socialEventsDialog: $("#socialEventsDialog"),
+    socialEventsAccordion: $("#socialEventsAccordion"),
     lifetimeStats: $("#lifetimeStats"),
     recordStats: $("#recordStats"),
     achievementSummary: $("#achievementSummary"),
@@ -153,6 +152,16 @@
     offlineProgressDialog: $("#offlineProgressDialog"),
     offlineProgressTime: $("#offlineProgressTime"),
     offlineProgressSummary: $("#offlineProgressSummary"),
+    openPlayerFeedback: $("#openPlayerFeedback"),
+    playerFeedbackHint: $("#playerFeedbackHint"),
+    playerFeedbackDialog: $("#playerFeedbackDialog"),
+    playerFeedbackForm: $("#playerFeedbackForm"),
+    playerFeedbackType: $("#playerFeedbackType"),
+    playerFeedbackSubject: $("#playerFeedbackSubject"),
+    playerFeedbackMessage: $("#playerFeedbackMessage"),
+    playerFeedbackStatus: $("#playerFeedbackStatus"),
+    cancelPlayerFeedback: $("#cancelPlayerFeedback"),
+    submitPlayerFeedback: $("#submitPlayerFeedback"),
     backToTop: $("#backToTop")
   };
 

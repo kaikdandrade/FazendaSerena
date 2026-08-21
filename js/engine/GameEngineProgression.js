@@ -69,6 +69,15 @@ Object.assign(GameEngine.prototype, {
       return this.state.farmLevel >= GameEngine.PRESTIGE_UNLOCK_LEVEL;
     },
 
+
+  getMaxOfflineSeconds(state = this.state) {
+      const extraMinutes = Math.max(0, this.getEvolutionBonus("offlineProductionMinutes", state));
+      const extraSeconds = Math.floor(extraMinutes * 60);
+      // Teto técnico de 30 dias evita configurações acidentais que travariam a
+      // simulação, sem limitar a progressão normal do administrador.
+      return Math.min(30 * 24 * 60 * 60, GameEngine.BASE_MAX_OFFLINE_SECONDS + extraSeconds);
+    },
+
   getStartingCoins(state = this.state) {
       return GameEngine.BASE_STARTING_COINS + Math.max(0, Math.floor(this.getEvolutionBonus("startingCoins", state)));
     },
@@ -100,7 +109,7 @@ Object.assign(GameEngine.prototype, {
       const elapsed = Math.max(0, Number(seconds) || 0);
       const rate = this.getPassiveFarmXPRate();
       if (elapsed <= 0 || rate <= 0) return 0;
-      return this.addFarmXP(this.getFarmXPNeed() * rate * elapsed, silent);
+      return this.addFarmXP(rate * elapsed, silent);
     },
 
   addFarmXP(amount, silent = false) {
@@ -185,13 +194,17 @@ Object.assign(GameEngine.prototype, {
     },
 
   getAutomaticCropPurchaseCost(cropOrIndex) {
-      const index = typeof cropOrIndex === "object" ? cropOrIndex?.index : cropOrIndex;
-      return window.FazendaSerenaCropEconomy?.purchaseCost(index) ?? 100;
+      const crop = typeof cropOrIndex === "object" ? cropOrIndex : null;
+      const index = crop ? Number(crop.index) || this.data.crops.indexOf(crop) : Number(cropOrIndex) || 0;
+      const categoryIndex = crop ? Math.max(0, Number(crop.categoryIndex) || 0) : 0;
+      return window.FazendaSerenaCropEconomy?.purchaseCost(index, categoryIndex) ?? Math.max(100, Number(crop?.cost) || 100);
     },
 
   getAutomaticCropUpgradeBase(cropOrIndex) {
-      const index = typeof cropOrIndex === "object" ? cropOrIndex?.index : cropOrIndex;
-      return window.FazendaSerenaCropEconomy?.upgradeBase(index) ?? 140;
+      const crop = typeof cropOrIndex === "object" ? cropOrIndex : null;
+      const index = crop ? Number(crop.index) || this.data.crops.indexOf(crop) : Number(cropOrIndex) || 0;
+      const categoryIndex = crop ? Math.max(0, Number(crop.categoryIndex) || 0) : 0;
+      return window.FazendaSerenaCropEconomy?.upgradeBase(index, categoryIndex) ?? Math.max(140, this.getAutomaticCropPurchaseCost(cropOrIndex) * 0.12);
     },
 
   getBuyCost(cropId) {

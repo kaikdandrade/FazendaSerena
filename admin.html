@@ -8,18 +8,19 @@
 <meta name="theme-color" content="#f3f6f0">
 <title>Administração — Fazenda Serena</title>
 <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
-<link rel="stylesheet" href="css/admin.css?v=r21">
-<script defer src="js/publicCloud.js?v=r21"></script>
-<script defer src="js/appConfig.js?v=r21"></script>
-<script defer src="js/cacheManager.js?v=r21"></script>
-<script defer src="js/firebase-config.js?v=r21"></script>
-<script defer src="js/localAssets.js?v=r21"></script>
-<script defer src="js/firebaseManager.js?v=r21"></script>
-<script defer src="js/data.js?v=r21"></script>
-<script defer src="js/cropEconomy.js?v=r21"></script>
-<script defer src="js/gameAdmin.js?v=r21"></script>
-<script defer src="js/adminCatalogEditor.js?v=r21"></script>
-<script defer src="js/admin.js?v=r21"></script>
+<link rel="stylesheet" href="css/admin.css?v=r25">
+<script defer src="js/publicCloud.js?v=r25"></script>
+<script defer src="js/appConfig.js?v=r25"></script>
+<script defer src="js/cacheManager.js?v=r25"></script>
+<script defer src="js/firebase-config.js?v=r25"></script>
+<script defer src="js/localAssets.js?v=r25"></script>
+<script defer src="js/firebaseManager.js?v=r25"></script>
+<script defer src="js/data.js?v=r25"></script>
+<script defer src="js/cropEconomy.js?v=r25"></script>
+<script defer src="js/gameAdmin.js?v=r25"></script>
+<script defer src="js/adminImageSelect.js?v=r25"></script>
+<script defer src="js/adminCatalogEditor.js?v=r25"></script>
+<script defer src="js/admin.js?v=r25"></script>
 </head>
 <body>
 <main class="admin-shell">
@@ -58,6 +59,9 @@
     <label for="adminWorkspaceSelect"><span>Editar</span><select id="adminWorkspaceSelect">
       <option value="balance">Parâmetros principais</option>
       <option value="administrators">Administradores</option>
+      <option value="navigationIcons">Ícones da navegação</option>
+      <option value="playerFeedback">Feedback e ideias</option>
+      <option value="tests">Testes</option>
       <option value="pointTypes">Tipos de pontos</option>
       <option value="categories">Categorias de plantas</option>
       <option value="crops">Plantas</option>
@@ -79,7 +83,7 @@
     <div class="admin-balance-grid">
       <label><span>XP de aprimoramentos (%)</span><input autocomplete="off" id="adminActionXP" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
       <label><span>XP passivo base (%/s)</span><input autocomplete="off" id="adminPassiveXP" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
-      <label><span>Pesquisa passiva (%/s)</span><input autocomplete="off" id="adminPassiveResearch" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
+      <label><span>Pesquisa passiva base (%/s)</span><input autocomplete="off" id="adminPassiveResearch" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
       <label><span>Nível para liberar Pedidos</span><input autocomplete="off" id="adminOrdersUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nível para liberar Evoluções</span><input autocomplete="off" id="adminEvolutionsUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nível de liberação do prestígio</span><input autocomplete="off" id="adminPrestigeUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
@@ -89,6 +93,7 @@
       <label><span>Nova proposta após expirar (segundos)</span><input autocomplete="off" id="adminContractExpiredCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nova proposta após recusar (segundos)</span><input autocomplete="off" id="adminContractDeclinedCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nova proposta após quebrar (segundos)</span><input autocomplete="off" id="adminContractBrokenCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Quantidade de contratos livres para assinatura</span><input autocomplete="off" id="adminContractOfferCount" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
     </div>
     <div class="admin-section-save"><button class="admin-button primary" id="adminSaveBalance" type="button">Salvar parâmetros</button></div>
   </section>
@@ -102,6 +107,39 @@
     </form>
     <div class="admin-administrator-list" id="adminAdministratorList"></div>
   </section>
+
+  <section class="admin-panel admin-navigation-icons-section" data-admin-section="navigationIcons" hidden>
+    <div class="admin-section-heading"><div><h2>Ícones da navegação</h2><p>Escolha os ícones exibidos nas abas principais e nas abas internas.</p></div></div>
+    <div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div>
+    <div class="admin-section-save"><button class="admin-button primary" id="adminSaveNavigationIcons" type="button">Salvar ícones</button></div>
+  </section>
+
+  <section class="admin-panel admin-player-feedback-section" data-admin-section="playerFeedback" hidden>
+    <div class="admin-section-heading"><div><h2>Feedback e ideias</h2><p>Mensagens enviadas por jogadores conectados.</p></div><button class="admin-button secondary compact" id="adminRefreshPlayerFeedback" type="button">Atualizar</button></div>
+    <div class="admin-feedback-inbox" id="adminPlayerFeedbackList"><div class="admin-catalog-empty">Abra esta área para carregar os envios.</div></div>
+  </section>
+
+
+  <section class="admin-panel admin-tests-section" data-admin-section="tests" hidden>
+    <div class="admin-section-heading"><div><h2>Testes</h2><p>Ferramentas de simulação e ajuste da própria conta administrativa.</p></div></div>
+    <div class="admin-test-grid">
+      <article class="admin-test-card">
+        <div><small>Interface</small><h3>Modais do jogo</h3><p>Abra prévias para conferir alinhamento, ícones e responsividade.</p></div>
+        <div class="admin-test-actions"><button class="admin-button secondary" id="adminTestMilestone" type="button">Simular marco</button><button class="admin-button secondary" id="adminTestOffline" type="button">Simular progresso offline</button></div>
+      </article>
+      <article class="admin-test-card">
+        <div><small>Conta de teste</small><h3>Progressão</h3><p>Altere somente a conta Google atualmente conectada ao painel.</p></div>
+        <div class="admin-test-form-grid"><label><span>Nível da fazenda</span><input autocomplete="off" id="adminTestFarmLevel" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="1"></label><label><span>Nível de prestígio da conta</span><input autocomplete="off" id="adminTestPrestigeLevel" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="0"></label></div>
+        <button class="admin-button primary" id="adminApplyTestProgress" type="button">Aplicar na minha conta</button>
+      </article>
+      <article class="admin-test-card admin-test-danger-card">
+        <div><small>Reset de teste</small><h3>Dados específicos</h3><p>Os totais históricos da conta são preservados; apenas o progresso atual selecionado é reiniciado.</p></div>
+        <div class="admin-test-actions"><button class="admin-button danger" id="adminResetTestCrops" type="button">Resetar plantas</button><button class="admin-button danger" id="adminResetTestOrders" type="button">Resetar pedidos</button><button class="admin-button danger" id="adminResetTestMissions" type="button">Resetar missões</button></div>
+      </article>
+    </div>
+    <div class="admin-test-feedback" id="adminTestFeedback" aria-live="polite"></div>
+  </section>
+
 
   <section class="admin-catalog-stack">
     <section class="admin-panel admin-catalog-editor" data-catalog-editor="pointTypes" data-admin-section="pointTypes" hidden>
@@ -175,6 +213,8 @@
 </section>
 </main>
 
+<dialog class="admin-test-preview-dialog" id="adminTestMilestoneDialog"><form method="dialog"><header class="admin-test-preview-header"><img src="assets/icons/marco-nivel.webp" alt=""><div><small>Novo marco</small><h2>Nível 25 alcançado</h2></div></header><div class="admin-test-preview-body"><article><img src="assets/icons/pacote.webp" alt=""><div><strong>Novo recurso liberado</strong><span>Pedidos avançados disponíveis no Escritório.</span></div></article><article><img src="assets/icons/livros.webp" alt=""><div><strong>Evolução disponível</strong><span>Uma nova melhoria pode ser pesquisada.</span></div></article></div><footer><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
+<dialog class="admin-test-preview-dialog admin-test-offline-dialog" id="adminTestOfflineDialog"><form method="dialog"><header class="admin-test-preview-header"><img src="assets/icons/retorno-offline.webp" alt=""><div><small>Progresso offline</small><h2>15min</h2></div></header><div class="admin-test-offline-grid"><article><img src="assets/icons/moeda.webp" alt=""><span>Moedas</span><strong>12,4K</strong></article><article><img src="assets/icons/pocao-pesquisa.webp" alt=""><span>Pesquisa</span><strong>18</strong></article><article><img src="assets/icons/xp.webp" alt=""><span>XP</span><strong>342</strong></article><article><img src="assets/icons/contrato-agricola.webp" alt=""><span>Contratos</span><strong>2</strong></article></div><footer><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
 <dialog class="admin-item-dialog" id="adminItemDialog">
   <form autocomplete="off" method="dialog">
     <div class="admin-dialog-heading"><h2 data-admin-dialog-title>Editar item</h2></div>

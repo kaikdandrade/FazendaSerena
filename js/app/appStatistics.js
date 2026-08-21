@@ -3,8 +3,8 @@
     return `<img alt="" aria-hidden="true" src="${escapeHtml(source)}" title="${escapeHtml(label)}">`;
   }
 
-  function statCard(iconSource, label, value, note = "") {
-    return `<article class="player-stat-card"><span class="player-stat-icon">${statIcon(iconSource, label)}</span><div><small>${escapeHtml(label)}</small><strong>${value}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div></article>`;
+  function statCard(iconSource, label, value, note = "", variant = "") {
+    return `<article class="player-stat-card ${variant ? `stat-${escapeHtml(variant)}` : ""}"><span class="player-stat-icon">${statIcon(iconSource, label)}</span><div><small>${escapeHtml(label)}</small><strong>${value}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div></article>`;
   }
 
 
@@ -40,17 +40,17 @@
       return `<span class="sr-only">${engine.formatNumber(position)}º lugar</span><img class="leaderboard-rank-badge" alt="" aria-hidden="true" src="${badge}">${personal && position > 5 ? `<b class="leaderboard-position-number">${engine.formatNumber(position)}º</b>` : ""}`;
     };
     const renderRow = (player, personal = false) => {
-      const avatar = getAvatarEntry(player?.avatarId);
-      if (!avatar) return "";
+      const avatar = getAvatarEntry(player?.avatarId) || { src: "assets/icons/perfil.webp" };
       const current = Boolean(currentUid && player.uid === currentUid);
       const prestigeCount = Math.max(0, Number(player?.prestigeCount) || 0);
       const farmLevel = Math.max(1, Number(player?.farmLevel) || 1);
-      return `<article class="leaderboard-row ${current ? "current-player" : ""} ${personal ? "personal-rank-row" : ""}">
+      const position = Math.max(1, Number(player?.position) || 1);
+      return `<article class="leaderboard-row rank-position-${Math.min(position, 6)} ${current ? "current-player" : ""} ${personal ? "personal-rank-row" : ""}">
         <strong class="leaderboard-position">${renderPosition(player.position, personal)}</strong>
         <img class="leaderboard-avatar" src="${escapeHtml(avatar.src)}" alt="Avatar de ${escapeHtml(player?.displayName || "jogador")}">
         <div class="leaderboard-player">
           <strong>${escapeHtml(player?.displayName || "Fazendeiro")}</strong>
-          <small class="leaderboard-player-meta"><span class="leaderboard-account-prestige"><img src="assets/icons/prestigio-conta.webp" alt="" aria-hidden="true"><b>${engine.formatNumber(prestigeCount)}</b> ${prestigeCount === 1 ? "prestígio" : "prestígios"}</span><span class="leaderboard-current-level">Nível ${engine.formatNumber(farmLevel)}</span></small>
+          <small class="leaderboard-player-meta"><span class="leaderboard-account-prestige" title="Prestígio de conta"><img src="assets/icons/prestigio-conta.webp" alt="Prestígio de conta"><b>${engine.formatNumber(prestigeCount)}</b></span><span class="leaderboard-current-level" title="Nível da fazenda"><img src="assets/icons/marco-nivel.webp" alt="Nível da fazenda"><b>${engine.formatNumber(farmLevel)}</b></span></small>
         </div>
       </article>`;
     };
@@ -59,7 +59,7 @@
     const player = leaderboardState.player;
     const playerOutsideTop = Boolean(player && !top.some(entry => entry.uid === player.uid));
     const personalRow = playerOutsideTop
-      ? `<div class="leaderboard-personal-divider"><span>Sua classificação</span></div>${renderRow(player, true)}`
+      ? renderRow(player, true)
       : "";
 
     if (!topRows.length) {
@@ -109,9 +109,9 @@
       dom.statsHero.hidden = true;
     }
     dom.lifetimeStats.innerHTML = [
-      statCard("assets/icons/moeda.webp", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins)),
-      statCard("assets/icons/caixa-colheita.webp", "Itens produzidos", engine.formatNumber(stats.lifetimeHarvested)),
-      statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold)),
+      statCard("assets/icons/moeda.webp", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "", "featured"),
+      statCard("assets/icons/caixa-colheita.webp", "Itens produzidos", engine.formatNumber(stats.lifetimeHarvested), "", "featured"),
+      statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "", "featured"),
       statCard("assets/icons/contrato-comercial.webp", "Contratos concluídos", engine.formatNumber(stats.lifetimeContractsCompleted), `${engine.formatNumber(stats.lifetimeContractUnitsDelivered)} unidades entregues`),
       statCard("assets/icons/prancheta-tarefas.webp", "Pedidos entregues", engine.formatNumber(stats.lifetimeOrdersCompleted), `${engine.formatNumber(stats.lifetimeOrderUnitsDelivered)} unidades entregues`),
       statCard("assets/icons/prancheta-tarefas.webp", "Séries de missão", `${claimed.length} / ${engine.data.missions.length}`),
@@ -120,11 +120,11 @@
       statCard("assets/icons/ferramentas.webp", "Contratos quebrados", engine.formatNumber(stats.lifetimeContractsBroken))
     ].join("");
     dom.recordStats.innerHTML = [
-      statCard("assets/icons/fazenda-celeiro.webp", "Maior nível da fazenda", engine.formatNumber(stats.maxFarmLevel)),
-      statCard("assets/icons/estrela-dominio-cultura.webp", "Culturas prestigiadas", engine.formatNumber(stats.lifetimeCropPrestiges || 0)),
-      statCard("assets/icons/galpao-industrial.webp", "Maior estoque ocupado", engine.formatNumber(stats.maxStorageUsed)),
-      statCard("assets/icons/moeda.webp", "Maior saldo registrado", resourceAmount("coins", stats.maxCoinsHeld)),
-      statCard("assets/icons/mapa-fazenda.webp", "Culturas descobertas", `${discovered} / ${engine.data.crops.length}`)
+      statCard("assets/icons/fazenda-celeiro.webp", "Maior nível da fazenda", engine.formatNumber(stats.maxFarmLevel), "", "record"),
+      statCard("assets/icons/estrela-dominio-cultura.webp", "Culturas prestigiadas", engine.formatNumber(stats.lifetimeCropPrestiges || 0), "", "record"),
+      statCard("assets/icons/galpao-industrial.webp", "Maior estoque ocupado", engine.formatNumber(stats.maxStorageUsed), "", "record"),
+      statCard("assets/icons/moeda.webp", "Maior saldo registrado", resourceAmount("coins", stats.maxCoinsHeld), "", "record"),
+      statCard("assets/icons/mapa.webp", "Culturas descobertas", `${discovered} / ${engine.data.crops.length}`, "", "record")
     ].join("");
     dom.achievementSummary.innerHTML = `<article><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missões")}</span><div><small>Missões concluídas</small><strong>${claimed.length} / ${engine.data.missions.length}</strong></div></article><article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Níveis de legado</small><strong>${legacyLevels}</strong></div></article><article><span>${statIcon("assets/icons/prestigio.webp", "Bônus permanentes")}</span><div><small>Bônus permanentes</small><strong>${state.permanentBonuses.prestigeDouble ? "Prestígio 2× ativo" : "Em construção"}</strong></div></article>`;
     const permanentAchievements = [];

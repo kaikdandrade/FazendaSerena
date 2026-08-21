@@ -16,6 +16,7 @@ class FirebaseManager {
   static GAME_CONFIG_COLLECTION = "gameConfig";
   static GAME_CONFIG_DOCUMENT = "public";
   static ADMIN_COLLECTION = "administrators";
+  static FEEDBACK_COLLECTION = "playerFeedback";
 
   constructor() {
     this.available = false;
@@ -406,7 +407,8 @@ class FirebaseManager {
             updatedAtClient: savedAt.getTime()
           });
           if (leaderboardReference) {
-            const leaderboardEntry = this.buildLeaderboardEntry(snapshot, user);
+            const administrator = await this.isCurrentUserAdmin();
+            const leaderboardEntry = administrator ? null : this.buildLeaderboardEntry(snapshot, user);
             if (leaderboardEntry) batch.set(leaderboardReference, leaderboardEntry);
             else batch.delete(leaderboardReference);
           }
@@ -445,7 +447,7 @@ class FirebaseManager {
     const snapshot = await this.sdk.getDocs(this.sdk.collection(this.db, FirebaseManager.LEADERBOARD_COLLECTION));
     const validEntries = snapshot.docs.map(document => ({ uid: document.id, ...document.data() })).filter(entry => {
       const nickname = this.normalizeNickname(entry.displayName);
-      return entry.profileComplete === true && nickname.length >= 4 && nickname.length <= 24 && Boolean(this.getAvatarEntry(entry.avatarId));
+      return entry.profileComplete === true && nickname.length >= 4 && nickname.length <= 24;
     }).sort((a, b) => {
       const prestige = (Number(b.prestigeCount) || 0) - (Number(a.prestigeCount) || 0);
       if (prestige) return prestige;
@@ -566,6 +568,62 @@ class FirebaseManager {
     const reference = this.getFriendshipReference(friendshipId);
     if (!user || !reference) throw new Error("Entre com o Google para gerenciar amizades.");
     await this.sdk.deleteDoc(reference);
+    return { ok: true };
+  }
+
+  async submitPlayerFeedback({ type = "feedback", subject = "", message = "" } = {}) {
+    await this.ready();
+    const user = this.currentUser;
+    if (!user || !this.available || !this.sdk || !this.db) throw new Error("Entre com o Google para enviar feedback.");
+    const safeType = ["idea", "feedback", "problem"].includes(String(type)) ? String(type) : "feedback";
+    const safeSubject = String(subject || "").replace(/[<>]/g, "").trim().slice(0, 100);
+    const safeMessage = String(message || "").replace(/[<>]/g, "").trim().slice(0, 1200);
+    if (safeSubject.length < 3 || safeMessage.length < 8) throw new Error("Preencha o assunto e escreva uma mensagem um pouco mais detalhada.");
+    const reference = this.sdk.doc(this.sdk.collection(this.db, FirebaseManager.FEEDBACK_COLLECTION));
+    await this.sdk.setDoc(reference, {
+      userId: user.uid,
+      email: String(user.email || "").slice(0, 160),
+      displayName: String(user.displayName || "Jogador").replace(/[<>]/g, "").slice(0, 80),
+      type: safeType,
+      subject: safeSubject,
+      message: safeMessage,
+      status: "new",
+      gameVersion: String(window.FazendaSerenaConfig?.appVersion || "1.0.1").slice(0, 30),
+      createdAt: this.sdk.serverTimestamp(),
+      createdAtClient: Date.now()
+    });
+    return { ok: true, id: reference.id };
+  }
+
+  async listPlayerFeedback(limitCount = 100) {
+    await this.ready();
+    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    const queryRef = this.sdk.query(
+      this.sdk.collection(this.db, FirebaseManager.FEEDBACK_COLLECTION),
+      this.sdk.orderBy("createdAtClient", "desc"),
+      this.sdk.limit(Math.max(1, Math.min(200, Number(limitCount) || 100)))
+    );
+    const snapshot = await this.sdk.getDocs(queryRef);
+    return snapshot.docs.map(document => ({ id: document.id, ...document.data() }));
+  }
+
+  async markPlayerFeedbackRead(id, read = true) {
+    await this.ready();
+    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    const reference = this.sdk.doc(this.db, FirebaseManager.FEEDBACK_COLLECTION, String(id || ""));
+    await this.sdk.updateDoc(reference, {
+      status: read ? "read" : "new",
+      reviewedAt: this.sdk.serverTimestamp(),
+      reviewedAtClient: Date.now(),
+      reviewedBy: this.currentUser?.uid || ""
+    });
+    return { ok: true };
+  }
+
+  async deletePlayerFeedback(id) {
+    await this.ready();
+    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.sdk.deleteDoc(this.sdk.doc(this.db, FirebaseManager.FEEDBACK_COLLECTION, String(id || "")));
     return { ok: true };
   }
 

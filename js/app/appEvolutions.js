@@ -34,7 +34,7 @@
     return Math.max(0, Number(effect?.amount) || 0);
   }
 
-  function evolutionBonusMarkup(item, level) {
+  function evolutionBonusMarkup(item, level, { showNext = true } = {}) {
     const effects = getEvolutionBonuses(item);
     if (!effects.length) return "";
     const current = effects.map(effect => {
@@ -46,7 +46,7 @@
       const amount = getEvolutionStageAmount(effect, level);
       return amount > 0 ? `${escapeHtml(getEvolutionEffectLabel(effect.type))}: +${engine.formatNumber(amount, 3)}` : "";
     }).filter(Boolean) : [];
-    return `${current.length ? `<span class="evolution-configured-bonus">Atual: ${current.join(" · ")}</span>` : ""}${next.length ? `<span class="evolution-configured-next">Próximo estágio: ${next.join(" · ")}</span>` : ""}`;
+    return `${current.length ? `<span class="evolution-configured-bonus">Atual: ${current.join(" · ")}</span>` : ""}${showNext && next.length ? `<span class="evolution-configured-next">Próximo estágio: ${next.join(" · ")}</span>` : ""}`;
   }
 
   function renderUpgradeCard(item, kind) {
@@ -65,7 +65,7 @@
       : escapeHtml(item.icon);
     const passiveResearch = getEvolutionBonuses(item).some(effect => effect.type === "passiveResearchPercentPerSecond");
     const laboratoryProgress = passiveResearch ? Math.max(0, Math.min(1, Number(engine.state.passiveResearchProgress) || 0)) * 100 : 0;
-    const descriptionHtml = `${enrichResourceText(item.desc)}${evolutionBonusMarkup(item, level)}${passiveResearch && level > 0 ? `<span class="laboratory-progress-value">Progresso do próximo ponto de pesquisa: <b>${laboratoryProgress.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</b>.</span>` : ""}`;
+    const descriptionHtml = `${enrichResourceText(item.desc)}${evolutionBonusMarkup(item, level, { showNext: !prestigeKind })}${passiveResearch && level > 0 ? `<span class="laboratory-progress-value">Progresso do próximo ponto de pesquisa: <b>${laboratoryProgress.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</b>.</span>` : ""}`;
     const buttonLabel = maxed
       ? "Concluído"
       : journeyLocked

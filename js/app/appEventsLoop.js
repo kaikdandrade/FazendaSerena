@@ -40,9 +40,17 @@
       }
       const contractShortcut = event.target.closest("[data-go-office-contracts]");
       if (contractShortcut) {
+        const focusContractId = contractShortcut.dataset.focusContract || "";
         showView("officeView");
         showOfficeTab("contracts");
         render(true);
+        if (focusContractId) window.requestAnimationFrame(() => {
+          const target = document.querySelector(`[data-contract-id="${CSS.escape(focusContractId)}"]`);
+          if (!target) return;
+          target.classList.add("contract-focus-pulse");
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+          window.setTimeout(() => target.classList.remove("contract-focus-pulse"), 1400);
+        });
         return;
       }
       const button = event.target.closest("[data-action]");
@@ -55,14 +63,6 @@
       event.preventDefault();
       soundEngine.playNavigation();
       navigateFromResourceCounter(shortcut.dataset.resourceShortcut);
-    });
-
-    dom.openSocialEvents?.addEventListener("click", () => {
-      renderLiveSocialContent();
-      const runtime = window.FazendaSerenaRuntimeConfig || {};
-      const now = Date.now();
-      const hasEvents = (runtime.events || []).some(event => Number(event.startAt) + Math.max(1, Number(event.durationMinutes) || 0) * 60000 > now);
-      if (hasEvents && typeof dom.socialEventsDialog?.showModal === "function" && !dom.socialEventsDialog.open) dom.socialEventsDialog.showModal();
     });
 
     document.addEventListener("submit", async event => {
@@ -389,7 +389,7 @@
       } else {
         soundEngine.resumeMusic();
         const now = Date.now();
-        const elapsed = Math.max(0, Math.min(GameEngine.MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
+        const elapsed = Math.max(0, Math.min(engine.getMaxOfflineSeconds?.() ?? GameEngine.BASE_MAX_OFFLINE_SECONDS, (now - Number(engine.state.lastUpdate || now)) / 1000));
         if (elapsed > 0.05) {
           engine.simulate(elapsed, true);
           engine.state.lastUpdate = now;

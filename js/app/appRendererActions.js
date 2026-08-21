@@ -103,7 +103,6 @@
         });
 
         animation.finished
-          .then(() => soundEngine.playResourceCounterHit(type))
           .catch(() => {})
           .finally(() => particle.remove());
       }

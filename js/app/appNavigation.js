@@ -277,8 +277,8 @@
     dom.farmXPBar.style.width = atMaximum ? "100%" : `${percent((state.farmXP / farmNeed) * 100)}%`;
     const xpIcon = '<img class="farm-xp-inline-icon" src="assets/icons/xp.webp" alt="XP">';
     dom.farmXPText.innerHTML = atMaximum
-      ? `${engine.formatNumber(state.farmXP)} ${xpIcon}`
-      : `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)} ${xpIcon}`;
+      ? `${xpIcon}<span>${engine.formatNumber(state.farmXP)}</span>`
+      : `${xpIcon}<span>${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)}</span>`;
     if (dom.farmXPTrack) {
       dom.farmXPTrack.setAttribute("aria-valuemin", "0");
       dom.farmXPTrack.setAttribute("aria-valuemax", atMaximum ? "100" : String(farmNeed));

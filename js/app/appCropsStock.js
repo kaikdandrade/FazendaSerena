@@ -75,7 +75,7 @@
         <article class="crop-card locked ${!unlocked ? "level-locked" : ""} ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
           <div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span></div>
           <div class="crop-head">
-            <div class="crop-art locked-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
+            <div class="crop-art locked-art ${unlocked ? "crop-preview-unlocked" : "crop-preview-level-locked"}"><img src="${unlocked ? crop.image : "assets/icons/cadeado.webp"}" alt="${unlocked ? escapeHtml(crop.name) : "Cultura bloqueada"}" loading="lazy"></div>
             <div class="crop-info">
               <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
               <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>

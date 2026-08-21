@@ -174,22 +174,23 @@
     const hasAnything = gains.coins > 0 || gains.research > 0 || gains.xp > 0 || gains.levels > 0 || gains.contracts > 0;
     const milestones = Array.isArray(report.milestones) ? report.milestones.slice() : [];
     // O progresso offline sempre é creditado pelo motor. O resumo visual só é
-    // exibido depois de cinco minutos completos de ausência.
-    if (seconds < 300 || !hasAnything) {
+    // exibido somente quando a ausência ultrapassa um minuto completo.
+    if (seconds <= 60 || !hasAnything) {
       if (gains.levels > 0) soundEngine.playConcurrent("levelUp");
       if (milestones.length) window.setTimeout(() => showMilestoneDialog({ milestones }), 80);
       return false;
     }
 
     pendingOfflineMilestones = milestones;
-    if (dom.offlineProgressTime) dom.offlineProgressTime.textContent = `Durante ${formatOfflineDuration(seconds)}, sua fazenda continuou produzindo e progredindo.`;
+    if (dom.offlineProgressTime) dom.offlineProgressTime.textContent = formatOfflineDuration(seconds);
     if (dom.offlineProgressSummary) {
+      const offlineCard = (icon, label, value, detail = "") => `<article class="offline-gain-card"><img src="${icon}" alt=""><div><span>${label}</span><strong>${value}</strong>${detail ? `<small>${detail}</small>` : ""}</div></article>`;
       const cards = [];
-      if (gains.coins > 0) cards.push(`<article class="offline-gain-card"><span>Moedas</span>${resourceAmount("coins", gains.coins)}</article>`);
-      if (gains.research > 0) cards.push(`<article class="offline-gain-card"><span>Pesquisa</span>${resourceAmount("research", gains.research)}</article>`);
-      if (gains.xp > 0) cards.push(`<article class="offline-gain-card"><span>XP obtido</span>${resourceAmount("xp", Math.round(gains.xp))}</article>`);
-      if (gains.levels > 0) cards.push(`<article class="offline-gain-card offline-gain-level"><span>Níveis da fazenda</span><strong>+${gains.levels}</strong><small>Nível ${Math.max(1, Number(report.levelBefore) || 1)} → ${Math.max(1, Number(report.levelAfter) || 1)}</small></article>`);
-      if (gains.contracts > 0) cards.push(`<article class="offline-gain-card offline-gain-contract"><span>Contratos concluídos</span><strong>${gains.contracts}</strong></article>`);
+      if (gains.coins > 0) cards.push(offlineCard("assets/icons/moeda.webp", "Moedas", engine.formatNumber(gains.coins)));
+      if (gains.research > 0) cards.push(offlineCard("assets/icons/pocao-pesquisa.webp", "Pesquisa", engine.formatNumber(gains.research)));
+      if (gains.xp > 0) cards.push(offlineCard("assets/icons/xp.webp", "XP", engine.formatNumber(Math.round(gains.xp))));
+      if (gains.levels > 0) cards.push(offlineCard("assets/icons/marco-nivel.webp", "Níveis", `+${engine.formatNumber(gains.levels)}`, `${engine.formatNumber(Math.max(1, Number(report.levelBefore) || 1))} → ${engine.formatNumber(Math.max(1, Number(report.levelAfter) || 1))}`));
+      if (gains.contracts > 0) cards.push(offlineCard("assets/icons/contrato-comercial.webp", "Contratos", engine.formatNumber(gains.contracts)));
       dom.offlineProgressSummary.innerHTML = cards.join("");
     }
     if (gains.levels > 0) soundEngine.playConcurrent("levelUp");

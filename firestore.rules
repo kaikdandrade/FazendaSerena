@@ -72,6 +72,48 @@ service cloud.firestore {
       allow delete: if isAdministrator();
     }
 
+    match /playerFeedback/{feedbackId} {
+      allow create: if signedIn()
+                    && request.resource.data.keys().hasOnly([
+                      'userId', 'email', 'displayName', 'type', 'subject', 'message',
+                      'status', 'gameVersion', 'createdAt', 'createdAtClient'
+                    ])
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.email is string
+                    && request.resource.data.email.size() <= 160
+                    && request.resource.data.displayName is string
+                    && request.resource.data.displayName.size() <= 80
+                    && request.resource.data.type in ['idea', 'feedback', 'problem']
+                    && request.resource.data.subject is string
+                    && request.resource.data.subject.size() >= 3
+                    && request.resource.data.subject.size() <= 100
+                    && request.resource.data.message is string
+                    && request.resource.data.message.size() >= 8
+                    && request.resource.data.message.size() <= 1200
+                    && request.resource.data.status == 'new'
+                    && request.resource.data.gameVersion is string
+                    && request.resource.data.gameVersion.size() <= 30
+                    && request.resource.data.createdAtClient is int;
+      allow read: if isAdministrator();
+      allow update: if isAdministrator()
+                    && request.resource.data.keys().hasOnly([
+                      'userId', 'email', 'displayName', 'type', 'subject', 'message',
+                      'status', 'gameVersion', 'createdAt', 'createdAtClient',
+                      'reviewedAt', 'reviewedAtClient', 'reviewedBy'
+                    ])
+                    && request.resource.data.userId == resource.data.userId
+                    && request.resource.data.email == resource.data.email
+                    && request.resource.data.displayName == resource.data.displayName
+                    && request.resource.data.type == resource.data.type
+                    && request.resource.data.subject == resource.data.subject
+                    && request.resource.data.message == resource.data.message
+                    && request.resource.data.gameVersion == resource.data.gameVersion
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    && request.resource.data.createdAtClient == resource.data.createdAtClient
+                    && request.resource.data.status in ['new', 'read'];
+      allow delete: if isAdministrator();
+    }
+
     match /players/{userId}/saves/main {
       allow read, delete: if request.auth != null
                           && request.auth.uid == userId;
@@ -101,6 +143,7 @@ service cloud.firestore {
                     && request.auth.uid == userId;
       allow create, update: if request.auth != null
                             && request.auth.uid == userId
+                            && !isAdministrator()
                             && request.resource.data.keys().hasOnly([
                               'displayName',
                               'avatarId',

@@ -10,7 +10,7 @@
   const fixedOptions = values => values.map(([value, label]) => option(value, label));
   const catalogOptions = (name, mapper = item => option(item.id, item.name || item.label || item.title || item.id)) => window.AdminCatalogEditors?.options(name, mapper) || [];
   const assetOptions = kind => window.AdminAssetRegistry?.options(kind) || [];
-  const automaticCropPurchaseCost = index => window.FazendaSerenaCropEconomy?.purchaseCost(index) ?? 100;
+  const automaticCropPurchaseCost = (index, categoryId = "") => { const categories = window.AdminCatalogEditors?.get?.("categories") || []; const categoryIndex = Math.max(0, categories.findIndex(item => item.id === categoryId)); return window.FazendaSerenaCropEconomy?.purchaseCost(index, categoryIndex) ?? 100; };
 
   const numberField = (key, label, extra = {}) => ({ key, label, type: "number", ...extra });
   const percentField = (key, label, extra = {}) => numberField(key, label, { suffix: "%", ...extra });
@@ -52,13 +52,11 @@
       { key: "name", label: "Nome da categoria", type: "text", required: true },
       numberField("baseGrowth", "Tempo para produção (segundos)", { min: 0.01, required: true, defaultValue: 0 })
     ] },
-    crops: { label: "planta", idSource: "name", title: item => item.name || "Nova planta", subtitle: (item, index) => `${item.category || "sem categoria"} · nível ${item.unlockLevel || 1} · compra ${automaticCropPurchaseCost(index)}`, fields: [
+    crops: { label: "planta", idSource: "name", title: item => item.name || "Nova planta", subtitle: (item, index) => `${item.category || "sem categoria"} · nível ${item.unlockLevel || 1} · compra ${automaticCropPurchaseCost(index, item.category)}`, fields: [
       { key: "name", label: "Nome da planta", type: "text", required: true },
       { key: "category", label: "Categoria", type: "select", required: true, options: () => catalogOptions("categories"), emptyLabel: "Cadastre uma categoria primeiro" },
       imageField("image", "Imagem da planta", "planta"),
-      numberField("unlockLevel", "Nível para desbloquear", { min: 1, integer: true, required: true }),
-      numberField("basePrice", "Valor base de venda", { min: 0.01, required: true }),
-      numberField("baseYield", "Rendimento base por ciclo", { min: 0.01, required: true })
+      numberField("unlockLevel", "Nível para desbloquear", { min: 1, integer: true, required: true })
     ]},
     companies: { label: "indústria", idSource: "name", title: item => item.name || "Nova indústria", subtitle: item => item.category ? `Categoria: ${catalogOptions("categories").find(option => option.value === item.category)?.label || item.category}` : (item.specialty || "Todas as categorias"), fields: [
       { key: "name", label: "Nome da indústria", type: "text", required: true },
@@ -66,8 +64,9 @@
       { key: "category", label: "Categoria de plantas", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Todas as categorias" },
       imageField("icon", "Ícone", "icone")
     ]},
-    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => `${item.durationSeconds || 0}s · ${rewardSelectionLabel(item.rewards)} · ${item.xpPercent || 0}% XP`, fields: [
+    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => `${item.durationSeconds || 0}s · ${item.chancePercent ?? 100}% chance · ${rewardSelectionLabel(item.rewards)} · ${item.xpPercent || 0}% XP`, fields: [
       { key: "label", label: "Nome do tipo de contrato", type: "text", required: true },
+      percentField("chancePercent", "Chance de aparecer (%)", { min: 0, max: 100, required: true, defaultValue: 100, help: "Use como peso de raridade. Ex.: comum 100%, raro 20% e muito raro 5%." }),
       numberField("durationSeconds", "Prazo (segundos)", { min: 5, integer: true, required: true }),
       numberField("quantityMultiplier", "Multiplicador de quantidade", { min: 0.01, required: true }),
       { key: "rewards", label: "Recompensas do contrato", type: "checkboxes", required: true, options: rewardOptions, help: "Marque uma ou mais recompensas. Os campos correspondentes aparecem abaixo." },
@@ -136,11 +135,11 @@
 
   class CatalogEditor {
     constructor(root) {
-      this.root = root; this.name = root.dataset.catalogEditor; this.schema = schemas[this.name]; this.items = []; this.list = root.querySelector("[data-catalog-list]"); this.count = root.querySelector("[data-catalog-count]");
+      this.root = root; this.name = root.dataset.catalogEditor; this.schema = schemas[this.name]; this.items = []; this.list = root.querySelector("[data-catalog-list]"); this.count = root.querySelector("[data-catalog-count]"); this.seriesMutationLocked = false;
       root.querySelector("[data-catalog-add]")?.addEventListener("click", () => this.open(-1));
       this.list?.addEventListener("click", event => {
         const seriesButton = event.target.closest("[data-series-action]");
-        if (seriesButton && this.name === "missions") { this.handleMissionSeriesAction(seriesButton); return; }
+        if (seriesButton && this.name === "missions") { event.preventDefault(); event.stopPropagation(); this.handleMissionSeriesAction(seriesButton); return; }
         const button = event.target.closest("[data-catalog-action]");
         if (!button) return;
         const index = Number(button.dataset.index); const action = button.dataset.catalogAction;
@@ -191,7 +190,7 @@
     collectMissionSeries(missionIndex) {
       const list = this.list?.querySelector(`[data-mission-series-list="${missionIndex}"]`);
       if (!list) return Array.isArray(this.items[missionIndex]?.series) ? clone(this.items[missionIndex].series) : [];
-      return [...list.querySelectorAll("[data-series-index]")].map(card => {
+      return [...list.querySelectorAll(":scope > [data-series-index]")].slice(0, 200).map(card => {
         const serie = { target: 1, reward: {} };
         card.querySelectorAll("[data-series-field]").forEach(input => {
           const path = input.dataset.seriesField;
@@ -212,32 +211,59 @@
       window.requestAnimationFrame(() => { const details = this.list?.querySelector(`[data-mission-series-accordion="${index}"]`); if (details) details.open = true; });
     }
     async handleMissionSeriesAction(button) {
+      if (this.seriesMutationLocked) return;
       const missionIndex = Number(button.dataset.missionIndex);
       const seriesIndex = Number(button.dataset.seriesIndex);
       if (!Number.isInteger(missionIndex) || !this.items[missionIndex]) return;
-      this.syncMissionSeriesFromDom(missionIndex);
-      const mission = this.items[missionIndex];
-      const series = Array.isArray(mission.series) ? mission.series : (mission.series = []);
       const action = button.dataset.seriesAction;
-      if (action === "add") series.push({ target: 1, reward: {} });
-      if (action === "remove" && Number.isInteger(seriesIndex)) series.splice(seriesIndex, 1);
-      if (action === "up" && seriesIndex > 0) [series[seriesIndex - 1], series[seriesIndex]] = [series[seriesIndex], series[seriesIndex - 1]];
-      if (action === "down" && seriesIndex >= 0 && seriesIndex < series.length - 1) [series[seriesIndex + 1], series[seriesIndex]] = [series[seriesIndex], series[seriesIndex + 1]];
-      if (["add", "remove", "up", "down"].includes(action)) { this.render(); this.reopenMissionAccordion(missionIndex); return; }
+
       if (action === "save") {
+        this.syncMissionSeriesFromDom(missionIndex);
         button.disabled = true;
         try { await window.AdminCloudActions?.saveCatalog?.("missions"); }
         catch (error) { window.AdminCloudActions?.showError?.(error); }
         finally { button.disabled = false; }
+        return;
+      }
+
+      if (!["add", "remove", "up", "down"].includes(action)) return;
+      this.seriesMutationLocked = true;
+      try {
+        const current = this.collectMissionSeries(missionIndex);
+        const nextSeries = current.map(serie => clone(serie));
+        if (action === "add") {
+          if (nextSeries.length >= 200) throw new Error("Uma missão pode possuir no máximo 200 séries.");
+          nextSeries.push({ target: 1, reward: {} });
+        } else if (action === "remove" && Number.isInteger(seriesIndex) && seriesIndex >= 0 && seriesIndex < nextSeries.length) {
+          nextSeries.splice(seriesIndex, 1);
+        } else if (action === "up" && seriesIndex > 0 && seriesIndex < nextSeries.length) {
+          [nextSeries[seriesIndex - 1], nextSeries[seriesIndex]] = [nextSeries[seriesIndex], nextSeries[seriesIndex - 1]];
+        } else if (action === "down" && seriesIndex >= 0 && seriesIndex < nextSeries.length - 1) {
+          [nextSeries[seriesIndex + 1], nextSeries[seriesIndex]] = [nextSeries[seriesIndex], nextSeries[seriesIndex + 1]];
+        }
+        this.items[missionIndex] = { ...this.items[missionIndex], series: nextSeries };
+        this.render();
+        this.reopenMissionAccordion(missionIndex);
+      } catch (error) {
+        window.AdminCloudActions?.showError?.(error);
+      } finally {
+        window.setTimeout(() => { this.seriesMutationLocked = false; }, 0);
       }
     }
     render() {
       this.normalizeOrderedLabels();
       if (this.count) this.count.textContent = String(this.items.length);
       if (!this.list) return;
-      this.list.innerHTML = this.items.length ? this.items.map((item, index) => `<article class="admin-catalog-item ${this.name === "missions" ? "admin-mission-catalog-item" : ""}" data-mission-index="${this.name === "missions" ? index : ""}"><div class="admin-catalog-item-main"><div><strong>${escapeHtml(this.schema.title(item, index))}</strong><small>${escapeHtml(this.schema.subtitle(item, index))}</small></div><div class="admin-catalog-item-actions"><button aria-label="Mover para cima" class="admin-button compact secondary" data-catalog-action="up" data-index="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button><button aria-label="Mover para baixo" class="admin-button compact secondary" data-catalog-action="down" data-index="${index}" type="button" ${index === this.items.length - 1 ? "disabled" : ""}>↓</button><button class="admin-button compact secondary" data-catalog-action="edit" data-index="${index}" type="button">Editar</button><button class="admin-button compact danger" data-catalog-action="delete" data-index="${index}" type="button">Excluir</button></div></div>${this.name === "missions" ? this.missionSeriesMarkup(item, index) : ""}</article>`).join("") : `<div class="admin-catalog-empty">Nenhum conteúdo cadastrado.</div>`;
+      this.list.innerHTML = this.items.length ? this.items.map((item, index) => {
+        const locked = this.name === "pointTypes" && item.locked === true;
+        const actions = locked
+          ? '<span class="admin-fixed-point-badge">Padrão</span>'
+          : `<button aria-label="Mover para cima" class="admin-button compact secondary" data-catalog-action="up" data-index="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button><button aria-label="Mover para baixo" class="admin-button compact secondary" data-catalog-action="down" data-index="${index}" type="button" ${index === this.items.length - 1 ? "disabled" : ""}>↓</button><button class="admin-button compact secondary" data-catalog-action="edit" data-index="${index}" type="button">Editar</button><button class="admin-button compact danger" data-catalog-action="delete" data-index="${index}" type="button">Excluir</button>`;
+        return `<article class="admin-catalog-item ${this.name === "missions" ? "admin-mission-catalog-item" : ""} ${locked ? "admin-fixed-point-item" : ""}" data-mission-index="${this.name === "missions" ? index : ""}"><div class="admin-catalog-item-main"><div><strong>${escapeHtml(this.schema.title(item, index))}</strong><small>${escapeHtml(this.schema.subtitle(item, index))}</small></div><div class="admin-catalog-item-actions">${actions}</div></div>${this.name === "missions" ? this.missionSeriesMarkup(item, index) : ""}</article>`;
+      }).join("") : `<div class="admin-catalog-empty">Nenhum conteúdo cadastrado.</div>`;
     }
     open(index) {
+      if (this.name === "pointTypes" && index >= 0 && this.items[index]?.locked) return;
       const item = index >= 0 ? clone(this.items[index]) : {};
       window.AdminItemDialog.open({ title: index >= 0 ? `Editar ${this.schema.label}` : `Adicionar ${this.schema.label}`, fields: this.schema.fields, item, saveLabel: index >= 0 ? "Salvar alteração" : "Cadastrar", onSave: async value => {
         const previous = index >= 0 ? clone(this.items[index]) : null;
@@ -249,8 +275,8 @@
         catch (error) { if (index >= 0) this.items[index] = previous; else this.items.pop(); this.render(); window.AdminCloudActions?.restoreEditors?.(); throw error; }
       }});
     }
-    async move(index, direction) { const target = index + direction; if (index < 0 || target < 0 || index >= this.items.length || target >= this.items.length) return; [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); window.AdminCloudActions?.showError?.(error); } }
-    async remove(index) { const item = this.items[index]; if (!item || !confirm(`Excluir “${this.schema.title(item, index)}” da nuvem?`)) return; const previous = clone(item); this.items.splice(index, 1); this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { this.items.splice(index, 0, previous); this.render(); window.AdminCloudActions?.showError?.(error); } }
+    async move(index, direction) { if (this.name === "pointTypes" && this.items[index]?.locked) return; const target = index + direction; if (index < 0 || target < 0 || index >= this.items.length || target >= this.items.length) return; if (this.name === "pointTypes" && this.items[target]?.locked) return; [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { [this.items[index], this.items[target]] = [this.items[target], this.items[index]]; this.render(); window.AdminCloudActions?.showError?.(error); } }
+    async remove(index) { const item = this.items[index]; if (this.name === "pointTypes" && item?.locked) return; if (!item || !confirm(`Excluir “${this.schema.title(item, index)}” da nuvem?`)) return; const previous = clone(item); this.items.splice(index, 1); this.render(); try { await window.AdminCloudActions?.saveCatalog?.(this.name); } catch (error) { this.items.splice(index, 0, previous); this.render(); window.AdminCloudActions?.showError?.(error); } }
   }
 
   class ItemDialog {
@@ -513,8 +539,9 @@
       if (field.type === "select") {
         const options = normalizeOptions(field, value);
         const first = field.allowEmpty ? `<option value="">${escapeHtml(field.emptyOptionLabel || "Selecione")}</option>` : (!options.length ? `<option value="" disabled selected>${escapeHtml(field.emptyLabel || "Nenhuma opção disponível")}</option>` : "");
-        const preview = field.preview === "image" ? `<div class="admin-image-preview" data-preview-for="${escapeHtml(field.key)}"><img src="${escapeHtml(value || "assets/logo.webp")}" alt="Prévia"></div>` : "";
-        return `<label ${fieldAttr} class="admin-dialog-field${field.preview ? " with-preview" : ""}"><span>${escapeHtml(field.label)}</span><select autocomplete="off" name="${escapeHtml(field.key)}" ${required}>${first}${options.map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(value) ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select>${preview}${help}</label>`;
+        const imageSelect = field.preview === "image" ? " data-image-select" : "";
+        const tag = field.preview === "image" ? "section" : "label";
+        return `<${tag} ${fieldAttr} class="admin-dialog-field${field.preview ? " admin-dialog-image-field" : ""}"><span>${escapeHtml(field.label)}</span><select autocomplete="off" name="${escapeHtml(field.key)}"${imageSelect} ${required}>${first}${options.map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(value) ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select>${help}</${tag}>`;
       }
       if (field.type === "number") {
         const shown = this.fieldUsesPercent(field, item) && value !== "" ? percentDisplay(value) : value;
@@ -538,6 +565,7 @@
       fields.forEach(field => { const input = this.form.elements.namedItem(field.key); if (input && !(input instanceof RadioNodeList)) this.updatePreview(input); });
       this.refreshConditionalFields();
       if (contractColor) this.updateContractColorPreview();
+      window.AdminImageSelect?.enhance?.(this.fields);
       this.dialog.showModal();
     }
   }

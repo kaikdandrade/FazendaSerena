@@ -152,12 +152,6 @@ window.AvatarData = Object.freeze([
     "src": "assets/avatars/elefante.webp"
   },
   {
-    "id": "chihuahua",
-    "label": "Chihuahua",
-    "type": "animal",
-    "src": "assets/avatars/chihuahua.webp"
-  },
-  {
     "id": "deer",
     "label": "Cervo",
     "type": "animal",
@@ -168,12 +162,6 @@ window.AvatarData = Object.freeze([
     "label": "Crocodilo",
     "type": "animal",
     "src": "assets/avatars/crocodilo.webp"
-  },
-  {
-    "id": "cat",
-    "label": "Gato",
-    "type": "animal",
-    "src": "assets/avatars/gato.webp"
   },
   {
     "id": "butterfly",
@@ -191,10 +179,12 @@ window.AvatarData = Object.freeze([
 
 
 window.AvatarAliases = Object.freeze({
+  cat: "fox",
+  chihuahua: "wolf",
   macaw_2: "macaw_1",
   hippopotamus_2: "hippopotamus_1",
   husky: "wolf",
-  dog_1: "chihuahua",
+  dog_1: "wolf",
   dog_2: "wolf",
   dog_3: "fox",
   chameleon: "crocodile",

@@ -243,12 +243,6 @@
     "source": "local"
   },
   {
-    "value": "assets/icons/mapa-fazenda.webp",
-    "label": "Mapa da fazenda",
-    "kind": "icone",
-    "source": "local"
-  },
-  {
     "value": "assets/icons/mapa.webp",
     "label": "Mapa",
     "kind": "icone",

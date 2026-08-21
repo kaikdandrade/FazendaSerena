@@ -148,8 +148,20 @@ Object.assign(GameEngine.prototype, {
     const result = [];
     const usedCompanies = new Set([...this.state.contractOffers, ...this.state.activeContracts].map(contract => contract.companyId));
     const usedCrops = new Set([...this.state.contractOffers, ...this.state.activeContracts].map(contract => contract.cropId));
-    const typeCycle = this.data.contractTypes.map(item => item.id);
-    const typeOffset = this.state.contractSerial % typeCycle.length;
+    const contractTypes = this.data.contractTypes.filter(Boolean);
+    const weightedTypes = contractTypes.filter(type => Math.max(0, Number(type.chancePercent ?? 100)) > 0);
+    const typePool = weightedTypes;
+    if (!typePool.length) return [];
+    const chooseWeightedType = () => {
+      if (!typePool.length) return null;
+      const total = typePool.reduce((sum, type) => sum + Math.max(0.0001, Number(type.chancePercent ?? 100)), 0);
+      let roll = Math.random() * total;
+      for (const type of typePool) {
+        roll -= Math.max(0.0001, Number(type.chancePercent ?? 100));
+        if (roll <= 0) return type;
+      }
+      return typePool[typePool.length - 1];
+    };
     const averageLevel = owned.length ? owned.reduce((sum, crop) => sum + Math.max(1, Number(this.state.crops[crop.id]?.level || 1)), 0) / owned.length : 1;
     const journeyScale = 1 + Math.min(3.2, this.state.farmLevel * 0.012) + Math.min(1.5, averageLevel / 250);
 
@@ -166,7 +178,7 @@ Object.assign(GameEngine.prototype, {
       usedCrops.add(crop.id);
       usedCompanies.add(company.id);
       const cropLevel = Math.max(1, Number(this.state.crops[crop.id]?.level || 1));
-      const type = this.getContractDifficulty(typeCycle[(typeOffset + index) % typeCycle.length]);
+      const type = chooseWeightedType();
       if (!type) continue;
 
       const durationBonus = Math.max(0, this.getEvolutionBonus("contractDurationPercent")) / 100;

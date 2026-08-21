@@ -17,12 +17,7 @@
     const events = (runtime.events || []).filter(event => {
       const end = Number(event.startAt) + Math.max(1, Number(event.durationMinutes) || 0) * 60000;
       return end > now;
-    }).sort((a, b) => Number(a.startAt) - Number(b.startAt)).slice(0, 8);
-
-    if (dom.openSocialEvents) {
-      dom.openSocialEvents.disabled = events.length === 0;
-      dom.openSocialEvents.setAttribute("aria-disabled", String(events.length === 0));
-    }
+    }).sort((a, b) => Number(a.startAt) - Number(b.startAt)).slice(0, 12);
     if (dom.socialEventsSummary) {
       const activeCount = events.filter(event => {
         const start = Number(event.startAt) || now;

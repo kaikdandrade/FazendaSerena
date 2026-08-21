@@ -343,6 +343,9 @@
           engine.replaceState(guestState, { simulateOffline: false });
           await engine.save();
         }
+        if (await window.FirebaseManager.isCurrentUserAdmin()) {
+          await window.FirebaseManager.removeOwnLeaderboardEntry?.();
+        }
       } else {
         engine.replaceState(null, { simulateOffline: false });
         showView("farmView", false);
