@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "fazenda-serena-pwa-r36-install";
+const CACHE_NAME = "fazenda-serena-pwa-r36-ux-rework";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -11,8 +11,13 @@ const APP_SHELL = [
   "/manifest.webmanifest",
   "/css/home.css",
   "/css/monetization.css",
+  "/css/tutorial.css",
   "/js/pwaInstall.js",
   "/js/cacheManager.js",
+  "/js/publicCloud.js",
+  "/js/appConfig.js",
+  "/js/siteVersion.js",
+  "/js/tutorial.js",
   "/assets/logo.webp",
   "/assets/favicon.ico",
   "/assets/pwa/icon-192.png",

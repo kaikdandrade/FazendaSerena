@@ -26,6 +26,7 @@
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
 <script defer="" src="js/appConfig.js"></script>
+<script defer="" src="js/siteVersion.js"></script>
 <script defer="" src="js/cacheManager.js"></script>
 <script defer="" src="js/privacyConsent.js"></script>
 <script defer="" src="js/modalGuard.js"></script>
@@ -340,7 +341,7 @@
 <button class="footer-link-button" data-open-cookie-preferences="" type="button">Preferências de
                     cookies</button>
 </nav>
-<p class="footer-credit"><span>Desenvolvido por</span><a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version=""></b></a></p>
+<p class="footer-credit"><span>Desenvolvido por</span><a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version="">1.0.0</b></a></p>
 </footer>
 </div>
 <section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
@@ -454,13 +455,10 @@
 <span aria-hidden="true" class="cookie-banner-icon"><img src="assets/icons/cookie.webp" alt=""/></span>
 <div>
 <h2 id="cookieBannerTitle">Sua privacidade na Fazenda Serena</h2>
-<p>Usamos cookies necessários e de publicidade para manter o jogo, a segurança e a monetização por anúncios. A análise de uso é opcional. Você pode aceitar tudo ou configurar essa preferência. <a href="privacy.html">Leia a Política de Privacidade</a>.</p>
+<p>Usamos cookies necessários para o funcionamento da Fazenda Serena. Cookies de publicidade e análise são opcionais e podem ser escolhidos por você. <a href="privacy.html">Leia a Política de Privacidade</a>.</p>
 </div>
 </div>
-<div class="cookie-banner-actions">
-<button class="cookie-button secondary" id="customizeCookies" type="button">Configurar</button>
-<button class="cookie-button primary" id="acceptAllCookies" type="button">Aceitar todos</button>
-</div>
+<div class="cookie-banner-actions"><button class="cookie-button primary" id="acceptAllCookies" type="button">Aceitar todos</button><button class="cookie-button secondary" id="customizeCookies" type="button">Configurar</button></div>
 </section>
 <dialog aria-labelledby="cookiePreferencesTitle" class="cookie-preferences-dialog" id="cookiePreferencesDialog">
 <form method="dialog">
@@ -473,10 +471,7 @@
                             de cookies e permitem recursos essenciais do site.</small></div>
 <span class="cookie-state-required">Sempre ativos</span>
 </article>
-<article class="cookie-category">
-<div class="cookie-category-copy"><strong>Publicidade</strong><small>Permite carregar o Google AdSense, financiar o jogo e aplicar recursos de segurança, limitação e medição de anúncios.</small></div>
-<span class="cookie-state-required">Sempre ativos</span>
-</article>
+<article class="cookie-category"><div class="cookie-category-copy"><strong>Cookies de publicidade</strong><small>Permitem armazenamento relacionado a anúncios do Google AdSense. Você pode permitir ou negar essa categoria.</small></div><label class="cookie-switch"><input id="advertisingCookiesSetting" type="checkbox"><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de publicidade</span></label></article>
 <article class="cookie-category">
 <div class="cookie-category-copy"><strong>Análise de uso</strong><small>Permite medir o uso do site quando uma ferramenta de análise for ativada.</small></div>
 <label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox"/><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de análise</span></label>

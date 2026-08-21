@@ -37,10 +37,10 @@
     if (kind === "ios") {
       return `
         <ol class="pwa-install-steps">
-          <li><strong>Abra esta página no Safari.</strong><span>O iPhone/iPad instala aplicativos web pelo menu do Safari.</span></li>
+          <li><strong>Abra esta página no Safari.</strong><span>No iPhone ou iPad, use o menu de compartilhamento do Safari.</span></li>
           <li><strong>Toque em Compartilhar.</strong><span>Use o botão de compartilhamento do navegador.</span></li>
           <li><strong>Escolha “Adicionar à Tela de Início”.</strong><span>Confirme o nome Fazenda Serena e toque em Adicionar.</span></li>
-          <li><strong>Abra pelo novo ícone.</strong><span>O jogo será iniciado em modo aplicativo e entrará diretamente em <code>play.html</code>.</span></li>
+          <li><strong>Abra pelo novo ícone.</strong><span>Depois disso, basta tocar no ícone da Fazenda Serena para jogar.</span></li>
         </ol>`;
     }
     if (kind === "android") {
@@ -53,9 +53,9 @@
     }
     return `
       <ol class="pwa-install-steps">
-        <li><strong>Use Chrome, Edge ou outro navegador compatível com instalação de PWA.</strong></li>
+        <li><strong>Abra o menu do seu navegador e procure a opção de instalar ou adicionar à tela inicial.</strong></li>
         <li><strong>Procure o ícone de instalação na barra de endereço.</strong><span>Também pode aparecer no menu em “Apps” ou “Instalar Fazenda Serena”.</span></li>
-        <li><strong>Confirme.</strong><span>O jogo passará a abrir em uma janela própria, como um aplicativo do computador.</span></li>
+        <li><strong>Confirme.</strong><span>Depois disso, a Fazenda Serena poderá ser aberta pelo próprio ícone.</span></li>
       </ol>`;
   }
 
@@ -100,7 +100,7 @@
         setStatus("Instalação cancelada. Você pode tentar novamente quando quiser.", "ready");
       }
     } catch (error) {
-      console.warn("Não foi possível abrir o instalador da PWA:", error);
+      console.warn("Não foi possível abrir a opção de instalação:", error);
       showInstructions(platform === "android" ? "android" : "desktop");
     } finally {
       deferredInstallPrompt = null;
@@ -124,13 +124,13 @@
 
   markPlatform();
   if (isStandalone()) {
-    setStatus("Você já está usando a Fazenda Serena em modo aplicativo.", "installed");
+    setStatus("A Fazenda Serena já está instalada neste dispositivo.", "installed");
     document.documentElement.dataset.pwaInstalled = "true";
   } else if (isIOS) {
     setStatus("No iPhone/iPad, use “Adicionar à Tela de Início” para instalar.", "available");
   } else if (isAndroid) {
     setStatus("Se o instalador automático não aparecer, use “Instalar app” no menu do navegador.", "ready");
   } else {
-    setStatus("Em navegadores compatíveis, use “Instalar no computador” para criar o aplicativo.", "ready");
+    setStatus("Seu navegador pode oferecer uma opção de instalação do jogo.", "ready");
   }
 })();

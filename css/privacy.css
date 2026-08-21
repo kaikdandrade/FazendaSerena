@@ -178,3 +178,11 @@ html { font-size: 17.5px; }
 .privacy-section p, .privacy-section li, .privacy-callout, .privacy-action, .privacy-footer,
 .back-to-game { font-size: max(.78rem, 13px); }
 .privacy-section h3 { font-size: max(.92rem, 15px); }
+
+
+/* R36 — logo horizontal preservando a proporção original */
+.privacy-brand img{width:136px!important;height:auto!important;flex:0 0 auto}
+.privacy-brand{gap:14px}
+@media(max-width:700px){
+  .privacy-brand img{width:105px!important;height:auto!important}
+}

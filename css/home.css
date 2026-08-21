@@ -23,7 +23,7 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
 .home-hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.home-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}.home-facts span{padding:9px 13px;border:1px solid var(--line);border-radius:999px;color:#627267;background:rgba(255,255,255,.6);font-size:.78rem;font-weight:700}.home-facts strong{color:#335d3d;margin-right:4px}
 .home-hero-visual{padding:22px;border:1px solid rgba(58,98,65,.12);border-radius:32px;background:linear-gradient(145deg,rgba(255,255,252,.94),rgba(232,243,226,.9));box-shadow:var(--shadow)}
 .home-resource-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.home-resource-row article,.home-visual-note{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;background:rgba(255,255,255,.8);border:1px solid rgba(55,91,61,.1);min-width:0}
-.home-resource-row img,.home-visual-note img{width:34px;height:34px;object-fit:contain;flex:none}.home-resource-row span,.home-visual-note span{display:grid;min-width:0}.home-resource-row small,.home-visual-note small{color:#748278;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.home-resource-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}.home-visual-note strong{font-size:.8rem}
+.home-resource-row img,.home-visual-note img{width:34px;height:34px;object-fit:contain;flex:none}.home-resource-row span,.home-visual-note span{display:grid;min-width:0}.home-resource-row small,.home-visual-note small{color:#748278;font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.home-resource-row strong{overflow:visible;text-overflow:clip;white-space:normal;line-height:1.25;font-size:.72rem}.home-visual-note strong{font-size:.8rem}
 .home-crop-board{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin:14px 0}.home-crop-board article{min-height:134px;display:grid;place-items:center;align-content:center;gap:6px;border-radius:20px;background:rgba(255,255,255,.7);border:1px solid rgba(55,91,61,.1)}.home-crop-board img{width:70px;height:70px;object-fit:contain}.home-crop-board span{font-size:.76rem;font-weight:850}
 .home-section{width:min(1180px,calc(100% - 40px));margin:auto;padding:76px 0}.home-intro{border-top:1px solid var(--line)}.home-section-heading{max-width:760px}.home-section-heading.centered{margin:auto;text-align:center}
 .home-section-heading h2,.home-progression h2,.home-update h2,.home-cta h2{margin:10px 0 14px;font-size:clamp(2rem,3.4vw,3.15rem);line-height:1.08;letter-spacing:-.035em}.home-section-heading p,.home-progression-copy>p,.home-update p{margin:0;color:var(--soft)}
@@ -232,3 +232,60 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
   .error-actions .home-play-button,
   .error-actions .home-secondary-button { width: 100%; }
 }
+
+/* Homepage readability / independent FAQ rows */
+.home-faq-grid{align-items:start}
+.home-faq-grid>details{align-self:start}
+.home-resource-row article{align-items:center}
+.home-resource-row strong{overflow:visible!important;text-overflow:clip!important;white-space:normal!important;line-height:1.25}
+.home-install-card{display:flex;flex-direction:column}
+.home-install-action{margin-top:auto}
+.native-card-note{margin-top:12px;padding:10px 11px;border:1px solid rgba(60,101,68,.12);border-radius:12px;background:rgba(243,248,239,.8);display:grid;gap:5px;color:#617267;font-size:.69rem}
+.native-card-note .native-alt-download{margin-top:0;justify-content:flex-start;color:#35633f}
+.ios-install-action{color:#fff!important;background:linear-gradient(135deg,#4c9157,#357342)!important;border-color:transparent!important;box-shadow:0 10px 22px rgba(55,119,68,.18)}
+@media(min-width:1025px){.home-resource-row article{min-height:64px}}
+
+/* R36 reparo final — Index público */
+.home-resource-row article,.home-resource-row article span{min-width:0}
+.home-resource-row strong{display:block!important;overflow:visible!important;text-overflow:clip!important;white-space:normal!important;line-height:1.25!important}
+.home-install-card.is-current-platform{border-color:var(--line)!important;box-shadow:0 12px 34px rgba(49,77,55,.05)!important}
+.home-install-card.is-current-platform::before{display:none!important}
+.home-install-grid{align-items:stretch}
+.home-install-card{display:flex!important;flex-direction:column!important}
+.home-install-action{order:99;margin-top:auto!important}
+.native-card-note-compact{margin-top:14px;padding:11px 12px;border-radius:13px;background:rgba(243,248,239,.86)}
+.native-card-note-compact .native-alt-download{margin-top:2px;color:#356d40;font-weight:900}
+.ios-install-action{color:#fff!important;background:linear-gradient(135deg,#4c9157,#357342)!important;border-color:transparent!important;box-shadow:0 10px 22px rgba(55,119,68,.18)!important}
+.home-faq-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;align-items:start!important}
+.home-faq-column{display:grid;gap:12px;align-content:start;min-width:0}
+.home-faq-column details{height:auto!important;min-height:0!important;align-self:start!important;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,252,.74);padding:18px 20px}
+.home-faq-column summary{cursor:pointer;font-weight:850}
+.home-faq-column details p{color:var(--soft);margin:10px 0 0;font-size:.88rem}
+@media(max-width:680px){.home-faq-grid{grid-template-columns:1fr!important}.home-install-card{min-height:0!important}}
+
+
+/* R36 — respiro entre a opção ARM64 e o botão principal do Windows */
+.native-download-card[data-native-card="windows"] .native-card-note-compact {
+  margin-bottom: 16px !important;
+}
+
+
+/* R36 — logos horizontais com melhor presença */
+.home-header-inner{min-height:84px}
+.home-brand img{width:140px!important;height:auto!important;flex:0 0 auto}
+.home-brand{gap:14px}
+.home-footer-brand img{width:108px!important;height:auto!important}
+.pwa-install-dialog-icon img{width:78px!important;height:auto!important}
+@media(max-width:680px){
+  .home-header-inner{min-height:70px}
+  .home-brand img{width:92px!important;height:auto!important}
+  .home-brand span{display:none}
+  .home-footer-brand img{width:90px!important;height:auto!important}
+}
+
+/* Espaço claro entre a alternativa ARM64 e o download principal */
+.native-download-card[data-native-card="windows"] .native-card-note{
+  margin-bottom:18px!important;
+}
+
+.home-cta>img{width:108px!important;height:auto!important}

@@ -4,7 +4,6 @@
   const PUBLISHER_PATTERN = /^ca-pub-\d{16}$/;
   const SLOT_PATTERN = /^\d+$/;
   let scriptPromise = null;
-  const renderedPlacements = new WeakSet();
 
   function getConfig() {
     return window.ADSENSE_CONFIG || {};
@@ -16,6 +15,11 @@
 
   function isConfigured() {
     return PUBLISHER_PATTERN.test(String(getConfig().publisherId || ""));
+  }
+
+  function setPaused(paused) {
+    window.adsbygoogle = window.adsbygoogle || [];
+    window.adsbygoogle.pauseAdRequests = paused ? 1 : 0;
   }
 
   function loadAdSenseScript() {
@@ -44,7 +48,7 @@
   }
 
   function renderPlacement(element) {
-    if (!element || renderedPlacements.has(element)) return;
+    if (!element || element.dataset.adsenseRendered === "true") return;
     const placementName = element.dataset.adsensePlacement;
     const slot = String(getConfig().slots?.[placementName] || "");
     if (!SLOT_PATTERN.test(slot)) return;
@@ -60,14 +64,29 @@
     element.replaceChildren(ad);
     element.hidden = false;
     element.classList.add("is-ready");
-    renderedPlacements.add(element);
+    element.dataset.adsenseRendered = "true";
 
     window.adsbygoogle = window.adsbygoogle || [];
     window.adsbygoogle.push({});
   }
 
+  function deactivateAds() {
+    setPaused(true);
+    document.querySelectorAll("[data-adsense-placement]").forEach((element) => {
+      element.hidden = true;
+      element.classList.remove("is-ready");
+      delete element.dataset.adsenseRendered;
+      element.replaceChildren();
+    });
+  }
+
   async function activateAds() {
-    if (!isConfigured() || !hasAdvertisingConsent()) return;
+    if (!isConfigured() || !hasAdvertisingConsent()) {
+      deactivateAds();
+      return;
+    }
+
+    setPaused(false);
     const loaded = await loadAdSenseScript();
     if (!loaded) return;
     document.querySelectorAll("[data-adsense-placement]").forEach(renderPlacement);
@@ -95,6 +114,7 @@
 
   window.addEventListener("fazenda:consentchange", (event) => {
     if (event.detail?.advertising) activateAds();
+    else deactivateAds();
   });
 
   if (document.readyState === "loading") {

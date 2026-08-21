@@ -2,7 +2,7 @@
 
 (() => {
   const VERSION_CACHE_KEY = "fazenda-serena-known-version";
-  const LOCAL_VERSION_FALLBACK = "1.0.1";
+  const LOCAL_VERSION_FALLBACK = "1.0.0";
   const normalizeVersion = value => {
     const cleaned = String(value || "").trim().replace(/[^0-9A-Za-z._+-]/g, "").slice(0, 30);
     return cleaned || LOCAL_VERSION_FALLBACK;

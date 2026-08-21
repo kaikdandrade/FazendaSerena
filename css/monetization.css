@@ -408,3 +408,42 @@
   background: transparent !important;
   border: 0 !important;
 }
+
+
+/* R36 — consentimento opcional de publicidade e alinhamento do aviso */
+.cookie-banner-copy {
+  align-items: center !important;
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  column-gap: 12px !important;
+}
+.cookie-banner-icon {
+  align-self: center !important;
+  height: 52px !important;
+  width: 52px !important;
+  margin-inline: 2px 4px !important;
+}
+.cookie-banner-icon img {
+  height: 52px !important;
+  width: 52px !important;
+}
+.cookie-banner-actions {
+  align-content: center !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  min-width: 152px;
+  gap: 8px !important;
+}
+.cookie-banner-actions .cookie-button { width: 100%; }
+@media (max-width: 480px) {
+  .cookie-banner-copy {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    column-gap: 10px !important;
+  }
+  .cookie-banner-icon,
+  .cookie-banner-icon img {
+    height: 44px !important;
+    width: 44px !important;
+  }
+  .cookie-banner-icon { margin-inline: 0 3px !important; }
+  .cookie-banner-actions { min-width: 0; }
+}

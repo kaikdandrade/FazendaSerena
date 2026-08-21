@@ -25,7 +25,9 @@
   <link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high">
   <link rel="stylesheet" href="css/home.css">
   <link rel="stylesheet" href="css/monetization.css">
+  <script defer src="js/publicCloud.js"></script>
   <script defer src="js/appConfig.js"></script>
+  <script defer src="js/siteVersion.js"></script>
   <script defer src="js/privacyConsent.js"></script>
   <script defer src="js/adsense-config.js"></script>
   <script defer src="js/adsenseManager.js"></script>
@@ -149,8 +151,8 @@
   <section class="home-section home-install" id="instalar" aria-labelledby="installTitle">
     <div class="home-section-heading centered">
       <span class="home-kicker">jogue onde quiser</span>
-      <h2 id="installTitle">Instale e abra. Sem depender do menu do navegador.</h2>
-      <p>O jogo continua sendo o mesmo Fazenda Serena da web. No Windows, o instalador cria um aplicativo e atalhos próprios. No Android, o pacote TWA usa a versão publicada do jogo em tela cheia. A PWA continua disponível apenas como alternativa.</p>
+      <h2 id="installTitle">Sua fazenda, onde você estiver.</h2>
+      <p>Jogue direto pela internet ou instale a Fazenda Serena no seu dispositivo favorito.</p>
     </div>
 
     <div class="home-install-grid native-download-grid">
@@ -158,8 +160,8 @@
         <div class="home-install-card-icon"><img src="assets/icons/mapa.webp" alt=""></div>
         <span class="home-install-label">Navegador</span>
         <h3>Jogar agora</h3>
-        <p>Abra a Fazenda Serena imediatamente, sem instalar nada.</p>
-        <small>Chrome, Edge, Opera, Firefox e outros navegadores modernos</small>
+        <p>Entre na fazenda na hora, sem baixar ou instalar nada.</p>
+        <small>Funciona nos principais navegadores atuais.</small>
         <a class="home-play-button home-install-action" href="play.html">Jogar no navegador</a>
       </article>
 
@@ -167,40 +169,39 @@
         <div class="home-install-card-icon"><img src="assets/icons/escritorio-computador.webp" alt=""></div>
         <span class="home-install-label">Windows</span>
         <h3>Aplicativo para computador</h3>
-        <p>Baixe o instalador, execute uma vez e abra a Fazenda Serena pelo ícone da Área de Trabalho ou menu Iniciar.</p>
-        <small data-native-detail="windows">Windows 10/11 · instalador por usuário · sem exigir administrador</small>
+        <p>Instale uma vez e abra a Fazenda Serena pelo próprio ícone no computador.</p>
+        <div class="native-card-note native-card-note-compact">
+          <span>Usa um computador Windows com processador ARM?</span>
+          <a class="native-alt-download" href="downloads/FazendaSerena-Setup-arm64.exe" download>Baixar versão ARM64</a>
+        </div>
         <a class="home-play-button home-install-action" href="downloads/FazendaSerena-Setup-x64.exe" download data-native-download="windows">Baixar para Windows</a>
-        <a class="native-alt-download" href="downloads/FazendaSerena-Setup-arm64.exe" download>Windows ARM64</a>
       </article>
 
       <article class="home-install-card native-download-card" data-platform-card="android" data-native-card="android">
         <div class="home-install-card-icon"><img src="assets/icons/social.webp" alt=""></div>
         <span class="home-install-label">Android</span>
         <h3>Aplicativo para celular</h3>
-        <p>O APK abre a versão oficial do jogo em tela cheia como aplicativo instalado. As atualizações do jogo continuam vindo do site.</p>
-        <small data-native-detail="android">O botão fica ativo automaticamente quando o APK for publicado em <code>/downloads/</code>.</small>
-        <a class="home-play-button home-install-action is-unavailable" href="downloads/FazendaSerena-Android.apk" download data-native-download="android" aria-disabled="true">APK ainda não publicado</a>
-        <button class="native-alt-download native-alt-button" type="button" data-pwa-install="android">Usar instalação web enquanto isso</button>
+        <p>Tenha a Fazenda Serena no celular ou tablet e abra pelo ícone do aplicativo.</p>
+        <div class="native-card-note native-card-note-compact" data-native-detail="android">
+          <span>O aplicativo para Android estará disponível em breve.</span>
+          <button class="native-alt-download native-alt-button" type="button" data-pwa-install="android">Usar instalação web</button>
+        </div>
+        <a class="home-play-button home-install-action is-unavailable" data-native-url="downloads/FazendaSerena-Android.apk" download data-native-download="android" aria-disabled="true">Aplicativo Android em breve</a>
       </article>
 
       <article class="home-install-card" data-platform-card="ios">
         <div class="home-install-card-icon"><img src="assets/icons/social.webp" alt=""></div>
         <span class="home-install-label">iPhone / iPad</span>
-        <h3>Versão web instalada</h3>
-        <p>Ainda não há pacote nativo iOS. Por enquanto, a instalação continua pela Tela de Início.</p>
-        <small>Safari → Compartilhar → Adicionar à Tela de Início</small>
-        <button class="home-secondary-button home-install-action" type="button" data-pwa-install="ios">Ver como instalar</button>
+        <h3>Adicionar à Tela de Início</h3>
+        <p>Coloque a Fazenda Serena junto dos seus aplicativos e abra o jogo pelo ícone.</p>
+        <small>Leva menos de um minuto.</small>
+        <button class="home-play-button home-install-action ios-install-action" type="button" data-pwa-install="ios">Ver como instalar</button>
       </article>
     </div>
 
-    <div class="home-install-status" id="pwaInstallStatus" role="status" aria-live="polite">
-      <span class="home-install-status-dot" aria-hidden="true"></span>
-      <span>Detectando este dispositivo e os downloads disponíveis…</span>
-    </div>
-
     <div class="native-download-note">
-      <strong>Uma única base de código.</strong>
-      <span>O aplicativo não possui uma cópia separada da economia ou das telas: ele abre a versão oficial publicada em <code>play.html</code>. Atualizações do jogo continuam sendo feitas pelo Firebase Hosting.</span>
+      <strong>Continue de onde parou.</strong>
+      <span>Ao conectar sua conta, você pode cuidar da mesma fazenda em diferentes dispositivos.</span>
     </div>
   </section>
 
@@ -215,12 +216,16 @@
   <section class="home-section home-faq">
     <div class="home-section-heading centered"><span class="home-kicker">perguntas frequentes</span><h2>Antes de começar sua fazenda.</h2></div>
     <div class="home-faq-grid">
-      <details><summary>Preciso instalar alguma coisa?</summary><p>Não. A Fazenda Serena funciona diretamente em navegadores modernos.</p></details>
-      <details><summary>Preciso criar uma conta?</summary><p>Não para começar. Visitantes usam armazenamento local. Uma conta nova pode receber o progresso local no primeiro login.</p></details>
-      <details><summary>O jogo continua enquanto estou fora?</summary><p>Existe progresso offline limitado e um resumo dos ganhos ao retornar.</p></details>
-      <details><summary>O que acontece ao prestigiar?</summary><p>A jornada atual é reiniciada e parte do progresso vira pontos para benefícios permanentes.</p></details>
-      <details><summary>O jogo é gratuito?</summary><p>Sim. A versão web pode ser jogada gratuitamente e pode utilizar publicidade para ajudar na manutenção.</p></details>
-      <details><summary>Onde vejo as novidades?</summary><p>A página de Notícias reúne notas de atualização e mudanças publicadas.</p></details>
+      <div class="home-faq-column">
+        <details><summary>Preciso instalar alguma coisa?</summary><p>Não. Você pode jogar diretamente pelo navegador. Instalar é apenas uma opção para quem prefere abrir a Fazenda Serena como aplicativo.</p></details>
+        <details><summary>O jogo continua enquanto estou fora?</summary><p>Existe progresso offline limitado e um resumo dos ganhos quando você retorna.</p></details>
+        <details><summary>O jogo é gratuito?</summary><p>Sim. A Fazenda Serena pode ser jogada gratuitamente.</p></details>
+      </div>
+      <div class="home-faq-column">
+        <details><summary>Preciso criar uma conta?</summary><p>Não para começar. Você pode jogar como visitante e conectar uma conta depois para usar o salvamento em nuvem.</p></details>
+        <details><summary>O que acontece ao prestigiar?</summary><p>Você inicia uma nova jornada e transforma parte do progresso em pontos usados em benefícios permanentes.</p></details>
+        <details><summary>Onde vejo as novidades?</summary><p>A página de Notícias reúne as atualizações e mudanças publicadas no jogo.</p></details>
+      </div>
     </div>
   </section>
 
@@ -238,7 +243,7 @@
     <a href="terms.html">Termos de Uso</a><a href="privacy.html">Política de Privacidade</a>
     <button type="button" data-open-cookie-preferences>Preferências de cookies</button>
   </nav>
-  <p>© 2026 Fazenda Serena · Desenvolvido por <a href="https://github.com/kaikdandrade/FazendaSerena" target="_blank" rel="noopener noreferrer">Kaik D'Andrade</a></p>
+  <p>© 2026 Fazenda Serena · Versão <b data-app-version>1.0.0</b> · Desenvolvido por <a href="https://github.com/kaikdandrade/FazendaSerena" target="_blank" rel="noopener noreferrer">Kaik D'Andrade</a></p>
 </footer>
 
 
@@ -246,7 +251,7 @@
   <form method="dialog">
     <header class="pwa-install-dialog-head">
       <div class="pwa-install-dialog-icon"><img src="assets/logo.webp" alt=""></div>
-      <div><span class="home-kicker">instalar Fazenda Serena</span><h2 id="pwaInstallDialogTitle">Instalação do aplicativo</h2></div>
+      <div><span class="home-kicker">Fazenda Serena no seu dispositivo</span><h2 id="pwaInstallDialogTitle">Como instalar</h2></div>
       <button class="pwa-dialog-close" value="cancel" aria-label="Fechar" type="submit">×</button>
     </header>
     <div class="pwa-install-dialog-body" id="pwaInstallDialogBody"></div>
@@ -259,9 +264,9 @@
 
 <section class="cookie-banner" id="cookieBanner" role="region" aria-labelledby="cookieBannerTitle" hidden>
   <div class="cookie-banner-copy"><span class="cookie-banner-icon" aria-hidden="true"><img src="assets/icons/cookie.webp" alt=""></span>
-    <div><h2 id="cookieBannerTitle">Sua privacidade na Fazenda Serena</h2><p>Usamos cookies necessários e de publicidade para manter o site, a segurança e a monetização por anúncios. A análise de uso é opcional. <a href="privacy.html">Leia a Política de Privacidade</a>.</p></div>
+    <div><h2 id="cookieBannerTitle">Sua privacidade na Fazenda Serena</h2><p>Usamos cookies necessários para o funcionamento da Fazenda Serena. Cookies de publicidade e análise são opcionais e podem ser escolhidos por você. <a href="privacy.html">Leia a Política de Privacidade</a>.</p></div>
   </div>
-  <div class="cookie-banner-actions"><button class="cookie-button secondary" id="customizeCookies" type="button">Configurar</button><button class="cookie-button primary" id="acceptAllCookies" type="button">Aceitar todos</button></div>
+  <div class="cookie-banner-actions"><button class="cookie-button primary" id="acceptAllCookies" type="button">Aceitar todos</button><button class="cookie-button secondary" id="customizeCookies" type="button">Configurar</button></div>
 </section>
 
 <dialog class="cookie-preferences-dialog" id="cookiePreferencesDialog" aria-labelledby="cookiePreferencesTitle">
@@ -269,7 +274,7 @@
   <div class="cookie-dialog-heading"><h2 id="cookiePreferencesTitle">Preferências de cookies</h2></div>
   <div class="cookie-category-list">
     <article class="cookie-category"><div class="cookie-category-copy"><strong>Cookies necessários</strong><small>Permitem recursos essenciais e guardam suas preferências.</small></div><span class="cookie-state-required">Sempre ativos</span></article>
-    <article class="cookie-category"><div class="cookie-category-copy"><strong>Publicidade</strong><small>Permite carregar recursos de publicidade usados para financiar o projeto.</small></div><span class="cookie-state-required">Sempre ativos</span></article>
+    <article class="cookie-category"><div class="cookie-category-copy"><strong>Cookies de publicidade</strong><small>Permitem armazenamento relacionado a anúncios do Google AdSense. Você pode permitir ou negar essa categoria.</small></div><label class="cookie-switch"><input id="advertisingCookiesSetting" type="checkbox"><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de publicidade</span></label></article>
     <article class="cookie-category"><div class="cookie-category-copy"><strong>Análise de uso</strong><small>Permite medir o uso do site quando uma ferramenta de análise estiver ativa.</small></div><label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox"><span aria-hidden="true"></span><span class="sr-only">Permitir análise de uso</span></label></article>
   </div>
   <div class="cookie-dialog-actions"><button class="cookie-button ghost" id="cancelCookiePreferences" type="button">Cancelar</button><button class="cookie-button primary" id="saveCookiePreferences" type="button">Salvar preferências</button></div>

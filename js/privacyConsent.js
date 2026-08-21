@@ -6,7 +6,7 @@
   const DEFAULT_CONSENT = Object.freeze({
     necessary: true,
     analytics: false,
-    advertising: true
+    advertising: false
   });
 
   window.dataLayer = window.dataLayer || [];
@@ -18,7 +18,7 @@
     return {
       necessary: true,
       analytics: Boolean(value?.analytics),
-      advertising: true
+      advertising: Boolean(value?.advertising)
     };
   }
 
@@ -52,7 +52,8 @@
     }
   }
 
-  let currentConsent = readStoredConsent() || { ...DEFAULT_CONSENT };
+  const storedConsent = readStoredConsent();
+  let currentConsent = storedConsent || { ...DEFAULT_CONSENT };
 
   function consentModePayload(consent) {
     return {
@@ -66,6 +67,8 @@
     };
   }
 
+  // Consentimento padrão é negado para categorias opcionais até que exista
+  // uma escolha persistida do visitante.
   window.gtag("consent", "default", {
     ...consentModePayload(currentConsent),
     wait_for_update: 500
@@ -74,6 +77,7 @@
   function applyConsent(nextConsent, persist = true) {
     currentConsent = normalizeConsent(nextConsent);
     if (persist) writeStoredConsent(currentConsent);
+
     window.gtag("consent", "update", consentModePayload(currentConsent));
     window.dispatchEvent(new CustomEvent("fazenda:consentchange", {
       detail: { ...currentConsent }
@@ -86,7 +90,9 @@
   }
 
   function setFormValues(dialog) {
+    const advertising = dialog?.querySelector("#advertisingCookiesSetting");
     const analytics = dialog?.querySelector("#analyticsCookiesSetting");
+    if (advertising) advertising.checked = currentConsent.advertising;
     if (analytics) analytics.checked = currentConsent.analytics;
   }
 
@@ -114,10 +120,10 @@
       if (banner) banner.hidden = true;
     });
 
-
     saveButton?.addEventListener("click", () => {
+      const advertising = Boolean(dialog?.querySelector("#advertisingCookiesSetting")?.checked);
       const analytics = Boolean(dialog?.querySelector("#analyticsCookiesSetting")?.checked);
-      applyConsent({ necessary: true, analytics, advertising: true });
+      applyConsent({ necessary: true, analytics, advertising });
       if (banner) banner.hidden = true;
       closeDialog(dialog);
     });
@@ -128,7 +134,7 @@
       if (event.target === dialog) closeDialog(dialog);
     });
 
-    if (banner) banner.hidden = Boolean(readStoredConsent());
+    if (banner) banner.hidden = Boolean(storedConsent);
   }
 
   window.FAZENDA_PRIVACY = Object.freeze({

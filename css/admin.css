@@ -90,3 +90,12 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
 
 /* R36 — eventos, checkboxes e grupos de ícones. */
 .admin-dialog-checkbox{display:flex!important;align-items:center;gap:9px;grid-column:1/-1}.admin-dialog-checkbox input{width:18px!important;height:18px!important;min-height:18px!important;padding:0!important}.admin-subsection-heading{margin:20px 0 8px}.admin-subsection-heading h3{margin:0 0 4px}.admin-subsection-heading p{margin:0;color:var(--a-muted);font-size:.82rem}.admin-dialog-field textarea{min-height:112px;resize:vertical}.admin-dialog-field input[type="time"]{font-variant-numeric:tabular-nums}
+
+
+/* R36 — identidade visual do cabeçalho */
+.admin-brand img{width:140px!important;height:auto!important;flex:0 0 auto}
+.admin-brand{gap:14px}
+.admin-brand small span[data-app-version]{font:inherit;color:inherit}
+@media(max-width:640px){
+  .admin-brand img{width:108px!important;height:auto!important}
+}
