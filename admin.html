@@ -8,8 +8,11 @@
 <meta name="theme-color" content="#f3f6f0">
 <title>Administração — Fazenda Serena</title>
 <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="css/legacy/admin-legacy.css">
 <link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/shared-game-modals.css">
 <script defer src="js/publicCloud.js"></script>
+<script defer src="js/modalGuard.js"></script>
 <script defer src="js/appConfig.js"></script>
 <script defer src="js/cacheManager.js"></script>
 <script defer src="js/firebase-config.js"></script>
@@ -64,15 +67,11 @@
       <option value="tests">Testes</option>
       <option value="globalControl">Controle global</option>
       <option value="pointTypes">Tipos de pontos</option>
-      <option value="categories">Categorias de plantas</option>
-      <option value="crops">Plantas</option>
-      <option value="companies">Empresas e indústrias</option>
-      <option value="contractTypes">Tipos de contrato</option>
-      <option value="contractSlots">Slots de contrato</option>
+      <option value="plantsCatalog">Plantas e categorias</option>
+      <option value="contractsCatalog">Contratos</option>
       <option value="orderSteps">Etapas dos pedidos</option>
       <option value="missions">Missões</option>
-      <option value="research">Pesquisas</option>
-      <option value="prestigeUpgrades">Evoluções de prestígio</option>
+      <option value="evolutionsCatalog">Pesquisas e evoluções</option>
       <option value="events">Eventos</option>
       <option value="updateNotes">Notas de atualização</option>
       <option value="texts">Textos públicos</option>
@@ -83,6 +82,7 @@
     <div class="admin-section-heading"><h2>Parâmetros principais</h2></div>
     <div class="admin-balance-grid">
       <label><span>XP de aprimoramentos (%)</span><input autocomplete="off" id="adminActionXP" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
+      <label><span>XP ao platinar planta (%)</span><input autocomplete="off" id="adminCropMasteryXPPercent" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
       <label><span>XP passivo base (%/s)</span><input autocomplete="off" id="adminPassiveXP" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
       <label><span>Pesquisa passiva base (%/s)</span><input autocomplete="off" id="adminPassiveResearch" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
       <label><span>Nível para liberar Pedidos</span><input autocomplete="off" id="adminOrdersUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
@@ -154,16 +154,51 @@
 
 
   <section class="admin-panel admin-global-control-section" data-admin-section="globalControl" hidden>
-    <div class="admin-section-heading"><h2>Controle global</h2></div>
-    <div class="admin-global-control-grid">
-      <article class="admin-global-control-card">
-        <div><strong>Resetar pesquisa globalmente</strong></div>
-        <button class="admin-button danger" id="adminGlobalResetResearch" type="button">Resetar pesquisas</button>
-      </article>
-      <article class="admin-global-control-card">
-        <div><strong>Resolver conflito de plantas</strong></div>
-        <button class="admin-button danger" id="adminGlobalResolveCrops" type="button">Resolver plantas</button>
-      </article>
+    <div class="admin-section-heading"><h2>Controle global</h2><button class="admin-button secondary compact" id="adminGlobalRefreshPlayers" type="button">Atualizar jogadores</button></div>
+
+    <div class="admin-control-groups">
+      <section class="admin-control-group">
+        <header><span class="admin-control-kicker">Recursos</span><h3>Resetar recursos</h3></header>
+        <div class="admin-control-action-grid">
+          <button class="admin-action-tile danger" id="adminGlobalResetCoins" type="button"><strong>Resetar moedas</strong></button>
+          <button class="admin-action-tile danger" id="adminGlobalResetResearchPoints" type="button"><strong>Resetar pesquisas</strong></button>
+          <button class="admin-action-tile danger" id="adminGlobalResetPrestigePoints" type="button"><strong>Resetar prestígio</strong></button>
+          <button class="admin-action-tile danger" id="adminGlobalResetOrders" type="button"><strong>Resetar pedidos</strong></button>
+        </div>
+      </section>
+
+      <section class="admin-control-group">
+        <header><span class="admin-control-kicker">Consistência</span><h3>Resolver conflitos</h3></header>
+        <div class="admin-control-action-grid two">
+          <button class="admin-action-tile warning" id="adminGlobalResolveCrops" type="button"><strong>Resolver plantas em conflito</strong></button>
+          <div class="admin-action-tile warning interactive">
+            <div><strong>Resolver pesquisa</strong></div>
+            <label class="admin-inline-check"><input id="adminGlobalRefundResearch" type="checkbox" checked><span>Devolver pontos gastos</span></label>
+            <button class="admin-button warning" id="adminGlobalResolveResearch" type="button">Resolver pesquisas</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-control-group admin-single-player-control">
+        <header><span class="admin-control-kicker">Jogador</span><h3>Ações de uma única conta</h3></header>
+        <div class="admin-player-picker-row">
+          <label class="admin-player-select-field"><span>Jogador</span><select id="adminGlobalPlayerSelect"><option value="">Selecione um jogador</option></select></label>
+          <div class="admin-player-status" id="adminGlobalPlayerStatus">Nenhum jogador selecionado.</div>
+        </div>
+        <div class="admin-player-editor-grid">
+          <label><span>Moedas</span><input id="adminGlobalPlayerCoins" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+          <label><span>Pesquisa</span><input id="adminGlobalPlayerResearch" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+          <label><span>Prestígio</span><input id="adminGlobalPlayerPrestigePoints" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+          <label><span>Prestígios da conta</span><input id="adminGlobalPlayerPrestigeCount" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+          <label><span>Nível da fazenda</span><input id="adminGlobalPlayerFarmLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+        </div>
+        <div class="admin-player-primary-actions">
+          <button class="admin-button primary" id="adminGlobalPlayerApply" type="button">Salvar variáveis</button>
+          <button class="admin-button secondary" id="adminGlobalPlayerRanking" type="button" disabled>Bloquear no ranking</button>
+          <button class="admin-button danger" id="adminGlobalPlayerReset" type="button" disabled>Resetar conta</button>
+          <button class="admin-button danger" id="adminGlobalPlayerBan" type="button" disabled>Banir jogador</button>
+        </div>
+      </section>
     </div>
     <div class="admin-global-feedback" id="adminGlobalFeedback" aria-live="polite"></div>
   </section>
@@ -174,28 +209,28 @@
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="categories" data-admin-section="categories" hidden>
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="categories" data-admin-section="plantsCatalog" hidden>
       <div class="admin-section-heading"><h2>Categorias de plantas</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar categoria</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="crops" data-admin-section="crops" hidden>
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="crops" data-admin-section="plantsCatalog" hidden>
       <div class="admin-section-heading"><h2>Plantas</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar planta</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="companies" data-admin-section="companies" hidden>
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractSlots" data-admin-section="contractsCatalog" hidden>
+      <div class="admin-section-heading"><h2>Slots de contrato</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar slot</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="companies" data-admin-section="contractsCatalog" hidden>
       <div class="admin-section-heading"><h2>Empresas e indústrias</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar empresa</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractTypes" data-admin-section="contractTypes" hidden>
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractTypes" data-admin-section="contractsCatalog" hidden>
       <div class="admin-section-heading"><h2>Tipos de contrato</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar tipo</button></div>
-      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
-    </section>
-
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractSlots" data-admin-section="contractSlots" hidden>
-      <div class="admin-section-heading"><h2>Slots de contrato</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar slot</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
@@ -209,12 +244,12 @@
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="research" data-admin-section="research" hidden>
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="research" data-admin-section="evolutionsCatalog" hidden>
       <div class="admin-section-heading"><h2>Pesquisas</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar pesquisa</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
-    <section class="admin-panel admin-catalog-editor" data-catalog-editor="prestigeUpgrades" data-admin-section="prestigeUpgrades" hidden>
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="prestigeUpgrades" data-admin-section="evolutionsCatalog" hidden>
       <div class="admin-section-heading"><h2>Evoluções de prestígio</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar legado</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
@@ -240,8 +275,8 @@
 </section>
 </main>
 
-<dialog class="admin-test-preview-dialog" id="adminTestMilestoneDialog"><form method="dialog"><header class="milestone-preview-header"><img src="assets/icons/marco-nivel.webp" alt=""><div><small>Marco alcançado</small><h2>Marco alcançado: nível 25</h2></div></header><div class="milestone-preview-body"><article class="milestone-preview-card"><img src="assets/icons/pacote.webp" alt=""><div><strong>Nível 25</strong><span>Pedidos avançados disponíveis no Escritório.</span></div></article><article class="milestone-preview-card"><img src="assets/icons/livros.webp" alt=""><div><strong>Nível 25</strong><span>Uma nova melhoria pode ser pesquisada.</span></div></article></div><footer class="milestone-preview-actions"><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
-<dialog class="admin-test-offline-dialog" id="adminTestOfflineDialog"><form method="dialog"><header class="offline-progress-header"><div class="offline-progress-symbol"><img src="assets/icons/retorno-offline.webp" alt=""></div><div class="offline-progress-heading"><h2>Progresso offline</h2><strong>15min</strong></div></header><div class="offline-progress-summary"><article class="offline-gain-card"><img src="assets/icons/moeda.webp" alt=""><div><span>Moedas</span><strong>12,4K</strong></div></article><article class="offline-gain-card"><img src="assets/icons/pocao-pesquisa.webp" alt=""><div><span>Pesquisa</span><strong>18</strong></div></article><article class="offline-gain-card"><img src="assets/icons/xp.webp" alt=""><div><span>XP</span><strong>342</strong></div></article><article class="offline-gain-card"><img src="assets/icons/contrato-comercial.webp" alt=""><div><span>Contratos</span><strong>2</strong></div></article></div><div class="offline-progress-actions"><button class="admin-button primary" value="close">Continuar</button></div></form></dialog>
+<dialog class="confirmation-dialog confirmation-dialog-milestone" id="adminTestMilestoneDialog"><form method="dialog"><header class="milestone-preview-header"><img src="assets/icons/marco-nivel.webp" alt=""><div><small>Marco alcançado</small><h2>Marco alcançado: nível 25</h2></div></header><div class="milestone-preview-body milestone-dialog-list"><article class="milestone-preview-card"><img src="assets/icons/pacote.webp" alt=""><div><strong>Nível 25</strong><span>Pedidos avançados disponíveis no Escritório.</span></div></article><article class="milestone-preview-card"><img src="assets/icons/livros.webp" alt=""><div><strong>Nível 25</strong><span>Uma nova melhoria pode ser pesquisada.</span></div></article></div><footer class="milestone-preview-actions"><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
+<dialog class="confirmation-dialog offline-progress-dialog" id="adminTestOfflineDialog"><form method="dialog"><header class="offline-progress-header"><div class="offline-progress-symbol"><img src="assets/icons/retorno-offline.webp" alt=""></div><div class="offline-progress-heading"><h2>Progresso offline</h2><strong>15min</strong></div></header><div class="offline-progress-summary"><article class="offline-gain-card"><img src="assets/icons/moeda.webp" alt=""><div><span>Moedas</span><strong>12,4K</strong></div></article><article class="offline-gain-card"><img src="assets/icons/pocao-pesquisa.webp" alt=""><div><span>Pesquisa</span><strong>18</strong></div></article><article class="offline-gain-card"><img src="assets/icons/xp.webp" alt=""><div><span>XP</span><strong>342</strong></div></article><article class="offline-gain-card"><img src="assets/icons/contrato-comercial.webp" alt=""><div><span>Contratos</span><strong>2</strong></div></article></div><div class="confirmation-dialog-actions offline-progress-actions"><button class="admin-button primary" value="close">Continuar</button></div></form></dialog>
 <dialog class="admin-item-dialog" id="adminItemDialog">
   <form autocomplete="off" method="dialog">
     <div class="admin-dialog-heading"><h2 data-admin-dialog-title>Editar item</h2></div>

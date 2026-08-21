@@ -449,6 +449,24 @@
 ];
   const plants = [
   {
+    "value": "assets/plants/jabuticaba.webp",
+    "label": "Jabuticaba",
+    "kind": "planta",
+    "source": "local"
+  },
+  {
+    "value": "assets/plants/caja.webp",
+    "label": "Cajá",
+    "kind": "planta",
+    "source": "local"
+  },
+  {
+    "value": "assets/plants/baunilha.webp",
+    "label": "Baunilha",
+    "kind": "planta",
+    "source": "local"
+  },
+  {
     "value": "assets/plants/abacate.webp",
     "label": "Abacate",
     "kind": "planta",

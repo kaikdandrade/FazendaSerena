@@ -153,6 +153,7 @@
   function showView(viewId, updateHash = true) {
     const requestedView = dom.views.some(view => view.id === viewId) ? viewId : "farmView";
     activeView = requestedView;
+    if (requestedView === "farmView") cropUpgradeModes.clear();
     dom.views.forEach(view => view.classList.toggle("active", view.id === activeView));
     dom.tabs.forEach(tab => {
       const sameView = tab.dataset.view === activeView;

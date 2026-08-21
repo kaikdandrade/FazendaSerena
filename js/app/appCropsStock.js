@@ -16,7 +16,7 @@
   function getCropUpgradeMode(cropId) {
     const cropState = engine.state.crops[cropId];
     if (cropState?.level >= GameEngine.MAX_CROP_LEVEL) return "max";
-    return cropUpgradeModes.get(cropId) === "max" ? "max" : "one";
+    return cropUpgradeModes.get(cropId) === "one" ? "one" : "max";
   }
 
   function getCropUpgradeSelection(cropId) {
@@ -95,14 +95,15 @@
     const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
     const speedMaxed = data.level >= engine.getInstantGrowthLevel();
     const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;
+    const masteryXpPercent = Math.max(0, Number(GameEngine.CROP_MASTERY_XP_RATE) || 0) * 100;
     const cycleLabel = instant ? "Contínua" : storageFull ? "Pausada" : formatLiveTime((1 - data.progress) * growthTime);
     const selection = getCropUpgradeSelection(crop.id);
 
     return `
       <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""} ${mastered ? "crop-mastered" : ""}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
-        <div class="crop-level-strip" title="${mastered ? "Cultura platinada: nível 500 alcançado e bônus de 10% de XP recebido" : speedMaxed ? "Velocidade máxima; ao alcançar o nível 500 esta cultura concede 10% de XP" : "Ao alcançar o nível 500 esta cultura concede 10% de XP"}">
+        <div class="crop-level-strip" title="${mastered ? `Nível máximo alcançado e bônus de ${engine.formatNumber(masteryXpPercent)}% de XP` : speedMaxed ? `Velocidade máxima; ao alcançar o nível 500 esta cultura concede ${engine.formatNumber(masteryXpPercent)}% de XP` : `Ao alcançar o nível 500 esta cultura concede ${engine.formatNumber(masteryXpPercent)}% de XP`}">
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
-          ${mastered ? `<span class="crop-mastery-badge"><img alt="" src="assets/icons/estrela-dominio-cultura.webp">Platinada</span>` : ""}
+          ${mastered ? `<span class="crop-mastery-badge" aria-label="Cultura no nível máximo"><img alt="" src="assets/icons/estrela-dominio-cultura.webp"></span>` : ""}
         </div>
         <div class="crop-head">
           <div class="crop-art-progress ${storageFull ? "paused" : ""} ${optimizedRing ? "instant optimized-ring" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
@@ -117,14 +118,14 @@
             </div>
           </div>
         </div>
-        <div class="crop-upgrade-panel crop-upgrade-redesign">
+        ${mastered ? "" : `<div class="crop-upgrade-panel crop-upgrade-redesign">
           <div class="upgrade-mode-selector" role="group" aria-label="Quantidade de níveis">
-            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}" ${selection.maxed ? 'disabled aria-disabled="true"' : ""}>+1</button>
-            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}" ${selection.maxed ? 'disabled aria-disabled="true"' : ""}>Max</button>
+            <button class="upgrade-mode-option ${selection.mode === "one" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="one" data-crop="${crop.id}" aria-pressed="${selection.mode === "one"}">+1</button>
+            <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
           </div>
-          <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>${selection.maxed ? "Máx." : `+${selection.mode === "max" ? selection.levels : 1}`}</strong></div>
-          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${selection.maxed || !selection.affordable ? "disabled" : ""}>${selection.maxed ? "Plantação concluída" : `Aprimorar ${resourceAmount("coins", -selection.cost, { compact: true })}`}</button>
-        </div>
+          <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong>+${selection.mode === "max" ? selection.levels : 1}</strong></div>
+          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${!selection.affordable ? "disabled" : ""}>Aprimorar ${resourceAmount("coins", -selection.cost, { compact: true })}</button>
+        </div>`}
       </article>`;
   }
 
@@ -162,7 +163,8 @@
 
   function renderStock() {
     const categoryFilter = dom.stockCategoryFilter?.value || "all";
-    const allOwned = engine.data.crops.filter(crop => engine.state.crops[crop.id].owned);
+    const allOwned = engine.data.crops.filter(crop => engine.state.crops[crop.id].owned)
+      .sort((a, b) => Number(Boolean(engine.state.crops[b.id]?.favorite)) - Number(Boolean(engine.state.crops[a.id]?.favorite)) || a.index - b.index);
     const owned = allOwned.filter(crop => categoryFilter === "all" || crop.category === categoryFilter);
     const totalCapacity = engine.getStorageCap();
     const storageUsed = engine.getStorageUsed();
@@ -195,9 +197,9 @@
       const data = engine.state.crops[crop.id];
       const price = engine.getSalePrice(crop.id);
       return `
-        <article class="stock-card normalized-stock-card ${data.autoSell ? "auto-sell-card" : ""}">
-          <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div></div>
-          <div class="stock-value-grid"><div><small>Quantidade</small><strong>${engine.formatNumber(data.stock)} <span>un.</span></strong></div><div><small>Valor unitário</small><strong>${resourceAmount("coins", price, { compact: true })}</strong></div><div><small>Valor guardado</small><strong>${resourceAmount("coins", data.stock * price, { compact: true })}</strong></div></div>
+        <article class="stock-card normalized-stock-card ${data.autoSell ? "auto-sell-card" : ""} ${data.favorite ? "favorite-stock-card" : ""}">
+          <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div><button class="stock-favorite-button ${data.favorite ? "active" : ""}" type="button" data-action="toggle-stock-favorite" data-crop="${crop.id}" aria-pressed="${String(Boolean(data.favorite))}" aria-label="${data.favorite ? "Remover dos favoritos" : "Favoritar cultura"}" title="${data.favorite ? "Remover dos favoritos" : "Favoritar cultura"}">${data.favorite ? "★" : "☆"}</button></div>
+          <div class="stock-value-grid"><div><small>Quantidade</small><strong>${engine.formatNumber(data.stock)} <span>un.</span></strong></div><div><small>Valor un.</small><strong>${resourceAmount("coins", price, { compact: true })}</strong></div><div><small>Valor total</small><strong>${resourceAmount("coins", data.stock * price, { compact: true })}</strong></div></div>
           <button class="auto-sell-toggle compact-auto-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}"><span><strong>Venda automática</strong><small>${data.autoSell ? "Ativada" : "Desativada"}</small></span><span class="auto-sell-switch"><i></i></span></button>
           <div class="stock-actions"><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>25%</button><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.5" ${data.stock <= 0 ? "disabled" : ""}>50%</button><button class="button primary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="1" ${data.stock <= 0 ? "disabled" : ""}>Vender tudo</button></div>
         </article>`;

@@ -415,7 +415,6 @@
     }
 
     const previousUid = currentAuthUid;
-    const guestState = previousUid ? null : cloneState(engine.state);
     if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
     leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
     leaderboardRequest = null;
@@ -441,12 +440,11 @@
           engine.replaceState(cloudState, { simulateOffline: true });
           window.FirebaseManager.unlockCloudWrites?.();
         } else if (!loadFailed) {
-          // Conta nova: só depois de confirmar que não existe save remoto liberamos
-          // a primeira gravação e promovemos exatamente o progresso do visitante.
-          engine.replaceState(guestState || window.FirebaseManager.loadGuestGame?.(), { simulateOffline: false });
+          // Segurança: dados locais são controlados pelo navegador. Uma conta nova
+          // autenticada nunca herda automaticamente o save de visitante.
+          engine.replaceState(null, { simulateOffline: false });
           window.FirebaseManager.unlockCloudWrites?.();
-          const promoted = await engine.save();
-          if (promoted?.ok) window.FirebaseManager.clearGuestGame?.();
+          await engine.save();
         }
         // Em falha de leitura, a trava permanece ativa para impedir que um save
         // local sobrescreva acidentalmente uma conta existente. Um novo login/reload

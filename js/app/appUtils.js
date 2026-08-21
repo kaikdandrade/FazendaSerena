@@ -163,7 +163,7 @@
 
   function showOfflineProgressDialog(report) {
     if (!report || !dom.offlineProgressDialog) return false;
-    const seconds = Math.max(0, Number(report.seconds) || 0);
+    const seconds = Math.max(0, Number(report.simulatedSeconds ?? report.seconds) || 0);
     const gains = {
       coins: Math.max(0, Number(report.coins) || 0),
       research: Math.max(0, Number(report.research) || 0),

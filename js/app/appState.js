@@ -48,6 +48,36 @@
   let lastResearchRenderSignature = "";
   let lastPrestigeRenderSignature = "";
   const cropUpgradeModes = new Map();
+  let actionSaveTimer = 0;
+  let lastActionSaveAt = 0;
+
+  // Salva alterações importantes sem esperar o autosave periódico. O primeiro
+  // evento grava imediatamente; ações em sequência são agrupadas por alguns
+  // milissegundos para não gerar uma escrita por clique de upgrade.
+  function requestGameSave({ force = false } = {}) {
+    if (!engine) return Promise.resolve({ ok: false, reason: "engine-unavailable" });
+
+    const run = () => {
+      window.clearTimeout(actionSaveTimer);
+      actionSaveTimer = 0;
+      lastActionSaveAt = Date.now();
+      lastSave = performance.now();
+      return Promise.resolve(engine.save()).then(result => {
+        if (result?.ok === false && result?.reason === "firestore" && result?.error) {
+          setCloudSaveStatus?.("error", { error: result.error });
+        }
+        return result;
+      }).catch(error => {
+        setCloudSaveStatus?.("error", { error });
+        return { ok: false, reason: "save-error", error };
+      });
+    };
+
+    if (force || Date.now() - lastActionSaveAt >= 350) return run();
+    window.clearTimeout(actionSaveTimer);
+    actionSaveTimer = window.setTimeout(run, Math.max(0, 350 - (Date.now() - lastActionSaveAt)));
+    return Promise.resolve({ ok: true, scheduled: true });
+  }
 
   // Elementos persistentes da interface.
   const dom = {

@@ -72,6 +72,7 @@
                 xp: result.xpAward
               });
               render(true);
+              requestGameSave();
               return;
             }
           }
@@ -260,7 +261,7 @@
         engine.setSetting("playerRankingOptOut", rankingOptOut);
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
         leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
-        const saveResult = await engine.save();
+        const saveResult = await window.FirebaseManager.saveRankingProfile(engine.state);
         if (!saveResult?.ok) throw saveResult?.error || new Error("Não foi possível salvar o perfil na nuvem.");
         updateAccountUI();
         if (dom.avatarPickerPanel) dom.avatarPickerPanel.hidden = true;
@@ -268,7 +269,7 @@
         setProfileFeedback(rankingOptOut ? "Perfil salvo na nuvem. Sua fazenda não será exibida no ranking global." : "Perfil salvo na nuvem e publicado no ranking global.", "success");
         dom.rankingProfileDialog?.close("saved");
         resetFriendsState();
-        if (activeView === "profileView" && activeProfileTab === "social") await refreshPrestigeLeaderboard(true);
+        if (activeView === "profileView" && activeProfileTab === "social") await refreshPrestigeLeaderboard(false);
         if (activeView === "profileView" && activeProfileTab === "social") await refreshFriends(true);
       } catch (error) {
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
@@ -339,9 +340,10 @@
       setAuthBusy(true);
       dom.confirmResetProgress.disabled = true;
       try {
-        const result = await window.FirebaseManager.resetProgress();
-        if (!result?.ok) throw new Error("Não foi possível apagar o progresso desta conta.");
-        engine.replaceState(null, { simulateOffline: false });
+        const resetState = engine.createState({ accountCreatedAt: engine.state?.createdAt });
+        const result = await window.FirebaseManager.resetProgress(resetState);
+        if (!result?.ok) throw new Error("Não foi possível resetar o progresso desta conta.");
+        engine.replaceState(result.state || resetState, { simulateOffline: false });
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
         updateAccountUI();
         activeOfficeTab = "contracts";
@@ -353,7 +355,6 @@
         showView("farmView", false);
         applySettings();
         render(true);
-        await engine.save();
         setCloudSaveStatus("saved", { savedAt: new Date() });
       } catch (error) {
         setCloudSaveStatus("error", { error });
@@ -398,39 +399,47 @@
     dom.ambientSetting.addEventListener("change", () => {
       engine.setSetting("ambient", dom.ambientSetting.checked);
       applySettings();
+      requestGameSave();
     });
     dom.fontScaleSetting.addEventListener("input", () => {
       engine.setSetting("fontScale", Number(dom.fontScaleSetting.value));
       applySettings();
+      requestGameSave();
     });
     dom.numberFormatSetting?.addEventListener("change", () => {
       engine.setSetting("numberFormat", dom.numberFormatSetting.value);
       applySettings();
       render(true);
+      requestGameSave();
     });
 
     dom.navigationModeSetting?.addEventListener("change", () => {
       engine.setSetting("navigationMode", dom.navigationModeSetting.value);
       applySettings(true);
       render(true);
+      requestGameSave();
     });
 
 
     dom.masterVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("masterVolume", Number(dom.masterVolumeSetting.value));
       applySettings();
+      requestGameSave();
     });
     dom.effectVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("effectVolume", Number(dom.effectVolumeSetting.value));
       applySettings();
+      requestGameSave();
     });
     dom.musicVolumeSetting?.addEventListener("input", () => {
       engine.setSetting("musicVolume", Number(dom.musicVolumeSetting.value));
       applySettings();
+      requestGameSave();
     });
     dom.musicTrackSetting?.addEventListener("change", () => {
       engine.setSetting("musicTrack", dom.musicTrackSetting.value);
       applySettings();
+      requestGameSave();
     });
 
     document.addEventListener("click", event => {
@@ -456,8 +465,10 @@
     syncScrollUI();
 
     window.addEventListener("pagehide", () => {
-      // Visitantes também persistem no localStorage; contas conectadas persistem na nuvem.
-      engine.save();
+      // Força um último snapshot. Com a persistência IndexedDB do Firestore, a
+      // mutação fica registrada localmente mesmo se o navegador encerrar a aba
+      // antes de receber a confirmação do servidor.
+      requestGameSave({ force: true });
       soundEngine.pauseForVisibility();
     });
     window.addEventListener("pageshow", () => {
@@ -465,7 +476,7 @@
     });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
-        engine.save();
+        requestGameSave({ force: true });
         soundEngine.pauseForVisibility();
       } else {
         soundEngine.resumeAfterVisibility();
@@ -502,7 +513,7 @@
       render(false);
 
       if (now - lastSave >= 15000) {
-        engine.save();
+        requestGameSave({ force: true });
         lastSave = now;
       }
     }

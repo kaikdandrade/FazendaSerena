@@ -5,7 +5,7 @@
   const dom = {
     gate: $("#adminGate"), gateMessage: $("#adminGateMessage"), loader: $("#adminLoader"), signIn: $("#adminSignIn"), app: $("#adminApp"),
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
-    actionXP: $("#adminActionXP"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
+    actionXP: $("#adminActionXP"), cropMasteryXPPercent: $("#adminCropMasteryXPPercent"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
     ordersUnlockLevel: $("#adminOrdersUnlockLevel"), evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), startingCoins: $("#adminStartingCoins"), storageCapacity: $("#adminStorageCapacity"), baseProductionMin: $("#adminBaseProductionMin"), baseProductionCap: $("#adminBaseProductionCap"),
     contractSignedCooldown: $("#adminContractSignedCooldown"), contractExpiredCooldown: $("#adminContractExpiredCooldown"), contractDeclinedCooldown: $("#adminContractDeclinedCooldown"), contractBrokenCooldown: $("#adminContractBrokenCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
@@ -15,10 +15,11 @@
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
     testMilestone: $("#adminTestMilestone"), testOffline: $("#adminTestOffline"), testMilestoneDialog: $("#adminTestMilestoneDialog"), testOfflineDialog: $("#adminTestOfflineDialog"),
     testFarmLevel: $("#adminTestFarmLevel"), testPrestigeLevel: $("#adminTestPrestigeLevel"), testCoins: $("#adminTestCoins"), testResearch: $("#adminTestResearch"), testPrestigePoints: $("#adminTestPrestigePoints"), applyTestProgress: $("#adminApplyTestProgress"), resetTestCrops: $("#adminResetTestCrops"), resetTestOrders: $("#adminResetTestOrders"), resetTestMissions: $("#adminResetTestMissions"), testFeedback: $("#adminTestFeedback"),
-    globalResetResearch: $("#adminGlobalResetResearch"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalFeedback: $("#adminGlobalFeedback")
+    globalResetCoins: $("#adminGlobalResetCoins"), globalResetResearchPoints: $("#adminGlobalResetResearchPoints"), globalResetPrestigePoints: $("#adminGlobalResetPrestigePoints"), globalResetOrders: $("#adminGlobalResetOrders"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalResolveResearch: $("#adminGlobalResolveResearch"), globalRefundResearch: $("#adminGlobalRefundResearch"), globalRefreshPlayers: $("#adminGlobalRefreshPlayers"), globalPlayerSelect: $("#adminGlobalPlayerSelect"), globalPlayerStatus: $("#adminGlobalPlayerStatus"), globalPlayerCoins: $("#adminGlobalPlayerCoins"), globalPlayerResearch: $("#adminGlobalPlayerResearch"), globalPlayerPrestigePoints: $("#adminGlobalPlayerPrestigePoints"), globalPlayerPrestigeCount: $("#adminGlobalPlayerPrestigeCount"), globalPlayerFarmLevel: $("#adminGlobalPlayerFarmLevel"), globalPlayerApply: $("#adminGlobalPlayerApply"), globalPlayerRanking: $("#adminGlobalPlayerRanking"), globalPlayerReset: $("#adminGlobalPlayerReset"), globalPlayerBan: $("#adminGlobalPlayerBan"), globalFeedback: $("#adminGlobalFeedback")
   };
   const balanceFields = [
     ["actionXPPercent", dom.actionXP, true, false],
+    ["cropMasteryXPPercent", dom.cropMasteryXPPercent, true, false],
     ["passiveXPPercentPerSecond", dom.passiveXP, true, false],
     ["passiveResearchPercentPerSecond", dom.passiveResearch, true, false],
     ["ordersUnlockLevel", dom.ordersUnlockLevel, false, true], ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["startingCoins", dom.startingCoins, false, true], ["storageCapacity", dom.storageCapacity, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
@@ -37,6 +38,9 @@
   ]);
   let playerFeedbackLoaded = false;
   let testFieldsLoaded = false;
+  let globalPlayersLoaded = false;
+  let globalPlayers = [];
+  let selectedGlobalPlayer = null;
   let playerFeedbackItems = [];
   const escapeHtml = value => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
@@ -125,7 +129,13 @@
   const percent = value => `${sanitize(value)}%`;
 
   function selectWorkspace(name) {
-    const selected = String(name || "balance");
+    const workspaceAliases = {
+      categories: "plantsCatalog", crops: "plantsCatalog",
+      companies: "contractsCatalog", contractTypes: "contractsCatalog", contractSlots: "contractsCatalog",
+      research: "evolutionsCatalog", prestigeUpgrades: "evolutionsCatalog"
+    };
+    const raw = String(name || "balance");
+    const selected = workspaceAliases[raw] || raw;
     document.querySelectorAll("[data-admin-section]").forEach(section => {
       section.hidden = section.dataset.adminSection !== selected;
     });
@@ -133,6 +143,7 @@
     try { sessionStorage.setItem("fazenda-serena-admin-section", selected); } catch {}
     if (selected === "playerFeedback" && authorized && !playerFeedbackLoaded) renderPlayerFeedback();
     if (selected === "tests" && authorized && !testFieldsLoaded) loadOwnTestFields().catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error"));
+    if (selected === "globalControl" && authorized && !globalPlayersLoaded) loadGlobalPlayers().catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"));
   }
 
   function bindPositiveInputs() {
@@ -164,7 +175,7 @@
     catalogNames.forEach(name => window.AdminCatalogEditors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.gridNavigationIcons, config.lineNavigationOrder, config.gridNavigationOrder); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
-  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.globalResetResearch, dom.globalResolveCrops, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
+  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.globalResetCoins, dom.globalResetResearchPoints, dom.globalResetPrestigePoints, dom.globalResolveResearch, dom.globalResolveCrops, dom.globalRefreshPlayers, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
   function showGate(message, { login = false, loading = false } = {}) { authorized = false; dom.app.hidden = true; dom.gate.hidden = false; dom.gateMessage.textContent = message; dom.signIn.hidden = !login; dom.loader.hidden = !loading; dom.userActions.hidden = true; }
   function showApp(user) {
     authorized = true;
@@ -198,6 +209,72 @@
 
   const setTestFeedback = (message = "", type = "") => { if (!dom.testFeedback) return; dom.testFeedback.textContent = message; dom.testFeedback.dataset.type = type; };
   const setGlobalFeedback = (message = "", type = "") => { if (!dom.globalFeedback) return; dom.globalFeedback.textContent = message; dom.globalFeedback.dataset.type = type; };
+  const globalPlayerById = userId => globalPlayers.find(item => item.userId === userId) || null;
+  function updateGlobalPlayerButtons(player = selectedGlobalPlayer) {
+    const enabled = Boolean(player?.userId);
+    [dom.globalPlayerApply, dom.globalPlayerRanking, dom.globalPlayerReset, dom.globalPlayerBan].filter(Boolean).forEach(button => { button.disabled = !enabled; });
+    if (dom.globalPlayerRanking) dom.globalPlayerRanking.textContent = player?.moderation?.rankingBlocked ? "Desbloquear no ranking" : "Bloquear no ranking";
+    if (dom.globalPlayerBan) dom.globalPlayerBan.textContent = player?.moderation?.banned ? "Desbanir jogador" : "Banir jogador";
+    if (dom.globalPlayerStatus) {
+      if (!enabled) dom.globalPlayerStatus.textContent = "Nenhum jogador selecionado.";
+      else {
+        const flags = [player.moderation?.banned ? "Banido" : "Ativo", player.moderation?.rankingBlocked ? "Ranking bloqueado" : "Ranking liberado"];
+        dom.globalPlayerStatus.textContent = `${player.playerNickname || player.email || player.nickname || "Sem apelido"} · ${flags.join(" · ")}`;
+      }
+    }
+  }
+  function fillGlobalPlayerFields(player) {
+    const state = player?.state || {};
+    if (dom.globalPlayerCoins) dom.globalPlayerCoins.value = String(Math.floor(Number(state.coins) || 0));
+    if (dom.globalPlayerResearch) dom.globalPlayerResearch.value = String(Math.max(0, Math.floor(Number(state.research) || 0)));
+    if (dom.globalPlayerPrestigePoints) dom.globalPlayerPrestigePoints.value = String(Math.max(0, Math.floor(Number(state.prestigePoints) || 0)));
+    if (dom.globalPlayerPrestigeCount) dom.globalPlayerPrestigeCount.value = String(Math.max(0, Math.floor(Number(state.stats?.prestiges) || 0)));
+    if (dom.globalPlayerFarmLevel) dom.globalPlayerFarmLevel.value = String(Math.max(1, Math.floor(Number(state.farmLevel) || 1)));
+  }
+  async function selectGlobalPlayer(userId) {
+    const uid = String(userId || "").trim();
+    if (!uid) {
+      selectedGlobalPlayer = null;
+      fillGlobalPlayerFields(null);
+      updateGlobalPlayerButtons(null);
+      return null;
+    }
+    if (dom.globalPlayerStatus) dom.globalPlayerStatus.textContent = "Carregando jogador...";
+    const detail = await window.FirebaseManager.loadPlayerSaveForAdmin(uid);
+    const summary = globalPlayerById(uid) || {};
+    selectedGlobalPlayer = { ...summary, ...detail, nickname: summary.nickname || window.FirebaseManager.normalizeNickname(detail.state?.settings?.playerNickname) || "Sem apelido" };
+    fillGlobalPlayerFields(selectedGlobalPlayer);
+    updateGlobalPlayerButtons(selectedGlobalPlayer);
+    return selectedGlobalPlayer;
+  }
+  async function loadGlobalPlayers(force = false) {
+    if (!authorized || !dom.globalPlayerSelect) return;
+    if (!force && globalPlayersLoaded && globalPlayers.length) return;
+    dom.globalPlayerSelect.disabled = true;
+    const previous = dom.globalPlayerSelect.value;
+    try {
+      globalPlayers = await window.FirebaseManager.listPlayerSavesForAdmin();
+      globalPlayersLoaded = true;
+      dom.globalPlayerSelect.innerHTML = `<option value="">Selecione um jogador</option>${globalPlayers.map(player => `<option value="${escapeHtml(player.userId)}">${escapeHtml(player.playerNickname || player.email || player.nickname)} · Nv. ${player.farmLevel} · ${escapeHtml(String(player.userId || "").slice(0, 8))}${player.banned ? " · BANIDO" : ""}</option>`).join("")}`;
+      const next = globalPlayers.some(player => player.userId === previous) ? previous : "";
+      dom.globalPlayerSelect.value = next;
+      if (next) await selectGlobalPlayer(next);
+      else updateGlobalPlayerButtons(null);
+    } finally {
+      dom.globalPlayerSelect.disabled = false;
+    }
+  }
+  async function resetGlobalResource(field, label) {
+    if (!confirm(`Zerar ${label} de TODOS os jogadores?`)) return;
+    setGlobalFeedback(`Resetando ${label}...`, "pending");
+    const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => {
+      if (Number(state?.[field]) === 0) return false;
+      state[field] = 0;
+      return true;
+    }, { mutationType: `reset-${field}-global` });
+    setGlobalFeedback(`${result.updated} de ${result.scanned} saves alterados.`, "success");
+    globalPlayersLoaded = false;
+  }
   async function loadOwnTestFields() {
     if (!authorized) return;
     const state = await window.FirebaseManager.loadGame();
@@ -368,30 +445,54 @@
   dom.resetTestOrders?.addEventListener("click", () => { if (!confirm("Resetar os pedidos da sua conta administrativa?")) return; mutateOwnTestSave("Resetando pedidos", resetOrdersInState).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
   dom.resetTestMissions?.addEventListener("click", () => { if (!confirm("Resetar as missões concluídas da sua conta administrativa?")) return; mutateOwnTestSave("Resetando missões", state => { state.missionsClaimed = {}; }).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
 
-  dom.globalResetResearch?.addEventListener("click", async () => {
-    if (!confirm("Resetar as pesquisas de TODOS os jogadores e devolver os pontos de pesquisa gastos?")) return;
-    dom.globalResetResearch.disabled = true;
-    setGlobalFeedback("Processando todos os saves...", "pending");
+  dom.globalResetCoins?.addEventListener("click", () => resetGlobalResource("coins", "as moedas").catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
+  dom.globalResetResearchPoints?.addEventListener("click", () => resetGlobalResource("research", "os pontos de pesquisa").catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
+  dom.globalResetPrestigePoints?.addEventListener("click", () => resetGlobalResource("prestigePoints", "os pontos de prestígio").catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
+  dom.globalResetOrders?.addEventListener("click", async () => {
+    if (!confirm("Resetar os pedidos de TODOS os jogadores?")) return;
+    dom.globalResetOrders.disabled = true;
+    setGlobalFeedback("Resetando pedidos...", "pending");
+    try {
+      const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => {
+        const hadProgress = Object.values(state.orders || {}).some(order => Number(order?.tier) > 0 || Number(order?.delivered) > 0 || Boolean(order?.autoDeliver))
+          || Number(state.stats?.ordersCompleted) > 0
+          || Number(state.stats?.orderUnitsDelivered) > 0;
+        if (!hadProgress) return false;
+        resetOrdersInState(state);
+        return true;
+      }, { mutationType: "reset-orders-global" });
+      setGlobalFeedback(`${result.updated} de ${result.scanned} saves tiveram os pedidos resetados.`, "success");
+      globalPlayersLoaded = false;
+    } catch (error) {
+      setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error");
+    } finally {
+      dom.globalResetOrders.disabled = false;
+    }
+  });
+
+  dom.globalResolveResearch?.addEventListener("click", async () => {
+    const refundPoints = Boolean(dom.globalRefundResearch?.checked);
+    if (!confirm(`Zerar todas as pesquisas de TODOS os jogadores${refundPoints ? " e devolver os pontos gastos" : " sem devolver os pontos"}?`)) return;
+    dom.globalResolveResearch.disabled = true;
+    setGlobalFeedback("Resolvendo pesquisas...", "pending");
     let refunded = 0;
     try {
       const currentResearchIds = new Set((currentConfig?.research || []).map(item => item.id));
       const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => {
-        const refund = researchRefundForState(state);
         const hasLevels = Object.entries(state.researchTechs || {}).some(([id, level]) => currentResearchIds.has(id) && Number(level) > 0)
           || Object.values(state.upgrades || {}).some(level => Number(level) > 0);
         if (!hasLevels) return false;
+        const refund = refundPoints ? researchRefundForState(state) : 0;
         refunded += refund;
-        state.research = Math.max(0, Number(state.research) || 0) + refund;
+        if (refund) state.research = Math.max(0, Number(state.research) || 0) + refund;
         state.researchTechs = Object.fromEntries((currentConfig?.research || []).map(item => [item.id, 0]));
         state.upgrades = {};
         return true;
-      }, { mutationType: "reset-research-global" });
-      if (!result.scanned) throw new Error("Nenhum save de jogador foi encontrado pelo Controle global.");
-      setGlobalFeedback(result.updated
-        ? `${result.updated} de ${result.scanned} saves atualizados · ${refunded.toLocaleString("pt-BR")} pontos devolvidos.`
-        : `${result.scanned} saves verificados · nenhuma pesquisa ativa precisava ser resetada.`, "success");
+      }, { mutationType: refundPoints ? "resolve-research-refund" : "resolve-research-no-refund" });
+      setGlobalFeedback(`${result.updated} de ${result.scanned} saves corrigidos${refundPoints ? ` · ${refunded.toLocaleString("pt-BR")} pontos devolvidos` : ""}.`, "success");
+      globalPlayersLoaded = false;
     } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
-    finally { dom.globalResetResearch.disabled = false; }
+    finally { dom.globalResolveResearch.disabled = false; }
   });
 
   dom.globalResolveCrops?.addEventListener("click", async () => {
@@ -400,12 +501,72 @@
     setGlobalFeedback("Verificando todos os saves...", "pending");
     try {
       const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => reconcileCropsForState(state), { mutationType: "reconcile-crops-global" });
-      if (!result.scanned) throw new Error("Nenhum save de jogador foi encontrado pelo Controle global.");
-      setGlobalFeedback(result.updated
-        ? `${result.updated} de ${result.scanned} saves corrigidos · ${result.skipped} já estavam consistentes.`
-        : `${result.scanned} saves verificados · nenhum conflito de plantas encontrado.`, "success");
+      setGlobalFeedback(result.updated ? `${result.updated} de ${result.scanned} saves corrigidos.` : `${result.scanned} saves verificados · nenhum conflito encontrado.`, "success");
+      globalPlayersLoaded = false;
     } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
     finally { dom.globalResolveCrops.disabled = false; }
+  });
+
+  dom.globalRefreshPlayers?.addEventListener("click", () => { globalPlayersLoaded = false; loadGlobalPlayers(true).catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
+  dom.globalPlayerSelect?.addEventListener("change", () => selectGlobalPlayer(dom.globalPlayerSelect.value).catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
+  dom.globalPlayerApply?.addEventListener("click", async () => {
+    if (!selectedGlobalPlayer?.userId) return;
+    const uid = selectedGlobalPlayer.userId;
+    setGlobalFeedback("Salvando variáveis do jogador...", "pending");
+    try {
+      await window.FirebaseManager.mutatePlayerSaveForAdmin(uid, state => {
+        state.coins = parsePositive(dom.globalPlayerCoins?.value ?? state.coins, true);
+        state.research = parsePositive(dom.globalPlayerResearch?.value ?? state.research, true);
+        state.prestigePoints = parsePositive(dom.globalPlayerPrestigePoints?.value ?? state.prestigePoints, true);
+        state.farmLevel = Math.max(1, parsePositive(dom.globalPlayerFarmLevel?.value ?? state.farmLevel, true) || 1);
+        state.farmXP = 0;
+        state.stats = state.stats || {};
+        state.stats.prestiges = parsePositive(dom.globalPlayerPrestigeCount?.value ?? state.stats.prestiges, true);
+        state.stats.maxFarmLevel = Math.max(Number(state.stats.maxFarmLevel) || 1, state.farmLevel);
+        return true;
+      }, "single-player-variables");
+      setGlobalFeedback("Variáveis do jogador atualizadas.", "success");
+      globalPlayersLoaded = false;
+      await loadGlobalPlayers(true);
+      dom.globalPlayerSelect.value = uid;
+      await selectGlobalPlayer(uid);
+    } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
+  });
+  dom.globalPlayerRanking?.addEventListener("click", async () => {
+    if (!selectedGlobalPlayer?.userId) return;
+    const uid = selectedGlobalPlayer.userId;
+    const block = !selectedGlobalPlayer.moderation?.rankingBlocked;
+    if (!confirm(`${block ? "Bloquear" : "Desbloquear"} ${selectedGlobalPlayer.nickname} no ranking global?`)) return;
+    try {
+      const moderation = await window.FirebaseManager.setPlayerModerationForAdmin(uid, { rankingBlocked: block });
+      selectedGlobalPlayer.moderation = moderation;
+      updateGlobalPlayerButtons();
+      setGlobalFeedback(block ? "Jogador bloqueado do ranking." : "Jogador liberado para o ranking.", "success");
+    } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
+  });
+  dom.globalPlayerReset?.addEventListener("click", async () => {
+    if (!selectedGlobalPlayer?.userId) return;
+    if (!confirm(`Resetar completamente a conta de ${selectedGlobalPlayer.nickname}? O save será apagado e não poderá ser recuperado pelo painel.`)) return;
+    try {
+      await window.FirebaseManager.resetPlayerAccountForAdmin(selectedGlobalPlayer.userId);
+      setGlobalFeedback("Conta resetada. Um novo save será criado quando o jogador entrar novamente.", "success");
+      selectedGlobalPlayer = null;
+      globalPlayersLoaded = false;
+      await loadGlobalPlayers(true);
+    } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
+  });
+  dom.globalPlayerBan?.addEventListener("click", async () => {
+    if (!selectedGlobalPlayer?.userId) return;
+    const uid = selectedGlobalPlayer.userId;
+    const ban = !selectedGlobalPlayer.moderation?.banned;
+    if (!confirm(`${ban ? "Banir" : "Desbanir"} ${selectedGlobalPlayer.nickname}?`)) return;
+    const reason = ban ? String(prompt("Motivo do banimento (opcional):", selectedGlobalPlayer.moderation?.reason || "") || "").trim().slice(0, 240) : "";
+    try {
+      const moderation = await window.FirebaseManager.setPlayerModerationForAdmin(uid, { banned: ban, reason });
+      selectedGlobalPlayer.moderation = moderation;
+      updateGlobalPlayerButtons();
+      setGlobalFeedback(ban ? "Jogador banido e bloqueado das gravações do jogo." : "Jogador desbanido.", "success");
+    } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
   });
 
   bindNavigationOrderControls(dom.navigationIconGrid);

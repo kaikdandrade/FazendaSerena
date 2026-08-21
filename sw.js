@@ -1,5 +1,5 @@
 "use strict";
-const CACHE_NAME = "fazenda-serena-assets-r34";
+const CACHE_NAME = "fazenda-serena-assets-r36";
 const CORE_ASSETS = [
   "/assets/logo.webp", "/assets/favicon.ico",
   "/assets/icons/moeda.webp", "/assets/icons/pocao-pesquisa.webp",

@@ -46,7 +46,7 @@ Object.assign(GameEngine.prototype, {
       this.state.stats.lifetimeOrdersCompleted += 1;
       this.addCoins(order.rewardCoins);
       this.addResearch(order.rewardResearch);
-      this.state.prestigePoints += order.rewardPrestige;
+      this.addPrestigePoints(order.rewardPrestige);
       const xp = this.getFarmXPAwardForRate(order.xpRate);
       this.addFarmXPPercent(order.xpRate, 1, silent);
       return { coins: order.rewardCoins, research: order.rewardResearch, prestige: order.rewardPrestige, xp, xpRate: order.xpRate };
@@ -118,7 +118,7 @@ Object.assign(GameEngine.prototype, {
       const reward = mission.reward || {};
       if (reward.coins) this.addCoins(reward.coins);
       if (reward.research) this.addResearch(reward.research);
-      if (reward.prestige) this.state.prestigePoints += reward.prestige;
+      if (reward.prestige) this.addPrestigePoints(reward.prestige);
       this.state.missionsClaimed[id] = true;
       return { ok: true, mission };
     }

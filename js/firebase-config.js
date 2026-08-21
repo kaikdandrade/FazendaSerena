@@ -16,3 +16,10 @@ window.FIREBASE_CONFIG = Object.freeze({
   measurementId: "G-T2YY4PK49J"
   // measurementId: "G-XXXXXXXXXX" // Opcional, somente se usar Analytics.
 });
+
+/*
+ * Segurança opcional recomendada: Firebase App Check (reCAPTCHA Enterprise).
+ * Informe aqui a SITE KEY pública gerada no Console Firebase e depois ative o
+ * enforcement para Cloud Firestore. Deixe vazio enquanto ainda não configurar.
+ */
+window.FIREBASE_APP_CHECK_SITE_KEY = window.FIREBASE_APP_CHECK_SITE_KEY || "";

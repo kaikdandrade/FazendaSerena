@@ -275,6 +275,18 @@ Object.assign(GameEngine.prototype, {
     };
   },
 
+  getContractOfferTargetCount(state = this.state) {
+    const cooldowns = Array.isArray(state?.contractCooldowns) ? state.contractCooldowns : [];
+    const extraOfferSpaces = Math.max(0, Math.floor(this.getEvolutionBonus("contractOfferCount", state)));
+    const configuredOffers = Math.min(GameEngine.MAX_CONTRACT_OFFERS, Math.max(0, GameEngine.CONTRACT_OFFER_COUNT + extraOfferSpaces));
+    return Math.max(0, configuredOffers - cooldowns.filter(item => Number(item?.timeRemaining) > 0).length);
+  },
+
+  needsContractOfferRefresh(state = this.state) {
+    if (!this.getContractEligibleCrops().length || !this.data.companies?.length || !this.data.contractTypes?.length) return false;
+    return (Array.isArray(state?.contractOffers) ? state.contractOffers.length : 0) < this.getContractOfferTargetCount(state);
+  },
+
   ensureContractOffers() {
     if (!Array.isArray(this.state.contractOffers)) this.state.contractOffers = [];
     if (!Array.isArray(this.state.contractCooldowns)) this.state.contractCooldowns = [];
@@ -290,8 +302,10 @@ Object.assign(GameEngine.prototype, {
       this.state.contractCooldowns = [];
       return;
     }
-    const maximumOffers = Math.max(0, GameEngine.CONTRACT_OFFER_COUNT - this.state.contractCooldowns.length);
-    if (this.state.contractOffers.length < maximumOffers) this.state.contractOffers.push(...this.createContractOffers(maximumOffers - this.state.contractOffers.length));
+    const maximumOffers = this.getContractOfferTargetCount(this.state);
+    if (GameEngine.ALLOW_CONTRACT_OFFER_CREATION && this.state.contractOffers.length < maximumOffers) {
+      this.state.contractOffers.push(...this.createContractOffers(maximumOffers - this.state.contractOffers.length));
+    }
     this.state.contractOffers = this.state.contractOffers.slice(0, maximumOffers);
   },
 
@@ -424,7 +438,7 @@ Object.assign(GameEngine.prototype, {
     this.state.activeContracts.splice(index, 1);
     if (contract.rewardCoins) this.addCoins(contract.rewardCoins);
     if (contract.rewardResearch) this.addResearch(contract.rewardResearch);
-    if (contract.rewardPrestige) this.state.prestigePoints += contract.rewardPrestige;
+    if (contract.rewardPrestige) this.addPrestigePoints(contract.rewardPrestige);
     const xpAward = this.getFarmXPAwardForRate(contract.xpRate);
     this.addFarmXPPercent(contract.xpRate);
     this.ensureContractOffers();

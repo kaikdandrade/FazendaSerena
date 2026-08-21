@@ -116,6 +116,19 @@ Object.assign(GameEngine.prototype, {
       return this.setAutoSell(cropId, !cropState?.autoSell);
     },
 
+  setStockFavorite(cropId, enabled) {
+      const crop = this.getCrop(cropId);
+      const cropState = this.state.crops[cropId];
+      if (!crop || !cropState?.owned) return { ok: false, message: "Compre a cultura antes de favoritá-la." };
+      cropState.favorite = Boolean(enabled);
+      return { ok: true, crop, favorite: cropState.favorite };
+    },
+
+  toggleStockFavorite(cropId) {
+      const cropState = this.state.crops[cropId];
+      return this.setStockFavorite(cropId, !cropState?.favorite);
+    },
+
   setAllAutoSell(enabled) {
       const owned = this.data.crops.filter(crop => this.state.crops[crop.id]?.owned);
       if (!owned.length) return { ok: false, message: "Compre uma cultura antes de configurar as vendas automáticas." };

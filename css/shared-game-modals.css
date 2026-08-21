@@ -1,0 +1,331 @@
+/* Revisão 36 — modais compartilhados entre produção e Testes do Admin.
+   Este arquivo é carregado POR ÚLTIMO e vence regras legadas conflitantes. */
+html.modal-open,
+body.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+
+dialog[open] {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  background: rgba(22, 34, 24, .48) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+/* Marco — réplica exata do preview aprovado no Admin. */
+.confirmation-dialog-milestone {
+  background: #fff !important;
+  border: 0 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 26px 70px rgba(25, 44, 28, .22) !important;
+  max-height: min(86dvh, 700px) !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: min(560px, calc(100vw - 24px)) !important;
+}
+
+.confirmation-dialog-milestone > form {
+  display: grid !important;
+  gap: 0 !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  margin: 0 !important;
+  max-height: min(86dvh, 700px) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-header {
+  align-items: center !important;
+  background: linear-gradient(135deg, #eef6ea, #fff) !important;
+  border-bottom: 1px solid rgba(62, 91, 64, .08) !important;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  margin: 0 !important;
+  padding: 18px !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-header > img {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: 60px !important;
+  object-fit: contain !important;
+  padding: 0 !important;
+  width: 60px !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-header > div {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-header small {
+  color: #56805a !important;
+  font-size: .63rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .06em !important;
+  margin: 0 !important;
+  text-transform: uppercase !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-header h2 {
+  font-size: 1.15rem !important;
+  line-height: 1.18 !important;
+  margin: 0 !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-body {
+  display: grid !important;
+  gap: 9px !important;
+  margin: 0 !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 16px 18px !important;
+  width: 100% !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-card {
+  align-items: center !important;
+  background: #f8faf7 !important;
+  border: 1px solid rgba(62, 91, 64, .08) !important;
+  border-radius: 13px !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  padding: 10px !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-card > img {
+  height: 40px !important;
+  object-fit: contain !important;
+  width: 40px !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-card > div {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-card strong {
+  font-size: .8rem !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-card span {
+  color: #68756c !important;
+  font-size: .67rem !important;
+  line-height: 1.4 !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-actions {
+  border-top: 1px solid rgba(62, 91, 64, .08) !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 12px 18px 16px !important;
+}
+
+.confirmation-dialog-milestone .milestone-preview-actions .button,
+.confirmation-dialog-milestone .milestone-preview-actions .admin-button {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* Offline — réplica exata do preview aprovado no Admin. */
+.offline-progress-dialog {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 28px 80px rgba(24, 39, 27, .28) !important;
+  max-height: min(88dvh, 720px) !important;
+  max-width: none !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: min(620px, calc(100vw - 24px)) !important;
+}
+
+.offline-progress-dialog > form {
+  background: #fff !important;
+  border: 1px solid rgba(63, 94, 66, .12) !important;
+  border-radius: 22px !important;
+  display: grid !important;
+  gap: 0 !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: auto minmax(0, 1fr) auto !important;
+  margin: 0 !important;
+  max-height: min(88dvh, 720px) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.offline-progress-dialog .offline-progress-header {
+  align-items: center !important;
+  background: linear-gradient(140deg, #f4f9f1 0%, #fff 72%) !important;
+  border-bottom: 1px solid rgba(63, 94, 66, .09) !important;
+  display: grid !important;
+  gap: 13px !important;
+  grid-template-columns: 66px minmax(0, 1fr) !important;
+  margin: 0 !important;
+  padding: 18px 20px !important;
+}
+
+.offline-progress-dialog .offline-progress-symbol {
+  align-items: center !important;
+  background: rgba(80, 137, 77, .07) !important;
+  border: 1px solid rgba(80, 137, 77, .09) !important;
+  border-radius: 18px !important;
+  display: flex !important;
+  height: 66px !important;
+  justify-content: center !important;
+  width: 66px !important;
+}
+
+.offline-progress-dialog .offline-progress-symbol > img {
+  height: 50px !important;
+  object-fit: contain !important;
+  width: 50px !important;
+}
+
+.offline-progress-dialog .offline-progress-heading {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+.offline-progress-dialog .offline-progress-heading h2 {
+  font-size: 1.18rem !important;
+  line-height: 1.1 !important;
+  margin: 0 !important;
+}
+
+.offline-progress-dialog .offline-progress-heading strong {
+  align-items: center !important;
+  background: #edf5ea !important;
+  border-radius: 999px !important;
+  color: #4d754e !important;
+  display: inline-flex !important;
+  font-size: .75rem !important;
+  justify-self: start !important;
+  min-height: 27px !important;
+  padding: 5px 10px !important;
+}
+
+.offline-progress-dialog .offline-progress-summary {
+  align-content: start !important;
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  overflow: auto !important;
+  padding: 16px 20px !important;
+}
+
+.offline-progress-dialog .offline-gain-card {
+  align-items: center !important;
+  background: #f8faf7 !important;
+  border: 1px solid rgba(67, 98, 69, .09) !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  display: grid !important;
+  gap: 11px !important;
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  margin: 0 !important;
+  min-height: 82px !important;
+  min-width: 0 !important;
+  padding: 12px 13px !important;
+}
+
+.offline-progress-dialog .offline-gain-card > img {
+  height: 44px !important;
+  object-fit: contain !important;
+  width: 44px !important;
+}
+
+.offline-progress-dialog .offline-gain-card > div {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+
+.offline-progress-dialog .offline-gain-card span {
+  color: #68756c !important;
+  font-size: .65rem !important;
+  font-weight: 800 !important;
+}
+
+.offline-progress-dialog .offline-gain-card strong {
+  font-size: 1.04rem !important;
+}
+
+.offline-progress-dialog .offline-progress-actions {
+  background: #fbfcfa !important;
+  border-top: 1px solid rgba(63, 94, 66, .09) !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 12px 20px 16px !important;
+}
+
+.offline-progress-dialog .offline-progress-actions .button,
+.offline-progress-dialog .offline-progress-actions .admin-button {
+  min-height: 44px !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+@media (max-width: 480px) {
+  .confirmation-dialog-milestone {
+    border-radius: 16px !important;
+    width: calc(100vw - 12px) !important;
+  }
+  .confirmation-dialog-milestone .milestone-preview-header {
+    grid-template-columns: 54px minmax(0, 1fr) !important;
+    padding: 14px !important;
+  }
+  .confirmation-dialog-milestone .milestone-preview-header > img {
+    height: 50px !important;
+    width: 50px !important;
+  }
+  .confirmation-dialog-milestone .milestone-preview-body {
+    padding: 12px 14px !important;
+  }
+
+  .offline-progress-dialog {
+    border-radius: 16px !important;
+    width: calc(100vw - 12px) !important;
+  }
+  .offline-progress-dialog > form {
+    border-radius: 16px !important;
+  }
+  .offline-progress-dialog .offline-progress-header {
+    grid-template-columns: 54px minmax(0, 1fr) !important;
+    padding: 14px !important;
+  }
+  .offline-progress-dialog .offline-progress-symbol {
+    border-radius: 14px !important;
+    height: 54px !important;
+    width: 54px !important;
+  }
+  .offline-progress-dialog .offline-progress-symbol > img {
+    height: 42px !important;
+    width: 42px !important;
+  }
+  .offline-progress-dialog .offline-progress-summary {
+    grid-template-columns: 1fr !important;
+    padding: 12px 14px !important;
+  }
+  .offline-progress-dialog .offline-progress-actions {
+    padding: 10px 14px 14px !important;
+  }
+}

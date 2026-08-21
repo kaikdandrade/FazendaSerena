@@ -124,18 +124,22 @@
   }
 
   function renderPrestigeDashboard() {
-    const gain = engine.getPrestigeEstimate();
-    const metrics = engine.getMetrics();
+    const prestigeBreakdown = engine.getPrestigeBreakdown();
+    const gain = prestigeBreakdown.total;
     const prestigeUnlocked = engine.isPrestigeUnlocked();
+    const cropStates = engine.data.crops.map(crop => engine.state.crops?.[crop.id] || {});
+    const averageCropLevel = cropStates.length
+      ? Math.floor(cropStates.reduce((sum, item) => sum + Math.max(0, Number(item.level) || 0), 0) / cropStates.length)
+      : 0;
     const drivers = [
-      { label: "Nível da fazenda", value: `${engine.state.farmLevel}`, ready: prestigeUnlocked },
-      { label: "Moedas desta jornada", value: resourceAmount("coins", engine.state.stats.runCoinsEarned), ready: engine.state.stats.runCoinsEarned > 0 },
-      { label: "Culturas compradas", value: `${metrics.owned} / ${engine.data.crops.length}`, ready: metrics.owned > 0 },
-      { label: "Contratos concluídos", value: engine.state.stats.contractsCompleted, ready: engine.state.stats.contractsCompleted > 0 }
+      { label: "Níveis acima do desbloqueio", value: `${Math.max(0, engine.state.farmLevel - GameEngine.PRESTIGE_UNLOCK_LEVEL)} / ${Math.max(0, GameEngine.MAX_FARM_LEVEL - GameEngine.PRESTIGE_UNLOCK_LEVEL)}`, ready: prestigeBreakdown.level > 0 },
+      { label: "Culturas compradas", value: `${prestigeBreakdown.owned || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}`, ready: (prestigeBreakdown.owned || 0) > 0 },
+      { label: "Nível médio das plantas", value: `${averageCropLevel} / ${GameEngine.MAX_CROP_LEVEL}`, ready: prestigeBreakdown.upgrades > 0 },
+      { label: "Plantas platinadas", value: `${prestigeBreakdown.mastered || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}`, ready: (prestigeBreakdown.mastered || 0) > 0 }
     ];
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-overview-card normalized-prestige-card ${!prestigeUnlocked ? "prestige-locked" : ""}">
-        <div class="prestige-copy"><p class="eyebrow">prestígio</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : `Prestígio desbloqueado no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</h2><p>${prestigeUnlocked ? "O cálculo usa somente o progresso renovável desta jornada." : `Você já pode visualizar e comprar legados com pontos acumulados. Apenas a ação de prestigiar permanece bloqueada por mais ${Math.max(0, GameEngine.PRESTIGE_UNLOCK_LEVEL - engine.state.farmLevel)} níveis.`}</p></div>
+        <div class="prestige-copy"><p class="eyebrow">prestígio</p><h2>${prestigeUnlocked ? "Transforme esta jornada em legado" : `Prestígio desbloqueado no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</h2><p>${prestigeUnlocked ? "O nível de desbloqueio é a base e não concede pontos. O ganho vem dos níveis acima dele e do progresso das plantas." : `Você já pode visualizar e comprar legados com pontos acumulados. Apenas a ação de prestigiar permanece bloqueada por mais ${Math.max(0, GameEngine.PRESTIGE_UNLOCK_LEVEL - engine.state.farmLevel)} níveis.`}</p></div>
         <div class="prestige-gain-card"><small>Ganho estimado</small><strong>${resourceAmount("prestige", gain)}</strong><span>${prestigeUnlocked ? (engine.state.permanentBonuses.prestigeDouble ? "Bônus permanente 2× ativo" : "Aumente a jornada para ganhar mais") : `Prestígio no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</span></div>
       </section>
       <section class="prestige-requirements normalized-prestige-requirements"><div class="prestige-requirements-head"><div><small>Requisitos da jornada</small><h3>Progresso que será convertido</h3></div><span>${prestigeUnlocked && gain > 0 ? "Pronto" : "Em progresso"}</span></div><div class="prestige-driver-grid">${drivers.map(item => `<article class="${item.ready ? "ready" : ""}"><div><small>${item.label}</small><strong>${item.value}</strong></div></article>`).join("")}</div></section>

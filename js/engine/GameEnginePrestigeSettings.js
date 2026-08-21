@@ -1,19 +1,60 @@
 "use strict";
 
 Object.assign(GameEngine.prototype, {
-  getPrestigeEstimate() {
-      if (!this.isPrestigeUnlocked()) return 0;
-      const owned = Object.values(this.state.crops).filter(item => item.owned).length;
-      // O prestígio acompanha melhor uma jornada consistente sem
-      // ultrapassar a importância das missões e dos legados permanentes.
-      const score = Math.sqrt(Math.max(0, this.state.stats.runCoinsEarned) / 36000)
-        + owned / 8
-        + this.state.farmLevel / 8
-        + this.state.stats.contractsCompleted / 6
-        - 2.8;
+  getPrestigeBreakdown() {
+      if (!this.isPrestigeUnlocked()) {
+        return { level: 0, ownership: 0, upgrades: 0, mastery: 0, base: 0, total: 0 };
+      }
+
+      const unlockLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(GameEngine.PRESTIGE_UNLOCK_LEVEL) || 1)));
+      const currentLevel = Math.max(unlockLevel, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(this.state.farmLevel) || 1)));
+      const levelRange = Math.max(1, GameEngine.MAX_FARM_LEVEL - unlockLevel);
+      const levelProgress = Math.max(0, currentLevel - unlockLevel) / levelRange;
+
+      const crops = Array.isArray(this.data.crops) ? this.data.crops : [];
+      const totalCrops = Math.max(1, crops.length);
+      let owned = 0;
+      let normalizedUpgradeProgress = 0;
+      let mastered = 0;
+      crops.forEach(crop => {
+        const cropState = this.state.crops?.[crop.id] || {};
+        const isOwned = Boolean(cropState.owned);
+        if (isOwned) owned += 1;
+        const level = isOwned ? Math.max(0, Math.min(GameEngine.MAX_CROP_LEVEL, Number(cropState.level) || 0)) : 0;
+        normalizedUpgradeProgress += level / Math.max(1, GameEngine.MAX_CROP_LEVEL);
+        if (level >= GameEngine.MAX_CROP_LEVEL) mastered += 1;
+      });
+
+      // Prestígio é deliberadamente raro. O nível de desbloqueio é apenas a
+      // linha de partida: chegar exatamente nele não concede ponto algum.
+      // O teto base é pequeno mesmo no nível 1000 e com todas as plantas
+      // platinadas, evitando saltos de milhares/milhões no início do jogo.
+      const levelScore = levelProgress * 24;
+      const ownershipScore = (owned / totalCrops) * 3;
+      const upgradeScore = (normalizedUpgradeProgress / totalCrops) * 12;
+      const masteryScore = (mastered / totalCrops) * 24;
+      const base = Math.max(0, Math.floor(levelScore + ownershipScore + upgradeScore + masteryScore + 1e-9));
       const resonance = 1 + Math.max(0, this.getEvolutionBonus("prestigeGainPercent")) / 100;
       const missionMultiplier = this.state.permanentBonuses.prestigeDouble ? 2 : 1;
-      return Math.max(0, Math.floor(score * resonance * missionMultiplier));
+      const total = Math.max(0, Math.floor(base * resonance * missionMultiplier));
+
+      return {
+        level: Math.max(0, Math.floor(levelScore)),
+        ownership: Math.max(0, Math.floor(ownershipScore)),
+        upgrades: Math.max(0, Math.floor(upgradeScore)),
+        mastery: Math.max(0, Math.floor(masteryScore)),
+        base,
+        total,
+        owned,
+        mastered,
+        totalCrops,
+        unlockLevel,
+        currentLevel
+      };
+    },
+
+  getPrestigeEstimate() {
+      return this.getPrestigeBreakdown().total;
     },
 
   performPrestige() {
@@ -28,6 +69,8 @@ Object.assign(GameEngine.prototype, {
         missionsClaimed: { ...this.state.missionsClaimed },
         prestiges: this.state.stats.prestiges + 1,
         lifetimeCoins: this.state.stats.lifetimeCoins,
+        lifetimeResearchEarned: this.state.stats.lifetimeResearchEarned,
+        lifetimeFarmXPEarned: this.state.stats.lifetimeFarmXPEarned,
         lifetimeHarvested: this.state.stats.lifetimeHarvested,
         lifetimeSold: this.state.stats.lifetimeSold,
         lifetimeSoldByCategory: { ...this.state.stats.lifetimeSoldByCategory },

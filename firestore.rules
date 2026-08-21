@@ -2,6 +2,9 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // R36 corrigida: regras compatíveis com o fluxo de save da r35,
+    // preservando isolamento por UID, administração protegida e validação de schema.
+    // Não há validação econômica agressiva por transição nesta versão.
     function signedIn() {
       return request.auth != null;
     }
@@ -26,6 +29,112 @@ service cloud.firestore {
              );
     }
 
+    function moderationExists(userId) {
+      return exists(/databases/$(database)/documents/playerModeration/$(userId));
+    }
+
+    function isBannedUser(userId) {
+      return moderationExists(userId)
+             && get(/databases/$(database)/documents/playerModeration/$(userId)).data.banned == true;
+    }
+
+    function isRankingBlockedUser(userId) {
+      return moderationExists(userId)
+             && get(/databases/$(database)/documents/playerModeration/$(userId)).data.rankingBlocked == true;
+    }
+
+    function isNumber(value) {
+      return value is int || value is float;
+    }
+
+    // O save do jogo evolui com frequência. Nesta revisão as Rules não tentam
+    // reproduzir a economia inteira do GameEngine, pois isso estava bloqueando
+    // compras/aprimoramentos legítimos. Mantemos validação estrutural mínima e
+    // o isolamento por UID; coleções administrativas continuam fechadas.
+    function validClientPlayerState() {
+      let state = request.resource.data.state;
+      return state is map
+             && state.keys().hasAll([
+               'version', 'coins', 'research', 'prestigePoints', 'farmLevel',
+               'farmXP', 'crops', 'orders', 'settings', 'stats', 'lastUpdate', 'createdAt'
+             ])
+             && isNumber(state.coins)
+             && isNumber(state.research)
+             && isNumber(state.prestigePoints)
+             && state.farmLevel is int
+             && state.farmLevel >= 1
+             && state.farmLevel <= 1000
+             && isNumber(state.farmXP)
+             && state.crops is map
+             && state.orders is map
+             && state.settings is map
+             && state.stats is map
+             && state.lastUpdate is int
+             && state.lastUpdate > 0
+             && state.createdAt is int
+             && state.createdAt > 0;
+    }
+
+    function validClientSaveEnvelope(userId) {
+      return signedIn()
+             && request.auth.uid == userId
+             && !isBannedUser(userId)
+             && request.resource.data.keys().hasAll(['state', 'saveVersion', 'updatedAt', 'updatedAtClient'])
+             && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'updatedAt', 'updatedAtClient'])
+             && request.resource.data.state is map
+             && validClientPlayerState()
+             && ((request.resource.data.saveVersion is string
+                  && request.resource.data.saveVersion.size() >= 1
+                  && request.resource.data.saveVersion.size() <= 24)
+                 || request.resource.data.saveVersion is int)
+             && (!request.resource.data.keys().hasAny(['ownerEmail'])
+                 || (request.resource.data.ownerEmail is string
+                     && request.auth.token.email is string
+                     && request.resource.data.ownerEmail == request.auth.token.email))
+             && request.resource.data.updatedAt is timestamp
+             && request.resource.data.updatedAt == request.time
+             && request.resource.data.updatedAtClient is int;
+    }
+
+    // Salvar perfil usa update parcial e propositalmente não altera updatedAt.
+    // Essa exceção continua limitada somente aos três campos públicos do perfil.
+    function validProfileSettingsTransition(userId) {
+      let oldState = resource.data.state;
+      let nextState = request.resource.data.state;
+      return signedIn()
+             && request.auth.uid == userId
+             && !isBannedUser(userId)
+             && resource.data.state is map
+             && request.resource.data.state is map
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['state'])
+             && nextState.diff(oldState).affectedKeys().hasOnly(['settings'])
+             && oldState.settings is map
+             && nextState.settings is map
+             && nextState.settings.diff(oldState.settings).affectedKeys().hasOnly([
+               'playerNickname', 'playerAvatar', 'playerRankingOptOut'
+             ])
+             && nextState.settings.playerNickname is string
+             && nextState.settings.playerNickname.size() >= 4
+             && nextState.settings.playerNickname.size() <= 24
+             && nextState.settings.playerAvatar is string
+             && nextState.settings.playerAvatar.size() >= 1
+             && nextState.settings.playerAvatar.size() <= 48
+             && nextState.settings.playerRankingOptOut is bool;
+    }
+
+    function validModerationPayload() {
+      return request.resource.data.keys().hasOnly([
+               'banned', 'rankingBlocked', 'reason', 'updatedAt', 'updatedAtClient', 'updatedBy'
+             ])
+             && request.resource.data.banned is bool
+             && request.resource.data.rankingBlocked is bool
+             && request.resource.data.reason is string
+             && request.resource.data.reason.size() <= 240
+             && request.resource.data.updatedAt is timestamp
+             && request.resource.data.updatedAtClient is int
+             && request.resource.data.updatedBy == request.auth.uid;
+    }
+
     function validAdminPayload() {
       return request.resource.data.keys().hasOnly([
                'enabled', 'email', 'displayName', 'createdAt', 'createdAtClient', 'createdBy'
@@ -36,6 +145,7 @@ service cloud.firestore {
              && request.resource.data.email.size() <= 160
              && request.resource.data.displayName is string
              && request.resource.data.displayName.size() <= 80
+             && request.resource.data.createdAt is timestamp
              && request.resource.data.createdAtClient is int
              && request.resource.data.createdBy is string;
     }
@@ -72,8 +182,16 @@ service cloud.firestore {
       allow delete: if isAdministrator();
     }
 
+    match /playerModeration/{userId} {
+      allow get: if signedIn() && (request.auth.uid == userId || isAdministrator());
+      allow list: if isAdministrator();
+      allow create, update: if isAdministrator() && validModerationPayload();
+      allow delete: if isAdministrator();
+    }
+
     match /playerFeedback/{feedbackId} {
       allow create: if signedIn()
+                    && !isBannedUser(request.auth.uid)
                     && request.resource.data.keys().hasOnly([
                       'userId', 'email', 'displayName', 'type', 'subject', 'message',
                       'status', 'gameVersion', 'createdAt', 'createdAtClient'
@@ -93,7 +211,9 @@ service cloud.firestore {
                     && request.resource.data.status == 'new'
                     && request.resource.data.gameVersion is string
                     && request.resource.data.gameVersion.size() <= 30
-                    && request.resource.data.createdAtClient is int;
+                    && request.resource.data.createdAt is timestamp
+             && request.resource.data.createdAt == request.time
+             && request.resource.data.createdAtClient is int;
       allow read: if isAdministrator();
       allow update: if isAdministrator()
                     && request.resource.data.keys().hasOnly([
@@ -115,40 +235,35 @@ service cloud.firestore {
     }
 
     match /players/{userId}/saves/main {
-      allow read: if (request.auth != null && request.auth.uid == userId)
+      allow read: if (signedIn() && request.auth.uid == userId && !isBannedUser(userId))
                   || isAdministrator();
-      allow delete: if request.auth != null
-                    && request.auth.uid == userId;
+      allow delete: if (signedIn() && request.auth.uid == userId && !isBannedUser(userId))
+                    || isAdministrator();
 
-      allow create, update: if (
-                              request.auth != null
-                              && request.auth.uid == userId
-                              && request.resource.data.keys().hasOnly([
-                                'state',
-                                'saveVersion',
-                                'updatedAt',
-                                'updatedAtClient'
-                              ])
-                              && request.resource.data.state is map
-                              && (
-                                (request.resource.data.saveVersion is string
-                                  && request.resource.data.saveVersion.size() >= 5
-                                  && request.resource.data.saveVersion.size() <= 20)
-                                || request.resource.data.saveVersion is int
-                              )
-                              && request.resource.data.updatedAtClient is int
-                            )
-                            || (
-                              isAdministrator()
-                              && request.resource.data.keys().hasOnly([
-                                'state',
-                                'saveVersion',
-                                'updatedAt',
-                                'updatedAtClient'
-                              ])
-                              && request.resource.data.state is map
-                              && request.resource.data.updatedAtClient is int
-                            );
+      allow create: if validClientSaveEnvelope(userId)
+                    || (isAdministrator()
+                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'updatedAt', 'updatedAtClient'])
+                        && request.resource.data.state is map
+                        && request.resource.data.updatedAt is timestamp
+                        && request.resource.data.updatedAtClient is int);
+
+      allow update: if validProfileSettingsTransition(userId)
+                    || (validClientSaveEnvelope(userId)
+                        && (!resource.data.state.keys().hasAny(['createdAt'])
+                            || !request.resource.data.state.keys().hasAny(['createdAt'])
+                            || request.resource.data.state.createdAt == resource.data.state.createdAt)
+                        && (!resource.data.state.keys().hasAny(['stats'])
+                            || !resource.data.state.stats.keys().hasAny(['prestiges'])
+                            || !request.resource.data.state.stats.keys().hasAny(['prestiges'])
+                            || (request.resource.data.state.stats.prestiges is int
+                                && resource.data.state.stats.prestiges is int
+                                && request.resource.data.state.stats.prestiges >= resource.data.state.stats.prestiges
+                                && request.resource.data.state.stats.prestiges <= resource.data.state.stats.prestiges + 1)))
+                    || (isAdministrator()
+                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'updatedAt', 'updatedAtClient'])
+                        && request.resource.data.state is map
+                        && request.resource.data.updatedAt is timestamp
+                        && request.resource.data.updatedAtClient is int);
     }
 
     // Operações globais do painel administrativo usam collectionGroup("saves").
@@ -160,21 +275,24 @@ service cloud.firestore {
                     && request.resource.data.keys().hasOnly([
                       'state',
                       'saveVersion',
+                      'ownerEmail',
                       'updatedAt',
                       'updatedAtClient'
                     ])
                     && request.resource.data.state is map
                     && request.resource.data.updatedAtClient is int;
+      allow delete: if isAdministrator() && saveId == 'main';
     }
 
     match /prestigeLeaderboard/{userId} {
       // O ranking é público: visitantes também podem consultar o top 5.
       allow read: if true;
-      allow delete: if request.auth != null
-                    && request.auth.uid == userId;
+      allow delete: if (request.auth != null && request.auth.uid == userId) || isAdministrator();
       allow create, update: if request.auth != null
                             && request.auth.uid == userId
                             && !isAdministrator()
+                            && !isBannedUser(userId)
+                            && !isRankingBlockedUser(userId)
                             && request.resource.data.keys().hasOnly([
                               'displayName',
                               'avatarId',
@@ -211,10 +329,11 @@ service cloud.firestore {
     }
 
     match /friendProfiles/{userId} {
-      allow read: if signedIn();
-      allow delete: if signedIn() && request.auth.uid == userId;
+      allow read: if signedIn() && !isBannedUser(request.auth.uid);
+      allow delete: if (signedIn() && request.auth.uid == userId && !isBannedUser(userId)) || isAdministrator();
       allow create, update: if signedIn()
                             && request.auth.uid == userId
+                            && !isBannedUser(userId)
                             && request.resource.data.keys().hasOnly([
                               'displayName',
                               'avatarId',
@@ -237,10 +356,13 @@ service cloud.firestore {
     match /friendships/{friendshipId} {
       // Consultas da lista usam array-contains(members, uid), portanto todo
       // documento retornado precisa pertencer à própria conta autenticada.
-      allow get, list: if signedIn()
-                       && request.auth.uid in resource.data.members;
+      allow get, list: if (signedIn()
+                       && !isBannedUser(request.auth.uid)
+                       && request.auth.uid in resource.data.members)
+                       || isAdministrator();
 
       allow create: if signedIn()
+                    && !isBannedUser(request.auth.uid)
                     && request.resource.data.keys().hasOnly([
                       'members',
                       'requestedBy',
@@ -267,6 +389,7 @@ service cloud.firestore {
       // Somente o destinatário de uma solicitação pendente pode aceitá-la.
       // Nenhum campo estrutural da amizade pode ser trocado na aceitação.
       allow update: if signedIn()
+                    && !isBannedUser(request.auth.uid)
                     && request.auth.uid in resource.data.members
                     && resource.data.status == 'pending'
                     && resource.data.requestedBy != request.auth.uid
@@ -286,8 +409,15 @@ service cloud.firestore {
                     ]);
 
       // Tanto quem enviou quanto quem recebeu pode cancelar/recusar/remover.
-      allow delete: if signedIn()
-                    && request.auth.uid in resource.data.members;
+      allow delete: if (signedIn()
+                    && !isBannedUser(request.auth.uid)
+                    && request.auth.uid in resource.data.members)
+                    || isAdministrator();
+    }
+
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

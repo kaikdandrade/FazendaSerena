@@ -12,12 +12,15 @@
     <link href="https://fazenda-serena.web.app/privacy.html" rel="canonical" />
     <link href="css/privacy.css" rel="stylesheet" />
     <link href="css/monetization.css" rel="stylesheet" />
+    <link href="css/shared-game-modals.css" rel="stylesheet" />
     <script defer src="js/publicCloud.js"></script>
+    <script defer src="js/modalGuard.js"></script>
 <script defer src="js/appConfig.js"></script>
 <script defer src="js/cacheManager.js"></script>
     <script defer src="js/privacyConsent.js"></script>
     <script defer src="js/adsense-config.js"></script>
     <script defer src="js/adsenseManager.js"></script>
+  <link rel="stylesheet" href="css/site-pages.css">
 </head>
 
 <body>
@@ -192,14 +195,12 @@
     <dialog aria-labelledby="cookiePreferencesTitle" class="cookie-preferences-dialog" id="cookiePreferencesDialog">
         <form method="dialog">
             <div class="cookie-dialog-heading">
-                <p class="eyebrow">privacidade</p>
                 <h2 id="cookiePreferencesTitle">Preferências de cookies</h2>
-                <p>Cookies necessários e de publicidade permanecem ativos para o funcionamento, a segurança e a monetização do jogo. Você pode decidir se permite a análise de uso.</p>
             </div>
             <div class="cookie-category-list">
                 <article class="cookie-category">
-                    <div class="cookie-category-copy"><strong>Cookies necessários</strong><small>Guardam a sua decisão
-                            de privacidade e permitem recursos essenciais do site.</small></div>
+                    <div class="cookie-category-copy"><strong>Cookies necessários</strong><small>Guardam a sua escolha
+                            de cookies e permitem recursos essenciais do site.</small></div>
                     <span class="cookie-state-required">Sempre ativos</span>
                 </article>
                 <article class="cookie-category">
@@ -211,7 +212,6 @@
                     <label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox" /><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de análise</span></label>
                 </article>
             </div>
-            <p class="cookie-dialog-note">Você pode alterar esta decisão a qualquer momento pelo rodapé.</p>
             <div class="cookie-dialog-actions">
                 <button class="cookie-button ghost" id="cancelCookiePreferences" type="button">Cancelar</button>
                 <button class="cookie-button primary" id="saveCookiePreferences" type="button">Salvar

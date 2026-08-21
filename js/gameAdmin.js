@@ -131,6 +131,7 @@
 
   const defaultBalance = Object.freeze({
     actionXPPercent: 1.7,
+    cropMasteryXPPercent: 10,
     passiveXPPercentPerSecond: 0.05,
     passiveResearchPercentPerSecond: 0,
     ordersUnlockLevel: 5,
@@ -161,7 +162,8 @@
     contractCoinRewardPercent: "Moedas recebidas em contratos (%)",
     contractResearchRewardPercent: "Pesquisa recebida em contratos (%)",
     contractPrestigeRewardPercent: "Prestígio recebido em contratos (%)",
-    activeContractSlots: "Slots de contrato (+)",
+    activeContractSlots: "Mais contratos ativos (+)",
+    contractOfferCount: "Mais espaços para contratos (+)",
     startingCoins: "Moedas iniciais (+)",
     startingResearch: "Pesquisa inicial (+)",
     passiveResearchPercentPerSecond: "Pesquisa passiva por segundo (%)",
@@ -250,7 +252,7 @@
   ]);
 
   const defaults = Object.freeze({
-    schemaVersion: 17,
+    schemaVersion: 18,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -291,6 +293,7 @@
     );
     return {
       actionXPPercent: clamp(raw.actionXPPercent, 0, 100, defaultBalance.actionXPPercent),
+      cropMasteryXPPercent: clamp(raw.cropMasteryXPPercent, 0, 100, defaultBalance.cropMasteryXPPercent),
       passiveXPPercentPerSecond: clamp(raw.passiveXPPercentPerSecond, 0, 100, defaultBalance.passiveXPPercentPerSecond),
       // Migra a antiga configuração de pesquisa passiva caso exista, mas a partir
       // desta revisão ela representa a taxa base de geração de pesquisa do jogo.
@@ -643,7 +646,7 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 17,
+      schemaVersion: 18,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -689,7 +692,7 @@
       const amount = rawAmount == null ? "" : String(rawAmount).replace(",", ".");
       const numeric = amount === "" ? null : Number(amount);
       const formatted = numeric == null || !Number.isFinite(numeric) ? "" : escapeHtml(formatNumber(numeric));
-      return `<span class="inline-point-token" title="${escapeHtml(point.key)}"><img src="${escapeHtml(icon)}" alt="">${formatted ? `<b>${formatted}</b>` : ""}</span>`;
+      return `<span class="inline-point-token${formatted ? " inline-point-token-valued" : ""}" title="${escapeHtml(point.key)}"><img src="${escapeHtml(icon)}" alt="">${formatted ? `<b>${formatted}</b>` : ""}</span>`;
     });
     return html;
   }
@@ -743,6 +746,7 @@
     const config = normalizeConfig(raw);
     const balance = config.balance;
     GameEngine.ACTION_XP_RATE = balance.actionXPPercent / 100;
+    GameEngine.CROP_MASTERY_XP_RATE = balance.cropMasteryXPPercent / 100;
     GameEngine.BASE_PASSIVE_XP_RATE = balance.passiveXPPercentPerSecond / 100;
     GameEngine.BASE_PASSIVE_RESEARCH_RATE = balance.passiveResearchPercentPerSecond / 100;
     GameEngine.ORDER_UNLOCK_LEVEL = balance.ordersUnlockLevel;

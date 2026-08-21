@@ -17,6 +17,7 @@ class FirebaseManager {
   static GAME_CONFIG_DOCUMENT = "public";
   static ADMIN_COLLECTION = "administrators";
   static FEEDBACK_COLLECTION = "playerFeedback";
+  static MODERATION_COLLECTION = "playerModeration";
   static GUEST_SAVE_KEY = "fazenda-serena-guest-save-v1";
   static cloudWritesLocked = false;
 
@@ -28,6 +29,7 @@ class FirebaseManager {
     this.saveQueue = Promise.resolve();
     this.friendProfileSignatureByUid = new Map();
     this.adminAccessCache = new Map();
+    this.moderationCache = new Map();
     this.initialization = this.initialize();
   }
 
@@ -51,7 +53,40 @@ class FirebaseManager {
       this.sdk = { ...appSdk, ...authSdk, ...firestoreSdk };
       this.app = appSdk.initializeApp(window.FIREBASE_CONFIG);
       this.auth = authSdk.getAuth(this.app);
-      this.db = firestoreSdk.getFirestore(this.app);
+
+      // Persistência local nativa do Firestore. Além de permitir leitura offline,
+      // ela mantém as mutações pendentes no IndexedDB para que um F5/fechamento
+      // da aba não descarte uma compra ou aprimoramento que acabou de ser salvo.
+      // O próprio SDK sincroniza essas mutações com o servidor ao reabrir.
+      try {
+        this.db = firestoreSdk.initializeFirestore(this.app, {
+          localCache: firestoreSdk.persistentLocalCache({
+            tabManager: firestoreSdk.persistentMultipleTabManager()
+          })
+        });
+        this.firestorePersistenceEnabled = true;
+      } catch (persistenceError) {
+        console.warn("Persistência local do Firestore indisponível; usando cache em memória:", persistenceError);
+        this.db = firestoreSdk.getFirestore(this.app);
+        this.firestorePersistenceEnabled = false;
+      }
+
+      // App Check reduz chamadas originadas fora do aplicativo. A proteção só
+      // entra em vigor quando a chave pública for configurada e o enforcement
+      // for ativado no Console Firebase. Regras do Firestore continuam sendo
+      // a camada de autorização real.
+      const appCheckSiteKey = String(window.FIREBASE_APP_CHECK_SITE_KEY || "").trim();
+      if (appCheckSiteKey) {
+        try {
+          const appCheckSdk = await import(`https://www.gstatic.com/firebasejs/${version}/firebase-app-check.js`);
+          this.appCheck = appCheckSdk.initializeAppCheck(this.app, {
+            provider: new appCheckSdk.ReCaptchaEnterpriseProvider(appCheckSiteKey),
+            isTokenAutoRefreshEnabled: true
+          });
+        } catch (error) {
+          console.warn("App Check não pôde ser inicializado:", error);
+        }
+      }
 
       try {
         await authSdk.setPersistence(this.auth, authSdk.indexedDBLocalPersistence);
@@ -69,6 +104,7 @@ class FirebaseManager {
           user => {
             this.currentUser = user || null;
             this.adminAccessCache.clear();
+            this.moderationCache.clear();
             const firstResolution = !this.initialAuthResolved;
             this.initialAuthResolved = true;
             this.emitAuthState();
@@ -202,6 +238,21 @@ class FirebaseManager {
     return this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, user.uid);
   }
 
+  async removeOwnLeaderboardEntry() {
+    await this.ready();
+    const user = this.currentUser;
+    const reference = this.getLeaderboardReference(user);
+    if (!user || !reference) return { ok: false, reason: "guest" };
+    // O uso no painel exige administrador; fora dele, o próprio usuário já
+    // pode apagar sua entrada pelas regras quando opta por sair do ranking.
+    if (await this.isCurrentUserAdmin({ force: true })) {
+      await this.sdk.deleteDoc(reference).catch(() => {});
+      return { ok: true, administrator: true };
+    }
+    await this.sdk.deleteDoc(reference);
+    return { ok: true, administrator: false };
+  }
+
   getFriendProfileReference(user = this.currentUser) {
     if (!user || !this.db || !this.sdk) return null;
     return this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, user.uid);
@@ -218,6 +269,69 @@ class FirebaseManager {
     return members.length === 2 && members[0] !== members[1] ? members.join("__") : "";
   }
 
+  getModerationReference(userId = this.currentUser?.uid) {
+    const uid = String(userId || "").trim();
+    if (!uid || !this.db || !this.sdk) return null;
+    return this.sdk.doc(this.db, FirebaseManager.MODERATION_COLLECTION, uid);
+  }
+
+  async requireAdmin() {
+    await this.ready();
+    if (!(await this.isCurrentUserAdmin({ force: true }))) {
+      throw new Error("Esta conta não possui acesso administrativo.");
+    }
+    return this.currentUser;
+  }
+
+  async getOwnModeration({ force = false } = {}) {
+    await this.ready();
+    const user = this.currentUser;
+    if (!user) return { banned: false, rankingBlocked: false };
+    if (!force && this.moderationCache.has(user.uid)) return this.moderationCache.get(user.uid);
+    try {
+      const ref = this.getModerationReference(user.uid);
+      const snap = ref ? await this.sdk.getDoc(ref) : null;
+      const data = snap?.exists?.() ? snap.data() || {} : {};
+      const result = { banned: data.banned === true, rankingBlocked: data.rankingBlocked === true, reason: String(data.reason || "") };
+      this.moderationCache.set(user.uid, result);
+      return result;
+    } catch (error) {
+      console.warn("Não foi possível consultar a moderação da conta:", error);
+      return { banned: false, rankingBlocked: false };
+    }
+  }
+
+  async getPlayerModerationForAdmin(userId) {
+    await this.requireAdmin();
+    const ref = this.getModerationReference(userId);
+    const snap = ref ? await this.sdk.getDoc(ref) : null;
+    const data = snap?.exists?.() ? snap.data() || {} : {};
+    return { banned: data.banned === true, rankingBlocked: data.rankingBlocked === true, reason: String(data.reason || "") };
+  }
+
+  async setPlayerModerationForAdmin(userId, patch = {}) {
+    const admin = await this.requireAdmin();
+    const uid = String(userId || "").trim();
+    if (!uid) throw new Error("Jogador inválido.");
+    const ref = this.getModerationReference(uid);
+    const current = await this.getPlayerModerationForAdmin(uid);
+    const next = {
+      banned: patch.banned == null ? current.banned : Boolean(patch.banned),
+      rankingBlocked: patch.rankingBlocked == null ? current.rankingBlocked : Boolean(patch.rankingBlocked),
+      reason: String(patch.reason ?? current.reason ?? "").trim().slice(0, 240),
+      updatedAt: this.sdk.serverTimestamp(),
+      updatedAtClient: Date.now(),
+      updatedBy: admin.uid
+    };
+    await this.sdk.setDoc(ref, next, { merge: false });
+    const leaderboardRef = this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, uid);
+    if (next.banned || next.rankingBlocked) {
+      try { await this.sdk.deleteDoc(leaderboardRef); } catch (_) {}
+    }
+    if (uid === this.currentUser?.uid) this.moderationCache.set(uid, next);
+    return { ok: true, ...next };
+  }
+
   getAdminReference(user = this.currentUser) {
     if (!user?.email || !this.db || !this.sdk) return null;
     return this.sdk.doc(this.db, FirebaseManager.ADMIN_COLLECTION, String(user.email).trim().toLowerCase());
@@ -227,7 +341,7 @@ class FirebaseManager {
     await this.ready();
     const user = this.currentUser;
     if (!user) return false;
-    const email = String(user.email || "").trim().toLowerCase();
+    const email = String(user.email || "").trim();
     const cacheKey = `${user.uid}:${email}`;
     if (!force && this.adminAccessCache.has(cacheKey)) return this.adminAccessCache.get(cacheKey);
     try {
@@ -251,7 +365,7 @@ class FirebaseManager {
 
   async listAdministrators() {
     await this.ready();
-    if (!(await this.isCurrentUserAdmin({ force: true }))) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     const snapshot = await this.sdk.getDocs(this.sdk.collection(this.db, FirebaseManager.ADMIN_COLLECTION));
     const byEmail = new Map();
     snapshot.docs.forEach(document => {
@@ -266,7 +380,7 @@ class FirebaseManager {
 
   async addAdministrator(email, displayName = "Administrador") {
     await this.ready();
-    if (!(await this.isCurrentUserAdmin({ force: true }))) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     const normalizedEmail = String(email || "").trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) throw new Error("Informe um e-mail válido.");
     const reference = this.sdk.doc(this.db, FirebaseManager.ADMIN_COLLECTION, normalizedEmail);
@@ -279,7 +393,7 @@ class FirebaseManager {
 
   async removeAdministrator(email) {
     await this.ready();
-    if (!(await this.isCurrentUserAdmin({ force: true }))) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     const normalizedEmail = String(email || "").trim().toLowerCase();
     if (normalizedEmail === "kaikdossantossilva2@gmail.com") throw new Error("O administrador principal não pode ser removido pelo painel.");
     if (normalizedEmail === String(this.currentUser?.email || "").toLowerCase()) throw new Error("Você não pode remover a própria conta enquanto estiver usando o painel.");
@@ -325,7 +439,7 @@ class FirebaseManager {
     const user = this.currentUser;
     const reference = this.getGameConfigReference();
     if (!user || !reference) throw new Error("Entre com uma conta administrativa.");
-    if (!(await this.isCurrentUserAdmin({ force: true }))) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     const safeConfig = JSON.parse(JSON.stringify(config || {}));
     await this.sdk.setDoc(reference, {
       config: safeConfig,
@@ -447,8 +561,7 @@ class FirebaseManager {
   }
 
   async mutateCurrentPlayerSaveForAdmin(mutator, mutationType = "admin-test") {
-    await this.ready();
-    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     if (typeof mutator !== "function") throw new Error("A alteração administrativa não possui uma transformação válida.");
     const user = this.currentUser;
     const reference = this.getSaveReference(user);
@@ -479,11 +592,15 @@ class FirebaseManager {
     return { ok: true, state: verifiedState, mutationId };
   }
 
-  saveGame(state) {
+  saveRankingProfile(state) {
     if (FirebaseManager.cloudWritesLocked) {
       return Promise.resolve({ ok: false, reason: "cloud-read-unconfirmed" });
     }
-    const snapshot = JSON.parse(JSON.stringify(state || {}));
+
+    const requestedState = JSON.parse(JSON.stringify(state || {}));
+    const requestedNickname = this.normalizeNickname(requestedState?.settings?.playerNickname);
+    const requestedAvatar = this.getAvatarEntry(requestedState?.settings?.playerAvatar);
+    const requestedOptOut = Boolean(requestedState?.settings?.playerRankingOptOut);
 
     this.saveQueue = this.saveQueue
       .catch(() => {})
@@ -491,55 +608,177 @@ class FirebaseManager {
         await this.ready();
         const user = this.currentUser;
         const reference = this.getSaveReference(user);
-        if (!user || !reference) {
-          this.emitSaveStatus("guest");
-          return { ok: false, reason: "guest" };
+        const leaderboardReference = this.getLeaderboardReference(user);
+        const friendProfileReference = this.getFriendProfileReference(user);
+        if (!user || !reference) return { ok: false, reason: "guest" };
+        if (requestedNickname.length < 4 || requestedNickname.length > 24 || !requestedAvatar) {
+          return { ok: false, reason: "invalid-profile", error: new Error("Apelido ou avatar inválido.") };
         }
 
         this.emitSaveStatus("saving");
         try {
-          const savedAt = new Date();
-          const leaderboardReference = this.getLeaderboardReference(user);
-          const friendProfileReference = this.getFriendProfileReference(user);
-          const batch = this.sdk.writeBatch(this.db);
-          batch.set(reference, {
-            state: snapshot,
-            saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
-            updatedAt: this.sdk.serverTimestamp(),
-            updatedAtClient: savedAt.getTime()
+          const currentSave = await this.sdk.getDoc(reference);
+          if (!currentSave.exists()) {
+            const error = new Error("O save da conta ainda não existe. Recarregue o jogo e tente novamente.");
+            this.emitSaveStatus("error", { error });
+            return { ok: false, reason: "missing-save", error };
+          }
+
+          const cloudState = JSON.parse(JSON.stringify(currentSave.data()?.state || {}));
+          cloudState.settings = {
+            ...(cloudState.settings || {}),
+            playerNickname: requestedNickname,
+            playerAvatar: requestedAvatar.id,
+            playerRankingOptOut: requestedOptOut
+          };
+
+          // Primeiro confirma o perfil dentro do save. Ranking e amizade são
+          // sincronizações secundárias e nunca podem cancelar esta gravação.
+          await this.sdk.updateDoc(reference, {
+            "state.settings.playerNickname": requestedNickname,
+            "state.settings.playerAvatar": requestedAvatar.id,
+            "state.settings.playerRankingOptOut": requestedOptOut
           });
-          if (leaderboardReference) {
+
+          let socialSynced = true;
+          try {
             const administrator = await this.isCurrentUserAdmin();
-            const leaderboardEntry = administrator ? null : this.buildLeaderboardEntry(snapshot, user);
-            if (leaderboardEntry) batch.set(leaderboardReference, leaderboardEntry);
-            else batch.delete(leaderboardReference);
+            const moderation = await this.getOwnModeration({ force: false });
+            if (leaderboardReference) {
+              const leaderboardEntry = (!administrator && !moderation.rankingBlocked && !requestedOptOut)
+                ? this.buildLeaderboardEntry(cloudState, user)
+                : null;
+              if (leaderboardEntry) await this.sdk.setDoc(leaderboardReference, leaderboardEntry, { merge: false });
+              else await this.sdk.deleteDoc(leaderboardReference);
+            }
+          } catch (error) {
+            socialSynced = false;
+            console.warn("Perfil salvo, mas o ranking não pôde ser atualizado:", error);
           }
-          const friendProfileEntry = friendProfileReference
-            ? this.buildFriendProfileEntry(snapshot, user)
-            : null;
-          const friendProfileSignature = friendProfileEntry
-            ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}`
-            : "";
-          const shouldSyncFriendProfile = friendProfileReference
-            && this.friendProfileSignatureByUid.get(user.uid) !== friendProfileSignature;
-          if (shouldSyncFriendProfile) {
-            if (friendProfileEntry) batch.set(friendProfileReference, friendProfileEntry);
-            else batch.delete(friendProfileReference);
+
+          try {
+            const friendProfileEntry = friendProfileReference
+              ? this.buildFriendProfileEntry(cloudState, user)
+              : null;
+            if (friendProfileReference) {
+              if (friendProfileEntry) await this.sdk.setDoc(friendProfileReference, friendProfileEntry, { merge: false });
+              else await this.sdk.deleteDoc(friendProfileReference);
+              const friendProfileSignature = friendProfileEntry
+                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}`
+                : "";
+              this.friendProfileSignatureByUid.set(user.uid, friendProfileSignature);
+            }
+          } catch (error) {
+            socialSynced = false;
+            console.warn("Perfil salvo, mas o perfil de amizade não pôde ser atualizado:", error);
           }
-          await batch.commit();
-          if (shouldSyncFriendProfile) {
-            this.friendProfileSignatureByUid.set(user.uid, friendProfileSignature);
-          }
+
+          const savedAt = new Date();
           this.emitSaveStatus("saved", { savedAt });
-          return { ok: true, savedAt };
+          return { ok: true, savedAt, socialSynced };
         } catch (error) {
           this.emitSaveStatus("error", { error });
-          console.warn("Não foi possível salvar no Firestore:", error);
+          console.warn("Não foi possível salvar o perfil do ranking no Firestore:", error);
           return { ok: false, reason: "firestore", error };
         }
       });
 
     return this.saveQueue;
+  }
+
+  saveGame(state) {
+    if (FirebaseManager.cloudWritesLocked) {
+      return Promise.resolve({ ok: false, reason: "cloud-read-unconfirmed" });
+    }
+
+    const snapshot = JSON.parse(JSON.stringify(state || {}));
+    delete snapshot.__adminMutation;
+    delete snapshot.__adminTestAppliedAt;
+
+    const run = async () => {
+      // Durante o jogo normal o Firebase já está inicializado. Evitar uma
+      // consulta de moderação ou qualquer outra leitura antes do setDoc é
+      // intencional: a gravação principal precisa entrar na fila local do
+      // Firestore imediatamente, inclusive quando o usuário aperta F5.
+      if (!this.initialAuthResolved) await this.ready();
+      const user = this.currentUser;
+      const reference = this.getSaveReference(user);
+      if (!user || !reference || !this.sdk || !this.db) {
+        this.emitSaveStatus("guest");
+        return { ok: false, reason: "guest" };
+      }
+
+      const savedAt = new Date();
+      this.emitSaveStatus("saving");
+      try {
+        // O save do jogo é independente do ranking/amigos. Antes, tudo ficava
+        // no mesmo batch: uma regra social rejeitada cancelava também a compra,
+        // o upgrade e todo o progresso. Agora o estado principal é soberano.
+        await this.sdk.setDoc(reference, {
+          state: snapshot,
+          saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
+          ownerEmail: String(user.email || "").trim(),
+          updatedAt: this.sdk.serverTimestamp(),
+          updatedAtClient: savedAt.getTime()
+        }, { merge: false });
+
+        this.emitSaveStatus("saved", { savedAt });
+
+        // Ranking e perfil de amizade são projeções públicas do save. Falhas
+        // nessas projeções nunca mais podem invalidar o progresso da fazenda.
+        Promise.resolve().then(async () => {
+          try {
+            const leaderboardReference = this.getLeaderboardReference(user);
+            const friendProfileReference = this.getFriendProfileReference(user);
+            const administrator = await this.isCurrentUserAdmin();
+            const moderation = administrator
+              ? { banned: false, rankingBlocked: true }
+              : await this.getOwnModeration({ force: false });
+
+            if (leaderboardReference) {
+              const leaderboardEntry = (!administrator && !moderation.banned && !moderation.rankingBlocked)
+                ? this.buildLeaderboardEntry(snapshot, user)
+                : null;
+              try {
+                if (leaderboardEntry) await this.sdk.setDoc(leaderboardReference, leaderboardEntry, { merge: false });
+                else await this.sdk.deleteDoc(leaderboardReference);
+              } catch (socialError) {
+                console.warn("Save concluído, mas o ranking não pôde ser sincronizado:", socialError);
+              }
+            }
+
+            if (friendProfileReference) {
+              const friendProfileEntry = this.buildFriendProfileEntry(snapshot, user);
+              const friendProfileSignature = friendProfileEntry
+                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}`
+                : "";
+              const shouldSyncFriendProfile = this.friendProfileSignatureByUid.get(user.uid) !== friendProfileSignature;
+              if (shouldSyncFriendProfile) {
+                try {
+                  if (friendProfileEntry) await this.sdk.setDoc(friendProfileReference, friendProfileEntry, { merge: false });
+                  else await this.sdk.deleteDoc(friendProfileReference);
+                  this.friendProfileSignatureByUid.set(user.uid, friendProfileSignature);
+                } catch (socialError) {
+                  console.warn("Save concluído, mas o perfil social não pôde ser sincronizado:", socialError);
+                }
+              }
+            }
+          } catch (socialError) {
+            console.warn("Save concluído; sincronização social adiada:", socialError);
+          }
+        });
+
+        return { ok: true, savedAt };
+      } catch (error) {
+        this.emitSaveStatus("error", { error });
+        console.warn("Não foi possível salvar o progresso principal no Firestore:", error);
+        return { ok: false, reason: "firestore", error };
+      }
+    };
+
+    const operation = run();
+    this.saveQueue = operation.catch(() => {});
+    return operation;
   }
 
   async loadPrestigeLeaderboard(maximum = 5) {
@@ -770,8 +1009,7 @@ class FirebaseManager {
   }
 
   async listPlayerFeedback(limitCount = 100) {
-    await this.ready();
-    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     const queryRef = this.sdk.query(
       this.sdk.collection(this.db, FirebaseManager.FEEDBACK_COLLECTION),
       this.sdk.orderBy("createdAtClient", "desc"),
@@ -782,8 +1020,7 @@ class FirebaseManager {
   }
 
   async markPlayerFeedbackRead(id, read = true) {
-    await this.ready();
-    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     const reference = this.sdk.doc(this.db, FirebaseManager.FEEDBACK_COLLECTION, String(id || ""));
     await this.sdk.updateDoc(reference, {
       status: read ? "read" : "new",
@@ -795,22 +1032,108 @@ class FirebaseManager {
   }
 
   async deletePlayerFeedback(id) {
-    await this.ready();
-    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    await this.requireAdmin();
     await this.sdk.deleteDoc(this.sdk.doc(this.db, FirebaseManager.FEEDBACK_COLLECTION, String(id || "")));
     return { ok: true };
   }
 
-  async mutateAllPlayerSavesForAdmin(mutator, { batchSize = 15, mutationType = "global-admin" } = {}) {
-    await this.ready();
-    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+  async listPlayerSavesForAdmin() {
+    await this.requireAdmin();
+    const [snapshot, moderationSnapshot] = await Promise.all([
+      this.sdk.getDocs(this.sdk.collectionGroup(this.db, FirebaseManager.SAVE_SUBCOLLECTION)),
+      this.sdk.getDocs(this.sdk.collection(this.db, FirebaseManager.MODERATION_COLLECTION))
+    ]);
+    const moderationByUid = new Map(moderationSnapshot.docs.map(document => [document.id, document.data() || {}]));
+    const rows = [];
+    for (const document of snapshot.docs) {
+      if (document.id !== FirebaseManager.SAVE_DOCUMENT) continue;
+      const payload = document.data() || {};
+      if (!payload.state || typeof payload.state !== "object") continue;
+      const parts = String(document.ref.path || "").split("/");
+      const userId = parts[0] === FirebaseManager.SAVE_COLLECTION ? parts[1] : "";
+      if (!userId) continue;
+      const moderation = moderationByUid.get(userId) || {};
+      const state = payload.state;
+      rows.push({
+        userId,
+        email: String(payload.ownerEmail || "").trim().toLowerCase(),
+        nickname: this.normalizeNickname(state?.settings?.playerNickname) || String(payload.ownerEmail || "").trim().toLowerCase() || "Sem apelido",
+        avatarId: String(state?.settings?.playerAvatar || ""),
+        coins: Math.floor(Number(state?.coins) || 0),
+        research: Math.floor(Number(state?.research) || 0),
+        prestigePoints: Math.floor(Number(state?.prestigePoints) || 0),
+        prestigeCount: Math.floor(Number(state?.stats?.prestiges) || 0),
+        farmLevel: Math.max(1, Math.floor(Number(state?.farmLevel) || 1)),
+        rankingBlocked: moderation.rankingBlocked === true,
+        banned: moderation.banned === true,
+        updatedAtClient: Number(payload.updatedAtClient) || 0
+      });
+    }
+    return rows.sort((a, b) => a.nickname.localeCompare(b.nickname, "pt-BR", { sensitivity: "base" }));
+  }
+
+  async loadPlayerSaveForAdmin(userId) {
+    await this.requireAdmin();
+    const uid = String(userId || "").trim();
+    if (!uid) throw new Error("Selecione um jogador.");
+    const ref = this.sdk.doc(this.db, FirebaseManager.SAVE_COLLECTION, uid, FirebaseManager.SAVE_SUBCOLLECTION, FirebaseManager.SAVE_DOCUMENT);
+    const snapshot = await this.sdk.getDoc(ref);
+    if (!snapshot.exists()) throw new Error("O save desse jogador não existe mais.");
+    return { userId: uid, payload: snapshot.data() || {}, state: JSON.parse(JSON.stringify(snapshot.data()?.state || {})), moderation: await this.getPlayerModerationForAdmin(uid) };
+  }
+
+  async mutatePlayerSaveForAdmin(userId, mutator, mutationType = "single-player-admin") {
+    await this.requireAdmin();
+    if (typeof mutator !== "function") throw new Error("A alteração administrativa não possui uma transformação válida.");
+    const uid = String(userId || "").trim();
+    if (!uid) throw new Error("Selecione um jogador.");
+    const reference = this.sdk.doc(this.db, FirebaseManager.SAVE_COLLECTION, uid, FirebaseManager.SAVE_SUBCOLLECTION, FirebaseManager.SAVE_DOCUMENT);
+    const mutationId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    let resultingState = null;
+    await this.sdk.runTransaction(this.db, async transaction => {
+      const snapshot = await transaction.get(reference);
+      if (!snapshot.exists()) throw new Error("O save desse jogador não existe mais.");
+      const payload = snapshot.data() || {};
+      const state = JSON.parse(JSON.stringify(payload.state || {}));
+      const result = await mutator(state, { userId: uid, payload });
+      if (result === false || result?.changed === false) { resultingState = state; return; }
+      const now = Date.now();
+      state.lastUpdate = now;
+      state.__adminMutation = { id: mutationId, type: String(mutationType || "single-player-admin").slice(0, 48), at: now };
+      resultingState = state;
+      transaction.update(reference, { state, updatedAt: this.sdk.serverTimestamp(), updatedAtClient: now });
+    });
+    return { ok: true, state: resultingState, mutationId };
+  }
+
+  async resetPlayerAccountForAdmin(userId) {
+    await this.requireAdmin();
+    const uid = String(userId || "").trim();
+    if (!uid) throw new Error("Selecione um jogador.");
+    const relationshipsQuery = this.sdk.query(
+      this.sdk.collection(this.db, FirebaseManager.FRIENDSHIP_COLLECTION),
+      this.sdk.where("members", "array-contains", uid),
+      this.sdk.limit(100)
+    );
+    const relationships = await this.sdk.getDocs(relationshipsQuery);
+    const batch = this.sdk.writeBatch(this.db);
+    batch.delete(this.sdk.doc(this.db, FirebaseManager.SAVE_COLLECTION, uid, FirebaseManager.SAVE_SUBCOLLECTION, FirebaseManager.SAVE_DOCUMENT));
+    batch.delete(this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, uid));
+    batch.delete(this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, uid));
+    relationships.docs.forEach(document => batch.delete(document.ref));
+    await batch.commit();
+    return { ok: true, friendshipsRemoved: relationships.size };
+  }
+
+  async mutateAllPlayerSavesForAdmin(mutator, { batchSize = 8, mutationType = "global-admin" } = {}) {
+    await this.requireAdmin();
     if (typeof mutator !== "function") throw new Error("A ação global não possui uma transformação válida.");
     const queryRef = this.sdk.collectionGroup(this.db, FirebaseManager.SAVE_SUBCOLLECTION);
     const snapshot = await this.sdk.getDocs(queryRef);
     const documents = snapshot.docs.filter(document => document.id === FirebaseManager.SAVE_DOCUMENT && document.data()?.state && typeof document.data().state === "object");
-    // Lotes pequenos evitam exceder os limites de leituras de regras por batch,
-    // já que cada escrita administrativa valida isAdministrator().
-    const size = Math.max(1, Math.min(15, Math.floor(Number(batchSize) || 15)));
+    // Lotes de até 8 mantêm margem para as leituras auxiliares das Security Rules
+    // em operações multi-documento; cada escrita administrativa revalida o papel.
+    const size = Math.max(1, Math.min(8, Math.floor(Number(batchSize) || 8)));
     const mutationId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
     let updated = 0;
     let skipped = 0;
@@ -840,7 +1163,10 @@ class FirebaseManager {
     return { ok: true, scanned: documents.length, updated, skipped, mutationId };
   }
 
-  resetProgress() {
+  resetProgress(state) {
+    const snapshot = JSON.parse(JSON.stringify(state || {}));
+    delete snapshot.__adminMutation;
+    delete snapshot.__adminTestAppliedAt;
     this.saveQueue = this.saveQueue
       .catch(() => {})
       .then(async () => {
@@ -852,13 +1178,21 @@ class FirebaseManager {
         if (!user || !saveReference || !leaderboardReference || !friendProfileReference) {
           return { ok: false, reason: "guest" };
         }
+        const now = Date.now();
+        snapshot.lastUpdate = now;
         const batch = this.sdk.writeBatch(this.db);
-        batch.delete(saveReference);
+        batch.set(saveReference, {
+          state: snapshot,
+          saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
+          ownerEmail: String(user.email || "").trim(),
+          updatedAt: this.sdk.serverTimestamp(),
+          updatedAtClient: now
+        });
         batch.delete(leaderboardReference);
         batch.delete(friendProfileReference);
         await batch.commit();
         this.friendProfileSignatureByUid.set(user.uid, "");
-        return { ok: true };
+        return { ok: true, state: snapshot };
       });
     return this.saveQueue;
   }

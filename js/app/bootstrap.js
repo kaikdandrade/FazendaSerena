@@ -7,10 +7,15 @@ async function boot() {
   let publicGameConfig = null;
   let cloudLoadFailed = false;
   let initialCloudSaveMissing = false;
-  let promotedInitialGuest = false;
   try {
     initialUser = await window.FirebaseManager.ready();
-    if (initialUser) window.FirebaseManager.lockCloudWrites?.();
+    if (initialUser) {
+      const moderation = await window.FirebaseManager.getOwnModeration?.({ force: true });
+      if (moderation?.banned) {
+        throw new Error(moderation.reason ? `Esta conta foi bloqueada: ${moderation.reason}` : "Esta conta foi bloqueada pela administração.");
+      }
+      window.FirebaseManager.lockCloudWrites?.();
+    }
     loading?.update(initialUser ? "Carregando sua fazenda..." : "Carregando catálogo da fazenda...", 38);
     currentAuthUid = initialUser?.uid || null;
     const [loadedState, loadedConfig] = await Promise.all([
@@ -21,13 +26,10 @@ async function boot() {
     publicGameConfig = loadedConfig;
     if (initialUser) {
       initialCloudSaveMissing = !loadedState;
-      if (initialCloudSaveMissing) {
-        const localGuest = window.FirebaseManager.loadGuestGame?.();
-        if (localGuest) {
-          initialState = localGuest;
-          promotedInitialGuest = true;
-        }
-      }
+      // Segurança: um save local de visitante é controlado pelo navegador e não
+      // pode ser promovido como fonte confiável para uma conta autenticada.
+      // Contas sem save remoto sempre começam de um estado novo e normalizado.
+      if (initialCloudSaveMissing) initialState = null;
       window.FirebaseManager.unlockCloudWrites?.();
     }
     loading?.update("Organizando dados e catálogos...", 58);
@@ -67,9 +69,7 @@ async function boot() {
   const initialOfflineReport = engine.consumeOfflineReport?.();
   if (initialOfflineReport) window.setTimeout(() => showOfflineProgressDialog(initialOfflineReport), 240);
   if (initialUser && initialCloudSaveMissing && !cloudLoadFailed) {
-    engine.save()
-      .then(result => { if (result?.ok && promotedInitialGuest) window.FirebaseManager.clearGuestGame?.(); })
-      .catch(error => setCloudSaveStatus("error", { error }));
+    engine.save().catch(error => setCloudSaveStatus("error", { error }));
   }
   scheduleGameLoop(0);
 }

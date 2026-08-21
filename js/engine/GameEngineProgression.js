@@ -53,6 +53,15 @@ Object.assign(GameEngine.prototype, {
       const base = Math.max(0, Number(value) || 0);
       const amount = Math.max(0, Math.floor(base * this.getEventMultiplier("research")));
       this.state.research += amount;
+      this.state.stats.lifetimeResearchEarned = Math.max(0, Number(this.state.stats.lifetimeResearchEarned) || 0) + amount;
+      return amount;
+    },
+
+  addPrestigePoints(value) {
+      const amount = Math.max(0, Math.floor(Number(value) || 0));
+      if (amount <= 0) return 0;
+      this.state.prestigePoints += amount;
+      this.state.stats.totalPrestigeEarned = Math.max(0, Number(this.state.stats.totalPrestigeEarned) || 0) + amount;
       return amount;
     },
   isEvolutionUnlocked() {
@@ -122,6 +131,7 @@ Object.assign(GameEngine.prototype, {
       const multiplier = (1 + this.getEvolutionBonus("farmXPGainPercent") / 100) * this.getEventMultiplier("xp");
       const gainedXP = Math.max(0, Number(amount) || 0) * multiplier;
       this.state.farmXP += gainedXP;
+      this.state.stats.lifetimeFarmXPEarned = Math.max(0, Number(this.state.stats.lifetimeFarmXPEarned) || 0) + gainedXP;
   
       if (this.state.farmLevel >= GameEngine.MAX_FARM_LEVEL) {
         this.state.farmLevel = GameEngine.MAX_FARM_LEVEL;
@@ -314,12 +324,13 @@ Object.assign(GameEngine.prototype, {
       this.addFarmXPPercent(GameEngine.ACTION_XP_RATE, purchased);
       const reachedCropPrestige = previousLevel < GameEngine.MAX_CROP_LEVEL
         && cropState.level >= GameEngine.MAX_CROP_LEVEL;
+      const masteryXpRate = Math.max(0, Number(GameEngine.CROP_MASTERY_XP_RATE) || 0);
       if (reachedCropPrestige) {
-        this.addFarmXPPercent(0.10);
+        this.addFarmXPPercent(masteryXpRate);
         this.state.stats.lifetimeCropPrestiges = Math.max(0, Number(this.state.stats.lifetimeCropPrestiges) || 0) + 1;
       }
       this.state.stats.maxCropLevel = Math.max(this.state.stats.maxCropLevel, cropState.level);
-      return { ok: true, purchased, totalCost, level: cropState.level, crop, reachedCropPrestige, masteryXpRate: reachedCropPrestige ? 0.10 : 0 };
+      return { ok: true, purchased, totalCost, level: cropState.level, crop, reachedCropPrestige, masteryXpRate: reachedCropPrestige ? masteryXpRate : 0 };
     },
 
   upgradeCropMax(cropId) {

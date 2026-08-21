@@ -11,13 +11,17 @@
 <link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="https://fazenda-serena.web.app/" rel="canonical"/>
 <link href="css/loading.css" rel="stylesheet"/>
+<link href="css/legacy/game-base.css" rel="stylesheet"/>
+<link href="css/legacy/game-revisions.css" rel="stylesheet"/>
 <link href="css/style.css" rel="stylesheet"/>
-<link href="css/monetization.css" rel="stylesheet"/><link href="css/revision-1.0.1.css" rel="stylesheet"/>
+<link href="css/shared-game-modals.css" rel="stylesheet"/>
+<link href="css/monetization.css" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
 <script defer="" src="js/appConfig.js"></script>
 <script defer="" src="js/cacheManager.js"></script>
 <script defer="" src="js/privacyConsent.js"></script>
+<script defer="" src="js/modalGuard.js"></script>
 <script defer="" src="js/adsense-config.js"></script>
 <script defer="" src="js/adsenseManager.js"></script>
 <script defer="" src="js/firebase-config.js"></script>
@@ -313,7 +317,7 @@
 </div></article>
 <article class="settings-card feedback-settings-card">
 <header class="settings-card-head"><h2>Feedback e ideias</h2></header>
-<div class="settings-card-body feedback-settings-body"><div class="feedback-settings-copy"><img src="assets/icons/ideia-verde.webp" alt="" aria-hidden="true"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span></div><button class="button feedback-launch-button" id="openPlayerFeedback" type="button"><img src="assets/icons/ideia-verde.webp" alt="" aria-hidden="true">Enviar feedback</button></div>
+<div class="settings-card-body feedback-settings-body"><div class="feedback-settings-copy"><img src="assets/icons/ideia-verde.webp" alt="" aria-hidden="true"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span></div><button class="button feedback-launch-button" id="openPlayerFeedback" type="button">Enviar feedback</button></div>
 </article>
 </div>
 </div>
@@ -485,14 +489,12 @@
 <dialog aria-labelledby="cookiePreferencesTitle" class="cookie-preferences-dialog" id="cookiePreferencesDialog">
 <form method="dialog">
 <div class="cookie-dialog-heading">
-<p class="eyebrow">privacidade</p>
 <h2 id="cookiePreferencesTitle">Preferências de cookies</h2>
-<p>Cookies necessários e de publicidade permanecem ativos para o funcionamento, a segurança e a monetização do jogo. Você pode decidir se permite a análise de uso.</p>
 </div>
 <div class="cookie-category-list">
 <article class="cookie-category">
-<div class="cookie-category-copy"><strong>Cookies necessários</strong><small>Guardam a sua decisão
-                            de privacidade e permitem recursos essenciais do site.</small></div>
+<div class="cookie-category-copy"><strong>Cookies necessários</strong><small>Guardam a sua escolha
+                            de cookies e permitem recursos essenciais do site.</small></div>
 <span class="cookie-state-required">Sempre ativos</span>
 </article>
 <article class="cookie-category">
@@ -504,8 +506,6 @@
 <label class="cookie-switch"><input id="analyticsCookiesSetting" type="checkbox"/><span aria-hidden="true"></span><span class="sr-only">Permitir cookies de análise</span></label>
 </article>
 </div>
-<p class="cookie-dialog-note">Você pode alterar esta decisão a qualquer momento pelo link “Preferências de
-                cookies” no rodapé.</p>
 <div class="cookie-dialog-actions">
 <button class="cookie-button ghost" id="cancelCookiePreferences" type="button">Cancelar</button>
 <button class="cookie-button primary" id="saveCookiePreferences" type="button">Salvar

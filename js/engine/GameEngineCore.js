@@ -13,6 +13,8 @@ class GameEngine {
   static SECOND_CONTRACT_SLOT_LEVEL = 20;
   static MAX_ACTIVE_CONTRACTS = 7;
   static CONTRACT_OFFER_COUNT = 6;
+  static MAX_CONTRACT_OFFERS = 50;
+  static ALLOW_CONTRACT_OFFER_CREATION = true;
   static CONTRACT_SIGNED_COOLDOWN_SECONDS = 30;
   static CONTRACT_EXPIRED_COOLDOWN_SECONDS = 30;
   static CONTRACT_DECLINED_COOLDOWN_SECONDS = 60;
@@ -28,6 +30,7 @@ class GameEngine {
   static CONTRACT_CLAIM_XP_RATE = 0.05;
   static ORDER_CLAIM_XP_RATE = 0.05;
   static ACTION_XP_RATE = 0.017;
+  static CROP_MASTERY_XP_RATE = 0.10;
   static BASE_PASSIVE_RESEARCH_RATE = 0;
   static PASSIVE_RESEARCH_STAGE_RATES = Object.freeze([0.0001, 0.0002, 0.0002]);
   static WHOLESALE_SALE_MULTIPLIER = 0.50;
@@ -94,6 +97,7 @@ class GameEngine {
           totalHarvested: 0,
           totalSold: 0,
           autoSell: false,
+          favorite: false,
           productionBuffer: 0
         };
         orders[crop.id] = { tier: 0, delivered: 0, autoDeliver: false };
@@ -150,11 +154,13 @@ class GameEngine {
           lifetimeContractUnitsDelivered: Number(permanent.lifetimeContractUnitsDelivered || 0),
           runCoinsEarned: 0,
           lifetimeCoins: Number(permanent.lifetimeCoins || 0),
+          lifetimeResearchEarned: Number(permanent.lifetimeResearchEarned || 0),
+          lifetimeFarmXPEarned: Number(permanent.lifetimeFarmXPEarned || 0),
           totalPrestigeEarned: Number(permanent.totalPrestigeEarned || 0),
           maxFarmLevel: Math.max(1, Number(permanent.maxFarmLevel || 1)),
           maxCropLevel: Math.max(0, Number(permanent.maxCropLevel || 0)),
           maxCropsOwned: Math.max(0, Number(permanent.maxCropsOwned || 0)),
-          maxCoinsHeld: Math.max(GameEngine.BASE_STARTING_COINS, Number(permanent.maxCoinsHeld || GameEngine.BASE_STARTING_COINS)),
+          maxCoinsHeld: Math.max(GameEngine.BASE_STARTING_COINS + startingCoinsBonus, Number(permanent.maxCoinsHeld || GameEngine.BASE_STARTING_COINS + startingCoinsBonus)),
           maxStorageUsed: Math.max(0, Number(permanent.maxStorageUsed || 0)),
           prestiges
         },
@@ -204,6 +210,8 @@ class GameEngine {
         cropsDiscovered: input?.cropsDiscovered,
         prestiges: input?.stats?.prestiges,
         lifetimeCoins: input?.stats?.lifetimeCoins,
+        lifetimeResearchEarned: input?.stats?.lifetimeResearchEarned,
+        lifetimeFarmXPEarned: input?.stats?.lifetimeFarmXPEarned,
         lifetimeHarvested: input?.stats?.lifetimeHarvested ?? input?.stats?.totalHarvested,
         lifetimeSold: input?.stats?.lifetimeSold ?? input?.stats?.totalSold,
         lifetimeSoldByCategory: input?.stats?.lifetimeSoldByCategory ?? input?.stats?.soldByCategory,
@@ -381,6 +389,7 @@ class GameEngine {
           totalHarvested: Math.max(0, Math.floor(Number(previous.totalHarvested) || 0)),
           totalSold: Math.max(0, Math.floor(Number(previous.totalSold) || 0)),
           autoSell: Boolean(previous.autoSell),
+          favorite: Boolean(previous.favorite),
           productionBuffer: Math.max(0, Number(previous.productionBuffer) || 0)
         };
         if (merged.crops[crop.id].owned && merged.crops[crop.id].level < 1) merged.crops[crop.id].level = 1;
@@ -427,11 +436,11 @@ class GameEngine {
       const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
       const rawOffers = legacySaveFormat < 19 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
       const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
-      merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, GameEngine.CONTRACT_OFFER_COUNT);
+      merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, GameEngine.MAX_CONTRACT_OFFERS);
       merged.contractCooldowns = (legacySaveFormat < 19 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
         .map(value => this.normalizeContractCooldown(value))
         .filter(Boolean)
-        .slice(0, GameEngine.CONTRACT_OFFER_COUNT);
+        .slice(0, GameEngine.MAX_CONTRACT_OFFERS);
       merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
       if (legacySaveFormat < 19) {
         merged.activeContracts.forEach(contract => {
@@ -536,6 +545,10 @@ class GameEngine {
       merged.stats.lifetimeContractsBroken = Math.max(merged.stats.contractsBroken, Math.floor(Number(merged.stats.lifetimeContractsBroken) || 0));
       merged.stats.contractUnitsDelivered = Math.max(0, Math.floor(Number(merged.stats.contractUnitsDelivered) || 0));
       merged.stats.lifetimeContractUnitsDelivered = Math.max(merged.stats.contractUnitsDelivered, Math.floor(Number(merged.stats.lifetimeContractUnitsDelivered) || 0));
+      merged.stats.runCoinsEarned = Math.max(0, Math.floor(Number(merged.stats.runCoinsEarned) || 0));
+      merged.stats.lifetimeCoins = Math.max(merged.stats.runCoinsEarned, Math.floor(Number(merged.stats.lifetimeCoins) || 0));
+      merged.stats.lifetimeResearchEarned = Math.max(0, Math.floor(Number(merged.stats.lifetimeResearchEarned) || 0));
+      merged.stats.lifetimeFarmXPEarned = Math.max(0, Number(merged.stats.lifetimeFarmXPEarned) || 0);
       merged.stats.totalPrestigeEarned = Math.max(0, Math.floor(Number(merged.stats.totalPrestigeEarned) || 0));
       merged.stats.maxFarmLevel = Math.min(GameEngine.MAX_FARM_LEVEL, Math.max(merged.farmLevel || 1, Math.floor(Number(merged.stats.maxFarmLevel) || 1)));
       merged.stats.maxCropLevel = Math.max(0, Math.floor(Number(merged.stats.maxCropLevel) || 0), ...Object.values(merged.crops).map(item => item.level || 0));
@@ -628,6 +641,7 @@ class GameEngine {
         }
         this.lastOfflineReport = {
           seconds: elapsedTotal,
+          simulatedSeconds: simulatedTotal,
           coins: Math.max(0, (Number(this.state.coins) || 0) - offlineReport.coinsBefore),
           research: Math.max(0, (Number(this.state.research) || 0) - offlineReport.researchBefore),
           levels: Math.max(0, levelAfter - offlineReport.levelBefore),

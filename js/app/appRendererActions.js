@@ -43,6 +43,7 @@
       return false;
     }
     render(true);
+    requestGameSave();
     return true;
   }
 
@@ -198,8 +199,10 @@
       if (!result.ok) return act(result);
       animateResourceReward(button, { coins: result.gain });
       render(true);
+      requestGameSave();
     }
     if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId));
+    if (action === "toggle-stock-favorite") act(engine.toggleStockFavorite(cropId));
     if (action === "toggle-all-auto-sell") {
       const owned = engine.data.crops.filter(crop => engine.state.crops[crop.id]?.owned);
       const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
@@ -210,6 +213,7 @@
       if (!result.ok) return act(result);
       animateResourceReward(button, { coins: result.gain });
       render(true);
+      requestGameSave();
     }
     if (action === "expand-storage") act(engine.expandStorage());
     if (action === "buy-research") act(engine.buyResearch(id));
@@ -252,6 +256,7 @@
       if (!result.ok) return act(result);
       animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch, prestige: result.contract.rewardPrestige, xp: result.xpAward });
       render(true);
+      requestGameSave();
     }
     if (action === "pay-contract-penalty") act(engine.payContractPenalty(id));
     if (action === "deliver-order") {
@@ -259,6 +264,7 @@
       if (!result.ok) return act(result);
       animateResourceReward(button, result.rewards || {});
       render(true);
+      requestGameSave();
     }
     if (action === "toggle-contract-dock") {
       contractDockCollapsed = !contractDockCollapsed;
@@ -269,6 +275,7 @@
       if (!result.ok) return act(result);
       animateResourceReward(button, result.mission.reward || {});
       render(true);
+      requestGameSave();
     }
     if (action === "perform-prestige") {
       const gain = engine.getPrestigeEstimate();
