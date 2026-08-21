@@ -1,0 +1,5 @@
+generated/
+signing/
+*.jks
+*.keystore
+credentials.txt
