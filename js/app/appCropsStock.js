@@ -87,7 +87,8 @@
 
     const growthTime = engine.getGrowthTime(crop.id);
     const instant = growthTime <= 0;
-    const growthPct = instant ? 100 : percent(data.progress * 100);
+    const optimizedRing = instant || growthTime <= 1.5;
+    const growthPct = optimizedRing ? 100 : percent(data.progress * 100);
     const directRoute = data.autoSell
       || engine.hasActiveContractForCrop(crop.id)
       || engine.hasWholesaleOverflowSale();
@@ -104,9 +105,9 @@
           ${mastered ? `<span class="crop-mastery-badge"><img alt="" src="assets/icons/estrela-dominio-cultura.webp">Platinada</span>` : ""}
         </div>
         <div class="crop-head">
-          <div class="crop-art-progress ${storageFull ? "paused" : ""} ${instant ? "instant" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
+          <div class="crop-art-progress ${storageFull ? "paused" : ""} ${optimizedRing ? "instant optimized-ring" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
             <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            ${instant ? "" : `<span class="crop-progress-percent" data-crop-percent>${storageFull ? "Ⅱ" : `${Math.floor(growthPct)}%`}</span>`}
+            ${optimizedRing ? "" : `<span class="crop-progress-percent" data-crop-percent>${storageFull ? "Ⅱ" : `${Math.floor(growthPct)}%`}</span>`}
           </div>
           <div class="crop-info">
             <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>

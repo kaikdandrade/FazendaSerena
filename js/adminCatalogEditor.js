@@ -31,6 +31,24 @@
   const eventTypeOptions = fixedOptions([["harvest", "Produção das safras"], ["xp", "Experiência (XP)"], ["research", "Pontos de pesquisa"], ["coins", "Moedas recebidas"]]);
   const effectOptions = () => [{ value: "", label: "Sem segundo bônus" }, ...(window.GameAdminConfig?.getEvolutionEffectOptions?.() || [])];
 
+  const evolutionCostAt = (item, levelIndex) => {
+    const level = Math.max(0, Math.floor(Number(levelIndex) || 0));
+    if (Array.isArray(item?.stageCosts) && Number.isFinite(Number(item.stageCosts[level]))) {
+      return Math.max(0, Math.ceil(Number(item.stageCosts[level]) || 0));
+    }
+    const base = Math.max(0, Number(item?.baseCost) || 0);
+    const growth = Math.max(0.01, Number(item?.growth) || 1);
+    return Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.ceil(base * Math.pow(growth, level))));
+  };
+  const evolutionCostPreviewMarkup = item => {
+    const max = Math.max(1, Math.min(1000, Math.floor(Number(item?.max) || 1)));
+    const cells = Array.from({ length: max }, (_, index) => {
+      const cost = evolutionCostAt(item, index);
+      return `<span class="admin-evolution-cost-cell"><b>N${index + 1}</b><strong>${escapeHtml(cost.toLocaleString("pt-BR"))}</strong></span>`;
+    }).join("");
+    return `<div class="admin-evolution-cost-preview"><span class="admin-evolution-cost-title">Custo por nível</span><div class="admin-evolution-cost-grid">${cells}</div></div>`;
+  };
+
   function evolutionFields(prestige) {
     return [
       { key: "name", label: "Nome", type: "text", required: true },
@@ -64,16 +82,15 @@
       { key: "category", label: "Categoria de plantas", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Todas as categorias" },
       imageField("icon", "Ícone", "icone")
     ]},
-    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => `${item.minDurationSeconds || item.durationSeconds || 0}s–${item.maxDurationSeconds || item.durationSeconds || 0}s · ${item.chancePercent ?? 100}% chance · prioridade ${item.priority || 0} · multa ${item.penaltyPercent ?? 20}% · ${item.offerCountdown === false ? "proposta sem prazo" : "proposta com prazo"} · ${rewardSelectionLabel(item.rewards)} · ${item.xpPercent || 0}% XP`, fields: [
+    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => { const proposal = Array.isArray(item.proposalDurationRange) ? item.proposalDurationRange : [item.minDurationSeconds || item.durationSeconds || 0, item.maxDurationSeconds || item.durationSeconds || 0]; const delivery = Array.isArray(item.deliveryDurationRange) ? item.deliveryDurationRange : proposal; return `proposta ${proposal[0] || 0}s–${proposal[1] ?? proposal[0] ?? 0}s · entrega ${delivery[0] || 0}s–${delivery[1] ?? delivery[0] ?? 0}s · ${item.chancePercent ?? 100}% chance · prioridade ${item.priority || 0} · multa ${item.penaltyPercent ?? 20}% · ${rewardSelectionLabel(item.rewards)}${Number(item.xpPercent) > 0 ? ` + ${item.xpPercent}% XP` : ""}`; }, fields: [
       { key: "label", label: "Nome do tipo de contrato", type: "text", required: true },
-      percentField("chancePercent", "Chance de aparecer (%)", { min: 0, max: 100, required: true, defaultValue: 100, help: "Use como peso de raridade. Ex.: comum 100%, raro 20% e muito raro 5%." }),
+      percentField("chancePercent", "Chance de aparecer (%)", { min: 0, max: 100, required: true, defaultValue: 100, help: "Probabilidade real por proposta. Use 100% em pelo menos um tipo comum. Um tipo de 5% aparece, em média, em cerca de 5 de cada 100 propostas; o tipo de 100% preenche as propostas em que nenhum raro é sorteado." }),
       numberField("priority", "Prioridade de entrega", { min: 0, integer: true, required: true, defaultValue: 0, help: "Quando dois contratos pedirem a mesma planta, a produção é entregue primeiro ao contrato com maior prioridade." }),
       percentField("penaltyPercent", "Multa / quebra do contrato (%)", { min: 0, required: true, defaultValue: 20, help: "Percentual adicional aplicado sobre (quantidade que falta × valor unitário atual da planta)." }),
-      { key: "offerCountdown", label: "Tempo para proposta do contrato?", type: "select", required: true, defaultValue: "true", options: fixedOptions([["true", "Sim, mostrar e contar o tempo da proposta"], ["false", "Não, a proposta não possui cronômetro"]]) },
-      numberField("minDurationSeconds", "Tempo mínimo (segundos)", { min: 5, integer: true, required: true, defaultValue: 60, help: "Menor prazo que um contrato deste tipo pode receber." }),
-      numberField("maxDurationSeconds", "Tempo máximo (segundos)", { min: 5, integer: true, required: true, defaultValue: 360, help: "Maior prazo possível. Cada nova proposta sorteia um valor entre o mínimo e o máximo." }),
+      { key: "proposalDurationRange", label: "Tempo da proposta — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, required: true, defaultValue: [60, 120], help: "Informe dois valores separados por vírgula. Ex.: 60, 120. Este é apenas o tempo disponível para decidir se assina." },
+      { key: "deliveryDurationRange", label: "Tempo de entrega — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, required: true, defaultValue: [180, 360], help: "Informe dois valores separados por vírgula. Ao assinar, um novo cronômetro de entrega usa o tempo sorteado neste intervalo." },
       numberField("quantityMultiplier", "Multiplicador de quantidade", { min: 0.01, required: true }),
-      { key: "rewards", label: "Recompensas do contrato", type: "checkboxes", required: true, options: rewardOptions, help: "Marque uma ou mais recompensas. Os campos correspondentes aparecem abaixo." },
+      { key: "rewards", label: "Recompensas adicionais do contrato", type: "checkboxes", options: rewardOptions, help: "Opcional. Moedas, pesquisa e prestígio podem ficar desmarcados; o contrato pode conceder somente XP." },
       percentField("coinMultiplierPercent", "Multiplicador de moedas (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "coins" }, defaultValue: 100 }),
       percentField("researchMultiplierPercent", "Multiplicador de pesquisa (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "research" }, defaultValue: 100 }),
       percentField("prestigeMultiplierPercent", "Multiplicador de prestígio (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "prestige" }, defaultValue: 1 }),
@@ -263,7 +280,8 @@
         const actions = locked
           ? '<span class="admin-fixed-point-badge">Padrão</span>'
           : `<button aria-label="Mover para cima" class="admin-button compact secondary" data-catalog-action="up" data-index="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button><button aria-label="Mover para baixo" class="admin-button compact secondary" data-catalog-action="down" data-index="${index}" type="button" ${index === this.items.length - 1 ? "disabled" : ""}>↓</button><button class="admin-button compact secondary" data-catalog-action="edit" data-index="${index}" type="button">Editar</button><button class="admin-button compact danger" data-catalog-action="delete" data-index="${index}" type="button">Excluir</button>`;
-        return `<article class="admin-catalog-item ${this.name === "missions" ? "admin-mission-catalog-item" : ""} ${locked ? "admin-fixed-point-item" : ""}" data-mission-index="${this.name === "missions" ? index : ""}"><div class="admin-catalog-item-main"><div><strong>${escapeHtml(this.schema.title(item, index))}</strong><small>${escapeHtml(this.schema.subtitle(item, index))}</small></div><div class="admin-catalog-item-actions">${actions}</div></div>${this.name === "missions" ? this.missionSeriesMarkup(item, index) : ""}</article>`;
+        const evolutionCosts = (this.name === "research" || this.name === "prestigeUpgrades") ? evolutionCostPreviewMarkup(item) : "";
+        return `<article class="admin-catalog-item ${this.name === "missions" ? "admin-mission-catalog-item" : ""} ${locked ? "admin-fixed-point-item" : ""}" data-mission-index="${this.name === "missions" ? index : ""}"><div class="admin-catalog-item-main"><div><strong>${escapeHtml(this.schema.title(item, index))}</strong><small>${escapeHtml(this.schema.subtitle(item, index))}</small></div><div class="admin-catalog-item-actions">${actions}</div></div>${evolutionCosts}${this.name === "missions" ? this.missionSeriesMarkup(item, index) : ""}</article>`;
       }).join("") : `<div class="admin-catalog-empty">Nenhum conteúdo cadastrado.</div>`;
     }
     open(index) {
@@ -516,7 +534,14 @@
         const input = this.form.elements.namedItem(field.key); if (!input) return;
         let value = String(input.value ?? "").trim();
         if (field.type === "number") value = numberValue(value, field);
-        if (field.transform === "numberArray") value = value ? value.split(",").map(part => Number(sanitizePositive(part))).filter(Number.isFinite) : [];
+        if (field.transform === "numberArray") {
+          value = value ? value.split(",").map(part => Number(sanitizePositive(part))).filter(Number.isFinite) : [];
+          if (field.rangePair && value.length) {
+            const first = Math.max(5, Math.round(value[0]));
+            const second = Math.max(5, Math.round(value[1] ?? value[0]));
+            value = [Math.min(first, second), Math.max(first, second)];
+          }
+        }
         if (field.transform === "slug") value = autoId(value);
         if (field.transform === "datetimeMs") value = new Date(value).getTime();
         if (value === "" || (Array.isArray(value) && !value.length)) this.deletePath(output, field.key); else setPath(output, field.key, value);
@@ -529,12 +554,12 @@
       if (field.type === "effects") {
         const rows = this.getEffectRows(item);
         const content = (rows.length ? rows : [{}]).map(effect => this.effectRowMarkup(effect)).join("");
-        const help = field.help ? `<small class="admin-field-help">${escapeHtml(field.help)}</small>` : "";
+        const help = "";
         return `<section class="admin-dialog-field full admin-effects-editor" data-admin-field-key="${escapeHtml(field.key)}" data-effects-editor="${escapeHtml(field.key)}"><span>${escapeHtml(field.label)}</span><div class="admin-effect-list" data-effect-list>${content}</div><button type="button" class="admin-button secondary compact" data-effect-add>+ Adicionar bônus</button>${help}</section>`;
       }
       const raw = getPath(item, field.key); let value = Array.isArray(raw) ? raw : (raw ?? field.defaultValue ?? ""); if (field.transform === "datetimeMs") value = toLocalDateTime(value);
       const required = field.required ? "required" : "";
-      const help = field.help ? `<small class="admin-field-help">${escapeHtml(field.help)}</small>` : "";
+      const help = "";
       const full = field.type === "textarea" || field.type === "checkboxes" || field.type === "contractColor" || field.key === "desc" || field.key === "body" ? " full" : "";
       const fieldAttr = `data-admin-field-key="${escapeHtml(field.key)}"`;
       if (field.type === "textarea") return `<label ${fieldAttr} class="admin-dialog-field${full}"><span>${escapeHtml(field.label)}</span><textarea autocomplete="off" name="${escapeHtml(field.key)}" ${required}>${escapeHtml(value)}</textarea>${help}</label>`;

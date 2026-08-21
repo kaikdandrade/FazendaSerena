@@ -396,22 +396,24 @@
       if (!cropState?.owned) return;
       const growthTime = engine.getGrowthTime(cropId);
       const instant = growthTime <= 0;
+      const optimizedRing = instant || growthTime <= 1.5;
       const directRoute = cropState.autoSell || activeContractCropIds.has(cropId) || wholesaleOverflowEnabled;
       const paused = storageRemaining <= 0 && !directRoute;
-      const progress = instant ? 100 : percent(cropState.progress * 100);
+      const progress = optimizedRing ? 100 : percent(cropState.progress * 100);
       if (ring) {
         const previous = Number(ring.dataset.lastProgress || 0);
-        const wrapped = !instant && previous > 88 && progress < 25;
+        const wrapped = !optimizedRing && previous > 88 && progress < 25;
         if (wrapped) ring.classList.add("progress-resetting");
         ring.style.setProperty("--growth-progress", `${progress}%`);
         if (wrapped) requestAnimationFrame(() => ring.classList.remove("progress-resetting"));
         ring.dataset.lastProgress = String(progress);
-        ring.classList.toggle("instant", instant);
+        ring.classList.toggle("instant", optimizedRing);
+        ring.classList.toggle("optimized-ring", optimizedRing && !instant);
         ring.classList.toggle("paused", paused);
       }
       if (progressLabel) {
-        progressLabel.hidden = instant;
-        if (!instant) progressLabel.textContent = paused ? "Ⅱ" : `${Math.floor(progress)}%`;
+        progressLabel.hidden = optimizedRing;
+        if (!optimizedRing) progressLabel.textContent = paused ? "Ⅱ" : `${Math.floor(progress)}%`;
       }
       if (cycle) cycle.textContent = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
       card.classList.toggle("auto-sell-enabled", Boolean(cropState.autoSell));

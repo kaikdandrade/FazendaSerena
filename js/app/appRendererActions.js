@@ -140,6 +140,18 @@
       render(true);
       return;
     }
+    if (action === "open-friends-list") {
+      openFriendsListDialog();
+      return;
+    }
+    if (action === "confirm-remove-friend") {
+      confirmFriendRemoval().catch(error => setFriendsFeedback(window.FirebaseManager.getFriendlyError(error), "error"));
+      return;
+    }
+    if (action === "remove-friend") {
+      requestFriendRemoval(button.dataset.friendshipId);
+      return;
+    }
     if (action === "copy-friend-code") {
       const code = friendsState.selfProfile?.friendCode || window.FirebaseManager.getUser()?.uid || "";
       if (code) {
@@ -154,7 +166,7 @@
       }
       return;
     }
-    if (["accept-friend", "reject-friend", "cancel-friend-request", "remove-friend"].includes(action)) {
+    if (["accept-friend", "reject-friend", "cancel-friend-request"].includes(action)) {
       handleFriendRelationshipAction(action, button.dataset.friendshipId);
       return;
     }

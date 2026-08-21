@@ -26,9 +26,9 @@ Object.assign(GameEngine.prototype, {
         const cycles = Math.floor(cropState.progress);
         if (cycles < 1) continue;
   
-        const perCycle = this.getYield(crop.id);
+        const producedThisTick = this.rollProductionYield(crop.id, cycles);
         cropState.progress -= cycles;
-        cropState.productionBuffer = Math.max(0, Number(cropState.productionBuffer) || 0) + cycles * perCycle;
+        cropState.productionBuffer = Math.max(0, Number(cropState.productionBuffer) || 0) + producedThisTick;
         const requested = Math.floor(cropState.productionBuffer);
         if (requested < 1) continue;
         const routed = this.routeProducedCrop(crop.id, requested, offline, storageRemaining);
@@ -156,17 +156,63 @@ Object.assign(GameEngine.prototype, {
       return Math.max(1, 1 / previousTime);
     },
 
-  getYield(cropId) {
+  getYieldRange(cropId) {
       const crop = this.getCrop(cropId);
+      if (!crop) return { min: 0, max: 0 };
       const cropLevel = Math.max(1, Number(this.state.crops?.[cropId]?.level) || 1);
       const levelMultiplier = window.FazendaSerenaCropEconomy?.levelYieldMultiplier?.(cropLevel) ?? 1;
-      const globalYieldMultiplier = (1 + Math.max(0, this.getEvolutionBonus("yieldPercent")) / 100) * this.getEventMultiplier("harvest");
-      return crop.baseYield * levelMultiplier * globalYieldMultiplier;
+      const configuredMin = Math.max(1, Number(GameEngine.BASE_PRODUCTION_MIN) || 1);
+      const configuredMax = Math.max(configuredMin, Number(GameEngine.BASE_PRODUCTION_CAP) || 10);
+      const rawYield = Math.max(0, crop.baseYield * levelMultiplier * this.getEventMultiplier("harvest"));
+      const currentBaseMax = Math.max(configuredMin, Math.min(configuredMax, rawYield));
+      // O mínimo é o piso global configurado. Pesquisa/Legados aumentam apenas
+      // o teto da faixa, permitindo produzir acima do máximo base sem tornar
+      // todas as colheitas automaticamente maiores.
+      const yieldBonus = Math.max(0, this.getEvolutionBonus("yieldPercent")) / 100;
+      const boostedMax = Math.max(configuredMin, currentBaseMax * (1 + yieldBonus));
+      return { min: configuredMin, max: boostedMax };
+    },
+
+  getExpectedYield(cropId) {
+      const range = this.getYieldRange(cropId);
+      if (range.max <= 0) return 0;
+      return (range.min + range.max) / 2;
+    },
+
+  getYield(cropId) {
+      // Mantém compatibilidade com cálculos de contratos/UI: aqui retornamos
+      // a média esperada. A aleatoriedade real acontece somente ao produzir.
+      return this.getExpectedYield(cropId);
+    },
+
+  rollProductionYield(cropId, cycles = 1) {
+      const count = Math.max(0, Math.floor(Number(cycles) || 0));
+      if (!count) return 0;
+      const { min, max } = this.getYieldRange(cropId);
+      if (max <= min) return count * min;
+      const span = max - min;
+
+      // Em jogo aberto os ciclos são poucos e cada colheita é sorteada de
+      // verdade. Em progresso offline/produção instantânea, milhares de ciclos
+      // podem ocorrer de uma vez; uma aproximação normal mantém média/variância
+      // da distribuição uniforme sem fazer dezenas de milhares de Math.random().
+      if (count <= 128) {
+        let total = 0;
+        for (let index = 0; index < count; index += 1) total += min + Math.random() * span;
+        return total;
+      }
+
+      const mean = count * (min + max) / 2;
+      const deviation = Math.sqrt(count * span * span / 12);
+      const u1 = Math.max(Number.EPSILON, Math.random());
+      const u2 = Math.random();
+      const normal = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      return Math.max(count * min, Math.min(count * max, mean + normal * deviation));
     },
 
   getProductionRate(cropId) {
       const growthTime = this.getGrowthTime(cropId);
       const cyclesPerSecond = growthTime <= 0 ? this.getInstantCyclesPerSecond(cropId) : 1 / growthTime;
-      return Math.max(0, this.getYield(cropId) * cyclesPerSecond);
+      return Math.max(0, this.getExpectedYield(cropId) * cyclesPerSecond);
     }
 });

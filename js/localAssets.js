@@ -27,6 +27,12 @@
     "source": "local"
   },
   {
+    "value": "assets/icons/cookie.webp",
+    "label": "Cookie",
+    "kind": "icone",
+    "source": "local"
+  },
+  {
     "value": "assets/icons/calculadora-moeda.webp",
     "label": "Calculadora e moeda",
     "kind": "icone",
@@ -173,6 +179,12 @@
   {
     "value": "assets/icons/fazendeiro.webp",
     "label": "Fazendeiro",
+    "kind": "icone",
+    "source": "local"
+  },
+  {
+    "value": "assets/icons/saco-colheita.webp",
+    "label": "Saco de colheita",
     "kind": "icone",
     "source": "local"
   },

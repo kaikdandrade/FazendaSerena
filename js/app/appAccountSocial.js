@@ -92,7 +92,7 @@
     if (dom.accountAvatar) {
       const gameAvatar = getAvatarEntry(storedAvatarId);
       const googlePhoto = signedIn && /^https:\/\//i.test(String(user.photoURL || "")) ? user.photoURL : "";
-      dom.accountAvatar.src = gameAvatar?.src || googlePhoto || "assets/logo.webp";
+      dom.accountAvatar.src = gameAvatar?.src || googlePhoto || "assets/icons/perfil.webp";
       dom.accountAvatar.alt = gameAvatar
         ? `Avatar selecionado: ${gameAvatar.label}`
         : signedIn ? `Foto de ${user.displayName || "jogador"}` : "";
@@ -249,7 +249,7 @@
     // aberta ou digitando um código. Preserve esse estado para que o tempo real
     // não feche a sanfona nem apague o texto do formulário.
     const openFriendOptions = new Set(
-      [...dom.friendsContent.querySelectorAll(".friends-beta-option[open][data-friend-option]")]
+      [...dom.friendsContent.querySelectorAll("details.friends-beta-option[open][data-friend-option]")]
         .map(option => option.dataset.friendOption)
         .filter(Boolean)
     );
@@ -281,23 +281,66 @@
     }
 
     const code = escapeHtml(friendsState.selfProfile.friendCode || user.uid);
-    const incomingMarkup = incomingCount ? `<section class="friends-beta-incoming"><header><span>Solicitações recebidas</span><b>${incomingCount}</b></header><div class="friends-list">${friendsState.incoming.map(item => friendRelationshipCard(item, "incoming")).join("")}</div></section>` : "";
-    const acceptedMarkup = (friendsState.friends || []).length
-      ? `<div class="friends-list">${friendsState.friends.map(item => friendRelationshipCard(item, "accepted")).join("")}</div>`
-      : `<div class="friends-empty-state">Sua lista de amigos ainda está vazia.</div>`;
-    const outgoingMarkup = (friendsState.outgoing || []).length
-      ? `<section class="friends-beta-outgoing"><small>Solicitações enviadas</small><div class="friends-list">${friendsState.outgoing.map(item => friendRelationshipCard(item, "outgoing")).join("")}</div></section>`
-      : "";
+    const friendCount = friendsState.friends?.length || 0;
+    const outgoingCount = friendsState.outgoing?.length || 0;
+    const incomingMarkup = incomingCount ? `<section class="friends-beta-incoming"><header><div><small>pendentes</small><span>Solicitações recebidas</span></div><b>${incomingCount}</b></header><div class="friends-list">${friendsState.incoming.map(item => friendRelationshipCard(item, "incoming")).join("")}</div></section>` : "";
 
-    dom.friendsContent.innerHTML = `<section class="friends-beta-card">
-      <header class="friends-beta-header"><div class="friends-beta-title"><img src="assets/icons/social.webp" alt=""><div><small>recurso em desenvolvimento</small><h3>Amigos <span>beta</span></h3></div></div><span class="friends-beta-count">${friendsState.friends?.length || 0} ${(friendsState.friends?.length || 0) === 1 ? "amigo" : "amigos"}</span></header>
+    dom.friendsContent.innerHTML = `<section class="friends-beta-card friends-hub-card">
+      <header class="friends-beta-header friends-hub-header"><div class="friends-beta-title"><div><small>recurso em desenvolvimento</small><h3>Amigos <span>beta</span></h3></div></div><div class="friends-hub-counters"><span><b>${friendCount}</b> ${friendCount === 1 ? "amigo" : "amigos"}</span>${incomingCount ? `<span class="has-pending"><b>${incomingCount}</b> pendente${incomingCount === 1 ? "" : "s"}</span>` : ""}</div></header>
       ${incomingMarkup}
-      <div class="friends-beta-options">
-        <details class="friends-beta-option" data-friend-option="list"><summary><span><img src="assets/icons/perfil.webp" alt="">Ver lista de amigos</span><b>${friendsState.friends?.length || 0}</b></summary><div class="friends-beta-option-body">${acceptedMarkup}${outgoingMarkup}</div></details>
-        <details class="friends-beta-option" data-friend-option="request"><summary><span><img src="assets/icons/social.webp" alt="">Enviar pedido de amizade</span><b>+</b></summary><div class="friends-beta-option-body"><div class="friend-code-inline"><span>Seu código</span><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div><form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código do outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div><div aria-live="polite" class="friends-feedback" id="friendCodeFeedback"></div></div></details>
+      <div class="friends-beta-options friends-hub-actions">
+        <button class="friends-beta-option friends-list-launch friends-hub-launch" data-action="open-friends-list" type="button"><span><img src="assets/icons/perfil.webp" alt=""><span><strong>Amigos e solicitações</strong><small>Veja conexões e pedidos pendentes</small></span></span><b>${friendCount + incomingCount + outgoingCount}</b></button>
+        <details class="friends-beta-option friends-request-option" data-friend-option="request"><summary><span><img src="assets/icons/social.webp" alt=""><span><strong>Enviar pedido de amizade</strong><small>Compartilhe ou informe um código</small></span></span><b>+</b></summary><div class="friends-beta-option-body"><div class="friend-code-inline"><span>Seu código</span><code id="currentFriendCode">${code}</code><button class="button secondary compact-friend-button" data-action="copy-friend-code" type="button">Copiar</button></div><div aria-live="polite" class="friends-feedback friend-code-feedback" id="friendCodeFeedback"></div><form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código do outro jogador</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código de amizade" required type="text"><button class="button primary" type="submit">Enviar pedido</button></div></form><div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div></div></details>
       </div>
     </section>`;
     restoreFriendInteractionState();
+    if (dom.friendsListDialog?.open) openFriendsListDialog();
+  }
+
+  function openFriendsListDialog() {
+    if (!dom.friendsListDialog || !dom.friendsListDialogBody) return;
+    const incoming = friendsCollection(
+      "Solicitações recebidas",
+      "pedidos pendentes",
+      friendsState.incoming || [],
+      "incoming",
+      "Nenhuma solicitação recebida."
+    );
+    const accepted = friendsCollection(
+      "Amigos",
+      "fazendas conectadas",
+      friendsState.friends || [],
+      "accepted",
+      "Sua lista de amigos ainda está vazia."
+    );
+    const outgoing = friendsCollection(
+      "Solicitações enviadas",
+      "aguardando resposta",
+      friendsState.outgoing || [],
+      "outgoing",
+      "Nenhuma solicitação enviada."
+    );
+    dom.friendsListDialogBody.innerHTML = `<div class="friends-dialog-summary"><span><b>${friendsState.friends?.length || 0}</b> amigos</span><span><b>${friendsState.incoming?.length || 0}</b> recebidas</span><span><b>${friendsState.outgoing?.length || 0}</b> enviadas</span></div><div class="friends-dialog-sections">${incoming}${accepted}${outgoing}</div>`;
+    if (typeof dom.friendsListDialog.showModal === "function" && !dom.friendsListDialog.open) dom.friendsListDialog.showModal();
+  }
+
+  function requestFriendRemoval(friendshipId) {
+    const item = (friendsState.friends || []).find(entry => entry.id === friendshipId);
+    if (!item || !dom.removeFriendDialog) return;
+    pendingFriendRemovalId = friendshipId;
+    const profile = getFriendProfilePresentation(item.profile);
+    if (dom.removeFriendName) dom.removeFriendName.textContent = profile.name;
+    if (typeof dom.removeFriendDialog.showModal === "function" && !dom.removeFriendDialog.open) dom.removeFriendDialog.showModal();
+  }
+
+  async function confirmFriendRemoval() {
+    const id = pendingFriendRemovalId;
+    pendingFriendRemovalId = "";
+    if (dom.removeFriendDialog?.open) dom.removeFriendDialog.close("confirm");
+    if (!id) return;
+    await handleFriendRelationshipAction("remove-friend", id);
+    await refreshFriends(true);
+    if (dom.friendsListDialog?.open) openFriendsListDialog();
   }
 
   async function refreshFriends(force = false) {

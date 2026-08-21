@@ -41,6 +41,8 @@
   let friendsState = { status: "idle", selfProfile: null, friends: [], incoming: [], outgoing: [], error: null, loadedAt: 0 };
   let friendsRequest = null;
   let friendsRealtimeUnsubscribe = null;
+  let ownSaveRealtimeUnsubscribe = null;
+  let pendingFriendRemovalId = "";
   let pendingOfflineMilestones = [];
   let pendingContractBreakId = "";
   let lastResearchRenderSignature = "";
@@ -97,6 +99,7 @@
     evolutionsOfficeTab: $("#evolutionsOfficeTab"),
     friendsTabCount: $("#friendsTabCount"),
     friendsContent: $("#friendsContent"),
+    friendsListDialog: $("#friendsListDialog"), friendsListDialogBody: $("#friendsListDialogBody"), removeFriendDialog: $("#removeFriendDialog"), removeFriendName: $("#removeFriendName"),
     statsHero: $("#statsHero"),
     prestigeLeaderboard: $("#prestigeLeaderboard"),
     socialEventsList: $("#socialEventsList"),

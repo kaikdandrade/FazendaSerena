@@ -62,6 +62,7 @@
       <option value="navigationIcons">Ícones da navegação</option>
       <option value="playerFeedback">Feedback e ideias</option>
       <option value="tests">Testes</option>
+      <option value="globalControl">Controle global</option>
       <option value="pointTypes">Tipos de pontos</option>
       <option value="categories">Categorias de plantas</option>
       <option value="crops">Plantas</option>
@@ -89,6 +90,8 @@
       <label><span>Nível de liberação do prestígio</span><input autocomplete="off" id="adminPrestigeUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Moedas iniciais</span><input autocomplete="off" id="adminStartingCoins" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Capacidade inicial do estoque</span><input autocomplete="off" id="adminStorageCapacity" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Mínimo base de safra por produção</span><input autocomplete="off" id="adminBaseProductionMin" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Máximo base de safra por produção</span><input autocomplete="off" id="adminBaseProductionCap" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nova proposta após assinar (segundos)</span><input autocomplete="off" id="adminContractSignedCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nova proposta após expirar (segundos)</span><input autocomplete="off" id="adminContractExpiredCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
       <label><span>Nova proposta após recusar (segundos)</span><input autocomplete="off" id="adminContractDeclinedCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
@@ -110,38 +113,60 @@
   </section>
 
   <section class="admin-panel admin-navigation-icons-section" data-admin-section="navigationIcons" hidden>
-    <div class="admin-section-heading"><div><h2>Ícones da navegação</h2><p>Configure ícones e ordem separadamente para cada tipo de navegação. O jogador pode escolher o modo nas Configurações.</p></div></div>
-    <section class="admin-navigation-icon-group"><header><strong>Tabulação em linha</strong><small>Ícones usados no menu clássico com abas principais e secundárias.</small></header><div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div></section>
-    <section class="admin-navigation-icon-group"><header><strong>Tabulação em grade</strong><small>Ícones usados na grade direta, independentemente do tamanho da tela.</small></header><div class="admin-navigation-icon-grid" id="adminGridNavigationIconGrid"></div></section>
+    <div class="admin-section-heading"><h2>Ícones da navegação</h2></div>
+    <section class="admin-navigation-icon-group"><header><strong>Tabulação em linha</strong></header><div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div></section>
+    <section class="admin-navigation-icon-group"><header><strong>Tabulação em grade</strong></header><div class="admin-navigation-icon-grid" id="adminGridNavigationIconGrid"></div></section>
     <div class="admin-section-save"><button class="admin-button primary" id="adminSaveNavigationIcons" type="button">Salvar ícones e ordem</button></div>
   </section>
 
   <section class="admin-panel admin-player-feedback-section" data-admin-section="playerFeedback" hidden>
-    <div class="admin-section-heading"><div><h2>Feedback e ideias</h2><p>Mensagens enviadas por jogadores conectados.</p></div><button class="admin-button secondary compact" id="adminRefreshPlayerFeedback" type="button">Atualizar</button></div>
+    <div class="admin-section-heading"><h2>Feedback e ideias</h2><button class="admin-button secondary compact" id="adminRefreshPlayerFeedback" type="button">Atualizar</button></div>
+    <div class="admin-feedback-filters" aria-label="Filtros de feedback">
+      <label><span>Categoria</span><select id="adminFeedbackTypeFilter"><option value="all">Todas</option><option value="feedback">Feedback</option><option value="idea">Ideias</option><option value="problem">Problemas</option></select></label>
+      <label><span>Visualização</span><select id="adminFeedbackStatusFilter"><option value="unread">Somente não lidas</option><option value="all">Lidas e não lidas</option><option value="read">Somente lidas</option></select></label>
+      <div class="admin-feedback-filter-count" id="adminFeedbackFilterCount">0 mensagens</div>
+    </div>
     <div class="admin-feedback-inbox" id="adminPlayerFeedbackList"><div class="admin-catalog-empty">Abra esta área para carregar os envios.</div></div>
   </section>
 
 
   <section class="admin-panel admin-tests-section" data-admin-section="tests" hidden>
-    <div class="admin-section-heading"><div><h2>Testes</h2><p>Ferramentas de simulação e ajuste da própria conta administrativa.</p></div></div>
+    <div class="admin-section-heading"><h2>Testes</h2></div>
     <div class="admin-test-grid">
       <article class="admin-test-card">
-        <div><small>Interface</small><h3>Modais do jogo</h3><p>Abra prévias para conferir alinhamento, ícones e responsividade.</p></div>
+        <div><small>Interface</small><h3>Modais do jogo</h3></div>
         <div class="admin-test-actions"><button class="admin-button secondary" id="adminTestMilestone" type="button">Simular marco</button><button class="admin-button secondary" id="adminTestOffline" type="button">Simular progresso offline</button></div>
       </article>
       <article class="admin-test-card">
-        <div><small>Conta de teste</small><h3>Progressão</h3><p>Altere somente a conta Google atualmente conectada ao painel.</p></div>
-        <div class="admin-test-form-grid"><label><span>Nível da fazenda</span><input autocomplete="off" id="adminTestFarmLevel" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="1"></label><label><span>Nível de prestígio da conta</span><input autocomplete="off" id="adminTestPrestigeLevel" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="0"></label></div>
+        <div><small>Conta de teste</small><h3>Progressão</h3></div>
+        <div class="admin-test-form-grid"><label><span>Nível da fazenda</span><input autocomplete="off" id="adminTestFarmLevel" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="1"></label><label><span>Nível de prestígio da conta</span><input autocomplete="off" id="adminTestPrestigeLevel" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="0"></label><label><span>Moedas</span><input autocomplete="off" id="adminTestCoins" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="0"></label><label><span>Pesquisa</span><input autocomplete="off" id="adminTestResearch" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="0"></label><label><span>Pontos de prestígio</span><input autocomplete="off" id="adminTestPrestigePoints" inputmode="numeric" data-admin-number data-admin-integer type="text" placeholder="0"></label></div>
         <button class="admin-button primary" id="adminApplyTestProgress" type="button">Aplicar na minha conta</button>
       </article>
       <article class="admin-test-card admin-test-danger-card">
-        <div><small>Reset de teste</small><h3>Dados específicos</h3><p>Os totais históricos da conta são preservados; apenas o progresso atual selecionado é reiniciado.</p></div>
+        <div><small>Reset de teste</small><h3>Dados específicos</h3></div>
         <div class="admin-test-actions"><button class="admin-button danger" id="adminResetTestCrops" type="button">Resetar plantas</button><button class="admin-button danger" id="adminResetTestOrders" type="button">Resetar pedidos</button><button class="admin-button danger" id="adminResetTestMissions" type="button">Resetar missões</button></div>
       </article>
     </div>
     <div class="admin-test-feedback" id="adminTestFeedback" aria-live="polite"></div>
   </section>
 
+
+
+
+  <section class="admin-panel admin-global-control-section" data-admin-section="globalControl" hidden>
+    <div class="admin-section-heading"><h2>Controle global</h2></div>
+    <div class="admin-global-control-grid">
+      <article class="admin-global-control-card">
+        <div><strong>Resetar pesquisa globalmente</strong></div>
+        <button class="admin-button danger" id="adminGlobalResetResearch" type="button">Resetar pesquisas</button>
+      </article>
+      <article class="admin-global-control-card">
+        <div><strong>Resolver conflito de plantas</strong></div>
+        <button class="admin-button danger" id="adminGlobalResolveCrops" type="button">Resolver plantas</button>
+      </article>
+    </div>
+    <div class="admin-global-feedback" id="adminGlobalFeedback" aria-live="polite"></div>
+  </section>
 
   <section class="admin-catalog-stack">
     <section class="admin-panel admin-catalog-editor" data-catalog-editor="pointTypes" data-admin-section="pointTypes" hidden>
@@ -170,12 +195,12 @@
     </section>
 
     <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractSlots" data-admin-section="contractSlots" hidden>
-      <div class="admin-section-heading"><div><h2>Slots de contrato</h2><p>Defina quantos slots existem e o nível da fazenda em que cada um é liberado.</p></div><button class="admin-button primary compact" data-catalog-add type="button">Adicionar slot</button></div>
+      <div class="admin-section-heading"><h2>Slots de contrato</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar slot</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
     <section class="admin-panel admin-catalog-editor" data-catalog-editor="orderSteps" data-admin-section="orderSteps" hidden>
-      <div class="admin-section-heading"><div><h2>Etapas dos pedidos</h2><p>Defina a quantidade e os percentuais de recompensa de cada estágio.</p></div><button class="admin-button primary compact" data-catalog-add type="button">Adicionar etapa</button></div>
+      <div class="admin-section-heading"><h2>Etapas dos pedidos</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar etapa</button></div>
       <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
     </section>
 
@@ -215,8 +240,8 @@
 </section>
 </main>
 
-<dialog class="admin-test-preview-dialog" id="adminTestMilestoneDialog"><form method="dialog"><header class="admin-test-preview-header"><img src="assets/icons/marco-nivel.webp" alt=""><div><small>Novo marco</small><h2>Nível 25 alcançado</h2></div></header><div class="admin-test-preview-body"><article><img src="assets/icons/pacote.webp" alt=""><div><strong>Novo recurso liberado</strong><span>Pedidos avançados disponíveis no Escritório.</span></div></article><article><img src="assets/icons/livros.webp" alt=""><div><strong>Evolução disponível</strong><span>Uma nova melhoria pode ser pesquisada.</span></div></article></div><footer><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
-<dialog class="admin-test-preview-dialog admin-test-offline-dialog" id="adminTestOfflineDialog"><form method="dialog"><header class="admin-test-preview-header"><img src="assets/icons/retorno-offline.webp" alt=""><div><small>Progresso offline</small><h2>15min</h2></div></header><div class="admin-test-offline-grid"><article><img src="assets/icons/moeda.webp" alt=""><span>Moedas</span><strong>12,4K</strong></article><article><img src="assets/icons/pocao-pesquisa.webp" alt=""><span>Pesquisa</span><strong>18</strong></article><article><img src="assets/icons/xp.webp" alt=""><span>XP</span><strong>342</strong></article><article><img src="assets/icons/contrato-agricola.webp" alt=""><span>Contratos</span><strong>2</strong></article></div><footer><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
+<dialog class="admin-test-preview-dialog" id="adminTestMilestoneDialog"><form method="dialog"><header class="milestone-preview-header"><img src="assets/icons/marco-nivel.webp" alt=""><div><small>Marco alcançado</small><h2>Marco alcançado: nível 25</h2></div></header><div class="milestone-preview-body"><article class="milestone-preview-card"><img src="assets/icons/pacote.webp" alt=""><div><strong>Nível 25</strong><span>Pedidos avançados disponíveis no Escritório.</span></div></article><article class="milestone-preview-card"><img src="assets/icons/livros.webp" alt=""><div><strong>Nível 25</strong><span>Uma nova melhoria pode ser pesquisada.</span></div></article></div><footer class="milestone-preview-actions"><button class="admin-button primary" value="close">Continuar</button></footer></form></dialog>
+<dialog class="admin-test-offline-dialog" id="adminTestOfflineDialog"><form method="dialog"><header class="offline-progress-header"><div class="offline-progress-symbol"><img src="assets/icons/retorno-offline.webp" alt=""></div><div class="offline-progress-heading"><h2>Progresso offline</h2><strong>15min</strong></div></header><div class="offline-progress-summary"><article class="offline-gain-card"><img src="assets/icons/moeda.webp" alt=""><div><span>Moedas</span><strong>12,4K</strong></div></article><article class="offline-gain-card"><img src="assets/icons/pocao-pesquisa.webp" alt=""><div><span>Pesquisa</span><strong>18</strong></div></article><article class="offline-gain-card"><img src="assets/icons/xp.webp" alt=""><div><span>XP</span><strong>342</strong></div></article><article class="offline-gain-card"><img src="assets/icons/contrato-comercial.webp" alt=""><div><span>Contratos</span><strong>2</strong></div></article></div><div class="offline-progress-actions"><button class="admin-button primary" value="close">Continuar</button></div></form></dialog>
 <dialog class="admin-item-dialog" id="adminItemDialog">
   <form autocomplete="off" method="dialog">
     <div class="admin-dialog-heading"><h2 data-admin-dialog-title>Editar item</h2></div>

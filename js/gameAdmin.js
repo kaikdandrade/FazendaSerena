@@ -138,6 +138,8 @@
     prestigeUnlockLevel: 40,
     startingCoins: 120,
     storageCapacity: 200,
+    baseProductionMin: 1,
+    baseProductionCap: 10,
     contractSignedCooldownSeconds: 30,
     contractExpiredCooldownSeconds: 30,
     contractDeclinedCooldownSeconds: 60,
@@ -248,7 +250,7 @@
   ]);
 
   const defaults = Object.freeze({
-    schemaVersion: 15,
+    schemaVersion: 17,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -282,6 +284,11 @@
   };
 
   function normalizeBalance(raw = {}) {
+    const baseProductionMin = integer(raw.baseProductionMin, 1, 1000000, defaultBalance.baseProductionMin);
+    const baseProductionCap = Math.max(
+      baseProductionMin,
+      integer(raw.baseProductionCap, 1, 1000000, defaultBalance.baseProductionCap)
+    );
     return {
       actionXPPercent: clamp(raw.actionXPPercent, 0, 100, defaultBalance.actionXPPercent),
       passiveXPPercentPerSecond: clamp(raw.passiveXPPercentPerSecond, 0, 100, defaultBalance.passiveXPPercentPerSecond),
@@ -296,6 +303,8 @@
       prestigeUnlockLevel: integer(raw.prestigeUnlockLevel, 1, 1000, defaultBalance.prestigeUnlockLevel),
       startingCoins: integer(raw.startingCoins, 0, Number.MAX_SAFE_INTEGER, defaultBalance.startingCoins),
       storageCapacity: integer(raw.storageCapacity, 1, Number.MAX_SAFE_INTEGER, defaultBalance.storageCapacity),
+      baseProductionMin,
+      baseProductionCap,
       contractSignedCooldownSeconds: integer(raw.contractSignedCooldownSeconds, 1, 86400, defaultBalance.contractSignedCooldownSeconds),
       contractExpiredCooldownSeconds: integer(raw.contractExpiredCooldownSeconds, 1, 86400, defaultBalance.contractExpiredCooldownSeconds),
       contractDeclinedCooldownSeconds: integer(raw.contractDeclinedCooldownSeconds, 1, 86400, defaultBalance.contractDeclinedCooldownSeconds),
@@ -370,9 +379,22 @@
         chancePercent: clamp(item?.chancePercent, 0, 100, 100),
         priority: integer(item?.priority, 0, 1000, 0),
         penaltyPercent: clamp(item?.penaltyPercent ?? item?.finePercent, 0, 100000, 20),
-        offerCountdown: item?.offerCountdown === false || item?.offerCountdown === "false" ? false : true,
-        minDurationSeconds: integer(item?.minDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360),
-        maxDurationSeconds: integer(item?.maxDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360),
+        proposalDurationRange: (() => {
+          const legacyMin = integer(item?.minDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360);
+          const legacyMax = integer(item?.maxDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, legacyMin);
+          const rawRange = Array.isArray(item?.proposalDurationRange) ? item.proposalDurationRange : [legacyMin, legacyMax];
+          const a = integer(rawRange[0], 5, 604800, legacyMin);
+          const b = integer(rawRange[1] ?? rawRange[0], 5, 604800, legacyMax);
+          return [Math.min(a, b), Math.max(a, b)];
+        })(),
+        deliveryDurationRange: (() => {
+          const legacyMin = integer(item?.minDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360);
+          const legacyMax = integer(item?.maxDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, legacyMin);
+          const rawRange = Array.isArray(item?.deliveryDurationRange) ? item.deliveryDurationRange : [legacyMin, legacyMax];
+          const a = integer(rawRange[0], 5, 604800, legacyMin);
+          const b = integer(rawRange[1] ?? rawRange[0], 5, 604800, legacyMax);
+          return [Math.min(a, b), Math.max(a, b)];
+        })(),
         quantityMultiplier: clamp(item?.quantityMultiplier, 0.01, 1000, Math.max(0.01, oldQuantity || 1)),
         rewards,
         coinMultiplierPercent: clamp(item?.coinMultiplierPercent, 0, 100000, legacyCoinPercent),
@@ -383,11 +405,11 @@
         colorAlpha: clamp(item?.colorAlpha, 0, 100, 18)
       };
     }));
-    return normalizedTypes.map(type => {
-      const minDurationSeconds = Math.min(type.minDurationSeconds, type.maxDurationSeconds);
-      const maxDurationSeconds = Math.max(type.minDurationSeconds, type.maxDurationSeconds);
-      return { ...type, minDurationSeconds, maxDurationSeconds };
-    });
+    return normalizedTypes.map(type => ({
+      ...type,
+      proposalDurationRange: [...type.proposalDurationRange],
+      deliveryDurationRange: [...type.deliveryDurationRange]
+    }));
   }
 
   function normalizeContractSlots(raw) {
@@ -621,7 +643,7 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 15,
+      schemaVersion: 17,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -736,6 +758,8 @@
     GameEngine.BASE_MAX_OFFLINE_SECONDS = Math.max(60, Math.floor(balance.maxOfflineMinutes * 60));
     GameEngine.MAX_OFFLINE_SECONDS = GameEngine.BASE_MAX_OFFLINE_SECONDS;
     GameEngine.BASE_STORAGE_CAPACITY = balance.storageCapacity;
+    GameEngine.BASE_PRODUCTION_MIN = balance.baseProductionMin;
+    GameEngine.BASE_PRODUCTION_CAP = balance.baseProductionCap;
     // Recompensa, prazo e XP dos contratos/pedidos pertencem aos próprios
     // catálogos administrativos, não aos parâmetros globais.
     GameEngine.CONTRACT_REWARD_FACTOR = 1;

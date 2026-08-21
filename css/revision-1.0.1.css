@@ -3279,3 +3279,623 @@ body[data-navigation-mode="line"] .desktop-main-nav .nav-tab { flex-shrink:0; }
 @media (max-width:480px) {
   body[data-navigation-mode="line"] .desktop-main-nav { scrollbar-width:thin; }
 }
+
+/* ========================================================================== */
+/* r31 — equilíbrio, contratos, social, ranking e consistência dos modais     */
+/* ========================================================================== */
+
+/* O Marco real usa o mesmo desenho aprovado na área Testes do ADM. */
+.confirmation-dialog-milestone {
+  background:#fff !important;
+  border:0 !important;
+  border-radius:20px !important;
+  box-shadow:0 26px 70px rgba(25,44,28,.22) !important;
+  max-height:min(86dvh,700px) !important;
+  overflow:hidden !important;
+  padding:0 !important;
+  width:min(560px,calc(100vw - 24px)) !important;
+}
+.confirmation-dialog-milestone > form {
+  display:grid !important;
+  grid-template-rows:auto minmax(0,1fr) auto !important;
+  margin:0 !important;
+  max-height:min(86dvh,700px) !important;
+  overflow:hidden !important;
+  padding:0 !important;
+}
+.milestone-preview-header {
+  align-items:center;
+  background:linear-gradient(135deg,#eef6ea,#fff);
+  border-bottom:1px solid rgba(62,91,64,.08);
+  display:grid;
+  gap:12px;
+  grid-template-columns:64px minmax(0,1fr);
+  padding:18px;
+}
+.milestone-preview-header > img { background:transparent; height:60px; object-fit:contain; width:60px; }
+.milestone-preview-header > div { display:grid; gap:3px; min-width:0; }
+.milestone-preview-header small { color:#56805a; font-size:.63rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+.milestone-preview-header h2 { font-size:1.15rem !important; line-height:1.18; margin:0 !important; }
+.milestone-preview-body { display:grid !important; gap:9px !important; margin:0 !important; max-height:none !important; overflow:auto !important; padding:16px 18px !important; width:100% !important; }
+.milestone-preview-card { align-items:center; background:#f8faf7; border:1px solid rgba(62,91,64,.08); border-radius:13px; display:grid; gap:10px; grid-template-columns:44px minmax(0,1fr); padding:10px; }
+.milestone-preview-card > img { height:40px; object-fit:contain; width:40px; }
+.milestone-preview-card > div { display:grid; gap:2px; min-width:0; }
+.milestone-preview-card strong { font-size:.8rem; }
+.milestone-preview-card span { color:var(--ink-soft); font-size:.67rem; line-height:1.4; }
+.milestone-preview-actions { border-top:1px solid rgba(62,91,64,.08); padding:12px 18px 16px; }
+.milestone-preview-actions .button { width:100%; }
+
+/* Tempo de entrega é uma faixa informativa reta; quebra ocupa a base do card. */
+.contract-delivery-time-v3 { border-radius:0 !important; margin-left:0 !important; margin-right:0 !important; }
+.contract-card-v2:not(.contract-completed-card):not(.contract-defaulted-card) { display:flex !important; flex-direction:column !important; }
+.contract-card-footer-v2.contract-break-footer-v3 {
+  align-items:stretch !important;
+  display:flex !important;
+  flex:1 0 74px !important;
+  margin:12px 0 0 !important;
+  min-height:74px !important;
+  padding:0 !important;
+  width:100% !important;
+}
+.contract-break-button-v3 {
+  align-items:center !important;
+  align-self:stretch !important;
+  border-radius:0 0 17px 17px !important;
+  display:flex !important;
+  flex:1 1 auto !important;
+  flex-direction:column !important;
+  gap:7px !important;
+  height:auto !important;
+  justify-content:center !important;
+  margin:0 !important;
+  min-height:74px !important;
+  padding:12px 16px !important;
+  text-align:center !important;
+  width:100% !important;
+}
+.contract-break-button-v3 > span { line-height:1.1 !important; }
+.contract-break-button-v3 > strong { justify-content:center !important; line-height:1 !important; }
+
+/* Grade: anel de estoque limpo e contínuo, sem borda/padding conflitantes. */
+.mobile-direct-nav .mobile-stock-nav-tab::before {
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite:xor !important;
+  background:conic-gradient(from -90deg,var(--stock-ring-color) 0 var(--stock-progress,0%),var(--stock-ring-track) var(--stock-progress,0%) 100%) !important;
+  border:0 !important;
+  border-radius:12px !important;
+  content:"" !important;
+  inset:3px !important;
+  mask-composite:exclude !important;
+  padding:3px !important;
+  pointer-events:none !important;
+  position:absolute !important;
+  z-index:1 !important;
+}
+.mobile-direct-nav .mobile-stock-nav-tab > .nav-tab-icon,
+.mobile-direct-nav .mobile-stock-nav-tab > .mobile-stock-nav-badge { position:relative; z-index:3; }
+
+/* Amigos (beta): cabeçalho mais limpo, lista em modal e feedback de cópia acima. */
+.friends-beta-title { gap:0 !important; }
+.friends-beta-title > img { display:none !important; }
+.friends-beta-title small { font-size:.46rem !important; letter-spacing:.045em !important; }
+.friends-list-launch {
+  align-items:center;
+  cursor:pointer;
+  display:flex !important;
+  gap:10px;
+  justify-content:space-between;
+  min-height:52px;
+  padding:10px 12px;
+  text-align:left;
+  width:100%;
+}
+.friends-list-launch > span { align-items:center; color:var(--green-deep); display:flex; font-size:.69rem; font-weight:900; gap:8px; }
+.friends-list-launch > span img { height:27px; object-fit:contain; width:27px; }
+.friends-list-launch > b { align-items:center; background:rgba(79,133,74,.1); border-radius:999px; display:flex; font-size:.62rem; height:25px; justify-content:center; min-width:25px; padding:0 7px; }
+.friend-code-feedback:not(:empty) { margin:0 0 2px !important; order:0; }
+.friends-list-dialog { background:#fff !important; border:0 !important; border-radius:20px !important; box-shadow:0 28px 80px rgba(24,39,27,.28) !important; max-height:min(86dvh,720px) !important; overflow:hidden !important; padding:0 !important; width:min(610px,calc(100vw - 24px)) !important; }
+.friends-list-dialog > form { display:grid; grid-template-rows:auto minmax(0,1fr) auto; max-height:min(86dvh,720px); overflow:hidden; }
+.friends-dialog-header { align-items:center; background:linear-gradient(135deg,#eef6ea,#fff); border-bottom:1px solid rgba(62,91,64,.08); display:flex; justify-content:space-between; padding:16px 18px; }
+.friends-dialog-header > div { display:grid; gap:2px; }
+.friends-dialog-header small { color:var(--green-deep); font-size:.55rem; font-weight:900; letter-spacing:.07em; text-transform:uppercase; }
+.friends-dialog-header h2 { font-size:1.08rem; margin:0; }
+.dialog-icon-button { align-items:center; background:rgba(67,105,67,.07); border:0; border-radius:10px; color:var(--ink); cursor:pointer; display:flex; font-size:1.25rem; height:36px; justify-content:center; width:36px; }
+.friends-dialog-body { display:grid; gap:12px; min-height:0; overflow:auto; padding:14px 16px; }
+.friends-modal-outgoing { border-top:1px solid rgba(67,105,67,.09); display:grid; gap:8px; padding-top:12px; }
+.friends-modal-outgoing > small { color:var(--ink-soft); font-size:.6rem; font-weight:900; text-transform:uppercase; }
+.friends-dialog-actions { border-top:1px solid rgba(62,91,64,.08); padding:11px 16px 14px; }
+.remove-friend-dialog { background:#fff !important; border:0 !important; border-radius:20px !important; padding:0 !important; width:min(500px,calc(100vw - 24px)) !important; }
+.remove-friend-dialog > form { overflow:hidden; }
+.remove-friend-hero { align-items:center; display:grid; gap:14px; grid-template-columns:62px minmax(0,1fr); padding:20px; }
+.remove-friend-hero > img { height:58px; object-fit:contain; width:58px; }
+.remove-friend-hero h2 { font-size:1.05rem; margin:2px 0 5px; }
+.remove-friend-hero p:not(.eyebrow) { color:var(--ink-soft); font-size:.7rem; line-height:1.45; margin:0; }
+
+/* Ranking: medalhas mantêm identidade; sua linha possui marcação própria. */
+.leaderboard-row { position:relative; }
+.leaderboard-row.rank-position-2 {
+  background:linear-gradient(90deg,rgba(220,226,232,.40),rgba(247,249,250,.72) 42%,#fff 82%) !important;
+  border-color:rgba(142,153,164,.18) !important;
+  box-shadow:inset 3px 0 0 rgba(168,178,188,.45),0 5px 14px rgba(75,91,105,.035) !important;
+}
+.leaderboard-row.rank-position-4 { background:linear-gradient(90deg,rgba(221,239,231,.40),#fff 46%) !important; border-color:rgba(93,145,116,.13) !important; }
+.leaderboard-row.rank-position-5 { background:linear-gradient(90deg,rgba(233,227,244,.39),#fff 46%) !important; border-color:rgba(128,108,157,.12) !important; }
+.leaderboard-row.current-player {
+  border-color:rgba(65,125,70,.38) !important;
+  box-shadow:inset 4px 0 0 rgba(68,137,73,.82),0 0 0 2px rgba(78,144,82,.08),0 8px 18px rgba(48,94,52,.06) !important;
+}
+.leaderboard-row.current-player::after {
+  background:#4d8750;
+  border-radius:999px;
+  color:#fff;
+  content:"Você";
+  font-size:.48rem;
+  font-weight:950;
+  letter-spacing:.03em;
+  padding:3px 7px;
+  position:absolute;
+  right:9px;
+  top:7px;
+  text-transform:uppercase;
+}
+
+@media (max-width:480px) {
+  .milestone-preview-header { grid-template-columns:54px minmax(0,1fr); padding:14px; }
+  .milestone-preview-header > img { height:50px; width:50px; }
+  .milestone-preview-body { padding:12px 14px !important; }
+  .friends-beta-options { grid-template-columns:1fr !important; }
+  .friends-list-dialog,.remove-friend-dialog { border-radius:16px !important; width:calc(100vw - 12px) !important; }
+}
+
+/* r32 — marcação inequívoca da própria fazenda no ranking. */
+.leaderboard-player-name { align-items:center; display:flex; gap:7px; min-width:0; }
+.leaderboard-player-name > strong { color:var(--ink); font-size:.94rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.leaderboard-self-badge {
+  background:#4d8750;
+  border-radius:999px;
+  color:#fff;
+  flex:0 0 auto;
+  font-size:.49rem;
+  font-weight:950;
+  letter-spacing:.035em;
+  line-height:1;
+  padding:4px 7px;
+  text-transform:uppercase;
+}
+.leaderboard-row.current-player {
+  background:linear-gradient(90deg,rgba(225,244,224,.70),rgba(250,253,249,.90) 48%,#fff 88%) !important;
+  border-color:rgba(65,125,70,.42) !important;
+  box-shadow:inset 5px 0 0 rgba(68,137,73,.92),0 0 0 2px rgba(78,144,82,.09),0 8px 18px rgba(48,94,52,.07) !important;
+}
+.leaderboard-row.current-player::after { display:none !important; }
+
+/* r32 — faixa de prazo mais leve, sem bordas laterais duplicando o card. */
+.contract-delivery-time-v3 {
+  background:rgba(66,112,66,.035) !important;
+  border-color:rgba(66,112,66,.085) !important;
+  border-left:0 !important;
+  border-right:0 !important;
+}
+
+/* ========================================================================== */
+/* r33 — correções de controle administrativo, contratos e estoque           */
+/* ========================================================================== */
+
+/* Estoque: nunca exibir mais de três culturas por linha em telas largas. */
+#stockView .stock-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+@media (max-width: 1024px) {
+  #stockView .stock-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 620px) {
+  #stockView .stock-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Quebra de contrato: texto e multa ocupam o centro vertical da faixa e
+   permanecem separados horizontalmente, sem elementos colados às bordas. */
+.contract-card-footer-v2.contract-break-footer-v3 {
+  align-items: stretch !important;
+  display: flex !important;
+  flex: 1 0 72px !important;
+  margin: 12px 0 0 !important;
+  min-height: 72px !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+.contract-break-button-v3 {
+  align-items: center !important;
+  align-self: stretch !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: row !important;
+  gap: 16px !important;
+  height: 100% !important;
+  justify-content: space-between !important;
+  margin: 0 !important;
+  min-height: 72px !important;
+  padding: 14px 18px !important;
+  text-align: left !important;
+  width: 100% !important;
+}
+.contract-break-button-v3 > span,
+.contract-break-button-v3 > strong {
+  align-items: center !important;
+  display: flex !important;
+  min-height: 32px !important;
+}
+.contract-break-button-v3 > span {
+  flex: 1 1 auto !important;
+  justify-content: flex-start !important;
+}
+.contract-break-button-v3 > strong {
+  flex: 0 0 auto !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+}
+@media (max-width: 420px) {
+  .contract-break-button-v3 { padding-inline: 14px !important; }
+}
+
+/* ========================================================================== */
+/* r34 — produção variável, central de amizades e ranking                     */
+/* ========================================================================== */
+
+/* Social / Amigos: bloco principal com hierarquia mais limpa e ações claras. */
+.social-profile-panel .friends-content {
+  min-width: 0;
+  width: 100%;
+}
+.friends-hub-card {
+  background: linear-gradient(145deg, rgba(255,255,253,.99), rgba(238,247,236,.96)) !important;
+  border: 1px solid rgba(66,108,67,.13) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 14px 34px rgba(42,73,47,.065) !important;
+  gap: 14px !important;
+  overflow: hidden;
+  padding: 0 !important;
+}
+.friends-hub-header {
+  align-items: center !important;
+  background: linear-gradient(135deg, rgba(233,245,230,.88), rgba(255,255,255,.95));
+  border-bottom: 1px solid rgba(65,103,66,.08);
+  min-height: 78px;
+  padding: 15px 17px !important;
+}
+.friends-hub-header .friends-beta-title small {
+  color: #718274 !important;
+  font-family: Arial, "Segoe UI", sans-serif !important;
+  font-size: .48rem !important;
+  letter-spacing: .06em !important;
+}
+.friends-hub-header .friends-beta-title h3 {
+  color: var(--ink);
+  font-size: 1.08rem !important;
+  letter-spacing: -.025em;
+  margin-top: 2px !important;
+}
+.friends-hub-counters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: flex-end;
+}
+.friends-hub-counters > span {
+  align-items: center;
+  background: rgba(71,121,70,.075);
+  border: 1px solid rgba(71,121,70,.09);
+  border-radius: 999px;
+  color: #57705b;
+  display: inline-flex;
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: .61rem;
+  font-weight: 700;
+  gap: 4px;
+  min-height: 29px;
+  padding: 4px 9px;
+}
+.friends-hub-counters > span b { color: var(--green-deep); font-size: .68rem; }
+.friends-hub-counters > span.has-pending {
+  background: rgba(198,150,45,.10);
+  border-color: rgba(181,133,34,.15);
+  color: #82651f;
+}
+.friends-hub-counters > span.has-pending b { color: #9a721d; }
+
+.friends-hub-card > .friends-beta-incoming {
+  background: linear-gradient(135deg, rgba(252,246,222,.82), rgba(255,252,241,.96)) !important;
+  border: 1px solid rgba(186,142,42,.15) !important;
+  border-radius: 15px !important;
+  gap: 10px !important;
+  margin: 0 15px !important;
+  padding: 11px !important;
+}
+.friends-hub-card > .friends-beta-incoming > header > div { display: grid; gap: 1px; }
+.friends-hub-card > .friends-beta-incoming > header small {
+  color: #a07a25;
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: .48rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.friends-hub-card > .friends-beta-incoming > header span {
+  color: #6e561e !important;
+  font-size: .69rem !important;
+}
+
+.friends-hub-actions {
+  gap: 10px !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  padding: 0 15px 15px;
+}
+.friends-hub-actions > .friends-beta-option {
+  background: rgba(255,255,255,.86) !important;
+  border: 1px solid rgba(66,105,66,.10) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 5px 14px rgba(45,69,48,.025);
+  overflow: hidden;
+}
+.friends-hub-launch,
+.friends-request-option > summary {
+  min-height: 66px !important;
+  padding: 10px 12px !important;
+}
+.friends-hub-launch > span,
+.friends-request-option > summary > span {
+  align-items: center !important;
+  display: grid !important;
+  gap: 9px !important;
+  grid-template-columns: 34px minmax(0,1fr) !important;
+  min-width: 0;
+}
+.friends-hub-launch > span > img,
+.friends-request-option > summary > span > img {
+  background: rgba(84,137,79,.08);
+  border-radius: 10px;
+  height: 34px !important;
+  object-fit: contain;
+  padding: 4px;
+  width: 34px !important;
+}
+.friends-hub-launch > span > span,
+.friends-request-option > summary > span > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.friends-hub-launch strong,
+.friends-request-option summary strong {
+  color: var(--ink);
+  font-size: .72rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.friends-hub-launch small,
+.friends-request-option summary small {
+  color: var(--ink-soft);
+  font-size: .57rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.friends-hub-launch > b,
+.friends-request-option > summary > b {
+  align-items: center;
+  align-self: center;
+  background: rgba(75,128,72,.09) !important;
+  border-radius: 999px !important;
+  color: var(--green-deep);
+  display: flex;
+  font-size: .65rem !important;
+  height: 29px !important;
+  justify-content: center;
+  min-width: 29px !important;
+  padding: 0 8px !important;
+}
+.friends-hub-launch:hover,
+.friends-request-option > summary:hover { background: rgba(237,246,234,.88) !important; }
+.friends-request-option[open] > summary {
+  background: rgba(236,245,233,.82) !important;
+  border-bottom: 1px solid rgba(66,105,66,.08) !important;
+}
+.friends-request-option .friends-beta-option-body { padding: 12px !important; }
+
+/* Modal único: amigos + solicitações recebidas + solicitações enviadas. */
+.friends-list-dialog {
+  background: #f9fbf8 !important;
+  border: 0 !important;
+  border-radius: 21px !important;
+  box-shadow: 0 30px 90px rgba(22,39,25,.30) !important;
+  max-height: min(88dvh, 780px) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: min(760px, calc(100vw - 24px)) !important;
+}
+.friends-list-dialog::backdrop { background: rgba(20,31,22,.42); backdrop-filter: blur(2px); }
+.friends-list-dialog > form {
+  display: grid !important;
+  grid-template-rows: auto minmax(0,1fr) auto !important;
+  max-height: min(88dvh, 780px) !important;
+  overflow: hidden !important;
+}
+.friends-dialog-header {
+  align-items: center !important;
+  background: linear-gradient(135deg, #edf6ea, #ffffff 78%) !important;
+  border-bottom: 1px solid rgba(63,99,64,.085) !important;
+  display: flex !important;
+  gap: 14px;
+  justify-content: space-between !important;
+  padding: 15px 17px !important;
+}
+.friends-dialog-heading { align-items: center; display: flex; gap: 11px; min-width: 0; }
+.friends-dialog-icon {
+  align-items: center;
+  background: rgba(73,126,71,.08);
+  border: 1px solid rgba(73,126,71,.09);
+  border-radius: 13px;
+  display: flex;
+  flex: 0 0 auto;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+.friends-dialog-icon img { height: 37px; object-fit: contain; width: 37px; }
+.friends-dialog-heading > div { display: grid; gap: 1px; min-width: 0; }
+.friends-dialog-heading small {
+  color: #5e8360 !important;
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: .52rem !important;
+  font-weight: 850 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase;
+}
+.friends-dialog-heading h2 { font-size: 1.08rem !important; letter-spacing: -.025em; margin: 0 !important; }
+.friends-dialog-header-actions { align-items: center; display: flex; flex: 0 0 auto; gap: 7px; }
+.friends-dialog-refresh {
+  min-height: 36px !important;
+  padding: 0 12px !important;
+}
+.friends-dialog-header .dialog-icon-button { flex: 0 0 36px; }
+.friends-dialog-body {
+  align-content: start;
+  background: #f9fbf8;
+  display: grid !important;
+  gap: 12px !important;
+  min-height: 0;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  padding: 14px 15px 16px !important;
+}
+.friends-dialog-summary {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+}
+.friends-dialog-summary > span {
+  align-items: baseline;
+  background: #fff;
+  border: 1px solid rgba(63,101,65,.09);
+  border-radius: 12px;
+  color: var(--ink-soft);
+  display: flex;
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: .59rem;
+  gap: 5px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px;
+}
+.friends-dialog-summary b { color: var(--green-deep); font-size: .82rem; }
+.friends-dialog-sections { display: grid; gap: 11px; }
+.friends-dialog-sections .friends-list-section {
+  background: #fff !important;
+  border: 1px solid rgba(63,101,65,.09) !important;
+  border-radius: 15px !important;
+  box-shadow: 0 5px 14px rgba(40,63,43,.025);
+  gap: 9px !important;
+  padding: 11px !important;
+}
+.friends-dialog-sections .friends-list-incoming {
+  background: linear-gradient(135deg, rgba(255,250,232,.96), #fff 62%) !important;
+  border-color: rgba(190,145,42,.14) !important;
+}
+.friends-dialog-sections .friends-list-heading .eyebrow {
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: .46rem !important;
+  letter-spacing: .05em;
+  margin: 0;
+}
+.friends-dialog-sections .friends-list-heading h3 { font-size: .79rem !important; margin: 1px 0 0 !important; }
+.friends-dialog-sections .friends-list-heading > span {
+  font-family: Arial, "Segoe UI", sans-serif;
+  height: 25px !important;
+  min-width: 25px !important;
+}
+.friends-dialog-sections .friends-list { gap: 7px !important; }
+.friends-dialog-sections .friend-card,
+.friends-hub-card .friend-card {
+  align-items: center !important;
+  background: rgba(249,251,248,.96) !important;
+  border: 1px solid rgba(67,102,68,.075) !important;
+  border-radius: 12px !important;
+  display: grid !important;
+  gap: 9px !important;
+  grid-template-columns: 46px minmax(0,1fr) auto !important;
+  padding: 8px 9px !important;
+}
+.friends-dialog-sections .friend-avatar,
+.friends-hub-card .friend-avatar {
+  border-radius: 10px !important;
+  height: 46px !important;
+  width: 46px !important;
+}
+.friends-dialog-sections .friend-card-copy strong,
+.friends-hub-card .friend-card-copy strong { font-size: .72rem !important; }
+.friends-dialog-sections .friend-card-copy small,
+.friends-hub-card .friend-card-copy small { font-size: .57rem !important; }
+.friends-dialog-sections .friend-card-actions,
+.friends-hub-card .friend-card-actions {
+  align-items: center !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 5px !important;
+  grid-column: auto !important;
+  justify-content: flex-end !important;
+}
+.friends-dialog-sections .compact-friend-button,
+.friends-hub-card .compact-friend-button {
+  font-size: .58rem !important;
+  min-height: 31px !important;
+  padding: 0 9px !important;
+}
+.friends-dialog-sections .friends-empty-state {
+  background: rgba(247,250,246,.9);
+  border-radius: 10px;
+  min-height: 56px !important;
+}
+.friends-dialog-actions {
+  background: #fff;
+  border-top: 1px solid rgba(62,91,64,.08) !important;
+  padding: 11px 15px 14px !important;
+}
+
+/* Ranking: a cor da colocação sempre vence no Top 5. O verde é exclusivo da
+   linha adicional do próprio jogador quando ele está fora do Top 5. */
+.leaderboard-self-badge {
+  font-family: Arial, "Segoe UI", sans-serif !important;
+  font-size: .50rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+}
+.leaderboard-row.personal-rank-row.current-player {
+  background: linear-gradient(90deg, rgba(225,244,224,.70), rgba(250,253,249,.90) 48%, #fff 88%) !important;
+  border-color: rgba(65,125,70,.42) !important;
+  box-shadow: inset 5px 0 0 rgba(68,137,73,.92), 0 0 0 2px rgba(78,144,82,.09), 0 8px 18px rgba(48,94,52,.07) !important;
+}
+
+@media (max-width: 700px) {
+  .friends-hub-actions { grid-template-columns: 1fr !important; }
+  .friends-dialog-sections .friend-card,
+  .friends-hub-card .friend-card { grid-template-columns: 44px minmax(0,1fr) !important; }
+  .friends-dialog-sections .friend-card-actions,
+  .friends-hub-card .friend-card-actions { grid-column: 1 / -1 !important; justify-content: stretch !important; }
+  .friends-dialog-sections .friend-card-actions > .button,
+  .friends-hub-card .friend-card-actions > .button { flex: 1 1 auto; }
+}
+@media (max-width: 480px) {
+  .friends-hub-header { align-items: flex-start !important; flex-direction: column; gap: 9px !important; }
+  .friends-hub-counters { justify-content: flex-start; }
+  .friends-list-dialog { border-radius: 16px !important; width: calc(100vw - 12px) !important; }
+  .friends-dialog-header { align-items: flex-start !important; }
+  .friends-dialog-heading { gap: 8px; }
+  .friends-dialog-icon { height: 40px; width: 40px; }
+  .friends-dialog-icon img { height: 32px; width: 32px; }
+  .friends-dialog-header-actions { gap: 5px; }
+  .friends-dialog-refresh { font-size: .58rem !important; min-height: 34px !important; padding: 0 9px !important; }
+  .friends-dialog-summary { grid-template-columns: 1fr; }
+  .friends-dialog-summary > span { justify-content: flex-start; min-height: 34px; }
+  .friend-code-inline { grid-template-columns: 1fr !important; }
+  .friend-code-inline .button { width: 100%; }
+}

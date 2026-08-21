@@ -221,15 +221,11 @@
       ? "Você avançou por vários marcos. Confira tudo que foi liberado:"
       : "Confira o que foi desbloqueado neste marco:";
     if (dom.milestoneDialogList) {
-      dom.milestoneDialogList.innerHTML = unique.map(milestone => `
-        <section class="milestone-dialog-group">
-          <strong>Nível ${Number(milestone.level) || 0}</strong>
-          <ul>${(milestone.unlocks || []).map(item => {
-            const detail = typeof item === "string" ? { text: item, icon: "" } : (item || {});
-            const icon = detail.icon ? `<span class="milestone-unlock-icon"><img src="${escapeHtml(detail.icon)}" alt=""></span>` : `<span class="milestone-unlock-icon milestone-unlock-check" aria-hidden="true">✓</span>`;
-            return `<li>${icon}<span>${escapeHtml(detail.text || "Novo recurso liberado.")}</span></li>`;
-          }).join("")}</ul>
-        </section>`).join("");
+      dom.milestoneDialogList.innerHTML = unique.flatMap(milestone => (milestone.unlocks || []).map(item => {
+        const detail = typeof item === "string" ? { text: item, icon: "" } : (item || {});
+        const icon = detail.icon || "assets/icons/marco-nivel.webp";
+        return `<article class="milestone-preview-card"><img src="${escapeHtml(icon)}" alt=""><div><strong>Nível ${Number(milestone.level) || 0}</strong><span>${escapeHtml(detail.text || "Novo recurso liberado.")}</span></div></article>`;
+      })).join("");
     }
     if (typeof dom.milestoneDialog.showModal === "function" && !dom.milestoneDialog.open) {
       dom.milestoneDialog.showModal();

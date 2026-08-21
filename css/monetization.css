@@ -391,3 +391,20 @@
   white-space: nowrap;
   width: 1px;
 }
+
+/* r33 — arte dedicada para o aviso de cookies. */
+.cookie-banner-icon { overflow: visible; }
+.cookie-banner-icon img {
+  display: block;
+  height: 54px;
+  max-width: none;
+  object-fit: contain;
+  width: 54px;
+}
+@media (max-width: 480px) {
+  .cookie-banner-icon img { height: 46px; width: 46px; }
+}
+.cookie-banner-icon {
+  background: transparent !important;
+  border: 0 !important;
+}

@@ -3,9 +3,11 @@
 Object.assign(GameEngine.prototype, {
   getStorageCap() {
       const capacityBonus = Math.max(0, this.getEvolutionBonus("storageCapacityPercent")) / 100;
-      const percentageCapacity = Math.round(GameEngine.BASE_STORAGE_CAPACITY * (1 + capacityBonus));
       const directCapacity = Math.max(0, Number(this.state.storageExpansions || 0)) * 100;
-      return Math.max(GameEngine.BASE_STORAGE_CAPACITY, percentageCapacity + directCapacity);
+      const baseWithExpansions = Math.max(1, Number(GameEngine.BASE_STORAGE_CAPACITY) || 200) + directCapacity;
+      // O percentual incide sobre TODO o estoque, inclusive expansões diretas
+      // compradas antes ou depois da Pesquisa/Legado.
+      return Math.max(GameEngine.BASE_STORAGE_CAPACITY, Math.round(baseWithExpansions * (1 + capacityBonus)));
     },
 
   getDirectStorageExpansionCost() {
@@ -16,10 +18,12 @@ Object.assign(GameEngine.prototype, {
   expandStorage() {
       const cost = this.getDirectStorageExpansionCost();
       if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
+      const previousCapacity = this.getStorageCap();
       this.state.coins -= cost;
       this.state.storageExpansions = Math.max(0, Number(this.state.storageExpansions || 0)) + 1;
       this.addFarmXPPercent(GameEngine.ACTION_XP_RATE);
-      return { ok: true, cost, added: 100, capacity: this.getStorageCap() };
+      const capacity = this.getStorageCap();
+      return { ok: true, cost, added: Math.max(0, capacity - previousCapacity), baseAdded: 100, capacity };
     },
 
   getStorageUsedFromState(state = this.state) {

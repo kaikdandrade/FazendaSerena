@@ -420,6 +420,65 @@ class FirebaseManager {
     }
   }
 
+  subscribeOwnSaveState(listener, errorListener = null) {
+    let unsubscribe = () => {};
+    let cancelled = false;
+    this.ready().then(() => {
+      if (cancelled || typeof listener !== "function") return;
+      const user = this.currentUser;
+      const reference = this.getSaveReference(user);
+      if (!user || !reference || !this.sdk?.onSnapshot) return;
+      unsubscribe = this.sdk.onSnapshot(reference, snapshot => {
+        if (!snapshot.exists() || snapshot.metadata?.hasPendingWrites) return;
+        const data = snapshot.data() || {};
+        const state = data.state && typeof data.state === "object" ? data.state : null;
+        if (state) listener(state, {
+          updatedAtClient: Number(data.updatedAtClient) || 0,
+          savedAt: data.updatedAt?.toDate?.() || null
+        });
+      }, error => {
+        if (typeof errorListener === "function") errorListener(error);
+        else console.warn("Não foi possível observar alterações externas do save:", error);
+      });
+    }).catch(error => {
+      if (typeof errorListener === "function") errorListener(error);
+    });
+    return () => { cancelled = true; try { unsubscribe?.(); } catch (_) {} };
+  }
+
+  async mutateCurrentPlayerSaveForAdmin(mutator, mutationType = "admin-test") {
+    await this.ready();
+    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    if (typeof mutator !== "function") throw new Error("A alteração administrativa não possui uma transformação válida.");
+    const user = this.currentUser;
+    const reference = this.getSaveReference(user);
+    if (!user || !reference) throw new Error("Nenhuma conta autenticada foi encontrada.");
+    const mutationId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    let resultingState = null;
+    await this.sdk.runTransaction(this.db, async transaction => {
+      const snapshot = await transaction.get(reference);
+      if (!snapshot.exists()) throw new Error("Abra o jogo com esta conta ao menos uma vez antes de usar os testes.");
+      const payload = snapshot.data() || {};
+      const state = JSON.parse(JSON.stringify(payload.state || {}));
+      const result = await mutator(state, { userId: user.uid, payload });
+      if (result === false || result?.changed === false) { resultingState = state; return; }
+      const now = Date.now();
+      state.lastUpdate = now;
+      state.__adminMutation = { id: mutationId, type: String(mutationType || "admin-test").slice(0, 48), at: now };
+      resultingState = state;
+      transaction.update(reference, {
+        state,
+        updatedAt: this.sdk.serverTimestamp(),
+        updatedAtClient: now
+      });
+    });
+    const verified = await this.sdk.getDoc(reference);
+    const verifiedState = verified.exists() && verified.data()?.state && typeof verified.data().state === "object"
+      ? verified.data().state
+      : resultingState;
+    return { ok: true, state: verifiedState, mutationId };
+  }
+
   saveGame(state) {
     if (FirebaseManager.cloudWritesLocked) {
       return Promise.resolve({ ok: false, reason: "cloud-read-unconfirmed" });
@@ -740,6 +799,45 @@ class FirebaseManager {
     if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
     await this.sdk.deleteDoc(this.sdk.doc(this.db, FirebaseManager.FEEDBACK_COLLECTION, String(id || "")));
     return { ok: true };
+  }
+
+  async mutateAllPlayerSavesForAdmin(mutator, { batchSize = 15, mutationType = "global-admin" } = {}) {
+    await this.ready();
+    if (!await this.isCurrentUserAdmin({ force: true })) throw new Error("Esta conta não possui acesso administrativo.");
+    if (typeof mutator !== "function") throw new Error("A ação global não possui uma transformação válida.");
+    const queryRef = this.sdk.collectionGroup(this.db, FirebaseManager.SAVE_SUBCOLLECTION);
+    const snapshot = await this.sdk.getDocs(queryRef);
+    const documents = snapshot.docs.filter(document => document.id === FirebaseManager.SAVE_DOCUMENT && document.data()?.state && typeof document.data().state === "object");
+    // Lotes pequenos evitam exceder os limites de leituras de regras por batch,
+    // já que cada escrita administrativa valida isAdministrator().
+    const size = Math.max(1, Math.min(15, Math.floor(Number(batchSize) || 15)));
+    const mutationId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    let updated = 0;
+    let skipped = 0;
+    for (let offset = 0; offset < documents.length; offset += size) {
+      const batch = this.sdk.writeBatch(this.db);
+      let operations = 0;
+      for (const document of documents.slice(offset, offset + size)) {
+        const payload = document.data() || {};
+        const state = JSON.parse(JSON.stringify(payload.state || {}));
+        const pathParts = String(document.ref.path || "").split("/");
+        const userId = pathParts[0] === FirebaseManager.SAVE_COLLECTION ? pathParts[1] : "";
+        const result = await mutator(state, { userId, path: document.ref.path, payload });
+        if (result === false || result?.changed === false) { skipped += 1; continue; }
+        const now = Date.now();
+        state.lastUpdate = now;
+        state.__adminMutation = { id: mutationId, type: String(mutationType || "global-admin").slice(0, 48), at: now };
+        batch.update(document.ref, {
+          state,
+          updatedAt: this.sdk.serverTimestamp(),
+          updatedAtClient: now
+        });
+        operations += 1;
+        updated += 1;
+      }
+      if (operations) await batch.commit();
+    }
+    return { ok: true, scanned: documents.length, updated, skipped, mutationId };
   }
 
   resetProgress() {

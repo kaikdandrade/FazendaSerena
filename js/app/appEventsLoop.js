@@ -367,10 +367,31 @@
       setCloudSaveStatus(event.detail?.status || "guest", event.detail || {});
     });
 
+    const bindOwnSaveRealtime = user => {
+      ownSaveRealtimeUnsubscribe?.();
+      ownSaveRealtimeUnsubscribe = null;
+      if (!user) return;
+      ownSaveRealtimeUnsubscribe = window.FirebaseManager.subscribeOwnSaveState?.((remoteState, meta = {}) => {
+        if (!engine || currentAuthUid !== user.uid) return;
+        const incomingMutation = remoteState?.__adminMutation || {};
+        const currentMutation = engine.state?.__adminMutation || {};
+        const incomingAt = Number(incomingMutation.at) || 0;
+        const currentAt = Number(currentMutation.at) || 0;
+        if (!incomingMutation.id || incomingMutation.id === currentMutation.id || incomingAt < currentAt) return;
+        engine.replaceState(remoteState, { simulateOffline: false });
+        applySettings(true);
+        render(true);
+        setCloudSaveStatus("loaded", { savedAt: meta.savedAt || new Date() });
+      }, error => console.warn("Sincronização administrativa do save indisponível:", error));
+    };
+
     window.FirebaseManager.subscribeAuth((user, error) => {
       authTransitionQueue = authTransitionQueue
         .catch(() => {})
-        .then(() => applyAuthenticatedUser(user, error));
+        .then(async () => {
+          await applyAuthenticatedUser(user, error);
+          bindOwnSaveRealtime(user);
+        });
     });
 
 

@@ -990,3 +990,138 @@ body > .admin-image-select-popover[popover] {
 .admin-navigation-order-actions { display:flex; gap:4px; }
 .admin-icon-order-button { align-items:center; background:rgba(65,103,65,.07); border:1px solid rgba(65,103,65,.13); border-radius:8px; color:#436b43; cursor:pointer; display:flex; font-size:.8rem; font-weight:950; height:29px; justify-content:center; width:31px; }
 .admin-icon-order-button:hover { background:rgba(65,103,65,.13); }
+
+/* r31 — filtros de feedback e Testes fiéis aos modais reais */
+.admin-feedback-filters { align-items:end; background:rgba(247,250,246,.9); border:1px solid rgba(63,94,66,.09); border-radius:14px; display:grid; gap:10px; grid-template-columns:minmax(170px,1fr) minmax(190px,1fr) auto; margin:0 0 14px; padding:12px; }
+.admin-feedback-filters label { display:grid; gap:5px; }
+.admin-feedback-filters label > span { color:var(--muted); font-size:.64rem; font-weight:850; }
+.admin-feedback-filters select { min-height:40px; width:100%; }
+.admin-feedback-filter-count { align-items:center; background:#eef6ea; border-radius:999px; color:var(--green); display:flex; font-size:.65rem; font-weight:900; justify-content:center; min-height:38px; padding:7px 12px; white-space:nowrap; }
+
+/* O preview offline replica o modal real, sem linguagem visual alternativa. */
+.admin-test-offline-dialog { background:transparent; border:0; border-radius:22px; box-shadow:0 28px 80px rgba(24,39,27,.28); max-height:min(88dvh,720px); overflow:hidden; padding:0; width:min(620px,calc(100vw - 24px)); }
+.admin-test-offline-dialog::backdrop { background:rgba(22,34,24,.48); backdrop-filter:blur(3px); }
+.admin-test-offline-dialog > form { background:#fff; border:1px solid rgba(63,94,66,.12); border-radius:22px; display:grid; grid-template-rows:auto minmax(0,1fr) auto; max-height:min(88dvh,720px); overflow:hidden; }
+.admin-test-offline-dialog .offline-progress-header { align-items:center; background:linear-gradient(140deg,#f4f9f1 0%,#fff 72%); border-bottom:1px solid rgba(63,94,66,.09); display:grid; gap:13px; grid-template-columns:66px minmax(0,1fr); padding:18px 20px; }
+.admin-test-offline-dialog .offline-progress-symbol { align-items:center; background:rgba(80,137,77,.07); border:1px solid rgba(80,137,77,.09); border-radius:18px; display:flex; height:66px; justify-content:center; width:66px; }
+.admin-test-offline-dialog .offline-progress-symbol img { height:50px; object-fit:contain; width:50px; }
+.admin-test-offline-dialog .offline-progress-heading { display:grid; gap:4px; }
+.admin-test-offline-dialog .offline-progress-heading h2 { font-size:1.18rem; margin:0; }
+.admin-test-offline-dialog .offline-progress-heading strong { background:#edf5ea; border-radius:999px; color:var(--green); display:inline-flex; font-size:.75rem; justify-self:start; padding:5px 10px; }
+.admin-test-offline-dialog .offline-progress-summary { align-content:start; display:grid; gap:10px; grid-template-columns:repeat(2,minmax(0,1fr)); min-height:0; overflow:auto; padding:16px 20px; }
+.admin-test-offline-dialog .offline-gain-card { align-items:center; background:#f8faf7; border:1px solid rgba(67,98,69,.09); border-radius:15px; display:grid; gap:11px; grid-template-columns:48px minmax(0,1fr); min-height:82px; padding:12px 13px; }
+.admin-test-offline-dialog .offline-gain-card > img { height:44px; object-fit:contain; width:44px; }
+.admin-test-offline-dialog .offline-gain-card > div { display:grid; gap:2px; }
+.admin-test-offline-dialog .offline-gain-card span { color:var(--muted); font-size:.65rem; font-weight:800; }
+.admin-test-offline-dialog .offline-gain-card strong { font-size:1.04rem; }
+.admin-test-offline-dialog .offline-progress-actions { border-top:1px solid rgba(63,94,66,.09); padding:12px 20px 16px; }
+.admin-test-offline-dialog .offline-progress-actions .admin-button { width:100%; }
+
+@media (max-width:640px) {
+  .admin-feedback-filters { grid-template-columns:1fr; }
+  .admin-feedback-filter-count { justify-self:stretch; }
+  .admin-test-offline-dialog .offline-progress-summary { grid-template-columns:1fr; padding:12px 14px; }
+  .admin-test-offline-dialog .offline-progress-header { grid-template-columns:54px minmax(0,1fr); padding:14px; }
+  .admin-test-offline-dialog .offline-progress-symbol { height:54px; width:54px; }
+  .admin-test-offline-dialog .offline-progress-symbol img { height:42px; width:42px; }
+}
+/* Mesmo componente de Marco usado no jogo. */
+.admin-test-preview-dialog .milestone-preview-header { align-items:center; background:linear-gradient(135deg,#eef6ea,#fff); border-bottom:1px solid rgba(62,91,64,.08); display:grid; gap:12px; grid-template-columns:64px minmax(0,1fr); padding:18px; }
+.admin-test-preview-dialog .milestone-preview-header > img { height:60px; object-fit:contain; width:60px; }
+.admin-test-preview-dialog .milestone-preview-header > div { display:grid; gap:3px; }
+.admin-test-preview-dialog .milestone-preview-header small { color:#56805a; font-size:.63rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase; }
+.admin-test-preview-dialog .milestone-preview-header h2 { font-size:1.15rem; margin:0; }
+.admin-test-preview-dialog .milestone-preview-body { display:grid; gap:9px; overflow:auto; padding:16px 18px; }
+.admin-test-preview-dialog .milestone-preview-card { align-items:center; background:#f8faf7; border:1px solid rgba(62,91,64,.08); border-radius:13px; display:grid; gap:10px; grid-template-columns:44px minmax(0,1fr); padding:10px; }
+.admin-test-preview-dialog .milestone-preview-card > img { height:40px; object-fit:contain; width:40px; }
+.admin-test-preview-dialog .milestone-preview-card > div { display:grid; gap:2px; }
+.admin-test-preview-dialog .milestone-preview-card strong { font-size:.8rem; }
+.admin-test-preview-dialog .milestone-preview-card span { color:var(--muted); font-size:.67rem; }
+.admin-test-preview-dialog .milestone-preview-actions { border-top:1px solid rgba(62,91,64,.08); padding:12px 18px 16px; }
+.admin-test-preview-dialog .milestone-preview-actions .admin-button { width:100%; }
+
+/* r32 — painel administrativo sem descrições decorativas. */
+.admin-section-heading p,
+.admin-navigation-icon-group > header small,
+.admin-test-card p,
+.admin-field-help { display:none !important; }
+
+/* Custos pré-calculados de Pesquisa e Evoluções de Prestígio. */
+.admin-evolution-cost-preview {
+  border-top:1px solid rgba(62,91,64,.08);
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+  padding-top:10px;
+}
+.admin-evolution-cost-title {
+  color:#557052;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.admin-evolution-cost-grid {
+  display:grid;
+  gap:6px;
+  grid-template-columns:repeat(auto-fit,minmax(82px,1fr));
+  max-height:180px;
+  overflow:auto;
+  padding-right:2px;
+}
+.admin-evolution-cost-cell {
+  align-items:center;
+  background:#f7faf5;
+  border:1px solid rgba(67,99,67,.09);
+  border-radius:9px;
+  display:flex;
+  gap:6px;
+  justify-content:space-between;
+  min-height:31px;
+  padding:5px 8px;
+}
+.admin-evolution-cost-cell b { color:#74826f; font-size:.57rem; }
+.admin-evolution-cost-cell strong { color:#355f38; font-size:.67rem; font-variant-numeric:tabular-nums; }
+
+/* Controle global: ações críticas ficam separadas das configurações normais. */
+.admin-global-control-grid {
+  display:grid;
+  gap:12px;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+.admin-global-control-card {
+  align-items:center;
+  background:#fff;
+  border:1px solid rgba(151,70,60,.12);
+  border-radius:14px;
+  display:flex;
+  gap:14px;
+  justify-content:space-between;
+  min-height:78px;
+  padding:13px 14px;
+}
+.admin-global-control-card strong { color:#4c342f; font-size:.78rem; }
+.admin-global-control-card .admin-button { flex:0 0 auto; }
+.admin-global-feedback,
+.admin-test-feedback {
+  border-radius:10px;
+  font-size:.72rem;
+  font-weight:800;
+  margin-top:12px;
+  min-height:0;
+}
+.admin-global-feedback:not(:empty),
+.admin-test-feedback:not(:empty) { background:#f2f6ef; border:1px solid rgba(69,112,66,.11); padding:9px 11px; }
+.admin-global-feedback[data-type="error"],
+.admin-test-feedback[data-type="error"] { background:#fff2f0; border-color:rgba(177,69,57,.15); color:#91483e; }
+.admin-global-feedback[data-type="success"],
+.admin-test-feedback[data-type="success"] { color:#3e7142; }
+
+@media (max-width:720px) {
+  .admin-global-control-grid { grid-template-columns:1fr; }
+  .admin-global-control-card { align-items:stretch; flex-direction:column; }
+  .admin-global-control-card .admin-button { width:100%; }
+  .admin-evolution-cost-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+.admin-catalog-editor[data-catalog-editor="research"] .admin-catalog-item,
+.admin-catalog-editor[data-catalog-editor="prestigeUpgrades"] .admin-catalog-item { flex-direction:column !important; }

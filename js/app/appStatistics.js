@@ -45,11 +45,11 @@
       const prestigeCount = Math.max(0, Number(player?.prestigeCount) || 0);
       const farmLevel = Math.max(1, Number(player?.farmLevel) || 1);
       const position = Math.max(1, Number(player?.position) || 1);
-      return `<article class="leaderboard-row rank-position-${Math.min(position, 6)} ${current ? "current-player" : ""} ${personal ? "personal-rank-row" : ""}">
+      return `<article class="leaderboard-row rank-position-${Math.min(position, 6)} ${current && personal ? "current-player" : ""} ${personal ? "personal-rank-row" : ""}">
         <strong class="leaderboard-position">${renderPosition(player.position, personal)}</strong>
         <img class="leaderboard-avatar" src="${escapeHtml(avatar.src)}" alt="Avatar de ${escapeHtml(player?.displayName || "jogador")}">
         <div class="leaderboard-player">
-          <strong>${escapeHtml(player?.displayName || "Fazendeiro")}</strong>
+          <div class="leaderboard-player-name"><strong>${escapeHtml(player?.displayName || "Fazendeiro")}</strong>${current ? '<span class="leaderboard-self-badge">Você</span>' : ""}</div>
           <small class="leaderboard-player-meta"><span class="leaderboard-account-prestige" title="Prestígio de conta"><img src="assets/icons/prestigio-conta.webp" alt="Prestígio de conta"><b>${engine.formatNumber(prestigeCount)}</b></span><span class="leaderboard-current-level" title="Nível da fazenda"><img src="assets/icons/marco-nivel.webp" alt="Nível da fazenda"><b>${engine.formatNumber(farmLevel)}</b></span></small>
         </div>
       </article>`;

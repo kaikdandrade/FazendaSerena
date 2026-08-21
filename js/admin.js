@@ -6,21 +6,22 @@
     gate: $("#adminGate"), gateMessage: $("#adminGateMessage"), loader: $("#adminLoader"), signIn: $("#adminSignIn"), app: $("#adminApp"),
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
     actionXP: $("#adminActionXP"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
-    ordersUnlockLevel: $("#adminOrdersUnlockLevel"), evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), startingCoins: $("#adminStartingCoins"), storageCapacity: $("#adminStorageCapacity"),
+    ordersUnlockLevel: $("#adminOrdersUnlockLevel"), evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), startingCoins: $("#adminStartingCoins"), storageCapacity: $("#adminStorageCapacity"), baseProductionMin: $("#adminBaseProductionMin"), baseProductionCap: $("#adminBaseProductionCap"),
     contractSignedCooldown: $("#adminContractSignedCooldown"), contractExpiredCooldown: $("#adminContractExpiredCooldown"), contractDeclinedCooldown: $("#adminContractDeclinedCooldown"), contractBrokenCooldown: $("#adminContractBrokenCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
     navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
-    playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"),
+    playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"), feedbackTypeFilter: $("#adminFeedbackTypeFilter"), feedbackStatusFilter: $("#adminFeedbackStatusFilter"), feedbackFilterCount: $("#adminFeedbackFilterCount"),
     textsEditor: $("#adminTextsEditor"), saveBalance: $("#adminSaveBalance"), saveTexts: $("#adminSaveTexts"),
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
     testMilestone: $("#adminTestMilestone"), testOffline: $("#adminTestOffline"), testMilestoneDialog: $("#adminTestMilestoneDialog"), testOfflineDialog: $("#adminTestOfflineDialog"),
-    testFarmLevel: $("#adminTestFarmLevel"), testPrestigeLevel: $("#adminTestPrestigeLevel"), applyTestProgress: $("#adminApplyTestProgress"), resetTestCrops: $("#adminResetTestCrops"), resetTestOrders: $("#adminResetTestOrders"), resetTestMissions: $("#adminResetTestMissions"), testFeedback: $("#adminTestFeedback")
+    testFarmLevel: $("#adminTestFarmLevel"), testPrestigeLevel: $("#adminTestPrestigeLevel"), testCoins: $("#adminTestCoins"), testResearch: $("#adminTestResearch"), testPrestigePoints: $("#adminTestPrestigePoints"), applyTestProgress: $("#adminApplyTestProgress"), resetTestCrops: $("#adminResetTestCrops"), resetTestOrders: $("#adminResetTestOrders"), resetTestMissions: $("#adminResetTestMissions"), testFeedback: $("#adminTestFeedback"),
+    globalResetResearch: $("#adminGlobalResetResearch"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalFeedback: $("#adminGlobalFeedback")
   };
   const balanceFields = [
     ["actionXPPercent", dom.actionXP, true, false],
     ["passiveXPPercentPerSecond", dom.passiveXP, true, false],
     ["passiveResearchPercentPerSecond", dom.passiveResearch, true, false],
-    ["ordersUnlockLevel", dom.ordersUnlockLevel, false, true], ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["startingCoins", dom.startingCoins, false, true], ["storageCapacity", dom.storageCapacity, false, true],
+    ["ordersUnlockLevel", dom.ordersUnlockLevel, false, true], ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["startingCoins", dom.startingCoins, false, true], ["storageCapacity", dom.storageCapacity, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
     ["contractSignedCooldownSeconds", dom.contractSignedCooldown, false, true], ["contractExpiredCooldownSeconds", dom.contractExpiredCooldown, false, true], ["contractDeclinedCooldownSeconds", dom.contractDeclinedCooldown, false, true], ["contractBrokenCooldownSeconds", dom.contractBrokenCooldown, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
   const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
@@ -35,6 +36,8 @@
     ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"], ["settings", "Configurações"]
   ]);
   let playerFeedbackLoaded = false;
+  let testFieldsLoaded = false;
+  let playerFeedbackItems = [];
   const escapeHtml = value => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
 
   function orderedNavigationFields(fields, order = []) {
@@ -79,18 +82,34 @@
       else grid.insertBefore(sibling, row);
     });
   }
-  async function renderPlayerFeedback() {
+  function drawPlayerFeedback() {
+    if (!dom.playerFeedbackList) return;
+    const typeFilter = dom.feedbackTypeFilter?.value || "all";
+    const statusFilter = dom.feedbackStatusFilter?.value || "unread";
+    const items = playerFeedbackItems.filter(item => {
+      if (typeFilter !== "all" && String(item.type || "feedback") !== typeFilter) return false;
+      const read = item.status === "read";
+      if (statusFilter === "read" && !read) return false;
+      if (statusFilter === "unread" && read) return false;
+      return true;
+    });
+    if (dom.feedbackFilterCount) dom.feedbackFilterCount.textContent = `${items.length} ${items.length === 1 ? "mensagem" : "mensagens"}`;
+    dom.playerFeedbackList.innerHTML = items.length ? items.map(item => {
+      const typeLabel = item.type === "idea" ? "Ideia" : item.type === "problem" ? "Problema" : "Feedback";
+      const unread = item.status !== "read";
+      const date = new Date(Number(item.createdAtClient) || Date.now()).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+      return `<article class="admin-feedback-message ${unread ? "is-new" : ""}" data-feedback-id="${escapeHtml(item.id)}"><header><div><span>${typeLabel}</span><strong>${escapeHtml(item.subject)}</strong></div><time>${escapeHtml(date)}</time></header><p>${escapeHtml(item.message)}</p><footer><small>${escapeHtml(item.displayName || "Jogador")} · ${escapeHtml(item.email || "")}${item.gameVersion ? ` · v${escapeHtml(item.gameVersion)}` : ""}</small><div>${unread ? `<button class="admin-button compact secondary" data-feedback-action="read" data-feedback-id="${escapeHtml(item.id)}" type="button">Marcar como lido</button>` : '<span class="admin-feedback-read">Lido</span>'}<button class="admin-button compact danger" data-feedback-action="delete" data-feedback-id="${escapeHtml(item.id)}" type="button">Excluir</button></div></footer></article>`;
+    }).join("") : '<div class="admin-catalog-empty">Nenhuma mensagem corresponde aos filtros selecionados.</div>';
+  }
+
+  async function renderPlayerFeedback(force = true) {
     if (!authorized || !dom.playerFeedbackList) return;
     playerFeedbackLoaded = true;
+    if (!force && playerFeedbackItems.length) { drawPlayerFeedback(); return; }
     dom.playerFeedbackList.innerHTML = '<div class="admin-catalog-empty">Carregando mensagens...</div>';
     try {
-      const items = await window.FirebaseManager.listPlayerFeedback(120);
-      dom.playerFeedbackList.innerHTML = items.length ? items.map(item => {
-        const typeLabel = item.type === "idea" ? "Ideia" : item.type === "problem" ? "Problema" : "Feedback";
-        const unread = item.status !== "read";
-        const date = new Date(Number(item.createdAtClient) || Date.now()).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-        return `<article class="admin-feedback-message ${unread ? "is-new" : ""}" data-feedback-id="${escapeHtml(item.id)}"><header><div><span>${typeLabel}</span><strong>${escapeHtml(item.subject)}</strong></div><time>${escapeHtml(date)}</time></header><p>${escapeHtml(item.message)}</p><footer><small>${escapeHtml(item.displayName || "Jogador")} · ${escapeHtml(item.email || "")}${item.gameVersion ? ` · v${escapeHtml(item.gameVersion)}` : ""}</small><div>${unread ? `<button class="admin-button compact secondary" data-feedback-action="read" data-feedback-id="${escapeHtml(item.id)}" type="button">Marcar como lido</button>` : '<span class="admin-feedback-read">Lido</span>'}<button class="admin-button compact danger" data-feedback-action="delete" data-feedback-id="${escapeHtml(item.id)}" type="button">Excluir</button></div></footer></article>`;
-      }).join("") : '<div class="admin-catalog-empty">Nenhum feedback recebido ainda.</div>';
+      playerFeedbackItems = await window.FirebaseManager.listPlayerFeedback(120);
+      drawPlayerFeedback();
     } catch (error) {
       dom.playerFeedbackList.innerHTML = `<div class="admin-catalog-empty">${escapeHtml(window.FirebaseManager.getFriendlyError(error))}</div>`;
     }
@@ -113,6 +132,7 @@
     if (dom.workspaceSelect && dom.workspaceSelect.value !== selected) dom.workspaceSelect.value = selected;
     try { sessionStorage.setItem("fazenda-serena-admin-section", selected); } catch {}
     if (selected === "playerFeedback" && authorized && !playerFeedbackLoaded) renderPlayerFeedback();
+    if (selected === "tests" && authorized && !testFieldsLoaded) loadOwnTestFields().catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error"));
   }
 
   function bindPositiveInputs() {
@@ -144,10 +164,11 @@
     catalogNames.forEach(name => window.AdminCatalogEditors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.gridNavigationIcons, config.lineNavigationOrder, config.gridNavigationOrder); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
-  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
+  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.globalResetResearch, dom.globalResolveCrops, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
   function showGate(message, { login = false, loading = false } = {}) { authorized = false; dom.app.hidden = true; dom.gate.hidden = false; dom.gateMessage.textContent = message; dom.signIn.hidden = !login; dom.loader.hidden = !loading; dom.userActions.hidden = true; }
   function showApp(user) {
     authorized = true;
+    testFieldsLoaded = false;
     dom.gate.hidden = true;
     dom.app.hidden = false;
     dom.userActions.hidden = false;
@@ -176,21 +197,83 @@
   window.AdminCloudActions = { async beforeCatalogSave(kind, previous, next) { if (previous?.id && next?.id && previous.id !== next.id) window.AdminCatalogEditors.updateReferences(kind, previous.id, next.id); }, saveCatalog, restoreEditors() { fillEditors(currentConfig, { source: "cloud" }); }, showError(error) { setFeedback(window.FirebaseManager.getFriendlyError(error), "error"); } };
 
   const setTestFeedback = (message = "", type = "") => { if (!dom.testFeedback) return; dom.testFeedback.textContent = message; dom.testFeedback.dataset.type = type; };
+  const setGlobalFeedback = (message = "", type = "") => { if (!dom.globalFeedback) return; dom.globalFeedback.textContent = message; dom.globalFeedback.dataset.type = type; };
+  async function loadOwnTestFields() {
+    if (!authorized) return;
+    const state = await window.FirebaseManager.loadGame();
+    if (!state) return;
+    testFieldsLoaded = true;
+    if (dom.testFarmLevel) dom.testFarmLevel.value = String(Math.max(1, Number(state.farmLevel) || 1));
+    if (dom.testPrestigeLevel) dom.testPrestigeLevel.value = String(Math.max(0, Number(state.stats?.prestiges) || 0));
+    if (dom.testCoins) dom.testCoins.value = String(Math.max(0, Math.floor(Number(state.coins) || 0)));
+    if (dom.testResearch) dom.testResearch.value = String(Math.max(0, Math.floor(Number(state.research) || 0)));
+    if (dom.testPrestigePoints) dom.testPrestigePoints.value = String(Math.max(0, Math.floor(Number(state.prestigePoints) || 0)));
+  }
+  function evolutionCostAt(item, levelIndex) {
+    const level = Math.max(0, Math.floor(Number(levelIndex) || 0));
+    if (Array.isArray(item?.stageCosts) && Number.isFinite(Number(item.stageCosts[level]))) return Math.max(0, Math.ceil(Number(item.stageCosts[level]) || 0));
+    return Math.max(0, Math.ceil((Number(item?.baseCost) || 0) * Math.pow(Math.max(.01, Number(item?.growth) || 1), level)));
+  }
+  function researchRefundForState(state) {
+    const levels = { ...(state?.researchTechs || {}) };
+    const retiredUpgradeResearchMap = {
+      irrigationNetwork: "acceleratedGermination", harvestCrew: "hybridGenetics", regionalMarket: "priceForecast", reinforcedBarn: "coldChain",
+      seedCooperative: "smartSeedCatalog", precisionTools: "cultivationAlgorithms", fieldAcademy: "agriculturalPedagogy", contractBureau: "negotiationModels",
+      orderCenter: "orderOptimization", expressPacking: "logisticsSimulation"
+    };
+    Object.entries(retiredUpgradeResearchMap).forEach(([upgradeId, researchId]) => {
+      levels[researchId] = Math.max(Number(levels[researchId]) || 0, Number(state?.upgrades?.[upgradeId]) || 0);
+    });
+    return (currentConfig?.research || []).reduce((total, item) => {
+      const owned = Math.max(0, Math.min(Number(item.max) || 0, Math.floor(Number(levels[item.id]) || 0)));
+      for (let level = 0; level < owned; level += 1) total += evolutionCostAt(item, level);
+      return total;
+    }, 0);
+  }
+  function reconcileCropsForState(state) {
+    const farmLevel = Math.max(1, Math.floor(Number(state?.farmLevel) || 1));
+    const lockedIds = new Set();
+    (currentConfig?.crops || []).forEach(crop => {
+      if (farmLevel < Math.max(1, Math.floor(Number(crop.unlockLevel) || 1))) lockedIds.add(crop.id);
+    });
+    let changed = false;
+    lockedIds.forEach(cropId => {
+      const crop = state?.crops?.[cropId];
+      if (crop && (crop.owned || Number(crop.level) > 0 || Number(crop.stock) > 0 || Number(crop.progress) > 0 || crop.autoSell)) {
+        Object.assign(crop, { owned: false, level: 0, progress: 0, stock: 0, autoSell: false, productionBuffer: 0 });
+        changed = true;
+      }
+      if (state?.cropsDiscovered && state.cropsDiscovered[cropId]) { delete state.cropsDiscovered[cropId]; changed = true; }
+      if (state?.orders?.[cropId] && (state.orders[cropId].tier || state.orders[cropId].delivered || state.orders[cropId].autoDeliver)) {
+        Object.assign(state.orders[cropId], { tier: 0, delivered: 0, autoDeliver: false });
+        changed = true;
+      }
+    });
+    if (Array.isArray(state.contractOffers)) {
+      const next = state.contractOffers.filter(contract => !lockedIds.has(contract?.cropId));
+      if (next.length !== state.contractOffers.length) { state.contractOffers = next; changed = true; }
+    }
+    if (Array.isArray(state.activeContracts)) {
+      const next = state.activeContracts.filter(contract => !lockedIds.has(contract?.cropId));
+      if (next.length !== state.activeContracts.length) { state.activeContracts = next; changed = true; }
+    }
+    return changed;
+  }
   async function mutateOwnTestSave(label, mutate) {
     if (!authorized) throw new Error("Acesso administrativo necessário.");
     setTestFeedback(`${label}...`, "pending");
-    const state = await window.FirebaseManager.loadGame();
-    if (!state) throw new Error("Abra o jogo com esta conta ao menos uma vez antes de usar os testes.");
-    const next = clone(state);
-    mutate(next);
-    next.lastUpdate = Date.now();
-    const result = await window.FirebaseManager.saveGame(next);
-    if (!result?.ok) throw result?.error || new Error("Não foi possível salvar a conta de teste.");
-    const verified = await window.FirebaseManager.loadGame();
-    if (Number(verified?.farmLevel) !== Number(next.farmLevel)) throw new Error("A nuvem não confirmou a alteração do nível. Feche qualquer aba do jogo aberta e tente novamente.");
-    if (dom.testFarmLevel) dom.testFarmLevel.value = String(verified.farmLevel || 1);
-    if (dom.testPrestigeLevel) dom.testPrestigeLevel.value = String(verified.stats?.prestiges || 0);
-    setTestFeedback(`Conta atualizada: nível ${verified.farmLevel}, prestígios ${verified.stats?.prestiges || 0}. Reabra o jogo para conferir.`, "success");
+    const result = await window.FirebaseManager.mutateCurrentPlayerSaveForAdmin(state => {
+      mutate(state);
+      return true;
+    }, "admin-tests");
+    const verified = result?.state;
+    if (!verified) throw new Error("A nuvem não devolveu o save atualizado.");
+    if (dom.testFarmLevel) dom.testFarmLevel.value = String(Math.max(1, Math.floor(Number(verified.farmLevel) || 1)));
+    if (dom.testPrestigeLevel) dom.testPrestigeLevel.value = String(Math.max(0, Math.floor(Number(verified.stats?.prestiges) || 0)));
+    if (dom.testCoins) dom.testCoins.value = String(Math.max(0, Math.floor(Number(verified.coins) || 0)));
+    if (dom.testResearch) dom.testResearch.value = String(Math.max(0, Math.floor(Number(verified.research) || 0)));
+    if (dom.testPrestigePoints) dom.testPrestigePoints.value = String(Math.max(0, Math.floor(Number(verified.prestigePoints) || 0)));
+    setTestFeedback(`Conta atualizada na nuvem · nível ${Math.max(1, Math.floor(Number(verified.farmLevel) || 1))} · moedas ${Math.max(0, Math.floor(Number(verified.coins) || 0)).toLocaleString("pt-BR")} · pesquisa ${Math.max(0, Math.floor(Number(verified.research) || 0)).toLocaleString("pt-BR")} · prestígio ${Math.max(0, Math.floor(Number(verified.prestigePoints) || 0)).toLocaleString("pt-BR")}.`, "success");
     return verified;
   }
   function resetCropsInState(state) {
@@ -250,6 +333,8 @@
     return publishConfig(next, "Ícones e ordem da navegação atualizados.");
   }).catch(() => {}));
   dom.refreshPlayerFeedback?.addEventListener("click", () => renderPlayerFeedback());
+  dom.feedbackTypeFilter?.addEventListener("change", () => drawPlayerFeedback());
+  dom.feedbackStatusFilter?.addEventListener("change", () => drawPlayerFeedback());
   dom.playerFeedbackList?.addEventListener("click", event => {
     const button = event.target.closest("[data-feedback-action]");
     if (!button) return;
@@ -268,6 +353,9 @@
     const prestiges = Math.max(0, parsePositive(dom.testPrestigeLevel?.value || state.stats?.prestiges || 0, true));
     state.farmLevel = farmLevel;
     state.farmXP = 0;
+    state.coins = parsePositive(dom.testCoins?.value ?? state.coins, true);
+    state.research = parsePositive(dom.testResearch?.value ?? state.research, true);
+    state.prestigePoints = parsePositive(dom.testPrestigePoints?.value ?? state.prestigePoints, true);
     state.stats = state.stats || {};
     state.stats.prestiges = prestiges;
     state.stats.maxFarmLevel = farmLevel;
@@ -279,6 +367,46 @@
   dom.resetTestCrops?.addEventListener("click", () => { if (!confirm("Resetar as plantas da sua conta administrativa?")) return; mutateOwnTestSave("Resetando plantas", resetCropsInState).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
   dom.resetTestOrders?.addEventListener("click", () => { if (!confirm("Resetar os pedidos da sua conta administrativa?")) return; mutateOwnTestSave("Resetando pedidos", resetOrdersInState).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
   dom.resetTestMissions?.addEventListener("click", () => { if (!confirm("Resetar as missões concluídas da sua conta administrativa?")) return; mutateOwnTestSave("Resetando missões", state => { state.missionsClaimed = {}; }).catch(error => setTestFeedback(window.FirebaseManager.getFriendlyError(error), "error")); });
+
+  dom.globalResetResearch?.addEventListener("click", async () => {
+    if (!confirm("Resetar as pesquisas de TODOS os jogadores e devolver os pontos de pesquisa gastos?")) return;
+    dom.globalResetResearch.disabled = true;
+    setGlobalFeedback("Processando todos os saves...", "pending");
+    let refunded = 0;
+    try {
+      const currentResearchIds = new Set((currentConfig?.research || []).map(item => item.id));
+      const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => {
+        const refund = researchRefundForState(state);
+        const hasLevels = Object.entries(state.researchTechs || {}).some(([id, level]) => currentResearchIds.has(id) && Number(level) > 0)
+          || Object.values(state.upgrades || {}).some(level => Number(level) > 0);
+        if (!hasLevels) return false;
+        refunded += refund;
+        state.research = Math.max(0, Number(state.research) || 0) + refund;
+        state.researchTechs = Object.fromEntries((currentConfig?.research || []).map(item => [item.id, 0]));
+        state.upgrades = {};
+        return true;
+      }, { mutationType: "reset-research-global" });
+      if (!result.scanned) throw new Error("Nenhum save de jogador foi encontrado pelo Controle global.");
+      setGlobalFeedback(result.updated
+        ? `${result.updated} de ${result.scanned} saves atualizados · ${refunded.toLocaleString("pt-BR")} pontos devolvidos.`
+        : `${result.scanned} saves verificados · nenhuma pesquisa ativa precisava ser resetada.`, "success");
+    } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
+    finally { dom.globalResetResearch.disabled = false; }
+  });
+
+  dom.globalResolveCrops?.addEventListener("click", async () => {
+    if (!confirm("Resolver conflitos de plantas em TODOS os jogadores usando os níveis de desbloqueio publicados agora?")) return;
+    dom.globalResolveCrops.disabled = true;
+    setGlobalFeedback("Verificando todos os saves...", "pending");
+    try {
+      const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => reconcileCropsForState(state), { mutationType: "reconcile-crops-global" });
+      if (!result.scanned) throw new Error("Nenhum save de jogador foi encontrado pelo Controle global.");
+      setGlobalFeedback(result.updated
+        ? `${result.updated} de ${result.scanned} saves corrigidos · ${result.skipped} já estavam consistentes.`
+        : `${result.scanned} saves verificados · nenhum conflito de plantas encontrado.`, "success");
+    } catch (error) { setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error"); }
+    finally { dom.globalResolveCrops.disabled = false; }
+  });
 
   bindNavigationOrderControls(dom.navigationIconGrid);
   bindNavigationOrderControls(dom.gridNavigationIconGrid);
