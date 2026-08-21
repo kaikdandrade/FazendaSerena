@@ -390,3 +390,14 @@ Componentes e serviços de terceiros permanecem sujeitos aos termos e licenças 
   Cultive. Evolua. Construa um legado.
 </p>
 
+
+
+## Aplicativos instaláveis
+
+A mesma versão web também pode ser distribuída como aplicativo sem manter uma segunda lógica de jogo:
+
+- **Windows:** `downloads/FazendaSerena-Setup-x64.exe` e `downloads/FazendaSerena-Setup-arm64.exe`. O instalador cria um launcher local que abre a origem oficial em modo aplicativo.
+- **Android:** a pasta `android-twa/` prepara um Trusted Web Activity com Bubblewrap. Depois do primeiro build, o APK é copiado para `downloads/FazendaSerena-Android.apk`.
+- **PWA:** continua disponível como alternativa em plataformas onde um pacote próprio não estiver publicado.
+
+Os fontes de empacotamento são ignorados pelo Firebase Hosting; apenas os instaladores colocados em `downloads/` são publicados.
