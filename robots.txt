@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /LICENSE
 
 Sitemap: https://fazenda-serena.web.app/sitemap.xml

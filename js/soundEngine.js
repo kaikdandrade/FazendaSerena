@@ -12,21 +12,21 @@
  */
 class SoundEngine {
   static FIXED_MAPPINGS = Object.freeze({
-    click: "assets/sounds/interface_click.wav",
-    navigation: "assets/sounds/navigation_transition.wav",
-    mainNavigation: "assets/sounds/navigation_transition.wav",
-    secondaryNavigation: "assets/sounds/navigation_transition.wav",
-    cropPurchase: "assets/sounds/crop_purchase.wav",
-    upgrade: "assets/sounds/upgrade_confirmation.wav",
-    reward: "assets/sounds/reward_claim.wav",
-    sell: "assets/sounds/stock_sale.wav",
-    prestige: "assets/sounds/prestige_activation.wav",
-    contractSignature: "assets/sounds/contract_signature.wav",
-    contractRefusal: "assets/sounds/contract_refusal.wav",
-    levelUp: "assets/sounds/level_up.wav",
-    coinCounterHit: "assets/sounds/coin_counter_hit.wav",
-    researchCounterHit: "assets/sounds/research_counter_hit.wav",
-    prestigeCounterHit: "assets/sounds/prestige_counter_hit.wav"
+    click: "assets/sounds/clique-interface.wav",
+    navigation: "assets/sounds/transicao-navegacao.wav",
+    mainNavigation: "assets/sounds/transicao-navegacao.wav",
+    secondaryNavigation: "assets/sounds/transicao-navegacao.wav",
+    cropPurchase: "assets/sounds/comprar-cultura.wav",
+    upgrade: "assets/sounds/confirmar-aprimoramento.wav",
+    reward: "assets/sounds/coletar-recompensa.wav",
+    sell: "assets/sounds/vender-estoque.wav",
+    prestige: "assets/sounds/ativar-prestigio.wav",
+    contractSignature: "assets/sounds/assinar-contrato.wav",
+    contractRefusal: "assets/sounds/recusar-contrato.wav",
+    levelUp: "assets/sounds/subir-nivel.wav",
+    coinCounterHit: "assets/sounds/contador-moedas.wav",
+    researchCounterHit: "assets/sounds/contador-pesquisa.wav",
+    prestigeCounterHit: "assets/sounds/contador-prestigio.wav"
   });
 
   static DEFAULT_MAPPINGS = SoundEngine.FIXED_MAPPINGS;
@@ -41,17 +41,17 @@ class SoundEngine {
   static NAVIGATION_DELAY_SECONDS = 0.045;
 
   static MUSIC_SOURCES = Object.freeze({
-    betweenLightAndShadows: "assets/sounds/music/between_light_and_shadows.wav",
-    pixelSprouts: "assets/sounds/music/pixel_sprouts.wav",
-    moonlitFields: "assets/sounds/music/moonlit_fields.wav",
-    fieldRain: "assets/sounds/music/field_rain.wav",
-    electricHarvest: "assets/sounds/music/electric_harvest.wav",
-    dirtRoad: "assets/sounds/music/dirt_road.wav",
-    enchantedGreenhouse: "assets/sounds/music/enchanted_greenhouse.wav",
-    solarFarm: "assets/sounds/music/solar_farm.wav",
-    barnHay: "assets/sounds/music/barn_hay.wav",
-    harvestFestival: "assets/sounds/music/harvest_festival.wav",
-    tropicalOrchard: "assets/sounds/music/tropical_orchard.wav"
+    betweenLightAndShadows: "assets/sounds/musicas/entre-luz-e-sombras.wav",
+    pixelSprouts: "assets/sounds/musicas/brotos-em-pixels.wav",
+    moonlitFields: "assets/sounds/musicas/campos-ao-luar.wav",
+    fieldRain: "assets/sounds/musicas/chuva-no-campo.wav",
+    electricHarvest: "assets/sounds/musicas/colheita-eletrica.wav",
+    dirtRoad: "assets/sounds/musicas/estrada-de-terra.wav",
+    enchantedGreenhouse: "assets/sounds/musicas/estufa-encantada.wav",
+    solarFarm: "assets/sounds/musicas/fazenda-solar.wav",
+    barnHay: "assets/sounds/musicas/celeiro-e-feno.wav",
+    harvestFestival: "assets/sounds/musicas/festival-da-colheita.wav",
+    tropicalOrchard: "assets/sounds/musicas/pomar-tropical.wav"
   });
 
   constructor() {

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Tutorial interativo da Fazenda Serena."/>
+  <title>Tutorial — Fazenda Serena</title>
+  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon"/>
+  <link rel="stylesheet" href="css/tutorial.css?v=r21"/>
+  <script defer src="js/publicCloud.js?v=r21"></script>
+<script defer src="js/appConfig.js?v=r21"></script>
+<script defer src="js/cacheManager.js?v=r21"></script>
+  <script defer src="js/tutorial.js?v=r21"></script>
+</head>
+<body>
+  <div class="tutorial-page">
+    <header class="tutorial-header">
+      <a class="tutorial-brand" href="index.html"><img src="assets/logo.webp" alt=""/><span><small>Fazenda Serena</small><strong>Tutorial interativo</strong></span></a>
+      <a class="tutorial-back" href="index.html">Voltar para minha fazenda</a>
+    </header>
+    <main class="tutorial-main">
+      <section class="tutorial-hero">
+        <div><p class="tutorial-eyebrow">ambiente de treinamento</p><h1>Aprenda jogando, sem mexer no seu progresso</h1><p>Esta página é uma simulação independente. Nenhuma moeda, planta, contrato, pedido, pesquisa ou ação feita aqui é enviada ao Firebase ou aplicada à sua fazenda real.</p></div>
+        <div class="tutorial-safety"><strong>100% separado do jogo</strong><span>O tutorial vive apenas na memória desta página e é zerado ao recarregar.</span></div>
+      </section>
+
+      <section class="tutorial-layout">
+        <aside class="tutorial-steps" aria-label="Etapas do tutorial">
+          <div class="tutorial-step active" data-step="1"><span>1</span><div><strong>Compre uma planta</strong><small>Comece sua produção.</small></div></div>
+          <div class="tutorial-step" data-step="2"><span>2</span><div><strong>Produza e estoque</strong><small>Entenda os ciclos.</small></div></div>
+          <div class="tutorial-step" data-step="3"><span>3</span><div><strong>Venda produtos</strong><small>Transforme estoque em moedas.</small></div></div>
+          <div class="tutorial-step" data-step="4"><span>4</span><div><strong>Complete um pedido</strong><small>Entregas progressivas.</small></div></div>
+          <div class="tutorial-step" data-step="5"><span>5</span><div><strong>Faça um contrato</strong><small>Compromissos com recompensa.</small></div></div>
+          <div class="tutorial-step" data-step="6"><span>6</span><div><strong>Invista em pesquisa</strong><small>Evolua a fazenda.</small></div></div>
+          <div class="tutorial-step" data-step="7"><span>7</span><div><strong>Entenda o prestígio</strong><small>Prepare a próxima jornada.</small></div></div>
+        </aside>
+
+        <section class="tutorial-simulator">
+          <header class="tutorial-simulator-head"><div><p class="tutorial-eyebrow">fazenda de treinamento</p><h2 id="tutorialObjective">Compre sua primeira planta</h2><p id="tutorialHint">Use o botão Comprar no card abaixo. No jogo real, cada planta possui preço e nível de desbloqueio próprios.</p></div><button id="tutorialReset" class="tutorial-button ghost" type="button">Reiniciar tutorial</button></header>
+          <div class="tutorial-resources">
+            <article><img src="assets/icons/moeda.webp" alt=""/><span><small>Moedas</small><strong id="tutorialCoins">120</strong></span></article>
+            <article><img src="assets/icons/galpao-industrial.webp" alt=""/><span><small>Estoque</small><strong><b id="tutorialStock">0</b>/40</strong></span></article>
+            <article><img src="assets/icons/pocao-pesquisa.webp" alt=""/><span><small>Pesquisa</small><strong id="tutorialResearch">0</strong></span></article>
+            <article><img src="assets/icons/estrela-dominio-cultura.webp" alt=""/><span><small>XP</small><strong id="tutorialXP">0%</strong></span></article>
+          </div>
+
+          <div class="tutorial-board">
+            <article class="tutorial-card crop-training-card">
+              <div class="tutorial-card-media"><img src="assets/plants/tomate.webp" alt="Tomate usado somente como exemplo no tutorial"/></div>
+              <div class="tutorial-card-copy"><small>planta de exemplo</small><h3>Tomate de treinamento</h3><p>Uma planta produz itens em ciclos. No jogo real, produção, valor e tempo dependem do cadastro da planta e das suas evoluções.</p><div class="tutorial-actions"><button class="tutorial-button primary" id="tutorialBuy" type="button">Comprar · 40 moedas</button><button class="tutorial-button secondary" id="tutorialProduce" type="button" disabled>Simular ciclo · +8</button><button class="tutorial-button secondary" id="tutorialSell" type="button" disabled>Vender estoque</button></div></div>
+            </article>
+
+            <article class="tutorial-card" id="tutorialOrderCard">
+              <div class="tutorial-card-icon"><img src="assets/icons/pacote.webp" alt=""/></div><div class="tutorial-card-copy"><small>pedido de treinamento</small><h3>Entrega da comunidade</h3><p>Entregue 10 unidades do estoque. Pedidos reais avançam por etapas e concedem suas próprias recompensas.</p><div class="tutorial-progress"><span id="tutorialOrderProgress">0/10 disponíveis</span></div><button class="tutorial-button primary" id="tutorialOrder" type="button" disabled>Entregar pedido</button></div>
+            </article>
+
+            <article class="tutorial-card" id="tutorialContractCard">
+              <div class="tutorial-card-icon"><img src="assets/icons/contrato-comercial.webp" alt=""/></div><div class="tutorial-card-copy"><small>contrato de treinamento</small><h3>Mercado Escola</h3><p>Contratos reservam produção para uma empresa e normalmente possuem prazo. Aqui o relógio está desligado para você aprender com calma.</p><div class="tutorial-progress"><span id="tutorialContractProgress">Ainda não assinado</span></div><div class="tutorial-actions"><button class="tutorial-button primary" id="tutorialContractAccept" type="button" disabled>Assinar contrato</button><button class="tutorial-button secondary" id="tutorialContractProduce" type="button" disabled>Produzir para contrato · +5</button><button class="tutorial-button gold" id="tutorialContractClaim" type="button" disabled>Coletar recompensa</button></div></div>
+            </article>
+
+            <article class="tutorial-card" id="tutorialResearchCard">
+              <div class="tutorial-card-icon"><img src="assets/icons/livros.webp" alt=""/></div><div class="tutorial-card-copy"><small>evolução de treinamento</small><h3>Irrigação demonstrativa</h3><p>Pesquisas consomem pontos de pesquisa para fortalecer sistemas da jornada. Esta compra existe somente no tutorial.</p><button class="tutorial-button primary" id="tutorialResearchBuy" type="button" disabled>Pesquisar · 2 pontos</button></div>
+            </article>
+
+            <article class="tutorial-card prestige-training-card" id="tutorialPrestigeCard">
+              <div class="tutorial-card-icon"><img src="assets/icons/prestigio.webp" alt=""/></div><div class="tutorial-card-copy"><small>fim de jornada</small><h3>Prestígio</h3><p>Ao atingir o requisito real de prestígio, você pode iniciar uma nova jornada em troca de pontos permanentes. Recursos da jornada recomeçam, enquanto legados e outros progressos permanentes são preservados.</p><button class="tutorial-button gold" id="tutorialPrestige" type="button" disabled>Simular explicação do prestígio</button></div>
+            </article>
+          </div>
+          <div class="tutorial-message" id="tutorialMessage" aria-live="polite">Comece comprando a planta de treinamento.</div>
+        </section>
+      </section>
+    </main>
+    <footer class="tutorial-footer"><span>Fazenda Serena · Tutorial · Versão <b data-app-version></b></span><span><a href="terms.html">Termos de Uso</a> · <a href="privacy.html">Privacidade</a></span></footer>
+  </div>
+</body>
+</html>

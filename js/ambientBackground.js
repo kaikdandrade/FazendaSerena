@@ -1,24 +1,30 @@
 "use strict";
 
 (() => {
-  const LEAF_ASSETS = Object.freeze([
-    "assets/spring.png",
-    "assets/summer.png",
-    "assets/autumn.png",
-    "assets/winter.png"
+  const PLANT_ASSETS = Object.freeze([
+    "assets/plants/morango.webp",
+    "assets/plants/cenoura.webp",
+    "assets/plants/milho.webp",
+    "assets/plants/tomate.webp",
+    "assets/plants/abacaxi.webp",
+    "assets/plants/uva.webp",
+    "assets/plants/abobora.webp",
+    "assets/plants/laranja.webp",
+    "assets/plants/trigo.webp",
+    "assets/plants/melancia.webp"
   ]);
 
   const ORB_PALETTE = Object.freeze({
-    blue: "rgba(151, 203, 224, 0.48)",
-    green: "rgba(154, 207, 135, 0.47)",
-    yellow: "rgba(239, 203, 125, 0.42)",
-    purple: "rgba(190, 166, 220, 0.43)"
+    blue: "rgba(151, 203, 224, 0.44)",
+    green: "rgba(154, 207, 135, 0.44)",
+    yellow: "rgba(239, 203, 125, 0.38)",
+    purple: "rgba(190, 166, 220, 0.39)"
   });
 
   const state = {
     layer: null,
-    leafStage: null,
-    leaves: [],
+    plantStage: null,
+    plants: [],
     orbs: [],
     orbAnimations: [],
     mutationObserver: null,
@@ -36,12 +42,13 @@
       && !state.mediaQuery.matches;
   }
 
-  function getLeafCount() {
+  function getPlantCount() {
     const width = window.innerWidth;
-    if (width <= 480) return 7;
-    if (width <= 768) return 10;
-    if (width <= 1024) return 13;
-    return 16;
+    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    if (width <= 480) return 2;
+    if (width <= 768 || coarsePointer) return 3;
+    if (width <= 1024) return 5;
+    return 7;
   }
 
   function createStructure() {
@@ -62,9 +69,9 @@
       return orb;
     });
 
-    state.leafStage = document.createElement("div");
-    state.leafStage.className = "ambient-leaf-stage";
-    state.layer.append(state.leafStage);
+    state.plantStage = document.createElement("div");
+    state.plantStage.className = "ambient-plant-stage";
+    state.layer.append(state.plantStage);
   }
 
   function getOrbPositions(size) {
@@ -100,14 +107,14 @@
         path: [positions.topLeft, positions.topRight, positions.bottomRight, positions.bottomLeft, positions.topLeft],
         colors: [ORB_PALETTE.blue, ORB_PALETTE.green, ORB_PALETTE.yellow, ORB_PALETTE.purple, ORB_PALETTE.blue],
         scales: [0.94, 1.08, 0.98, 1.12, 0.94],
-        opacities: [0.30, 0.38, 0.34, 0.39, 0.30]
+        opacities: [0.27, 0.34, 0.30, 0.35, 0.27]
       },
       {
         duration: 126000,
         path: [positions.bottomRight, positions.topLeft, positions.bottomLeft, positions.topRight, positions.bottomRight],
         colors: [ORB_PALETTE.purple, ORB_PALETTE.yellow, ORB_PALETTE.blue, ORB_PALETTE.green, ORB_PALETTE.purple],
         scales: [1.06, 0.96, 1.10, 0.98, 1.06],
-        opacities: [0.31, 0.36, 0.32, 0.38, 0.31]
+        opacities: [0.28, 0.32, 0.29, 0.34, 0.28]
       }
     ];
 
@@ -122,12 +129,7 @@
         spec.opacities[frameIndex],
         frameIndex / (spec.path.length - 1)
       ));
-      return orb.animate(frames, {
-        duration: spec.duration,
-        easing: "ease-in-out",
-        fill: "both",
-        iterations: Infinity
-      });
+      return orb.animate(frames, { duration: spec.duration, easing: "ease-in-out", fill: "both", iterations: Infinity });
     });
 
     if (!isEnabled() || document.hidden) state.orbAnimations.forEach(animation => animation.pause());
@@ -136,7 +138,7 @@
   function pointOutside(edge, size) {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    const padding = Math.max(28, size * 1.35);
+    const padding = Math.max(30, size * 1.4);
     switch (edge) {
       case "left": return { x: -padding, y: random(-size, height + size) };
       case "right": return { x: width + padding, y: random(-size, height + size) };
@@ -147,66 +149,59 @@
 
   function chooseExit(startEdge) {
     const opposite = { left: "right", right: "left", top: "bottom", bottom: "top" };
-    if (Math.random() < 0.72) return opposite[startEdge];
+    if (Math.random() < 0.76) return opposite[startEdge];
     return randomItem(["left", "right", "top", "bottom"].filter(edge => edge !== startEdge));
   }
 
-  function animateLeaf(entry, initialDelay = 0) {
+  function animatePlant(entry, initialDelay = 0) {
     if (!isEnabled() || !entry.node.isConnected) return;
-
     entry.animation?.cancel();
-    const size = random(window.innerWidth <= 480 ? 34 : 42, window.innerWidth <= 480 ? 62 : 86);
+
+    const compact = window.innerWidth <= 768 || window.matchMedia("(pointer: coarse)").matches;
+    const size = random(compact ? 30 : 38, compact ? 50 : 68);
     const startEdge = randomItem(["left", "right", "top", "bottom"]);
     const endEdge = chooseExit(startEdge);
     const start = pointOutside(startEdge, size);
     const end = pointOutside(endEdge, size);
     const midpoint = {
-      x: (start.x + end.x) / 2 + random(-window.innerWidth * 0.12, window.innerWidth * 0.12),
-      y: (start.y + end.y) / 2 + random(-window.innerHeight * 0.10, window.innerHeight * 0.10)
+      x: (start.x + end.x) / 2 + random(-window.innerWidth * 0.09, window.innerWidth * 0.09),
+      y: (start.y + end.y) / 2 + random(-window.innerHeight * 0.08, window.innerHeight * 0.08)
     };
-    const rotation = random(240, 620) * (Math.random() < 0.5 ? -1 : 1);
-    const opacity = random(0.36, 0.56);
-    const duration = random(24000, 43000);
+    const rotation = random(35, 110) * (Math.random() < 0.5 ? -1 : 1);
+    const opacity = random(0.12, 0.22);
+    const duration = random(32000, 52000);
 
-    entry.node.src = randomItem(LEAF_ASSETS);
+    entry.node.src = randomItem(PLANT_ASSETS);
     entry.node.style.width = `${size}px`;
     entry.node.style.height = `${size}px`;
-    entry.node.style.filter = `drop-shadow(0 ${Math.round(size * 0.12)}px ${Math.round(size * 0.18)}px rgba(50,76,52,.13))`;
 
     entry.animation = entry.node.animate([
       { transform: `translate3d(${start.x}px, ${start.y}px, 0) rotate(0deg) scale(.88)`, opacity: 0 },
-      { offset: 0.08, opacity },
-      { offset: 0.48, transform: `translate3d(${midpoint.x}px, ${midpoint.y}px, 0) rotate(${rotation * 0.52}deg) scale(1.04)`, opacity },
-      { offset: 0.92, opacity },
-      { transform: `translate3d(${end.x}px, ${end.y}px, 0) rotate(${rotation}deg) scale(.92)`, opacity: 0 }
-    ], {
-      delay: initialDelay,
-      duration,
-      easing: "linear",
-      fill: "both"
-    });
+      { offset: 0.10, opacity },
+      { offset: 0.50, transform: `translate3d(${midpoint.x}px, ${midpoint.y}px, 0) rotate(${rotation * 0.55}deg) scale(1.03)`, opacity },
+      { offset: 0.90, opacity },
+      { transform: `translate3d(${end.x}px, ${end.y}px, 0) rotate(${rotation}deg) scale(.9)`, opacity: 0 }
+    ], { delay: initialDelay, duration, easing: "linear", fill: "both" });
 
-    entry.animation.onfinish = () => {
-      if (isEnabled()) animateLeaf(entry, random(400, 3200));
-    };
+    entry.animation.onfinish = () => { if (isEnabled()) animatePlant(entry, random(1200, 4200)); };
   }
 
-  function rebuildLeaves() {
-    state.leaves.forEach(entry => entry.animation?.cancel());
-    state.leaves = [];
-    state.leafStage?.replaceChildren();
-    if (!isEnabled() || !state.leafStage) return;
+  function rebuildPlants() {
+    state.plants.forEach(entry => entry.animation?.cancel());
+    state.plants = [];
+    state.plantStage?.replaceChildren();
+    if (!isEnabled() || !state.plantStage) return;
 
-    const count = getLeafCount();
-    for (let index = 0; index < count; index += 1) {
+    for (let index = 0; index < getPlantCount(); index += 1) {
       const node = document.createElement("img");
       node.alt = "";
-      node.className = "ambient-leaf";
+      node.className = "ambient-plant";
       node.draggable = false;
-      state.leafStage.append(node);
+      node.decoding = "async";
+      state.plantStage.append(node);
       const entry = { node, animation: null };
-      state.leaves.push(entry);
-      animateLeaf(entry, index < 4 ? index * 650 : random(2200, 10000));
+      state.plants.push(entry);
+      animatePlant(entry, index < 3 ? index * 900 : random(2600, 9000));
     }
   }
 
@@ -215,38 +210,33 @@
     const enabled = isEnabled();
     state.layer.hidden = !enabled;
     state.orbAnimations.forEach(animation => enabled && !document.hidden ? animation.play() : animation.pause());
-    if (enabled && state.leaves.length !== getLeafCount()) rebuildLeaves();
+    if (enabled && state.plants.length !== getPlantCount()) rebuildPlants();
     if (!enabled) {
-      state.leaves.forEach(entry => entry.animation?.cancel());
-      state.leaves = [];
-      state.leafStage?.replaceChildren();
+      state.plants.forEach(entry => entry.animation?.cancel());
+      state.plants = [];
+      state.plantStage?.replaceChildren();
     }
   }
 
   function initialize() {
     createStructure();
     rebuildOrbs();
-    rebuildLeaves();
+    rebuildPlants();
     syncVisibility();
 
     state.mutationObserver = new MutationObserver(syncVisibility);
     state.mutationObserver.observe(document.body, { attributes: true, attributeFilter: ["data-ambient", "class"] });
 
     window.addEventListener("resize", () => {
-      window.clearTimeout(state.resizeTimer);
-      state.resizeTimer = window.setTimeout(() => {
-        rebuildOrbs();
-        rebuildLeaves();
-        syncVisibility();
-      }, 240);
+      clearTimeout(state.resizeTimer);
+      state.resizeTimer = setTimeout(() => { rebuildOrbs(); rebuildPlants(); syncVisibility(); }, 260);
     }, { passive: true });
 
     state.mediaQuery.addEventListener?.("change", syncVisibility);
     document.addEventListener("visibilitychange", () => {
       const shouldPlay = isEnabled() && !document.hidden;
-      [...state.orbAnimations, ...state.leaves.map(entry => entry.animation)].filter(Boolean).forEach(animation => {
-        if (shouldPlay) animation.play();
-        else animation.pause();
+      [...state.orbAnimations, ...state.plants.map(entry => entry.animation)].filter(Boolean).forEach(animation => {
+        if (shouldPlay) animation.play(); else animation.pause();
       });
     });
   }

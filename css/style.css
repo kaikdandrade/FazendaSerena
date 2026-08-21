@@ -12,7 +12,7 @@
   --gold-soft: #f6e8bf;
   --radius-sm: 14px;
   --rose: #c97972;
-  --ui-scale: 1;
+  --font-scale: 1;
   font-family: Inter, ui-rounded, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
@@ -22,7 +22,7 @@
   padding: 0;
 }
 
-html { font-size: calc(16px * var(--ui-scale)); scroll-behavior: smooth; }
+html { font-size: calc(17.5px * var(--font-scale)); scroll-behavior: smooth; }
 
 body { color: var(--ink); }
 
@@ -104,23 +104,6 @@ img {
   position: absolute;
   top: 0;
   will-change: transform, background-color, opacity;
-}
-
-.ambient-leaf-stage {
-  inset: 0;
-  overflow: hidden;
-  position: absolute;
-}
-
-.ambient-leaf {
-  left: 0;
-  max-width: none;
-  object-fit: contain;
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  transform-origin: 50% 50%;
-  will-change: transform, opacity;
 }
 
 body.reduce-motion .ambient-layer { display: none; }
@@ -1511,7 +1494,7 @@ html { overflow: hidden; }
 
 .stock-summary { flex: 0 0 auto; }
 
-#evolveView > .section-heading { flex: 0 0 auto; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) > .section-heading { flex: 0 0 auto; }
 
 #officeView > .section-heading { flex: 0 0 auto; }
 
@@ -3310,19 +3293,19 @@ body.page-scrolled .floating-resource-strip {
 
 body.reduce-motion .floating-resource-strip { transition: none !important; }
 
-#evolveView .evolution-workspace { padding-top: 7px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-workspace { padding-top: 7px !important; }
 
-#evolveView .evolution-panel { padding-top: 7px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-panel { padding-top: 7px !important; }
 
-#evolveView .evolution-panel.active { padding-top: 7px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-panel.active { padding-top: 7px !important; }
 
-#evolveView .evolution-panel-heading { margin: 0 0 12px !important; padding: 2px 4px 0 !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-panel-heading { margin: 0 0 12px !important; padding: 2px 4px 0 !important; }
 
-#evolveView .upgrade-grid { gap: 12px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-grid { gap: 12px !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 
-#evolveView .redesigned-evolution-card { display: grid !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card { display: grid !important; }
 
-#evolveView .upgrade-level-badge {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge {
   align-items: center;
   background: rgba(229, 239, 223, .82);
   border: 1px solid rgba(72, 111, 67, .12);
@@ -3337,14 +3320,14 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   padding: 0 9px;
 }
 
-#evolveView .upgrade-card-identity {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity {
   align-items: center;
   display: flex;
   gap: 10px;
   min-width: 0;
 }
 
-#evolveView .upgrade-card-identity .upgrade-icon {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity .upgrade-icon {
   border-radius: 13px;
   flex: 0 0 auto;
   font-size: 1.3rem;
@@ -3352,7 +3335,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   width: 43px;
 }
 
-#evolveView .upgrade-card-identity h3 {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity h3 {
   font-size: .89rem;
   letter-spacing: -.025em;
   line-height: 1.2;
@@ -3360,29 +3343,29 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   min-width: 0;
 }
 
-#evolveView .normalized-upgrade-card .upgrade-description {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .normalized-upgrade-card .upgrade-description {
   align-self: start;
   color: var(--ink-soft);
   font-size: .75rem;
   font-weight: 650;
 }
 
-#evolveView .upgrade-description {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-description {
   align-self: start;
   color: var(--ink-soft);
   font-size: .75rem;
   font-weight: 650;
 }
 
-#evolveView .redesigned-evolution-card .button { align-self: end; width: 100%; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .button { align-self: end; width: 100%; }
 
-#evolveView .prestige-grid .upgrade-level-badge {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .upgrade-level-badge {
   background: rgba(239, 223, 241, .78);
   border-color: rgba(122, 85, 132, .14);
   color: #735a75;
 }
 
-#evolveView {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3391,7 +3374,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView #prestigeDashboard {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) #prestigeDashboard {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3400,7 +3383,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .evolution-panel {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-panel {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3409,7 +3392,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .evolution-panel.active {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-panel.active {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3418,7 +3401,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .evolution-workspace {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-workspace {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3427,7 +3410,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .prestige-hero {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-hero {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3436,7 +3419,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .prestige-overview-card {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-overview-card {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3445,7 +3428,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .prestige-requirements {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-requirements {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3454,7 +3437,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView [data-evolution-panel="prestige"] {
+#profileView .prestige-profile-panel {
   height: auto !important;
   max-height: none !important;
   min-height: 0 !important;
@@ -3463,9 +3446,9 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   overflow-y: visible !important;
 }
 
-#evolveView .redesigned-evolution-card { position: relative !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card { position: relative !important; }
 
-#evolveView .upgrade-level-badge {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge {
   justify-self: auto !important;
   max-width: calc(100% - 22px);
   position: absolute !important;
@@ -3473,7 +3456,7 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   z-index: 2;
 }
 
-#evolveView .normalized-upgrade-card .upgrade-description { margin-bottom: 1px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .normalized-upgrade-card .upgrade-description { margin-bottom: 1px !important; }
 
 #officeView .office-heading { margin-bottom: 12px !important; }
 
@@ -3633,9 +3616,9 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
 
 #officeView .mission-head > div { width: 100%; }
 
-#evolveView .upgrade-grid { align-items: start !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-grid { align-items: start !important; }
 
-#evolveView .redesigned-evolution-card {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card {
   align-content: start !important;
   align-self: start !important;
   gap: 5px !important;
@@ -3645,23 +3628,23 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
   padding: 13px !important;
 }
 
-#evolveView .upgrade-level-badge { right: 13px !important; top: 13px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge { right: 13px !important; top: 13px !important; }
 
-#evolveView .upgrade-card-identity { min-height: 43px !important; padding-right: 80px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-card-identity { min-height: 43px !important; padding-right: 80px !important; }
 
-#evolveView .normalized-upgrade-card .upgrade-description {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .normalized-upgrade-card .upgrade-description {
   line-height: 1.35 !important;
   margin: 0 !important;
   min-height: 0 !important;
 }
 
-#evolveView .upgrade-description {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-description {
   line-height: 1.35 !important;
   margin: 0 !important;
   min-height: 0 !important;
 }
 
-#evolveView .redesigned-evolution-card .button { margin-top: 1px !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .button { margin-top: 1px !important; }
 
 #officeView .contracts-clean-heading { margin-bottom: 10px !important; }
 
@@ -3842,14 +3825,14 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
 
 #officeView .mission-card .button:disabled { cursor: not-allowed; }
 
-#evolveView .normalized-upgrade-card {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .normalized-upgrade-card {
   background: linear-gradient(155deg, rgba(255,255,251,.94), rgba(244,248,239,.82)) !important;
   border-color: rgba(72,111,67,.10) !important;
   filter: none !important;
   opacity: 1 !important;
 }
 
-#evolveView .prestige-grid .normalized-upgrade-card { background: linear-gradient(155deg, rgba(255,255,253,.96), rgba(247,238,249,.82)) !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .normalized-upgrade-card { background: linear-gradient(155deg, rgba(255,255,253,.96), rgba(247,238,249,.82)) !important; }
 
 .button:disabled .inline-resource {
   background: rgba(255,255,255,.22) !important;
@@ -3891,16 +3874,16 @@ button:disabled .inline-resource img { filter: grayscale(1) opacity(.58) !import
 
 button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !important; }
 
-#evolveView .prestige-grid { align-items: stretch !important; grid-auto-rows: 1fr; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid { align-items: stretch !important; grid-auto-rows: 1fr; }
 
-#evolveView .prestige-grid .redesigned-evolution-card {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .redesigned-evolution-card {
   align-self: stretch !important;
   grid-template-rows: auto minmax(38px, 1fr) auto !important;
   height: 100% !important;
   min-height: 184px !important;
 }
 
-#evolveView .prestige-grid .upgrade-description { align-self: start !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .upgrade-description { align-self: start !important; }
 
 .office-nav-tab.has-attention {
   background: inherit !important;
@@ -4087,7 +4070,7 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 .stock-nav-tab::before { box-sizing: border-box !important; }
 
-#evolveView [data-upgrade-kind="upgrade"] .upgrade-icon {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) [data-upgrade-kind="upgrade"] .upgrade-icon {
   background: rgba(255,255,255,.72) !important;
   display: grid !important;
   overflow: hidden;
@@ -4095,7 +4078,7 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
   place-items: center;
 }
 
-#evolveView [data-upgrade-kind="upgrade"] .upgrade-icon img {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) [data-upgrade-kind="upgrade"] .upgrade-icon img {
   height: 100% !important;
   max-height: 42px;
   max-width: 42px;
@@ -4117,7 +4100,7 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 .office-tab.active i { background: rgba(255,255,255,.86) !important; }
 
-#evolveView .upgrade-icon {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-icon {
   background: rgba(255,255,255,.72) !important;
   display: grid !important;
   overflow: hidden !important;
@@ -4125,7 +4108,7 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
   place-items: center !important;
 }
 
-#evolveView .upgrade-icon img {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-icon img {
   display: block !important;
   height: 100% !important;
   max-height: 42px !important;
@@ -4267,7 +4250,7 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 .main-nav .stock-nav-tab::before { border: 0 !important; box-shadow: none !important; }
 
-#evolveView .evolution-upgrade-completed {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed {
   background: linear-gradient(145deg, rgba(239, 249, 233, .97), rgba(249, 252, 245, .94)) !important;
   border-color: rgba(78, 146, 71, .42) !important;
   box-shadow: 0 .62rem 1.45rem rgba(61, 113, 58, .12), inset 0 0 0 1px rgba(255, 255, 255, .62) !important;
@@ -4275,7 +4258,7 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
   position: relative !important;
 }
 
-#evolveView .evolution-upgrade-completed::after {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed::after {
   background: linear-gradient(180deg, #5f9e57, #8bc47b);
   content: "";
   inset: 0 auto 0 0;
@@ -4283,15 +4266,15 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
   width: 4px;
 }
 
-#evolveView .evolution-upgrade-completed .upgrade-level-badge {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .upgrade-level-badge {
   background: rgba(219, 239, 210, .96) !important;
   border-color: rgba(76, 137, 69, .20) !important;
   color: #356d36 !important;
 }
 
-#evolveView .evolution-upgrade-completed .upgrade-icon { filter: saturate(.88) contrast(1.02); }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .upgrade-icon { filter: saturate(.88) contrast(1.02); }
 
-#evolveView .evolution-upgrade-completed .button:disabled { background: rgba(218, 237, 209, .92) !important; border-color: rgba(77, 137, 70, .19) !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .button:disabled { background: rgba(218, 237, 209, .92) !important; border-color: rgba(77, 137, 70, .19) !important; }
 
 .app-footer {
   align-items: center !important;
@@ -4393,15 +4376,15 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 .audio-track-setting select { min-height: 44px !important; width: 100% !important; }
 
-#evolveView .evolution-upgrade-completed .upgrade-card-identity { padding-left: 0 !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .upgrade-card-identity { padding-left: 0 !important; }
 
-#evolveView .evolution-upgrade-completed .upgrade-icon {
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .upgrade-icon {
   background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
 }
 
-#evolveView .evolution-upgrade-completed .button:disabled { color: #3f7540 !important; }
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .evolution-upgrade-completed .button:disabled { color: #3f7540 !important; }
 
 .contract-company-mark > span { overflow: hidden !important; padding: 3px !important; }
 
@@ -6302,7 +6285,7 @@ body {
 }
 
 .feature-gate-card::after {
-  background: url("../assets/icons/feature-lock.png") center / contain no-repeat;
+  background: url("../assets/icons/cadeado.webp") center / contain no-repeat;
   content: "";
   filter: grayscale(.15);
   height: 86px;
@@ -6360,7 +6343,7 @@ body {
 .nav-tab.feature-preview::after,
 .office-tab.feature-preview::after,
 .evolution-tab.feature-preview::after {
-  background: rgba(255,255,255,.94) url("../assets/icons/feature-lock.png") center / 15px 15px no-repeat;
+  background: rgba(255,255,255,.94) url("../assets/icons/cadeado.webp") center / 15px 15px no-repeat;
   border: 1px solid rgba(13,55,81,.2);
   border-radius: 8px;
   box-shadow: 0 2px 7px rgba(20,54,70,.2);
@@ -6379,7 +6362,7 @@ body {
 }
 
 .upgrade-card-preview::after {
-  background: rgba(255,255,255,.94) url("../assets/icons/feature-lock.png") center / 18px 18px no-repeat;
+  background: rgba(255,255,255,.94) url("../assets/icons/cadeado.webp") center / 18px 18px no-repeat;
   border: 1px solid rgba(13,55,81,.18);
   border-radius: 9px;
   box-shadow: 0 3px 9px rgba(20,54,70,.17);
@@ -6394,7 +6377,7 @@ body {
 }
 
 .crop-card.level-locked .locked-art::after {
-  background: rgba(255,255,255,.9) url("../assets/icons/feature-lock.png") center / 20px 20px no-repeat;
+  background: rgba(255,255,255,.9) url("../assets/icons/cadeado.webp") center / 20px 20px no-repeat;
   border: 1px solid rgba(13,55,81,.16);
   border-radius: 10px;
   box-shadow: 0 3px 9px rgba(20,54,70,.16);
@@ -6539,7 +6522,7 @@ body {
 
   .navigation-stack > .main-nav { grid-row: auto !important; }
 
-  #evolveView .upgrade-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
 
   .app-header > .farm-progress { margin-left: auto !important; }
 
@@ -6959,7 +6942,7 @@ body {
 
   .floating-resource-strip .resource-pill { min-height: 38px !important; padding: 5px 7px !important; }
 
-  #evolveView .upgrade-grid { grid-template-columns: 1fr !important; }
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-grid { grid-template-columns: 1fr !important; }
 
   .friendly-contract-top { align-items: flex-start; }
 
@@ -6987,7 +6970,7 @@ body {
 
   .order-board-heading > small { text-align: left; }
 
-  #evolveView .prestige-grid .redesigned-evolution-card { min-height: 0 !important; }
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .redesigned-evolution-card { min-height: 0 !important; }
 
   .contract-dock-collapse-toggle { font-size: .6rem; }
 
@@ -7424,7 +7407,7 @@ body {
 
   #farmView .crop-upgrade-summary > strong { min-width: 38px; padding-inline: 7px; }
 
-  #evolveView .upgrade-level-badge { font-size: .59rem; padding: 0 7px; }
+  :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .upgrade-level-badge { font-size: .59rem; padding: 0 7px; }
 
   .contract-product-focus img { height: 42px; width: 42px; }
 
@@ -7753,7 +7736,7 @@ body {
 .stock-card-locked .stock-locked-copy { position: relative; z-index: 1; }
 
 .stock-lock-icon {
-  background: url("../assets/icons/feature-lock.png") center / contain no-repeat;
+  background: url("../assets/icons/cadeado.webp") center / contain no-repeat;
   filter: drop-shadow(0 3px 3px rgba(16,47,66,.2));
   height: clamp(40px, 5vw, 44px);
   pointer-events: none;
@@ -7807,3 +7790,1044 @@ body {
 .milestone-unlock-check { color: var(--green-deep); font-size: 1rem; font-weight: 950; }
 .laboratory-current-value, .laboratory-progress-value { display: block; margin-top: 8px; }
 .laboratory-current-value b, .laboratory-progress-value b { color: var(--green-deep); }
+
+
+/* ========================================================================== */
+/* Versão 1.0.1 — fluidez em touch e perfil de desempenho móvel              */
+/* ========================================================================== */
+
+.navigation-stack > .main-nav,
+.navigation-stack > .context-nav-column {
+  overscroll-behavior-x: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+@media (max-width: 1024px), (pointer: coarse) {
+  .navigation-stack > .main-nav,
+  .navigation-stack > .context-nav-column {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-behavior: auto !important;
+    touch-action: pan-x pan-y !important;
+  }
+
+  .crop-card,
+  .stock-card,
+  .upgrade-card,
+  .contract-card,
+  .active-contract-card,
+  .order-card,
+  .mission-card,
+  .achievement-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 330px;
+  }
+
+  .app-header,
+  .main-nav,
+  .context-nav-column,
+  .crop-card,
+  .stock-card,
+  .upgrade-card,
+  .contract-card,
+  .mission-card,
+  .summary-card,
+  .contract-dock {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .ambient-orb {
+    filter: blur(18px) !important;
+    will-change: transform, opacity;
+  }
+
+}
+
+@media (hover: none), (pointer: coarse) {
+  .crop-card:hover,
+  .stock-card:hover,
+  .upgrade-card:hover,
+  .contract-card:hover,
+  .nav-tab:hover,
+  .office-tab:hover,
+  .evolution-tab:hover,
+  .button:hover {
+    transform: none !important;
+  }
+}
+
+/* ========================================================================== */
+/* Versão 1.0.1 — reorganização de Escritório e Perfil                       */
+/* ========================================================================== */
+
+.profile-nav-tab .nav-tab-icon img {
+  object-fit: contain !important;
+}
+
+.profile-workspace,
+#officeView .office-workspace {
+  min-width: 0;
+  width: 100%;
+}
+
+.profile-panel,
+.office-evolutions-panel {
+  min-width: 0;
+  width: 100%;
+}
+
+.profile-panel[hidden] {
+  display: none !important;
+}
+
+.profile-panel.active {
+  display: block;
+}
+
+.profile-account-panel {
+  padding: 12px 14px 20px;
+}
+
+.profile-account-panel .account-settings-card {
+  margin: 0;
+  max-width: none;
+  width: 100%;
+}
+
+.prestige-profile-panel .prestige-hero {
+  flex: 0 0 auto;
+}
+
+.prestige-profile-panel .prestige-panel-heading {
+  margin-bottom: 15px;
+}
+
+.settings-grid-single {
+  grid-template-columns: minmax(0, 1fr) !important;
+  max-width: 980px;
+}
+
+.settings-grid-single .experience-settings-card {
+  width: 100%;
+}
+
+[data-context-for="officeView"] .office-tabs {
+  --context-count: 3;
+}
+
+[data-context-for="profileView"] .profile-tabs {
+  --context-count: 4;
+}
+
+@media (max-width: 1024px) {
+  .navigation-stack > [data-context-for="officeView"] .office-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .navigation-stack > [data-context-for="profileView"] .profile-tabs {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  #officeView .upgrade-grid,
+  #profileView .upgrade-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #officeView .upgrade-grid,
+  #profileView .upgrade-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .profile-account-panel {
+    padding: 10px;
+  }
+}
+
+
+/* Ajustes finais da navegação 1.0.1 — hierarquia Perfil e Escritório. */
+#officeView .office-evolutions-panel.evolution-panel,
+#profileView .prestige-profile-panel.evolution-panel {
+  display: none;
+}
+
+#officeView .office-evolutions-panel.evolution-panel.active,
+#profileView .prestige-profile-panel.evolution-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+#profileView .profile-panel:not(.active),
+#officeView .office-panel:not(.active) {
+  display: none !important;
+}
+
+#profileView .profile-panel.active,
+#officeView .office-panel.active {
+  display: flex;
+  flex-direction: column;
+}
+
+#profileView .profile-account-panel.active {
+  display: block;
+}
+
+#officeView .office-evolutions-panel .upgrade-grid,
+#profileView .prestige-profile-panel .upgrade-grid {
+  width: 100%;
+}
+
+/* ========================================================================== */
+/* Versão 1.0.1 — revisão de Perfil, Configurações e Prestígio */
+/* ========================================================================== */
+
+.profile-nav-tab .nav-tab-icon img {
+  height: 24px !important;
+  width: 24px !important;
+}
+
+.player-profile-form[hidden] {
+  display: none !important;
+}
+
+.account-insights {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+  min-width: 0;
+}
+
+.account-ranking-section,
+.account-statistics-section {
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid rgba(72, 111, 67, .11);
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.account-statistics-heading {
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+}
+
+.account-stats-content {
+  display: grid;
+  gap: 16px;
+}
+
+[data-context-for="profileView"] .profile-tabs {
+  --context-count: 4;
+}
+
+.settings-grid-reworked {
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.settings-grid-reworked > .settings-card {
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0;
+  width: 100% !important;
+}
+
+.settings-grid-reworked .audio-settings-card,
+.settings-grid-reworked .experience-settings-card {
+  align-content: start;
+  display: grid;
+  gap: 14px;
+}
+
+.settings-grid-reworked .settings-guide-full {
+  grid-column: 1 / -1;
+}
+
+/* Em tablets, cada legado vira uma faixa horizontal compacta. Isso elimina os
+   cards altos gerados pela antiga grade de duas colunas. */
+@media (max-width: 1024px) {
+  #profileView .prestige-grid {
+    grid-auto-rows: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  #profileView .prestige-grid .redesigned-evolution-card {
+    align-items: center !important;
+    display: grid !important;
+    gap: 8px 14px !important;
+    grid-template-areas:
+      "identity description badge"
+      "identity description action" !important;
+    grid-template-columns: minmax(210px, .85fr) minmax(0, 1.45fr) minmax(150px, auto) !important;
+    min-height: 0 !important;
+    padding: 12px 13px !important;
+  }
+
+  #profileView .prestige-grid .upgrade-card-identity {
+    grid-area: identity;
+    min-height: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #profileView .prestige-grid .upgrade-description {
+    align-self: center !important;
+    grid-area: description;
+    margin: 0 !important;
+  }
+
+  #profileView .prestige-grid .upgrade-level-badge {
+    grid-area: badge;
+    justify-self: stretch;
+    position: static !important;
+    white-space: nowrap;
+  }
+
+  #profileView .prestige-grid .button {
+    grid-area: action;
+    margin: 0 !important;
+    min-width: 150px;
+    width: 100% !important;
+  }
+
+  .navigation-stack > [data-context-for="profileView"] .profile-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+}
+
+@media (max-width: 768px) {
+  .settings-grid-reworked {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .settings-grid-reworked .settings-guide-full {
+    grid-column: 1;
+  }
+
+  .account-ranking-section,
+  .account-statistics-section {
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  #profileView .prestige-grid .redesigned-evolution-card {
+    align-items: start !important;
+    gap: 8px 10px !important;
+    grid-template-areas:
+      "identity badge"
+      "description description"
+      "action action" !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    padding: 11px !important;
+  }
+
+  #profileView .prestige-grid .upgrade-card-identity .upgrade-icon {
+    height: 38px !important;
+    width: 38px !important;
+  }
+
+  #profileView .prestige-grid .upgrade-card-identity h3 {
+    font-size: .82rem !important;
+  }
+
+  #profileView .prestige-grid .upgrade-description {
+    font-size: .69rem !important;
+    line-height: 1.38 !important;
+  }
+
+  #profileView .prestige-grid .button {
+    min-height: 36px !important;
+    min-width: 0;
+  }
+}
+
+/* ========================================================================== */
+/* Versão 1.0.1 — Configurações, amizades e bloqueios contextuais              */
+/* ========================================================================== */
+
+/* Configurações: a view e seus pais passam a controlar a largura, enquanto os
+   cartões internos apenas preenchem o espaço disponível. */
+#settingsView {
+  min-width: 0 !important;
+  overflow: visible !important;
+  width: 100% !important;
+}
+
+#settingsView > .section-heading {
+  align-items: end;
+  margin-bottom: 18px !important;
+  width: 100%;
+}
+
+#settingsView .settings-grid-reworked {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-grid-reworked > .settings-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(241,247,238,.92)) !important;
+  border: 1px solid rgba(72,111,67,.14) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 14px 34px rgba(54,82,51,.08) !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-card-head {
+  background: linear-gradient(135deg, rgba(111,164,94,.11), rgba(255,255,255,.4));
+  border-bottom: 1px solid rgba(72,111,67,.1);
+  display: block;
+  min-width: 0;
+  padding: 20px 21px 17px;
+}
+
+#settingsView .settings-card-head h2 {
+  color: var(--ink);
+  font-size: 1.18rem;
+  letter-spacing: -.045em;
+  margin: 3px 0 5px !important;
+}
+
+#settingsView .settings-card-head > div > p:last-child {
+  color: var(--ink-soft);
+  font-size: .72rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 52ch;
+}
+
+#settingsView .settings-card-body {
+  align-content: start;
+  display: grid;
+  gap: 11px;
+  min-width: 0;
+  padding: 16px;
+}
+
+#settingsView .settings-card-body > .setting-row,
+#settingsView .settings-card-body > .range-setting {
+  align-items: center;
+  background: rgba(255,255,255,.76);
+  border: 1px solid rgba(72,111,67,.1);
+  border-radius: 14px;
+  display: grid;
+  gap: 12px;
+  margin: 0 !important;
+  min-width: 0;
+  padding: 13px 14px !important;
+  width: 100%;
+}
+
+#settingsView .settings-card-body > .setting-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+#settingsView .settings-card-body > .range-setting {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#settingsView .settings-card-body .setting-row > span,
+#settingsView .settings-card-body .range-setting > span {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+#settingsView .settings-card-body strong {
+  color: var(--ink);
+  font-size: .79rem;
+}
+
+#settingsView .settings-card-body small {
+  color: var(--ink-soft);
+  font-size: .64rem;
+  line-height: 1.4;
+}
+
+#settingsView .settings-card-body select {
+  max-width: 100%;
+  min-width: 170px;
+}
+
+#settingsView .settings-card-body input[type="range"] {
+  margin: 1px 0 0;
+  width: 100%;
+}
+
+#settingsView .settings-guide-full {
+  grid-column: 1 / -1 !important;
+}
+
+#settingsView .settings-guide-card .guide-heading {
+  align-items: end;
+  background: linear-gradient(135deg, rgba(111,164,94,.11), rgba(255,255,255,.4));
+  border-bottom: 1px solid rgba(72,111,67,.1);
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin: 0 !important;
+  padding: 20px 21px 17px;
+}
+
+#settingsView .settings-guide-card .guide-heading > p {
+  color: var(--ink-soft);
+  font-size: .72rem;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 58ch;
+}
+
+#settingsView .settings-guide-card .guide-sections {
+  display: grid !important;
+  gap: 10px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  padding: 16px !important;
+}
+
+#settingsView .settings-guide-card .guide-sections > section {
+  align-items: start;
+  background: rgba(255,255,255,.76);
+  border: 1px solid rgba(72,111,67,.1);
+  border-radius: 14px;
+  display: grid !important;
+  gap: 10px;
+  grid-template-columns: auto minmax(0,1fr);
+  margin: 0 !important;
+  min-width: 0;
+  padding: 13px !important;
+}
+
+#settingsView .settings-guide-card .guide-sections > section > span {
+  align-items: center;
+  background: rgba(95,149,86,.12);
+  border-radius: 10px;
+  color: var(--green-deep);
+  display: inline-flex;
+  font-size: .62rem;
+  font-weight: 950;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+#settingsView .settings-guide-card .guide-sections h3 {
+  font-size: .78rem;
+  margin: 0 0 4px;
+}
+
+#settingsView .settings-guide-card .guide-sections p {
+  color: var(--ink-soft);
+  font-size: .65rem;
+  line-height: 1.48;
+  margin: 0;
+}
+
+/* O cadeado dos tabs secundários substitui o ícone do recurso. */
+.context-tabs .office-tab.feature-preview::after,
+.context-tabs .evolution-tab.feature-preview::after {
+  display: none !important;
+}
+
+.context-tabs .office-tab.feature-preview i,
+.context-tabs .evolution-tab.feature-preview i {
+  background-color: rgba(255,255,255,.84) !important;
+  background-image: url("../assets/icons/cadeado.webp") !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: 68% 68% !important;
+}
+
+.context-tabs .office-tab.feature-preview i img,
+.context-tabs .evolution-tab.feature-preview i img {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.context-tabs .office-tab.feature-preview.active i,
+.context-tabs .evolution-tab.feature-preview.active i {
+  background-color: rgba(255,255,255,.9) !important;
+}
+
+/* Perfil social e amizades. */
+[data-context-for="profileView"] .profile-tabs {
+  --context-count: 4 !important;
+}
+
+.friends-profile-panel {
+  min-width: 0;
+  padding: 12px 14px 20px;
+  width: 100%;
+}
+
+.friends-panel-heading {
+  align-items: center;
+}
+
+.friends-content {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+}
+
+.friends-refresh-button {
+  flex: 0 0 auto;
+}
+
+.friends-access-card {
+  align-items: center;
+  display: grid !important;
+  gap: 17px;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 19px !important;
+  width: 100% !important;
+}
+
+.friends-access-card > img {
+  height: 54px;
+  object-fit: contain;
+  width: 54px;
+}
+
+.friends-access-card h3,
+.friend-code-card h3,
+.friend-search-card h3,
+.friends-future-card h3 {
+  font-size: .94rem;
+  letter-spacing: -.025em;
+  margin: 3px 0 5px;
+}
+
+.friends-access-card p:last-child,
+.friend-code-card > div:first-child > p:last-child,
+.friend-search-card > div:first-child > p:last-child,
+.friends-future-card p:last-child {
+  color: var(--ink-soft);
+  font-size: .69rem;
+  line-height: 1.48;
+  margin: 0;
+}
+
+.friends-loading {
+  align-items: center;
+  color: var(--ink-soft);
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  min-height: 150px;
+}
+
+.friends-loading span {
+  animation: friends-spin .8s linear infinite;
+  border: 3px solid rgba(82,126,76,.15);
+  border-radius: 50%;
+  border-top-color: var(--green);
+  height: 27px;
+  width: 27px;
+}
+
+@keyframes friends-spin { to { transform: rotate(360deg); } }
+
+.friends-command-grid {
+  display: grid;
+  gap: 13px;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  min-width: 0;
+}
+
+.friend-code-card,
+.friend-search-card {
+  display: grid !important;
+  gap: 14px;
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 18px !important;
+  width: 100% !important;
+}
+
+.friend-code-control {
+  align-items: stretch;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0,1fr) auto;
+}
+
+.friend-code-control code {
+  align-items: center;
+  background: rgba(57,91,55,.06);
+  border: 1px dashed rgba(57,91,55,.23);
+  border-radius: 11px;
+  color: var(--green-deep);
+  display: flex;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: .66rem;
+  font-weight: 800;
+  min-height: 41px;
+  overflow: hidden;
+  padding: 8px 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-request-form {
+  display: grid;
+  gap: 6px;
+}
+
+.friend-request-form > label {
+  color: var(--ink-soft);
+  font-size: .65rem;
+  font-weight: 850;
+}
+
+.friend-request-form > div {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0,1fr) auto;
+}
+
+.friend-request-form input {
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(72,111,67,.16);
+  border-radius: 11px;
+  color: var(--ink);
+  min-height: 41px;
+  min-width: 0;
+  outline: none;
+  padding: 0 11px;
+  width: 100%;
+}
+
+.friend-request-form input:focus {
+  border-color: rgba(59,119,58,.55);
+  box-shadow: 0 0 0 3px rgba(73,133,66,.1);
+}
+
+.friends-feedback {
+  border-radius: 10px;
+  color: var(--ink-soft);
+  font-size: .65rem;
+  font-weight: 800;
+  min-height: 0;
+}
+
+.friends-feedback:not(:empty) {
+  background: rgba(91,150,78,.08);
+  border: 1px solid rgba(91,150,78,.12);
+  padding: 8px 10px;
+}
+
+.friends-feedback[data-type="error"] {
+  background: rgba(177,72,72,.08);
+  border-color: rgba(177,72,72,.16);
+  color: #8d3e3e;
+}
+
+.friends-lists-grid {
+  display: grid;
+  gap: 13px;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  min-width: 0;
+}
+
+.friends-list-section {
+  background: rgba(255,255,255,.83);
+  border: 1px solid rgba(72,111,67,.12);
+  border-radius: 17px;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 13px;
+}
+
+.friends-list-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.friends-list-heading h3 {
+  font-size: .79rem;
+  margin: 2px 0 0;
+}
+
+.friends-list-heading > span {
+  align-items: center;
+  background: rgba(95,149,86,.12);
+  border-radius: 999px;
+  color: var(--green-deep);
+  display: inline-flex;
+  font-size: .65rem;
+  font-weight: 900;
+  height: 26px;
+  justify-content: center;
+  min-width: 26px;
+  padding: 0 8px;
+}
+
+.friends-list {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.friend-card {
+  align-items: center;
+  background: rgba(247,250,245,.92);
+  border: 1px solid rgba(72,111,67,.09);
+  border-radius: 13px;
+  display: grid;
+  gap: 9px;
+  grid-template-columns: auto minmax(0,1fr);
+  min-width: 0;
+  padding: 9px;
+}
+
+.friend-avatar {
+  background: rgba(255,255,255,.9);
+  border: 1px solid rgba(72,111,67,.1);
+  border-radius: 12px;
+  height: 43px;
+  object-fit: contain;
+  padding: 3px;
+  width: 43px;
+}
+
+.friend-card-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.friend-card-copy strong {
+  font-size: .72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-card-copy small {
+  color: var(--ink-soft);
+  font-size: .58rem;
+}
+
+.friend-card-copy code {
+  color: #64736a;
+  font-size: .52rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friend-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+}
+
+.compact-friend-button {
+  min-height: 32px !important;
+  padding: 0 10px !important;
+}
+
+.friends-empty-state {
+  align-items: center;
+  color: var(--ink-soft);
+  display: flex;
+  font-size: .64rem;
+  justify-content: center;
+  min-height: 72px;
+  padding: 10px;
+  text-align: center;
+}
+
+.friends-future-card {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(99,147,86,.12), rgba(255,255,255,.8));
+  border: 1px solid rgba(72,111,67,.12);
+  border-radius: 17px;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: auto minmax(0,1fr);
+  padding: 15px 17px;
+}
+
+.friends-future-card > img {
+  height: 44px;
+  object-fit: contain;
+  width: 44px;
+}
+
+@media (max-width: 1024px) {
+  #settingsView .settings-grid-reworked {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+
+  #settingsView .settings-guide-full {
+    grid-column: 1 !important;
+  }
+
+  #settingsView .settings-guide-card .guide-sections {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  }
+
+  .navigation-stack > [data-context-for="profileView"] .profile-tabs {
+    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+  }
+
+  .friends-lists-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .friends-list-section:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  #settingsView > .section-heading {
+    margin-bottom: 13px !important;
+  }
+
+  #settingsView .settings-grid-reworked {
+    gap: 13px !important;
+  }
+
+  #settingsView .settings-card-head,
+  #settingsView .settings-guide-card .guide-heading {
+    padding: 16px 15px 14px;
+  }
+
+  #settingsView .settings-guide-card .guide-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  #settingsView .settings-card-body,
+  #settingsView .settings-guide-card .guide-sections {
+    padding: 11px !important;
+  }
+
+  #settingsView .settings-card-body > .setting-row,
+  #settingsView .settings-card-body > .range-setting {
+    padding: 11px !important;
+  }
+
+  #settingsView .settings-card-body > .setting-row {
+    align-items: stretch;
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  #settingsView .settings-card-body select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #settingsView .settings-guide-card .guide-sections {
+    grid-template-columns: minmax(0,1fr) !important;
+  }
+
+  .friends-profile-panel {
+    padding: 9px;
+  }
+
+  .friends-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .friends-command-grid,
+  .friends-lists-grid {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .friends-list-section:nth-child(3) {
+    grid-column: auto;
+  }
+
+  .friends-access-card {
+    align-items: start;
+    grid-template-columns: auto minmax(0,1fr);
+    padding: 14px !important;
+  }
+
+  .friends-access-card > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .friend-code-control,
+  .friend-request-form > div {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .friend-code-control .button,
+  .friend-request-form .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  #settingsView .settings-grid-reworked > .settings-card {
+    border-radius: 16px !important;
+  }
+
+  #settingsView .settings-card-head h2 {
+    font-size: 1.04rem;
+  }
+
+  .friends-content {
+    gap: 11px;
+  }
+
+  .friend-code-card,
+  .friend-search-card {
+    padding: 13px !important;
+  }
+
+  .friends-future-card {
+    align-items: start;
+    padding: 13px;
+  }
+}
+
+/* Pontos configuráveis usados em textos do catálogo: [[chave]] e [[chave.valor]]. */
+.inline-point-token {
+  align-items: center;
+  display: inline-flex;
+  gap: .28em;
+  line-height: 1;
+  margin-inline: .08em;
+  vertical-align: -.12em;
+  white-space: nowrap;
+}
+.inline-point-token img {
+  height: 1.15em;
+  object-fit: contain;
+  width: 1.15em;
+}
+.inline-point-token b { font: inherit; font-weight: 850; }

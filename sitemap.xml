@@ -10,4 +10,15 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://fazenda-serena.web.app/tutorial.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://fazenda-serena.web.app/terms.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url><loc>https://fazenda-serena.web.app/noticias.html</loc></url>
 </urlset>

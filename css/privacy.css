@@ -171,3 +171,10 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(108, 168, 92, .3
   .privacy-index nav { grid-template-columns: 1fr; }
   .privacy-footer { align-items: flex-start; flex-direction: column; }
 }
+
+/* Legibilidade alinhada ao jogo 1.0.1 */
+html { font-size: 17.5px; }
+.privacy-brand small, .privacy-eyebrow, .privacy-updated, .privacy-index a,
+.privacy-section p, .privacy-section li, .privacy-callout, .privacy-action, .privacy-footer,
+.back-to-game { font-size: max(.78rem, 13px); }
+.privacy-section h3 { font-size: max(.92rem, 15px); }

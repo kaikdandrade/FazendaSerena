@@ -11,6 +11,7 @@
       "README.md",
       "CHANGELOG.md",
       "ADSENSE_SETUP.md",
+      "ADMIN_SETUP.md",
       "**/.*",
       "**/node_modules/**"
     ],
@@ -30,6 +31,46 @@
           {
             "key": "Content-Type",
             "value": "text/plain; charset=utf-8"
+          },
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow, noarchive"
+          }
+        ]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=604800, stale-while-revalidate=2592000"
+          }
+        ]
+      },
+      {
+        "source": "/js/publicCloud.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/js/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/css/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
           }
         ]
       },
@@ -49,6 +90,52 @@
             "value": "camera=(), microphone=(), geolocation=()"
           }
         ]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public,max-age=604800,stale-while-revalidate=2592000"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "/sw.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store"
+          }
+        ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/administrador",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/administrador/**",
+        "destination": "/admin.html"
       }
     ]
   }

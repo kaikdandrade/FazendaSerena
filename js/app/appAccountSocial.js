@@ -1,0 +1,364 @@
+"use strict";
+  function cloneState(state) {
+    return JSON.parse(JSON.stringify(state || {}));
+  }
+
+
+  function formatCloudTime(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  }
+
+  function setCloudSaveStatus(status, detail = {}) {
+    if (!dom.cloudSaveStatus) return;
+
+    if (status === "saving") {
+      dom.cloudSaveStatus.textContent = "Salvando automaticamente na nuvem...";
+      return;
+    }
+    if (status === "saved") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveStatus.textContent = time
+        ? `Progresso salvo automaticamente às ${time}.`
+        : "Progresso salvo automaticamente.";
+      return;
+    }
+    if (status === "loading") {
+      dom.cloudSaveStatus.textContent = "Carregando o progresso da sua conta...";
+      return;
+    }
+    if (status === "loaded") {
+      const time = formatCloudTime(detail.savedAt);
+      dom.cloudSaveStatus.textContent = time
+        ? `Progresso carregado. Última gravação: ${time}.`
+        : "Progresso carregado da sua conta.";
+      return;
+    }
+    if (status === "empty") {
+      dom.cloudSaveStatus.textContent = "Esta conta ainda não possui progresso; a sessão atual será salva automaticamente.";
+      return;
+    }
+    if (status === "error") {
+      dom.cloudSaveStatus.textContent = window.FirebaseManager.getFriendlyError(detail.error);
+      return;
+    }
+
+    dom.cloudSaveStatus.textContent = window.FirebaseManager.isAvailable()
+      ? "Entre com o Google para manter o progresso entre sessões."
+      : "O serviço de nuvem não pôde ser carregado. A sessão continuará como visitante.";
+  }
+
+  function updateAccountUI(user = window.FirebaseManager.getUser()) {
+    const signedIn = Boolean(user);
+    const firebaseAvailable = window.FirebaseManager.isAvailable();
+    const storedNickname = sanitizeNickname(engine?.state?.settings?.playerNickname);
+    const storedAvatarId = getAvatarEntry(engine?.state?.settings?.playerAvatar)?.id || "";
+    const profileComplete = signedIn && hasCompletePlayerProfile();
+    const rankingOptOut = Boolean(engine?.state?.settings?.playerRankingOptOut);
+    const profileDirty = dom.playerProfileForm?.dataset.dirty === "true";
+
+    if (dom.playerProfileForm) {
+      dom.playerProfileForm.hidden = !signedIn;
+      dom.playerProfileForm.setAttribute("aria-hidden", String(!signedIn));
+    }
+
+    if (dom.accountName) {
+      dom.accountName.textContent = signedIn
+        ? (storedNickname || user.displayName || user.email || "Jogador")
+        : "Visitante";
+    }
+
+    if (dom.accountEmail) {
+      dom.accountEmail.textContent = signedIn
+        ? (user.email || "Conta Google conectada")
+        : "Conta não conectada";
+    }
+    if (dom.accountDescription) {
+      dom.accountDescription.textContent = signedIn
+        ? "Seu progresso é privado e salvo automaticamente na nuvem."
+        : "Seu progresso existe somente nesta sessão e será perdido ao recarregar a página.";
+    }
+
+    if (dom.accountAvatar) {
+      const gameAvatar = getAvatarEntry(storedAvatarId);
+      const googlePhoto = signedIn && /^https:\/\//i.test(String(user.photoURL || "")) ? user.photoURL : "";
+      dom.accountAvatar.src = gameAvatar?.src || googlePhoto || "assets/logo.webp";
+      dom.accountAvatar.alt = gameAvatar
+        ? `Avatar selecionado: ${gameAvatar.label}`
+        : signedIn ? `Foto de ${user.displayName || "jogador"}` : "";
+      dom.accountAvatar.classList.toggle("google-avatar", Boolean(!gameAvatar && googlePhoto));
+      dom.accountAvatar.classList.toggle("game-avatar", Boolean(gameAvatar));
+    }
+
+    if (dom.googleSignIn) {
+      dom.googleSignIn.hidden = signedIn;
+      dom.googleSignIn.disabled = !firebaseAvailable;
+    }
+    if (dom.googleSignOut) {
+      dom.googleSignOut.hidden = !signedIn;
+      dom.googleSignOut.disabled = false;
+    }
+    if (dom.resetProgressButton) {
+      dom.resetProgressButton.hidden = !signedIn;
+      dom.resetProgressButton.disabled = false;
+    }
+
+    if (dom.rankingProfileLaunch) dom.rankingProfileLaunch.hidden = !signedIn;
+    if (dom.openRankingProfileButton) {
+      dom.openRankingProfileButton.disabled = !signedIn;
+      dom.openRankingProfileButton.textContent = profileComplete ? "Editar perfil do ranking" : "Configurar perfil do ranking";
+    }
+    if (!signedIn && dom.rankingProfileDialog?.open) dom.rankingProfileDialog.close("signed-out");
+
+    if (!profileDirty) {
+      const googleSuggestion = signedIn ? sanitizeNickname(user.displayName || "") : "";
+      if (dom.playerNicknameSetting) dom.playerNicknameSetting.value = storedNickname || (googleSuggestion.length >= 4 ? googleSuggestion : "");
+      if (dom.playerAvatarSetting) dom.playerAvatarSetting.value = storedAvatarId;
+      if (dom.playerRankingOptOut) dom.playerRankingOptOut.checked = rankingOptOut;
+      setProfileFeedback("");
+    }
+
+    const selectedAvatarId = dom.playerAvatarSetting?.value || storedAvatarId;
+    renderAvatarPicker(selectedAvatarId, !signedIn);
+    if (dom.playerNicknameSetting) {
+      dom.playerNicknameSetting.disabled = !signedIn;
+      dom.playerNicknameSetting.placeholder = signedIn ? "Seu apelido no ranking" : "Entre com o Google para definir";
+    }
+    if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = !signedIn;
+    if (dom.playerRankingOptOut) dom.playerRankingOptOut.disabled = !signedIn;
+    if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = !signedIn;
+    if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = !signedIn;
+    if (!signedIn && dom.avatarPickerPanel) {
+      dom.avatarPickerPanel.hidden = true;
+      dom.toggleAvatarPicker?.setAttribute("aria-expanded", "false");
+    }
+
+    if (!signedIn) setCloudSaveStatus("guest");
+  }
+
+  function resetFriendsState() {
+    friendsState = { status: "idle", selfProfile: null, friends: [], incoming: [], outgoing: [], error: null, loadedAt: 0 };
+    friendsRequest = null;
+    if (dom.friendsTabCount) {
+      dom.friendsTabCount.textContent = "0";
+      dom.friendsTabCount.hidden = true;
+    }
+  }
+
+  function getFriendProfilePresentation(profile) {
+    const avatar = getAvatarEntry(profile?.avatarId);
+    return {
+      name: sanitizeNickname(profile?.displayName) || "Perfil indisponível",
+      avatarSrc: avatar?.src || "assets/logo.webp",
+      avatarAlt: avatar ? `Avatar de ${sanitizeNickname(profile?.displayName) || "jogador"}` : ""
+    };
+  }
+
+  function setFriendsFeedback(message = "", type = "", targetId = "friendsFeedback") {
+    const feedback = $(`#${targetId}`, dom.friendsContent || document);
+    if (!feedback) return;
+    feedback.textContent = message;
+    feedback.dataset.type = type;
+  }
+
+  function friendRelationshipCard(item, mode) {
+    const profile = getFriendProfilePresentation(item?.profile);
+    const relationshipId = escapeHtml(item?.id || "");
+    const friendCode = escapeHtml(item?.profile?.friendCode || item?.friendUid || "");
+    let actions = "";
+    let status = "Amigo da sua fazenda";
+
+    if (mode === "incoming") {
+      status = "Quer adicionar você";
+      actions = `<button class="button primary compact-friend-button" data-action="accept-friend" data-friendship-id="${relationshipId}" type="button">Aceitar</button><button class="button secondary compact-friend-button" data-action="reject-friend" data-friendship-id="${relationshipId}" type="button">Recusar</button>`;
+    } else if (mode === "outgoing") {
+      status = "Solicitação enviada";
+      actions = `<button class="button secondary compact-friend-button" data-action="cancel-friend-request" data-friendship-id="${relationshipId}" type="button">Cancelar</button>`;
+    } else {
+      actions = `<button class="button secondary compact-friend-button" data-action="remove-friend" data-friendship-id="${relationshipId}" type="button">Remover</button>`;
+    }
+
+    return `<article class="friend-card" data-friend-mode="${mode}">
+      <img class="friend-avatar" src="${escapeHtml(profile.avatarSrc)}" alt="${escapeHtml(profile.avatarAlt)}" loading="lazy">
+      <div class="friend-card-copy"><strong>${escapeHtml(profile.name)}</strong><small>${escapeHtml(status)}</small>${friendCode ? `<code title="Código de amizade">${friendCode}</code>` : ""}</div>
+      <div class="friend-card-actions">${actions}</div>
+    </article>`;
+  }
+
+  function friendsCollection(title, eyebrow, items, mode, emptyMessage) {
+    return `<section class="friends-list-section friends-list-${mode}">
+      <div class="friends-list-heading"><div><p class="eyebrow">${escapeHtml(eyebrow)}</p><h3>${escapeHtml(title)}</h3></div><span>${items.length}</span></div>
+      <div class="friends-list">${items.length ? items.map(item => friendRelationshipCard(item, mode)).join("") : `<div class="friends-empty-state">${escapeHtml(emptyMessage)}</div>`}</div>
+    </section>`;
+  }
+
+  function renderFriends() {
+    if (!dom.friendsContent) return;
+    const user = window.FirebaseManager.getUser();
+    const incomingCount = friendsState.incoming?.length || 0;
+    if (dom.friendsTabCount) {
+      dom.friendsTabCount.textContent = String(incomingCount);
+      dom.friendsTabCount.hidden = incomingCount < 1;
+    }
+
+    if (!user) {
+      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/logo-google.webp" alt=""><div><p class="eyebrow">conta necessária</p><h3>Entre para encontrar seus amigos</h3><p>As amizades pertencem à sua conta do Firebase e ficam disponíveis em qualquer dispositivo.</p></div><button class="button primary" data-action="friends-sign-in" type="button">Entrar com o Google</button></article>`;
+      return;
+    }
+
+    if (friendsState.status === "loading") {
+      dom.friendsContent.innerHTML = `<div class="friends-loading"><span aria-hidden="true"></span><strong>Carregando suas conexões...</strong></div>`;
+      return;
+    }
+
+    if (friendsState.status === "error") {
+      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/social.webp" alt=""><div><p class="eyebrow">não foi possível carregar</p><h3>Suas amizades estão temporariamente indisponíveis</h3><p>${escapeHtml(window.FirebaseManager.getFriendlyError(friendsState.error))}</p></div><button class="button secondary" data-action="refresh-friends" type="button">Tentar novamente</button></article>`;
+      return;
+    }
+
+    if (!friendsState.selfProfile) {
+      dom.friendsContent.innerHTML = `<article class="friends-access-card panel-card"><img src="assets/icons/social.webp" alt=""><div><p class="eyebrow">perfil incompleto</p><h3>Configure apelido e avatar primeiro</h3><p>Seu perfil do ranking identifica você nas solicitações e nas futuras disputas entre amigos.</p></div><button class="button primary" data-action="open-account-profile" type="button">Abrir Minha Conta</button></article>`;
+      return;
+    }
+
+    const code = escapeHtml(friendsState.selfProfile.friendCode || user.uid);
+    dom.friendsContent.innerHTML = `
+      <section class="friends-command-grid">
+        <article class="friend-code-card panel-card">
+          <div><p class="eyebrow">seu código de amizade</p><h3>Compartilhe para ser encontrado</h3><p>Este identificador é público e serve somente para localizar sua fazenda.</p></div>
+          <div class="friend-code-control"><code id="currentFriendCode">${code}</code><button class="button secondary" data-action="copy-friend-code" type="button">Copiar código</button></div>
+          <div aria-live="polite" class="friends-feedback" id="friendCodeFeedback"></div>
+        </article>
+        <article class="friend-search-card panel-card">
+          <div><p class="eyebrow">adicionar jogador</p><h3>Enviar solicitação</h3><p>Cole o código de amizade recebido de outro jogador.</p></div>
+          <form class="friend-request-form" id="friendRequestForm"><label for="friendCodeInput">Código de amizade</label><div><input autocomplete="off" id="friendCodeInput" maxlength="128" placeholder="Cole o código aqui" required type="text"><button class="button primary" type="submit">Adicionar</button></div></form>
+          <div aria-live="polite" class="friends-feedback" id="friendsFeedback"></div>
+        </article>
+      </section>
+      <div class="friends-lists-grid">
+        ${friendsCollection("Fazendas conectadas", "suas amizades", friendsState.friends || [], "accepted", runtimeText("emptyFriends", "Sua lista de amigos ainda está vazia."))}
+        ${friendsCollection("Solicitações recebidas", "aguardando sua decisão", friendsState.incoming || [], "incoming", runtimeText("emptyIncomingFriends", "Nenhuma solicitação recebida."))}
+        ${friendsCollection("Solicitações enviadas", "aguardando resposta", friendsState.outgoing || [], "outgoing", runtimeText("emptyOutgoingFriends", "Nenhuma solicitação enviada."))}
+      </div>
+      <article class="friends-future-card"><img src="assets/icons/coroa.webp" alt=""><div><p class="eyebrow">próximos recursos</p><h3>Eventos e disputas entre amigos</h3><p>A lista de amizades já está preparada para receber desafios por tempo, comparações de contratos e eventos cooperativos em versões futuras.</p></div></article>`;
+  }
+
+  async function refreshFriends(force = false) {
+    if (!window.FirebaseManager.isAuthenticated()) {
+      resetFriendsState();
+      renderFriends();
+      return null;
+    }
+    const fresh = friendsState.status === "ready" && Date.now() - friendsState.loadedAt < 30000;
+    // Não recrie o formulário enquanto o usuário digita. O loop principal
+    // consulta refreshFriends(false) quando o Social está aberto; se o estado
+    // ainda estiver fresco, o DOM atual já representa exatamente esse estado.
+    if (!force && fresh) return friendsState;
+    if (friendsRequest) return friendsRequest;
+
+    friendsState = { ...friendsState, status: "loading", error: null };
+    renderFriends();
+    friendsRequest = window.FirebaseManager.loadFriendships()
+      .then(result => {
+        friendsState = { status: "ready", ...result, error: null, loadedAt: Date.now() };
+        renderFriends();
+        return friendsState;
+      })
+      .catch(error => {
+        friendsState = { ...friendsState, status: "error", error, loadedAt: Date.now() };
+        renderFriends();
+        return friendsState;
+      })
+      .finally(() => { friendsRequest = null; });
+    return friendsRequest;
+  }
+
+  async function handleFriendRelationshipAction(action, friendshipId) {
+    if (!friendshipId) return;
+    setFriendsFeedback("Atualizando amizade...", "pending");
+    try {
+      if (action === "accept-friend") await window.FirebaseManager.acceptFriendRequest(friendshipId);
+      else await window.FirebaseManager.deleteFriendship(friendshipId);
+      await refreshFriends(true);
+    } catch (error) {
+      setFriendsFeedback(window.FirebaseManager.getFriendlyError(error), "error");
+    }
+  }
+
+  function setAuthBusy(busy) {
+    const profileDisabled = busy || !window.FirebaseManager.isAuthenticated();
+    if (dom.googleSignIn) dom.googleSignIn.disabled = busy || !window.FirebaseManager.isAvailable();
+    if (dom.googleSignOut) dom.googleSignOut.disabled = busy;
+    if (dom.resetProgressButton) dom.resetProgressButton.disabled = busy;
+    if (dom.openRankingProfileButton) dom.openRankingProfileButton.disabled = profileDisabled;
+    if (dom.playerNicknameSetting) dom.playerNicknameSetting.disabled = profileDisabled;
+    if (dom.playerAvatarSetting) dom.playerAvatarSetting.disabled = profileDisabled;
+    if (dom.playerRankingOptOut) dom.playerRankingOptOut.disabled = profileDisabled;
+    if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.disabled = profileDisabled;
+    if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
+    $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
+  }
+
+  async function applyAuthenticatedUser(user, authError = null) {
+    const nextUid = user?.uid || null;
+    if (!engine) {
+      currentAuthUid = nextUid;
+      updateAccountUI(user);
+      if (authError) setCloudSaveStatus("error", { error: authError });
+      return;
+    }
+
+    if (nextUid === currentAuthUid) {
+      updateAccountUI(user);
+      if (authError) setCloudSaveStatus("error", { error: authError });
+      return;
+    }
+
+    const previousUid = currentAuthUid;
+    const guestState = previousUid ? null : cloneState(engine.state);
+    if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "false";
+    leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
+    leaderboardRequest = null;
+    resetFriendsState();
+    currentAuthUid = nextUid;
+    setAuthBusy(true);
+
+    try {
+      if (user) {
+        let cloudState = null;
+        let loadFailed = false;
+        try {
+          cloudState = await window.FirebaseManager.loadGame();
+        } catch (error) {
+          loadFailed = true;
+          setCloudSaveStatus("error", { error });
+        }
+
+        if (cloudState) {
+          engine.replaceState(cloudState, { simulateOffline: true });
+        } else if (!loadFailed) {
+          engine.replaceState(guestState, { simulateOffline: false });
+          await engine.save();
+        }
+      } else {
+        engine.replaceState(null, { simulateOffline: false });
+        showView("farmView", false);
+      }
+
+      applySettings();
+      render(true);
+      const offlineReport = engine.consumeOfflineReport?.();
+      if (offlineReport) window.setTimeout(() => showOfflineProgressDialog(offlineReport), 0);
+      if (activeView === "profileView" && activeProfileTab === "social") refreshPrestigeLeaderboard(true);
+      if (user) refreshFriends(false);
+      lastSave = performance.now();
+    } finally {
+      updateAccountUI(user);
+      setAuthBusy(false);
+    }
+  }
+
+  // Navegação, responsividade e configurações.

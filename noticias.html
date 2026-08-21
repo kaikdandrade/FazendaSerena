@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#edf3e9">
+  <meta name="description" content="Notícias e notas de atualização do Fazenda Serena — Agricultura Industrial.">
+  <title>Notícias — Fazenda Serena</title>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin/>
+  <link rel="canonical" href="https://fazenda-serena.web.app/noticias.html">
+  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+<link rel="preload" as="image" href="assets/logo.webp" fetchpriority="high"/>
+  <link rel="stylesheet" href="css/privacy.css?v=r21">
+  <link rel="stylesheet" href="css/noticias.css?v=r21">
+  <script defer src="js/publicCloud.js?v=r21"></script>
+  <script defer src="js/appConfig.js?v=r21"></script>
+  <script defer src="js/cacheManager.js?v=r21"></script>
+  <script defer src="js/noticias.js?v=r21"></script>
+</head>
+<body class="news-page">
+  <main class="news-shell">
+    <header class="news-header">
+      <a class="news-brand" href="index.html" aria-label="Voltar para Fazenda Serena">
+        <img src="assets/logo.webp" alt="" fetchpriority="high" decoding="async">
+        <span><small>Fazenda Serena</small><strong>Notícias</strong></span>
+      </a>
+      <a class="news-back" href="index.html">Voltar ao jogo</a>
+    </header>
+
+    <section class="news-hero">
+      <p class="news-eyebrow">novidades do jogo</p>
+      <h1>Notas de atualização</h1>
+      <p>Acompanhe mudanças, correções e novos recursos publicados no Fazenda Serena.</p>
+      <span class="news-current-version">Versão atual <strong data-app-version>...</strong></span>
+    </section>
+
+    <section class="news-feed" id="newsFeed" aria-live="polite">
+      <div class="news-state">Carregando notícias...</div>
+    </section>
+  </main>
+
+  <footer class="privacy-footer news-footer">
+    <span>© 2026 Fazenda Serena · Versão <b data-app-version>...</b></span>
+    <span><a href="index.html">Jogar</a> · <a href="tutorial.html">Tutorial</a> · <a href="terms.html">Termos de Uso</a> · <a href="privacy.html">Privacidade</a></span>
+  </footer>
+</body>
+</html>

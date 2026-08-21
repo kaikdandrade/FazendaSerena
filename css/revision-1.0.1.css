@@ -1,0 +1,1856 @@
+/* Fazenda Serena 1.0.1 — revisão Social, Evoluções e layout */
+
+/* Cabeçalhos dos views com navegação contextual são os cabeçalhos dos filhos. */
+#officeView,
+#profileView {
+  padding-top: 0;
+}
+
+#officeView > .office-workspace,
+#profileView > .profile-workspace {
+  margin-top: 0;
+}
+
+/* Cabeçalho: nível e recursos usam a mesma linguagem visual. */
+.app-header > .farm-progress {
+  border-radius: 15px !important;
+  min-height: 48px !important;
+  max-width: 338px !important;
+  padding: 7px 10px !important;
+}
+
+.app-header > .resource-strip .resource-pill {
+  border-radius: 15px !important;
+  min-height: 48px !important;
+}
+
+/* Perfil possui somente Minha Conta, Social e Missões. */
+.navigation-stack > [data-context-for="profileView"] .profile-tabs {
+  --context-count: 3 !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+/* Evoluções agora reúne Pesquisa e Legados permanentes. */
+.evolution-legacy-section {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+  min-width: 0;
+}
+
+.evolution-section-divider {
+  align-items: center;
+  display: flex;
+  min-height: 1px;
+  width: 100%;
+}
+
+.evolution-section-divider > span {
+  background: linear-gradient(90deg, transparent, rgba(73, 111, 67, .2), transparent);
+  display: block;
+  height: 1px;
+  width: 100%;
+}
+
+#officeEvolutionsPanel .prestige-grid {
+  align-items: stretch !important;
+  grid-auto-rows: auto !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card {
+  min-height: 0 !important;
+}
+
+/* Prestigiar passa a ser parte de Minha Conta, depois das estatísticas. */
+.account-prestige-section {
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid rgba(72, 111, 67, .12);
+  border-radius: 18px;
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.account-prestige-section .account-prestige-heading {
+  margin: 0 !important;
+}
+
+.account-prestige-section #prestigeDashboard {
+  margin: 0 !important;
+  width: 100%;
+}
+
+/* Social: conexões ocupam uma linha inteira; solicitações dividem a linha seguinte. */
+.social-profile-panel {
+  min-width: 0;
+  padding: 12px 14px 20px;
+  width: 100%;
+}
+
+.social-profile-panel .friends-content {
+  display: grid;
+  gap: 15px;
+}
+
+.social-profile-panel .friends-lists-grid {
+  display: grid;
+  gap: 13px;
+  grid-template-areas:
+    "accepted accepted"
+    "incoming outgoing";
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.social-profile-panel .friends-list-accepted { grid-area: accepted; }
+.social-profile-panel .friends-list-incoming { grid-area: incoming; }
+.social-profile-panel .friends-list-outgoing { grid-area: outgoing; }
+
+.social-profile-panel .friends-list-accepted .friends-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.social-ranking-section {
+  background: rgba(255, 255, 255, .78);
+  border: 1px solid rgba(72, 111, 67, .12);
+  border-radius: 18px;
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.friend-code-card .friends-feedback {
+  justify-self: stretch;
+  width: 100%;
+}
+
+/* O conteúdo do marco usa toda a largura do modal. */
+.confirmation-dialog-milestone .confirmation-dialog-copy,
+.confirmation-dialog-milestone .milestone-dialog-list,
+.confirmation-dialog-milestone .milestone-dialog-group {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+.confirmation-dialog-milestone .milestone-dialog-list {
+  padding-right: 0 !important;
+}
+
+@media (max-width: 1024px) {
+  .app-header > .farm-progress {
+    max-width: 338px !important;
+    width: calc(100% - 2rem) !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid {
+    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .redesigned-evolution-card {
+    align-content: start !important;
+    display: grid !important;
+    gap: 8px !important;
+    grid-template-areas:
+      "identity badge"
+      "description description"
+      "action action" !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    min-height: 0 !important;
+    padding: 12px !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .upgrade-card-identity {
+    grid-area: identity;
+    min-height: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .upgrade-level-badge {
+    grid-area: badge;
+    position: static !important;
+    white-space: nowrap;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .upgrade-description {
+    grid-area: description;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .button {
+    grid-area: action;
+    margin: 0 !important;
+    min-height: 36px !important;
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-header > .farm-progress {
+    border-radius: 13px !important;
+    min-height: 38px !important;
+    max-width: none !important;
+    padding: 5px 7px !important;
+    width: 100% !important;
+  }
+
+  .app-header > .resource-strip .resource-pill {
+    border-radius: 13px !important;
+    min-height: 38px !important;
+  }
+
+  .social-profile-panel {
+    padding: 9px;
+  }
+
+  .social-profile-panel .friends-lists-grid {
+    grid-template-areas:
+      "accepted"
+      "incoming"
+      "outgoing";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .social-profile-panel .friends-list-accepted .friends-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #officeEvolutionsPanel .prestige-grid {
+    gap: 8px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .redesigned-evolution-card {
+    gap: 7px !important;
+    padding: 10px !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .upgrade-description {
+    font-size: .68rem !important;
+    line-height: 1.36 !important;
+  }
+
+  .account-prestige-section,
+  .social-ranking-section {
+    border-radius: 16px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  #officeEvolutionsPanel .prestige-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  #officeEvolutionsPanel .prestige-grid .redesigned-evolution-card {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    padding: 10px !important;
+  }
+}
+
+.app-header > .farm-progress .farm-progress-head strong,
+.app-header > .resource-strip .resource-pill strong {
+  font-size: .9rem !important;
+  line-height: 1.1 !important;
+}
+
+.app-header > .farm-progress .farm-progress-head,
+.app-header > .resource-strip .resource-pill small {
+  font-size: .6rem !important;
+  line-height: 1.1 !important;
+}
+
+@media (max-width: 768px) {
+  .app-header > .farm-progress .farm-progress-head strong,
+  .app-header > .resource-strip .resource-pill strong {
+    font-size: .78rem !important;
+  }
+}
+
+/* ========================================================================== */
+/* 1.0.1 — Rework final de Minha Conta e Configurações                       */
+/* ========================================================================== */
+
+/* Minha Conta: o painel pai passa a ser o responsável por largura, ritmo e
+   alinhamento. Os blocos internos deixam de "flutuar" com larguras diferentes. */
+#profileAccountPanel.profile-account-panel {
+  box-sizing: border-box;
+  display: grid !important;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: none;
+  padding: 18px;
+  width: 100%;
+}
+
+#profileAccountPanel.profile-account-panel[hidden] {
+  display: none !important;
+}
+
+#profileAccountPanel .account-settings-card {
+  background:
+    radial-gradient(circle at 100% 0, rgba(134, 184, 112, .14), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.98), rgba(244,249,241,.95));
+  border: 1px solid rgba(64, 104, 60, .14);
+  border-radius: 24px;
+  box-shadow: 0 16px 42px rgba(55, 82, 51, .09);
+  display: grid !important;
+  gap: 14px 18px !important;
+  grid-template-areas:
+    "identity cloud"
+    "profile profile"
+    "actions actions";
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr);
+  margin: 0 !important;
+  overflow: hidden;
+  padding: 20px !important;
+  width: 100% !important;
+}
+
+#profileAccountPanel .account-settings-head {
+  align-items: center;
+  grid-area: identity;
+  min-width: 0;
+}
+
+#profileAccountPanel .account-avatar-shell {
+  background: rgba(255,255,255,.9);
+  border: 1px solid rgba(70, 112, 66, .12);
+  box-shadow: 0 8px 24px rgba(61, 91, 57, .08);
+}
+
+#profileAccountPanel .account-save-status {
+  align-self: stretch;
+  background: rgba(239, 247, 235, .86);
+  border: 1px solid rgba(71, 113, 66, .11);
+  border-radius: 16px;
+  display: flex;
+  grid-area: cloud;
+  margin: 0 !important;
+  min-width: 0;
+  padding: 13px 14px !important;
+}
+
+#profileAccountPanel .player-profile-form {
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(69, 109, 65, .12);
+  border-radius: 19px;
+  grid-area: profile;
+  margin: 2px 0 0 !important;
+  min-width: 0;
+  padding: 17px !important;
+}
+
+#profileAccountPanel .player-profile-heading {
+  align-items: start;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-bottom: 15px;
+}
+
+#profileAccountPanel .player-profile-fields {
+  align-items: stretch;
+  display: grid !important;
+  gap: 12px !important;
+  grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr) !important;
+}
+
+#profileAccountPanel .profile-nickname-field,
+#profileAccountPanel .profile-avatar-field,
+#profileAccountPanel .profile-ranking-choice,
+#profileAccountPanel .profile-ranking-notice {
+  background: rgba(247, 250, 245, .9);
+  border: 1px solid rgba(72, 111, 67, .1);
+  border-radius: 15px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+#profileAccountPanel .profile-nickname-field,
+#profileAccountPanel .profile-avatar-field {
+  padding: 13px !important;
+}
+
+#profileAccountPanel .profile-ranking-choice {
+  margin-top: 12px !important;
+  padding: 12px 13px !important;
+}
+
+#profileAccountPanel .profile-ranking-notice {
+  margin-top: 10px !important;
+  padding: 11px 13px !important;
+}
+
+#profileAccountPanel .player-profile-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 12px;
+}
+
+#profileAccountPanel .account-actions {
+  align-items: center;
+  border-top: 1px solid rgba(70, 108, 66, .1);
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 9px;
+  grid-area: actions;
+  margin: 2px 0 0 !important;
+  padding-top: 14px;
+}
+
+#profileAccountPanel .account-insights {
+  display: grid !important;
+  gap: 18px;
+  margin: 0 !important;
+  min-width: 0;
+  width: 100%;
+}
+
+#profileAccountPanel .account-statistics-section,
+#profileAccountPanel .account-prestige-section {
+  background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(245,249,242,.9));
+  border: 1px solid rgba(66, 106, 62, .13);
+  border-radius: 22px;
+  box-shadow: 0 12px 34px rgba(57, 83, 53, .06);
+  margin: 0 !important;
+  min-width: 0;
+  padding: 18px !important;
+  width: 100%;
+}
+
+#profileAccountPanel .account-stats-content {
+  gap: 14px !important;
+}
+
+/* Configurações: uma página única, centralizada e previsível. */
+#settingsView.view {
+  box-sizing: border-box;
+  display: none;
+  gap: 17px;
+  margin: 0 auto !important;
+  max-width: none;
+  min-width: 0;
+  padding: 18px !important;
+  width: 100% !important;
+}
+
+#settingsView.view.active {
+  display: grid;
+}
+
+#settingsView > .section-heading {
+  align-items: center !important;
+  background:
+    radial-gradient(circle at 92% 18%, rgba(129, 179, 108, .18), transparent 30%),
+    linear-gradient(135deg, rgba(255,255,255,.96), rgba(239,247,235,.9));
+  border: 1px solid rgba(66, 106, 62, .12);
+  border-radius: 22px;
+  box-shadow: 0 12px 32px rgba(58, 84, 53, .06);
+  box-sizing: border-box;
+  margin: 0 !important;
+  min-width: 0;
+  padding: 18px 20px !important;
+  width: 100% !important;
+}
+
+#settingsView > .section-heading h1 {
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  margin: 2px 0 4px !important;
+}
+
+#settingsView .settings-grid-reworked {
+  align-items: start !important;
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  margin: 0 !important;
+  max-width: none !important;
+  min-width: 0;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#settingsView .experience-settings-card,
+#settingsView .audio-settings-card {
+  grid-column: span 6;
+  height: 100%;
+}
+
+#settingsView .settings-guide-full {
+  grid-column: 1 / -1 !important;
+}
+
+#settingsView .settings-grid-reworked > .settings-card {
+  border-radius: 22px !important;
+  box-shadow: 0 13px 34px rgba(57, 84, 53, .07) !important;
+}
+
+#settingsView .settings-card-head {
+  min-height: 112px;
+  padding: 18px 19px 15px !important;
+}
+
+#settingsView .settings-card-body {
+  gap: 10px !important;
+  padding: 14px !important;
+}
+
+#settingsView .settings-card-body > .setting-row,
+#settingsView .settings-card-body > .range-setting {
+  box-sizing: border-box;
+  min-height: 68px;
+  padding: 12px 13px !important;
+}
+
+#settingsView .settings-guide-card .guide-sections {
+  align-items: stretch;
+  display: grid !important;
+  gap: 11px !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+#settingsView .settings-guide-card .guide-sections > section {
+  height: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  #profileAccountPanel.profile-account-panel,
+  #settingsView.view {
+    max-width: none;
+    padding: 14px !important;
+  }
+
+  #profileAccountPanel .account-settings-card {
+    grid-template-areas:
+      "identity"
+      "cloud"
+      "profile"
+      "actions";
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px !important;
+  }
+
+  #settingsView .experience-settings-card,
+  #settingsView .audio-settings-card {
+    grid-column: 1 / -1;
+  }
+
+  #settingsView .settings-card-head {
+    min-height: 0;
+  }
+
+  #settingsView .settings-guide-card .guide-sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #profileAccountPanel.profile-account-panel,
+  #settingsView.view {
+    gap: 12px;
+    padding: 9px !important;
+  }
+
+  #profileAccountPanel .account-settings-card,
+  #profileAccountPanel .account-statistics-section,
+  #profileAccountPanel .account-prestige-section,
+  #settingsView > .section-heading,
+  #settingsView .settings-grid-reworked > .settings-card {
+    border-radius: 17px !important;
+  }
+
+  #profileAccountPanel .account-settings-card {
+    gap: 11px !important;
+    padding: 12px !important;
+  }
+
+  #profileAccountPanel .account-settings-head {
+    align-items: center;
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+  }
+
+  #profileAccountPanel .account-avatar-shell {
+    height: 58px !important;
+    width: 58px !important;
+  }
+
+  #profileAccountPanel .player-profile-form {
+    border-radius: 15px;
+    padding: 12px !important;
+  }
+
+  #profileAccountPanel .player-profile-heading,
+  #profileAccountPanel .player-profile-fields {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  #profileAccountPanel .profile-completion-badge {
+    justify-self: start;
+  }
+
+  #profileAccountPanel .account-actions {
+    align-items: stretch;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #profileAccountPanel .account-actions .button,
+  #profileAccountPanel .player-profile-actions .button {
+    width: 100%;
+  }
+
+  #profileAccountPanel .account-statistics-section,
+  #profileAccountPanel .account-prestige-section {
+    padding: 12px !important;
+  }
+
+  #settingsView > .section-heading {
+    padding: 15px !important;
+  }
+
+  #settingsView .settings-grid-reworked {
+    gap: 12px !important;
+  }
+
+  #settingsView .settings-guide-card .guide-sections {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #profileAccountPanel .account-identity h2 {
+    font-size: 1.05rem !important;
+  }
+
+  #profileAccountPanel .account-save-status,
+  #profileAccountPanel .profile-nickname-field,
+  #profileAccountPanel .profile-avatar-field,
+  #profileAccountPanel .profile-ranking-choice,
+  #profileAccountPanel .profile-ranking-notice {
+    border-radius: 13px;
+  }
+
+  #settingsView .settings-card-body > .setting-row,
+  #settingsView .settings-card-body > .range-setting {
+    min-height: 0;
+  }
+}
+
+/* ========================================================================== */
+/* 1.0.1 — Legibilidade global                                                */
+/* 100% de escala agora corresponde a 100% real. Textos auxiliares deixam de  */
+/* ficar excessivamente pequenos em desktop, tablet e celular.                */
+/* ========================================================================== */
+body {
+  font-size: 1rem;
+  line-height: 1.48;
+}
+
+small:not(.sr-only),
+.section-copy,
+.setting-row small,
+.range-setting small,
+.upgrade-description,
+.crop-meta,
+.crop-card small,
+.contract-card small,
+.order-card small,
+.mission-card small,
+.player-stat-card p,
+.achievement-card p,
+.guide-sections p,
+.friends-feedback,
+.friends-card small,
+.account-save-status small {
+  font-size: max(.78rem, 13.5px) !important;
+  line-height: 1.42 !important;
+}
+
+.eyebrow {
+  font-size: max(.76rem, 13px) !important;
+}
+
+.nav-tab,
+.nav-tab-label,
+.evolution-tab > span,
+.office-tab > span,
+.context-tabs button,
+.button,
+.settings-card select,
+.settings-card input,
+.settings-card label,
+.player-profile-form input,
+.player-profile-form select {
+  font-size: max(.86rem, 14.5px) !important;
+}
+
+.resource-pill small,
+.farm-progress small,
+.farm-progress-head,
+.app-header > .farm-progress .farm-progress-head,
+.app-header > .resource-strip .resource-pill small {
+  font-size: max(.72rem, 12.5px) !important;
+}
+
+.resource-pill strong,
+.farm-progress-head strong,
+.app-header > .farm-progress .farm-progress-head strong,
+.app-header > .resource-strip .resource-pill strong {
+  font-size: max(.94rem, 16px) !important;
+}
+
+@media (max-width: 768px) {
+  body { line-height: 1.5; }
+  .section-copy,
+  .settings-card p,
+  .account-settings-card p,
+  .social-profile-panel p {
+    font-size: max(.82rem, 14px) !important;
+  }
+}
+
+#settingsView .guide-tutorial-link {
+  margin-top: 12px;
+  min-height: 42px;
+  width: fit-content;
+}
+@media (max-width: 768px) {
+  #settingsView .guide-tutorial-link { width: 100%; }
+}
+
+/* ========================================================================== */
+/* 1.0.1 — XP, Minha Conta, Prestígio e navegação configurável               */
+/* ========================================================================== */
+.resource-xp,
+.inline-resource.resource-xp {
+  background: rgba(255, 228, 92, .27) !important;
+  border-color: rgba(183, 127, 12, .2) !important;
+}
+
+.resource-xp img,
+.inline-resource.resource-xp img {
+  object-fit: contain;
+}
+
+/* Minha Conta: o perfil do ranking vira uma ação contextual, não um formulário
+   permanentemente exposto dentro da página. */
+#profileAccountPanel .account-settings-card {
+  grid-template-areas:
+    "identity cloud"
+    "ranking ranking"
+    "actions actions" !important;
+}
+
+#profileAccountPanel .ranking-profile-launch {
+  align-items: center;
+  background: linear-gradient(135deg, rgba(247, 250, 244, .96), rgba(237, 246, 232, .9));
+  border: 1px solid rgba(68, 110, 64, .12);
+  border-radius: 17px;
+  display: grid;
+  gap: 14px;
+  grid-area: ranking;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 14px 15px;
+}
+
+#profileAccountPanel .ranking-profile-launch[hidden] { display: none !important; }
+#profileAccountPanel .ranking-profile-launch h3 { margin: 2px 0 4px; }
+#profileAccountPanel .ranking-profile-launch p:last-child { color: var(--ink-soft); margin: 0; }
+
+.ranking-profile-dialog {
+  background: transparent;
+  border: 0;
+  margin: auto;
+  max-height: min(92dvh, 860px);
+  max-width: min(820px, calc(100vw - 28px));
+  padding: 0;
+  width: 100%;
+}
+
+.ranking-profile-dialog::backdrop {
+  backdrop-filter: blur(6px);
+  background: rgba(25, 42, 28, .42);
+}
+
+.ranking-profile-dialog .ranking-profile-modal-form {
+  background: linear-gradient(145deg, rgba(255,255,255,.99), rgba(243,249,240,.98));
+  border: 1px solid rgba(66, 106, 62, .16);
+  border-radius: 24px;
+  box-shadow: 0 28px 80px rgba(31, 54, 32, .24);
+  box-sizing: border-box;
+  display: block;
+  margin: 0;
+  max-height: min(92dvh, 860px);
+  overflow: auto;
+  padding: 22px;
+  width: 100%;
+}
+
+.ranking-profile-dialog .player-profile-heading {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.ranking-profile-dialog .player-profile-heading h2 { margin: 0 0 5px; }
+.ranking-profile-dialog .player-profile-heading p { color: var(--ink-soft); margin: 0; }
+
+.ranking-profile-dialog .player-profile-fields {
+  display: grid;
+  gap: 13px;
+  grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+}
+
+.ranking-profile-dialog .profile-nickname-field,
+.ranking-profile-dialog .profile-avatar-field,
+.ranking-profile-dialog .profile-ranking-choice,
+.ranking-profile-dialog .profile-ranking-notice {
+  background: rgba(247, 250, 245, .9);
+  border: 1px solid rgba(72, 111, 67, .1);
+  border-radius: 15px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.ranking-profile-dialog .profile-nickname-field,
+.ranking-profile-dialog .profile-avatar-field { padding: 13px; }
+.ranking-profile-dialog .profile-ranking-choice { margin-top: 12px; padding: 12px 13px; }
+.ranking-profile-dialog .profile-ranking-notice { margin-top: 10px; padding: 11px 13px; }
+.ranking-profile-dialog .player-profile-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+.ranking-profile-dialog .player-profile-actions #playerProfileFeedback {
+  flex: 1 1 100%;
+  order: -1;
+}
+
+/* Prestigiar vem antes das estatísticas e sempre cresce pela própria altura. */
+#profileAccountPanel .account-prestige-section,
+#profileAccountPanel #prestigeDashboard,
+#profileAccountPanel #prestigeDashboard .prestige-hero,
+#profileAccountPanel .prestige-hero,
+#profileAccountPanel .prestige-overview-card,
+#profileAccountPanel .prestige-requirements,
+#profileAccountPanel .prestige-action-card {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* O estado vazio de fazendas conectadas realmente ocupa toda a linha. */
+.social-profile-panel .friends-list-accepted .friends-empty-state {
+  box-sizing: border-box;
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+}
+
+/* Configurações agora contém apenas Experiência e Áudio. */
+#settingsView .settings-grid-reworked {
+  align-items: stretch !important;
+}
+#settingsView .experience-settings-card,
+#settingsView .audio-settings-card { height: auto !important; }
+#settingsView .navigation-mode-setting select { min-width: 150px; }
+
+/* Modo opcional: menu lateral. A configuração padrão continua sendo tabs. */
+body[data-navigation-mode="sidebar"] .workspace-shell {
+  align-items: start !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: 220px minmax(0, 1fr) !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack {
+  align-self: start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  min-width: 0;
+  overflow: visible !important;
+  position: sticky !important;
+  top: 12px !important;
+  width: 100% !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack > .main-nav,
+body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column {
+  box-sizing: border-box !important;
+  height: auto !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  width: 100% !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack > .main-nav {
+  align-items: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 6px !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack > .main-nav .nav-tab {
+  align-items: center !important;
+  flex: 0 0 auto !important;
+  justify-content: flex-start !important;
+  min-height: 44px !important;
+  width: 100% !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .context-tabs,
+body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tabs,
+body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .profile-tabs {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  height: auto !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab {
+  align-items: center !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  min-height: 42px !important;
+  width: 100% !important;
+}
+
+body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab > span {
+  align-items: center !important;
+  display: flex !important;
+  gap: 8px !important;
+  min-width: 0;
+}
+
+body[data-navigation-mode="sidebar"] .game-main { min-width: 0 !important; }
+
+@media (max-width: 1024px) {
+  #profileAccountPanel .account-settings-card {
+    grid-template-areas:
+      "identity"
+      "cloud"
+      "ranking"
+      "actions" !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body[data-navigation-mode="sidebar"] .workspace-shell {
+    grid-template-columns: 176px minmax(0, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  #profileAccountPanel .ranking-profile-launch {
+    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #profileAccountPanel .ranking-profile-launch .button { width: 100%; }
+
+  .ranking-profile-dialog { max-width: calc(100vw - 18px); }
+  .ranking-profile-dialog .ranking-profile-modal-form { border-radius: 18px; padding: 14px; }
+  .ranking-profile-dialog .player-profile-fields { grid-template-columns: minmax(0, 1fr); }
+  .ranking-profile-dialog .player-profile-actions { align-items: stretch; display: grid; grid-template-columns: 1fr; }
+  .ranking-profile-dialog .player-profile-actions .button { width: 100%; }
+
+  body[data-navigation-mode="sidebar"] .workspace-shell {
+    gap: 9px !important;
+    grid-template-columns: 74px minmax(0, 1fr) !important;
+  }
+
+  body[data-navigation-mode="sidebar"] .navigation-stack { gap: 7px !important; top: 8px !important; }
+  body[data-navigation-mode="sidebar"] .navigation-stack > .main-nav,
+  body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column {
+    border-radius: 15px !important;
+    padding: 5px !important;
+  }
+
+  body[data-navigation-mode="sidebar"] .navigation-stack > .main-nav .nav-tab {
+    justify-content: center !important;
+    min-width: 0 !important;
+    padding-inline: 5px !important;
+  }
+  body[data-navigation-mode="sidebar"] .navigation-stack > .main-nav .nav-tab-label { display: none !important; }
+
+  body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab {
+    justify-content: center !important;
+    min-width: 0 !important;
+    padding-inline: 4px !important;
+  }
+  body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab > span {
+    font-size: 0 !important;
+    gap: 0 !important;
+    justify-content: center !important;
+  }
+  body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab i {
+    display: inline-flex !important;
+    margin: 0 !important;
+  }
+  body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab b {
+    font-size: .62rem !important;
+    margin-left: 2px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body[data-navigation-mode="sidebar"] .workspace-shell {
+    grid-template-columns: 66px minmax(0, 1fr) !important;
+  }
+}
+body[data-navigation-mode="sidebar"] .navigation-stack {
+  max-height: calc(100dvh - 24px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-width: none !important;
+}
+body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { display: none !important; }
+
+/* Contratos configuráveis pelo painel administrativo */
+.friendly-contract-card.contract-custom-color {
+  border-color: color-mix(in srgb, var(--contract-type-color, #e6c35f) 52%, var(--border));
+  background: linear-gradient(155deg, color-mix(in srgb, var(--contract-type-color, #e6c35f) 11%, var(--surface)) 0%, var(--surface) 64%);
+}
+.friendly-contract-card.contract-custom-color .contract-type-label {
+  background: color-mix(in srgb, var(--contract-type-color, #e6c35f) 18%, white);
+  border-color: color-mix(in srgb, var(--contract-type-color, #e6c35f) 52%, transparent);
+}
+.contract-stock-line { display: block; margin-top: .28rem; opacity: .8; }
+
+/* Social — eventos e notas */
+.social-live-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.social-live-list { display: grid; gap: .65rem; }
+.social-live-card, .social-update-card { border: 1px solid var(--border); border-radius: 1rem; background: var(--surface); padding: .9rem 1rem; }
+.social-live-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.social-live-card.active { border-color: rgba(81, 139, 75, .55); box-shadow: inset 3px 0 0 rgba(81, 139, 75, .75); }
+.social-live-card h3, .social-update-card h3 { margin: .12rem 0 .3rem; font-size: 1rem; }
+.social-live-card p, .social-update-card p { margin: 0; line-height: 1.5; }
+.social-live-card > span { white-space: nowrap; font-size: .78rem; opacity: .72; }
+.social-update-meta { display: flex; align-items: center; justify-content: space-between; gap: .75rem; font-size: .78rem; }
+.social-live-empty { width: 100%; }
+@media (max-width: 768px) { .social-live-grid { grid-template-columns: 1fr; } .social-live-card { align-items: flex-start; flex-direction: column; } }
+
+/* Perfil do ranking — modal reorganizado */
+.ranking-profile-dialog { width: min(760px, calc(100vw - 28px)); max-height: min(88vh, 820px); padding: 0; overflow: auto; }
+.ranking-profile-dialog .ranking-profile-modal-form { display: grid; gap: 1rem; width: 100%; padding: 1.2rem; overflow: hidden; }
+.ranking-profile-dialog .player-profile-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .85rem; width: 100%; }
+.ranking-profile-dialog .profile-nickname-field,
+.ranking-profile-dialog .profile-avatar-field,
+.ranking-profile-dialog .profile-ranking-choice,
+.ranking-profile-dialog .profile-ranking-notice { min-width: 0; width: 100%; margin: 0; }
+.ranking-profile-dialog input[type="text"] { width: 100%; min-width: 0; }
+.ranking-profile-dialog .avatar-picker-panel { border: 1px solid var(--border); border-radius: 1rem; padding: .9rem; width: 100%; overflow: hidden; }
+.ranking-profile-dialog .avatar-picker { max-height: 260px; overflow: auto; padding: .25rem; }
+.ranking-profile-dialog .player-profile-actions { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: .75rem; align-items: center; margin: 0; }
+.ranking-profile-dialog .player-profile-actions small { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .ranking-profile-dialog { width: calc(100vw - 16px); max-height: 92vh; }
+  .ranking-profile-dialog .ranking-profile-modal-form { padding: .9rem; }
+  .ranking-profile-dialog .player-profile-fields { grid-template-columns: 1fr; }
+  .ranking-profile-dialog .player-profile-actions { grid-template-columns: 1fr; }
+  .ranking-profile-dialog .player-profile-actions .button { width: 100%; }
+  .ranking-profile-dialog .avatar-picker { max-height: 220px; }
+}
+
+/* Evoluções configuráveis pelo ADM */
+.evolution-configured-bonus,
+.evolution-configured-next {
+  display: block;
+  margin-top: .45rem;
+  font-size: .82rem;
+  line-height: 1.45;
+}
+.evolution-configured-bonus { color: var(--text-soft, #667269); }
+.evolution-configured-next { color: var(--text, #243129); }
+
+/* ========================================================================== */
+/* 1.0.1 — Offline, atalhos de recursos, Configurações e Social em modal     */
+/* ========================================================================== */
+
+/* Estados vazios em grids devem ocupar a linha inteira. */
+.mission-grid > .empty-state,
+.mission-grid > .social-live-empty {
+  box-sizing: border-box;
+  grid-column: 1 / -1 !important;
+  justify-self: stretch !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+/* Contadores do cabeçalho também funcionam como atalhos de navegação. */
+.resource-shortcut {
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.resource-shortcut:hover {
+  border-color: color-mix(in srgb, var(--green) 35%, var(--border));
+  box-shadow: 0 7px 18px rgba(42, 72, 45, .08);
+  transform: translateY(-1px);
+}
+.resource-shortcut:active { transform: translateY(0) scale(.985); }
+.resource-shortcut:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--green) 35%, transparent);
+  outline-offset: 2px;
+}
+
+/* Configurações: um único container pai, com duas áreas previsíveis. */
+#settingsView.view.active {
+  display: block !important;
+}
+
+#settingsView .settings-page-container {
+  background:
+    radial-gradient(circle at 92% 4%, rgba(127, 181, 101, .13), transparent 29%),
+    var(--surface, #fff);
+  border: 1px solid var(--border);
+  border-radius: 24px !important;
+  box-shadow: 0 15px 38px rgba(50, 76, 50, .065);
+  box-sizing: border-box;
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  max-height: none !important;
+  max-width: none !important;
+  min-width: 0;
+  overflow: visible !important;
+  padding: 20px !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-page-heading {
+  align-items: center;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  padding: 0 2px 2px !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-page-heading h1 {
+  font-size: clamp(1.55rem, 2.5vw, 2rem) !important;
+  margin: 2px 0 0 !important;
+}
+
+#settingsView .settings-grid-reworked {
+  align-items: stretch !important;
+  display: grid !important;
+  gap: 16px !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-grid-reworked > .settings-card {
+  background: color-mix(in srgb, var(--surface, #fff) 90%, var(--green-soft, #eef6ea));
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border-radius: 19px !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: auto !important;
+  min-height: 0 !important;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-card-head {
+  align-items: center;
+  background: color-mix(in srgb, var(--green-soft, #eef6ea) 52%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  display: flex;
+  min-height: 0 !important;
+  padding: 16px 17px 14px !important;
+}
+
+#settingsView .settings-card-head h2 {
+  font-size: clamp(1.38rem, 2vw, 1.72rem) !important;
+  letter-spacing: -.035em !important;
+  line-height: 1.12;
+  margin: 0 !important;
+}
+
+#settingsView .settings-card-body {
+  align-content: start;
+  display: grid !important;
+  gap: 10px !important;
+  min-width: 0;
+  padding: 12px !important;
+}
+
+#settingsView .settings-card-body > .setting-row,
+#settingsView .settings-card-body > .range-setting {
+  align-items: center !important;
+  background: var(--surface, #fff);
+  border: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+  border-radius: 14px;
+  box-sizing: border-box;
+  display: grid !important;
+  gap: 10px 14px !important;
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin: 0 !important;
+  min-height: 74px !important;
+  min-width: 0;
+  padding: 12px 13px !important;
+  width: 100% !important;
+}
+
+#settingsView .settings-card-body > .setting-row > span,
+#settingsView .settings-card-body > .range-setting > span {
+  align-content: start;
+  display: grid !important;
+  gap: 3px !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-width: 0;
+  width: 100% !important;
+}
+
+#settingsView .settings-card-body > .setting-row > span > strong,
+#settingsView .settings-card-body > .range-setting > span > strong {
+  display: block;
+  font-size: max(.94rem, 15px) !important;
+  line-height: 1.25;
+}
+
+#settingsView .settings-card-body > .setting-row > span > small,
+#settingsView .settings-card-body > .range-setting > span > small {
+  display: block;
+  font-size: max(.78rem, 13px) !important;
+  line-height: 1.42 !important;
+  margin: 0 !important;
+  max-width: 54ch;
+}
+
+#settingsView .settings-card-body select {
+  box-sizing: border-box;
+  max-width: 210px;
+  min-width: 150px;
+  width: auto !important;
+}
+
+#settingsView .settings-range-row output {
+  align-self: start;
+  background: var(--green-soft, #eef6ea);
+  border: 1px solid color-mix(in srgb, var(--green) 22%, var(--border));
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 900;
+  line-height: 1;
+  min-width: 52px;
+  padding: 7px 9px;
+  text-align: center;
+}
+
+#settingsView .settings-range-row input[type="range"] {
+  grid-column: 1 / -1;
+  margin-top: 1px;
+  width: 100% !important;
+}
+
+/* Agenda e novidades agora são lançadores compactos de modal. */
+.social-live-launch-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 0 16px;
+  width: 100%;
+}
+
+.social-live-launch {
+  align-items: center;
+  appearance: none;
+  background: linear-gradient(145deg, var(--surface, #fff), color-mix(in srgb, var(--green-soft, #edf6e8) 52%, white));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  padding: 14px;
+  text-align: left;
+  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+  width: 100%;
+}
+.social-live-launch:hover {
+  border-color: color-mix(in srgb, var(--green) 34%, var(--border));
+  box-shadow: 0 9px 22px rgba(51, 80, 52, .075);
+  transform: translateY(-1px);
+}
+.social-live-launch:focus-visible { outline: 3px solid color-mix(in srgb, var(--green) 30%, transparent); outline-offset: 2px; }
+.social-live-launch-icon {
+  align-items: center;
+  background: var(--green-soft, #eef6ea);
+  border-radius: 12px;
+  display: inline-flex;
+  font-size: 1.25rem;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+.social-live-launch > span:not(.social-live-launch-icon) { display: grid; gap: 2px; min-width: 0; }
+.social-live-launch small { color: var(--ink-soft); font-weight: 800; text-transform: uppercase; }
+.social-live-launch strong { font-size: 1rem; line-height: 1.25; }
+.social-live-launch em { color: var(--ink-soft); font-size: .8rem; font-style: normal; line-height: 1.35; overflow-wrap: anywhere; }
+.social-live-launch > b { color: var(--green); font-size: .78rem; white-space: nowrap; }
+
+.social-info-dialog,
+.offline-progress-dialog {
+  border: 0;
+  border-radius: 20px;
+  box-shadow: 0 28px 80px rgba(23, 39, 26, .22);
+  max-height: min(88dvh, 760px);
+  max-width: calc(100vw - 24px);
+  padding: 0;
+  width: min(700px, calc(100vw - 24px));
+}
+.social-info-dialog::backdrop,
+.offline-progress-dialog::backdrop { background: rgba(22, 34, 24, .48); backdrop-filter: blur(3px); }
+.social-info-dialog > form,
+.offline-progress-dialog > form { display: grid; gap: 0; margin: 0; min-width: 0; }
+.social-info-dialog > form > header,
+.offline-progress-dialog > form > header {
+  align-items: start;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 17px 18px 14px;
+}
+.social-info-dialog > form > header h2,
+.offline-progress-dialog > form > header h2 { margin: 2px 0 0; }
+.social-info-dialog-body { box-sizing: border-box; max-height: 56dvh; overflow: auto; padding: 15px 18px; }
+
+.offline-progress-copy { color: var(--ink-soft); margin: 0; padding: 15px 18px 0; }
+.offline-progress-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 14px 18px 4px;
+}
+.offline-gain-card {
+  align-content: center;
+  background: color-mix(in srgb, var(--green-soft, #edf6e8) 45%, white);
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border-radius: 14px;
+  display: grid;
+  gap: 5px;
+  min-height: 76px;
+  min-width: 0;
+  padding: 12px;
+}
+.offline-gain-card > span:first-child { color: var(--ink-soft); font-size: .76rem; font-weight: 800; text-transform: uppercase; }
+.offline-gain-card > strong { font-size: 1.08rem; }
+.offline-gain-card > small { color: var(--ink-soft); }
+
+@media (max-width: 1024px) {
+  #settingsView .settings-page-container { border-radius: 20px !important; padding: 16px !important; }
+  #settingsView .settings-grid-reworked { grid-template-columns: minmax(0, 1fr) !important; }
+}
+
+@media (max-width: 768px) {
+  #settingsView.view { padding: 9px !important; }
+  #settingsView .settings-page-container { gap: 13px; padding: 12px !important; }
+  #settingsView .settings-card-body > .setting-row,
+  #settingsView .settings-card-body > .range-setting { min-height: 68px !important; }
+  .social-live-launch-grid { grid-template-columns: minmax(0, 1fr); }
+  .offline-progress-summary { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 480px) {
+  #settingsView .settings-card-body > .setting-row,
+  #settingsView .settings-card-body > .range-setting {
+    align-items: stretch !important;
+    gap: 9px !important;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  #settingsView .settings-card-body > .setting-row > select,
+  #settingsView .settings-range-row output {
+    justify-self: stretch;
+    max-width: none;
+    width: 100% !important;
+  }
+  #settingsView .settings-card-body > .setting-row > input[type="checkbox"] { justify-self: start; }
+  #settingsView .settings-range-row input[type="range"] { grid-column: 1; }
+  .social-live-launch { grid-template-columns: auto minmax(0, 1fr); }
+  .social-live-launch > b { grid-column: 2; }
+  .social-info-dialog,
+  .offline-progress-dialog { border-radius: 16px; max-width: calc(100vw - 12px); width: calc(100vw - 12px); }
+}
+
+
+/* Revisão 1.0.1 — perfil do ranking, contratos e modal responsivo */
+.ranking-profile-dialog {
+  width: min(720px, calc(100vw - 24px)) !important;
+  max-width: none !important;
+  max-height: calc(100dvh - 24px) !important;
+  overflow: hidden !important;
+}
+.ranking-profile-dialog .ranking-profile-modal-form {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, auto) auto auto auto !important;
+  gap: 10px !important;
+  max-height: calc(100dvh - 24px) !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  padding: 18px !important;
+}
+.ranking-profile-dialog .player-profile-heading { margin: 0 !important; }
+.ranking-profile-dialog .player-profile-heading h2 { margin: 0 !important; }
+.ranking-profile-dialog .player-profile-fields { align-items: stretch; gap: 10px !important; }
+.ranking-profile-dialog .profile-nickname-field,
+.ranking-profile-dialog .profile-avatar-field { align-content: start; min-height: 0; padding: 12px !important; }
+.ranking-profile-dialog .profile-nickname-field > span,
+.ranking-profile-dialog .profile-field-copy { display: block; margin-bottom: 7px; }
+.ranking-profile-dialog .profile-avatar-control { align-items: stretch; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr) auto; }
+.ranking-profile-dialog .selected-avatar-preview { align-items: center; box-sizing: border-box; display: grid; gap: 9px; grid-template-columns: 48px minmax(0, 1fr); min-height: 54px; padding: 5px 8px !important; width: 100%; }
+.ranking-profile-dialog .selected-avatar-preview > img { height: 44px !important; width: 44px !important; }
+.ranking-profile-dialog .selected-avatar-preview > span { align-content: center; display: grid; min-width: 0; }
+.ranking-profile-dialog .selected-avatar-preview strong { font-size: .82rem !important; }
+.ranking-profile-dialog .avatar-picker-toggle { align-self: stretch; min-height: 54px; }
+.ranking-profile-dialog .avatar-picker-panel { box-sizing: border-box; margin: 0 !important; min-height: 0; padding: 9px !important; width: 100% !important; }
+.ranking-profile-dialog .avatar-picker-fieldset { min-width: 0; }
+.ranking-profile-dialog .avatar-picker {
+  box-sizing: border-box;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+  max-height: min(42dvh, 330px) !important;
+  overflow: auto !important;
+  padding: 5px !important;
+  scrollbar-gutter: stable;
+}
+.ranking-profile-dialog .avatar-option { min-width: 0; }
+.ranking-profile-dialog .profile-ranking-choice { margin: 0 !important; }
+.ranking-profile-dialog .player-profile-actions {
+  background: rgba(255,255,255,.95);
+  bottom: -18px;
+  display: grid !important;
+  gap: 8px !important;
+  grid-template-columns: auto auto minmax(0, 1fr) !important;
+  margin: 0 -18px -18px !important;
+  padding: 11px 18px 18px !important;
+  position: sticky;
+  z-index: 4;
+}
+.ranking-profile-dialog .player-profile-actions #playerProfileFeedback { align-self: center; grid-column: 3; grid-row: 1; margin: 0; order: initial !important; }
+.contract-custom-color {
+  background: linear-gradient(155deg, color-mix(in srgb, var(--contract-type-color, #e6c35f) var(--contract-type-alpha, 18%), var(--surface)) 0%, var(--surface) 66%) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color, #e6c35f) 46%, var(--border)) !important;
+}
+.contract-custom-color .contract-type-label {
+  background: color-mix(in srgb, var(--contract-type-color, #e6c35f) calc(var(--contract-type-alpha, 18%) + 8%), white) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color, #e6c35f) 52%, transparent) !important;
+}
+.contract-stock-line { align-items: center; display: inline-flex !important; gap: 5px; margin-top: .35rem !important; opacity: .9 !important; }
+.contract-stock-line img { height: 16px !important; object-fit: contain; width: 16px !important; }
+.contract-stock-line strong { color: var(--ink); font-size: .72rem; }
+@media (max-width: 600px) {
+  .ranking-profile-dialog { width: calc(100vw - 12px) !important; max-height: calc(100dvh - 12px) !important; }
+  .ranking-profile-dialog .ranking-profile-modal-form { max-height: calc(100dvh - 12px) !important; padding: 12px !important; }
+  .ranking-profile-dialog .player-profile-fields { grid-template-columns: 1fr !important; }
+  .ranking-profile-dialog .profile-avatar-control { grid-template-columns: 1fr !important; }
+  .ranking-profile-dialog .avatar-picker { grid-template-columns: repeat(4, minmax(0, 1fr)); max-height: 44dvh !important; }
+  .ranking-profile-dialog .player-profile-actions { bottom: -12px; grid-template-columns: 1fr 1fr !important; margin: 0 -12px -12px !important; padding: 10px 12px 12px !important; }
+  .ranking-profile-dialog .player-profile-actions #playerProfileFeedback { grid-column: 1 / -1; grid-row: 1; }
+  .ranking-profile-dialog .player-profile-actions .button { grid-row: 2; width: 100%; }
+}
+
+/* ========================================================================== */
+/* 1.0.1 r12 — refinamento visual: header, configurações, estatísticas, contratos */
+/* ========================================================================== */
+
+/* O bloco narrativo das estatísticas foi descontinuado. */
+#statsHero[hidden],
+#statsHero:empty { display: none !important; margin: 0 !important; }
+
+/* Header: progresso e counters compartilham a mesma presença visual. */
+.app-header { align-items: stretch !important; }
+.app-header > .farm-progress,
+.app-header > .resource-strip { align-self: stretch !important; }
+.app-header .farm-progress {
+  align-content: center !important;
+  box-sizing: border-box;
+  grid-template-rows: auto 8px auto !important;
+  min-height: 58px !important;
+  padding-block: 7px !important;
+}
+.app-header .resource-strip { align-items: stretch !important; }
+.app-header .resource-pill {
+  box-sizing: border-box;
+  height: 100% !important;
+  min-height: 58px !important;
+}
+#farmXPText {
+  align-items: center;
+  display: inline-flex !important;
+  gap: 4px;
+  min-height: 15px;
+}
+.farm-xp-inline-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 15px;
+  object-fit: contain;
+  vertical-align: middle;
+  width: 15px;
+}
+
+/* Configurações: cada opção ganha separação clara sem pesar visualmente. */
+#settingsView .settings-card-body > .setting-row,
+#settingsView .settings-card-body > .range-setting {
+  background: linear-gradient(145deg, #ffffff 0%, color-mix(in srgb, var(--green-soft, #edf6e8) 30%, white) 100%) !important;
+  border-color: color-mix(in srgb, var(--green, #5b8f55) 18%, var(--border)) !important;
+  box-shadow: 0 5px 14px rgba(48, 77, 50, .065) !important;
+  position: relative;
+}
+#settingsView .settings-card-body > .setting-row::before,
+#settingsView .settings-card-body > .range-setting::before {
+  background: color-mix(in srgb, var(--green, #5b8f55) 70%, white);
+  border-radius: 999px;
+  content: "";
+  height: calc(100% - 18px);
+  left: 5px;
+  opacity: .55;
+  position: absolute;
+  top: 9px;
+  width: 3px;
+}
+#settingsView .settings-card-body > .setting-row:hover,
+#settingsView .settings-card-body > .range-setting:hover {
+  border-color: color-mix(in srgb, var(--green, #5b8f55) 32%, var(--border)) !important;
+  box-shadow: 0 7px 17px rgba(48, 77, 50, .09) !important;
+}
+
+/* Contratos: a cor cadastrada vira um destaque legível, não um banho de cor. */
+#officeView .friendly-contract-card.contract-custom-color {
+  background: linear-gradient(180deg, #fff 0%, color-mix(in srgb, var(--surface, #fff) 92%, var(--green-soft, #eef6ea)) 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #e6c35f) 28%, var(--border)) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 25px rgba(43, 64, 46, .075) !important;
+  overflow: hidden !important;
+  position: relative;
+}
+#officeView .friendly-contract-card.contract-custom-color::before {
+  background: var(--contract-type-color, #e6c35f);
+  content: "";
+  height: 5px;
+  inset: 0 0 auto 0;
+  opacity: var(--contract-type-opacity, .18);
+  position: absolute;
+  z-index: 2;
+}
+#officeView .friendly-contract-card.contract-custom-color .friendly-contract-top {
+  border-bottom: 1px solid color-mix(in srgb, var(--contract-type-color, #e6c35f) 14%, var(--border));
+  margin: -2px -2px 0 !important;
+  padding: 6px 2px 10px !important;
+}
+#officeView .friendly-contract-card.contract-custom-color .contract-product-focus {
+  background: color-mix(in srgb, var(--contract-type-color, #e6c35f) 7%, #f8faf6) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #e6c35f) 14%, var(--border));
+}
+#officeView .friendly-contract-card.contract-custom-color .contract-type-label {
+  background: color-mix(in srgb, var(--contract-type-color, #e6c35f) 13%, white) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #e6c35f) 36%, transparent) !important;
+  color: color-mix(in srgb, var(--contract-type-color, #6c7a55) 72%, #263129) !important;
+  font-weight: 900 !important;
+}
+#officeView .friendly-contract-card.contract-custom-color .contract-clock-badge {
+  background: #fff !important;
+  border-color: color-mix(in srgb, var(--contract-type-color, #e6c35f) 22%, var(--border)) !important;
+}
+#officeView .friendly-contract-card.contract-custom-color .contract-reward-unified,
+#officeView .friendly-contract-card.contract-custom-color .contract-break-area,
+#officeView .friendly-contract-card.contract-custom-color .contract-penalty-unified {
+  background: rgba(255,255,255,.78) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color, #e6c35f) 13%, var(--border)) !important;
+}
+#officeView .contract-grid { align-items: stretch; }
+#officeView .friendly-contract-card { min-width: 0; }
+
+@media (max-width: 768px) {
+  .app-header .farm-progress,
+  .app-header .resource-pill { min-height: 56px !important; }
+  #officeView .friendly-contract-card.contract-custom-color { border-radius: 16px !important; }
+}
+
+
+/* ========================================================================== */
+/* 1.0.1 r13 — séries de missão, perfil e modais sociais                     */
+/* ========================================================================== */
+.stats-section-plain > .stats-grid,
+.stats-section-plain > .achievement-summary,
+.stats-section-plain > .achievement-grid { margin-top: 0 !important; }
+
+/* Avatar: prévia ocupa a linha inteira e a ação fica logo abaixo. */
+.ranking-profile-dialog .profile-avatar-control {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+.ranking-profile-dialog .selected-avatar-preview,
+.ranking-profile-dialog .avatar-picker-toggle { width: 100% !important; max-width: none !important; }
+.ranking-profile-dialog .selected-avatar-preview {
+  grid-template-columns: 58px minmax(0, 1fr) !important;
+  min-height: 68px !important;
+}
+.ranking-profile-dialog .selected-avatar-preview > img { height: 54px !important; width: 54px !important; }
+
+/* Agenda e notas: modal realmente centralizado e com hierarquia mais limpa. */
+.social-info-dialog {
+  inset: 0 !important;
+  margin: auto !important;
+  position: fixed !important;
+  width: min(720px, calc(100vw - 24px)) !important;
+  max-height: min(86dvh, 760px) !important;
+  overflow: hidden !important;
+}
+.social-info-dialog > form { max-height: min(86dvh, 760px); grid-template-rows: auto minmax(0, 1fr) auto; }
+.social-info-dialog-body { max-height: none !important; min-height: 0; overflow: auto; }
+.social-info-dialog .confirmation-dialog-actions { border-top: 1px solid var(--border); margin: 0; padding: 12px 18px 16px; }
+.social-live-card,
+.social-update-card { box-shadow: 0 7px 18px rgba(42, 62, 43, .05); }
+.social-live-launch:disabled { cursor: default; opacity: .58; transform: none !important; box-shadow: none !important; }
+
+@media (max-width: 600px) {
+  .ranking-profile-dialog .selected-avatar-preview { grid-template-columns: 50px minmax(0, 1fr) !important; }
+  .ranking-profile-dialog .selected-avatar-preview > img { height: 46px !important; width: 46px !important; }
+  .social-info-dialog { width: calc(100vw - 12px) !important; max-height: calc(100dvh - 20px) !important; }
+}
+
+/* ========================================================================== */
+/* 1.0.1 r14 — ranking visual, ícones oficiais e legados bloqueados          */
+/* ========================================================================== */
+.social-ranking-heading {
+  align-items: center;
+}
+
+.social-ranking-title {
+  align-items: center;
+  display: flex;
+  gap: 11px;
+  min-width: 0;
+}
+
+.social-ranking-title > img {
+  flex: 0 0 auto;
+  height: 48px;
+  object-fit: contain;
+  width: 48px;
+}
+
+.social-ranking-title > div {
+  min-width: 0;
+}
+
+.leaderboard-row {
+  grid-template-columns: 62px 44px minmax(0, 1fr) !important;
+  min-height: 74px;
+  padding-block: 7px;
+}
+
+.leaderboard-position {
+  min-height: 58px;
+  min-width: 0;
+  position: relative;
+}
+
+.leaderboard-position > .leaderboard-rank-badge {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  display: block;
+  height: 58px !important;
+  max-width: 60px;
+  object-fit: contain !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+.leaderboard-position-number {
+  align-items: center;
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(78,113,72,.16);
+  border-radius: 999px;
+  bottom: -1px;
+  box-shadow: 0 3px 10px rgba(39,61,41,.1);
+  color: var(--green-deep);
+  display: inline-flex;
+  font-size: .64rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 950;
+  justify-content: center;
+  min-height: 20px;
+  min-width: 34px;
+  padding: 0 7px;
+  position: absolute;
+  right: -2px;
+}
+
+.leaderboard-row > .leaderboard-avatar {
+  background: var(--surface-soft);
+  border-radius: 12px;
+  height: 42px !important;
+  object-fit: contain !important;
+  padding: 3px;
+  width: 42px !important;
+}
+
+.leaderboard-player {
+  gap: 5px;
+}
+
+.leaderboard-player > strong {
+  font-size: .86rem;
+}
+
+.leaderboard-player-meta {
+  align-items: center;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 5px 11px;
+  line-height: 1.2 !important;
+}
+
+.leaderboard-account-prestige,
+.leaderboard-current-level {
+  align-items: center;
+  display: inline-flex;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.leaderboard-account-prestige > img {
+  height: 19px;
+  object-fit: contain;
+  width: 19px;
+}
+
+.leaderboard-account-prestige > b {
+  color: var(--ink);
+  font-size: .69rem;
+}
+
+/* O bloco duplicado de pontuação deixou de existir. */
+.leaderboard-score { display: none !important; }
+
+.milestone-main-icon {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: 64px !important;
+  padding: 0 !important;
+  width: 64px !important;
+}
+
+.milestone-main-icon > img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+/* Quando Evoluções ainda está bloqueado, Pesquisa e Legados compartilham a
+   mesma regra visual e de compra. */
+#officeEvolutionsPanel .prestige-grid > .feature-gate-card {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .leaderboard-row {
+    gap: 8px !important;
+    grid-template-columns: 52px 38px minmax(0, 1fr) !important;
+    min-height: 66px;
+    padding: 7px 8px !important;
+  }
+
+  .leaderboard-position,
+  .leaderboard-position > .leaderboard-rank-badge {
+    height: 50px !important;
+    min-height: 50px;
+  }
+
+  .leaderboard-position > .leaderboard-rank-badge {
+    max-width: 52px;
+  }
+
+  .leaderboard-row > .leaderboard-avatar {
+    height: 36px !important;
+    width: 36px !important;
+  }
+
+  .social-ranking-title > img {
+    height: 42px;
+    width: 42px;
+  }
+}
+
+@media (max-width: 480px) {
+  .leaderboard-row {
+    grid-template-columns: 48px 34px minmax(0, 1fr) !important;
+  }
+
+  .leaderboard-position,
+  .leaderboard-position > .leaderboard-rank-badge {
+    height: 46px !important;
+    min-height: 46px;
+  }
+
+  .leaderboard-position > .leaderboard-rank-badge { max-width: 48px; }
+  .leaderboard-account-prestige > img { height: 17px; width: 17px; }
+}
+
+
+/* Marco: ícone transparente e fixado à esquerda do conteúdo. */
+.confirmation-dialog-milestone .milestone-main-icon {
+  align-self: start !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  justify-self: start !important;
+  margin: 0 !important;
+}
+.confirmation-dialog-milestone .confirmation-dialog-copy {
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+}
+@media (max-width: 560px) {
+  .confirmation-dialog-milestone form { grid-template-columns: 58px minmax(0,1fr) !important; }
+  .confirmation-dialog-milestone .milestone-main-icon { height:54px !important; width:54px !important; }
+}
+
+
+/* r21 — melhorias conservadoras após reconstrução da base estável */
+.brand-logo { width: clamp(88px, 8vw, 118px) !important; height: 62px !important; object-fit: contain !important; }
+.footer-brand > img { width: 86px !important; height: 48px !important; object-fit: contain !important; }
+.section-heading h1, .section-heading h2 { font-size: clamp(1.3rem, 2vw, 1.72rem) !important; line-height: 1.12 !important; }
+.section-copy { font-size: max(.78rem, 13px) !important; line-height: 1.5 !important; }
+.resource-pill small, .farm-progress-head { font-size: max(.66rem, 11px) !important; }
+.resource-pill strong { font-size: max(.86rem, 14px) !important; }
+.ambient-plant-stage { inset: 0; overflow: hidden; position: absolute; pointer-events: none; }
+.ambient-plant { left: 0; max-width: none; object-fit: contain; opacity: 0; position: absolute; top: 0; transform-origin: 50% 50%; will-change: transform, opacity; filter: saturate(.88); }
+@media (max-width:768px){ .brand-logo{width:88px !important;height:50px !important;} }
+@media (max-width:480px){ .brand-logo{width:78px !important;height:44px !important;} }
+@media (prefers-reduced-motion:reduce){ .ambient-plant-stage{display:none !important;} }

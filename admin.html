@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<base href="/">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#f3f6f0">
+<title>Administração — Fazenda Serena</title>
+<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="css/admin.css?v=r21">
+<script defer src="js/publicCloud.js?v=r21"></script>
+<script defer src="js/appConfig.js?v=r21"></script>
+<script defer src="js/cacheManager.js?v=r21"></script>
+<script defer src="js/firebase-config.js?v=r21"></script>
+<script defer src="js/localAssets.js?v=r21"></script>
+<script defer src="js/firebaseManager.js?v=r21"></script>
+<script defer src="js/data.js?v=r21"></script>
+<script defer src="js/cropEconomy.js?v=r21"></script>
+<script defer src="js/gameAdmin.js?v=r21"></script>
+<script defer src="js/adminCatalogEditor.js?v=r21"></script>
+<script defer src="js/admin.js?v=r21"></script>
+</head>
+<body>
+<main class="admin-shell">
+<header class="admin-header">
+  <a class="admin-brand" href="index.html" aria-label="Voltar ao Fazenda Serena">
+    <img src="assets/logo.webp" alt="">
+    <span><strong>Fazenda Serena</strong><small>Administração</small></span>
+  </a>
+  <div class="admin-user-actions" id="adminUserActions" hidden>
+    <span id="adminUserLabel"></span>
+    <a class="admin-button secondary" href="index.html">Voltar ao jogo</a>
+    <button class="admin-button secondary" id="adminSignOut" type="button">Sair</button>
+  </div>
+</header>
+
+<section class="admin-gate" id="adminGate">
+  <div class="admin-gate-card">
+    <h1>Painel administrativo</h1>
+    <p id="adminGateMessage">Verificando sua conta.</p>
+    <button class="admin-button primary" id="adminSignIn" type="button" hidden>
+      <img src="assets/icons/logo-google.webp" alt="">Entrar com o Google
+    </button>
+    <div class="admin-loader" id="adminLoader" aria-label="Carregando"><span></span></div>
+  </div>
+</section>
+
+<section class="admin-app" id="adminApp" hidden>
+  <header class="admin-page-heading">
+    <div>
+      <h1>Configuração do jogo</h1>
+      <p id="adminCloudStatus">Carregando configuração da nuvem.</p>
+    </div>
+  </header>
+
+  <section class="admin-workspace-picker" aria-label="Selecionar área administrativa">
+    <label for="adminWorkspaceSelect"><span>Editar</span><select id="adminWorkspaceSelect">
+      <option value="balance">Parâmetros principais</option>
+      <option value="administrators">Administradores</option>
+      <option value="pointTypes">Tipos de pontos</option>
+      <option value="categories">Categorias de plantas</option>
+      <option value="crops">Plantas</option>
+      <option value="companies">Empresas e indústrias</option>
+      <option value="contractTypes">Tipos de contrato</option>
+      <option value="contractSlots">Slots de contrato</option>
+      <option value="orderSteps">Etapas dos pedidos</option>
+      <option value="missions">Missões</option>
+      <option value="research">Pesquisas</option>
+      <option value="prestigeUpgrades">Evoluções de prestígio</option>
+      <option value="events">Eventos</option>
+      <option value="updateNotes">Notas de atualização</option>
+      <option value="texts">Textos públicos</option>
+    </select></label>
+  </section>
+
+  <section class="admin-panel admin-balance-section" data-admin-section="balance">
+    <div class="admin-section-heading"><h2>Parâmetros principais</h2></div>
+    <div class="admin-balance-grid">
+      <label><span>XP de aprimoramentos (%)</span><input autocomplete="off" id="adminActionXP" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
+      <label><span>XP passivo base (%/s)</span><input autocomplete="off" id="adminPassiveXP" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
+      <label><span>Pesquisa passiva (%/s)</span><input autocomplete="off" id="adminPassiveResearch" inputmode="decimal" data-admin-number data-admin-percent type="text"></label>
+      <label><span>Nível para liberar Pedidos</span><input autocomplete="off" id="adminOrdersUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Nível para liberar Evoluções</span><input autocomplete="off" id="adminEvolutionsUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Nível de liberação do prestígio</span><input autocomplete="off" id="adminPrestigeUnlockLevel" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Moedas iniciais</span><input autocomplete="off" id="adminStartingCoins" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Capacidade inicial do estoque</span><input autocomplete="off" id="adminStorageCapacity" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Nova proposta após assinar (segundos)</span><input autocomplete="off" id="adminContractSignedCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Nova proposta após expirar (segundos)</span><input autocomplete="off" id="adminContractExpiredCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Nova proposta após recusar (segundos)</span><input autocomplete="off" id="adminContractDeclinedCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+      <label><span>Nova proposta após quebrar (segundos)</span><input autocomplete="off" id="adminContractBrokenCooldown" inputmode="numeric" data-admin-number data-admin-integer type="text"></label>
+    </div>
+    <div class="admin-section-save"><button class="admin-button primary" id="adminSaveBalance" type="button">Salvar parâmetros</button></div>
+  </section>
+
+  <section class="admin-panel admin-administrators-section" data-admin-section="administrators">
+    <div class="admin-section-heading"><h2>Administradores</h2></div>
+    <form autocomplete="off" class="admin-inline-form" id="adminAdministratorForm">
+      <label><span>E-mail Google</span><input autocomplete="off" id="adminAdministratorEmail" type="email" placeholder="usuario@gmail.com" required></label>
+      <label><span>Nome (opcional)</span><input autocomplete="off" id="adminAdministratorName" type="text" maxlength="80" placeholder="Administrador"></label>
+      <button class="admin-button primary" type="submit">Adicionar administrador</button>
+    </form>
+    <div class="admin-administrator-list" id="adminAdministratorList"></div>
+  </section>
+
+  <section class="admin-catalog-stack">
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="pointTypes" data-admin-section="pointTypes" hidden>
+      <div class="admin-section-heading"><h2>Tipos de pontos</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar tipo</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="categories" data-admin-section="categories" hidden>
+      <div class="admin-section-heading"><h2>Categorias de plantas</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar categoria</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="crops" data-admin-section="crops" hidden>
+      <div class="admin-section-heading"><h2>Plantas</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar planta</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="companies" data-admin-section="companies" hidden>
+      <div class="admin-section-heading"><h2>Empresas e indústrias</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar empresa</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractTypes" data-admin-section="contractTypes" hidden>
+      <div class="admin-section-heading"><h2>Tipos de contrato</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar tipo</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="contractSlots" data-admin-section="contractSlots" hidden>
+      <div class="admin-section-heading"><div><h2>Slots de contrato</h2><p>Defina quantos slots existem e o nível da fazenda em que cada um é liberado.</p></div><button class="admin-button primary compact" data-catalog-add type="button">Adicionar slot</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="orderSteps" data-admin-section="orderSteps" hidden>
+      <div class="admin-section-heading"><div><h2>Etapas dos pedidos</h2><p>Defina a quantidade e os percentuais de recompensa de cada estágio.</p></div><button class="admin-button primary compact" data-catalog-add type="button">Adicionar etapa</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="missions" data-admin-section="missions" hidden>
+      <div class="admin-section-heading"><h2>Missões</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar missão</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="research" data-admin-section="research" hidden>
+      <div class="admin-section-heading"><h2>Pesquisas</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar pesquisa</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="prestigeUpgrades" data-admin-section="prestigeUpgrades" hidden>
+      <div class="admin-section-heading"><h2>Evoluções de prestígio</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar legado</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="events" data-admin-section="events" hidden>
+      <div class="admin-section-heading"><h2>Eventos</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar evento</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-catalog-editor" data-catalog-editor="updateNotes" data-admin-section="updateNotes" hidden>
+      <div class="admin-section-heading"><h2>Notas de atualização</h2><button class="admin-button primary compact" data-catalog-add type="button">Adicionar nota</button></div>
+      <div class="admin-catalog-meta"><b data-catalog-count>0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list></div>
+    </section>
+
+    <section class="admin-panel admin-editor" data-admin-section="texts" hidden>
+      <div class="admin-section-heading"><h2>Textos públicos</h2></div>
+      <textarea autocomplete="off" id="adminTextsEditor" spellcheck="false" aria-label="Textos públicos"></textarea>
+      <div class="admin-section-save"><button class="admin-button primary" id="adminSaveTexts" type="button">Salvar textos</button></div>
+    </section>
+  </section>
+
+  <div class="admin-feedback" id="adminFeedback" role="status" aria-live="polite"></div>
+</section>
+</main>
+
+<dialog class="admin-item-dialog" id="adminItemDialog">
+  <form autocomplete="off" method="dialog">
+    <div class="admin-dialog-heading"><h2 data-admin-dialog-title>Editar item</h2></div>
+    <div class="admin-dialog-fields" data-admin-dialog-fields></div>
+    <div class="admin-dialog-actions">
+      <button class="admin-button secondary" data-admin-dialog-cancel type="button">Cancelar</button>
+      <button class="admin-button primary" type="submit">Salvar na nuvem</button>
+    </div>
+  </form>
+</dialog>
+
+</body>
+</html>
