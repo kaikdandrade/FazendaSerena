@@ -1,0 +1,718 @@
+{
+  "version": 1,
+  "instructions": "Adicione novas imagens à pasta correspondente e registre aqui o nome exibido no Admin e o caminho do arquivo. Não é necessário cadastrar a imagem em uma aba do painel.",
+  "icons": [
+    {
+      "name": "Agenda de comunicados",
+      "path": "assets/icons/agenda-comunicados.webp"
+    },
+    {
+      "name": "Arcos azuis",
+      "path": "assets/icons/arcos-azuis.webp"
+    },
+    {
+      "name": "Cadeado",
+      "path": "assets/icons/cadeado.webp"
+    },
+    {
+      "name": "Caixa de colheita",
+      "path": "assets/icons/caixa-colheita.webp"
+    },
+    {
+      "name": "Calculadora e moeda",
+      "path": "assets/icons/calculadora-moeda.webp"
+    },
+    {
+      "name": "Calendário de eventos",
+      "path": "assets/icons/calendario-eventos.webp"
+    },
+    {
+      "name": "Caminhão de entrega",
+      "path": "assets/icons/caminhao-entrega.webp"
+    },
+    {
+      "name": "Campo ensolarado",
+      "path": "assets/icons/campo-ensolarado.webp"
+    },
+    {
+      "name": "Carteira de moedas",
+      "path": "assets/icons/carteira-moedas.webp"
+    },
+    {
+      "name": "Chapéu de formatura",
+      "path": "assets/icons/chapeu-formatura.webp"
+    },
+    {
+      "name": "Compra",
+      "path": "assets/icons/compra.webp"
+    },
+    {
+      "name": "Comunicado",
+      "path": "assets/icons/comunicado.webp"
+    },
+    {
+      "name": "Configurações",
+      "path": "assets/icons/configuracoes.webp"
+    },
+    {
+      "name": "Contrato agrícola",
+      "path": "assets/icons/contrato-agricola.webp"
+    },
+    {
+      "name": "Contrato comercial",
+      "path": "assets/icons/contrato-comercial.webp"
+    },
+    {
+      "name": "Cookie",
+      "path": "assets/icons/cookie.webp"
+    },
+    {
+      "name": "Coroa",
+      "path": "assets/icons/coroa.webp"
+    },
+    {
+      "name": "Crescimento de planta",
+      "path": "assets/icons/crescimento-planta.webp"
+    },
+    {
+      "name": "Crescimento de produção",
+      "path": "assets/icons/crescimento-producao.webp"
+    },
+    {
+      "name": "DNA",
+      "path": "assets/icons/dna.webp"
+    },
+    {
+      "name": "Documento e assinatura",
+      "path": "assets/icons/documento-assinatura.webp"
+    },
+    {
+      "name": "Emblema de conquista",
+      "path": "assets/icons/emblema-conquista.webp"
+    },
+    {
+      "name": "Engrenagem azul",
+      "path": "assets/icons/engrenagem-azul.webp"
+    },
+    {
+      "name": "Engrenagem e folha",
+      "path": "assets/icons/engrenagem-folha.webp"
+    },
+    {
+      "name": "Escritório com computador",
+      "path": "assets/icons/escritorio-computador.webp"
+    },
+    {
+      "name": "Escritório de estudos",
+      "path": "assets/icons/escritorio-estudos.webp"
+    },
+    {
+      "name": "Estimativa de preço",
+      "path": "assets/icons/estimativa-preco.webp"
+    },
+    {
+      "name": "Estrela de domínio da cultura",
+      "path": "assets/icons/estrela-dominio-cultura.webp"
+    },
+    {
+      "name": "Experiência (XP)",
+      "path": "assets/icons/xp.webp"
+    },
+    {
+      "name": "Fazenda e celeiro",
+      "path": "assets/icons/fazenda-celeiro.webp"
+    },
+    {
+      "name": "Fazendeiro",
+      "path": "assets/icons/fazendeiro.webp"
+    },
+    {
+      "name": "Ferramentas",
+      "path": "assets/icons/ferramentas.webp"
+    },
+    {
+      "name": "Fertilizante",
+      "path": "assets/icons/fertilizante.webp"
+    },
+    {
+      "name": "Galpão de madeira",
+      "path": "assets/icons/galpao-madeira.webp"
+    },
+    {
+      "name": "Galpão industrial",
+      "path": "assets/icons/galpao-industrial.webp"
+    },
+    {
+      "name": "Google colorido",
+      "path": "assets/icons/google-colorido.webp"
+    },
+    {
+      "name": "Ideia verde",
+      "path": "assets/icons/ideia-verde.webp"
+    },
+    {
+      "name": "Irrigação",
+      "path": "assets/icons/irrigacao.webp"
+    },
+    {
+      "name": "Livros",
+      "path": "assets/icons/livros.webp"
+    },
+    {
+      "name": "Logo Bauduque",
+      "path": "assets/icons/logo-bauduque.webp"
+    },
+    {
+      "name": "Logo do Google",
+      "path": "assets/icons/logo-google.webp"
+    },
+    {
+      "name": "Mapa",
+      "path": "assets/icons/mapa.webp"
+    },
+    {
+      "name": "Marco de nível",
+      "path": "assets/icons/marco-nivel.webp"
+    },
+    {
+      "name": "Medalha de ranking — 1º lugar",
+      "path": "assets/icons/medalha-ranking-1.webp"
+    },
+    {
+      "name": "Medalha de ranking — 2º lugar",
+      "path": "assets/icons/medalha-ranking-2.webp"
+    },
+    {
+      "name": "Medalha de ranking — 3º lugar",
+      "path": "assets/icons/medalha-ranking-3.webp"
+    },
+    {
+      "name": "Medalha de ranking — 4º lugar",
+      "path": "assets/icons/medalha-ranking-4.webp"
+    },
+    {
+      "name": "Medalha de ranking — 5º lugar",
+      "path": "assets/icons/medalha-ranking-5.webp"
+    },
+    {
+      "name": "Medalha fora do Top 5",
+      "path": "assets/icons/medalha-fora-top-5.webp"
+    },
+    {
+      "name": "Moeda",
+      "path": "assets/icons/moeda.webp"
+    },
+    {
+      "name": "Muda em vaso",
+      "path": "assets/icons/muda-vaso.webp"
+    },
+    {
+      "name": "Pacote",
+      "path": "assets/icons/pacote.webp"
+    },
+    {
+      "name": "Perfil",
+      "path": "assets/icons/perfil.webp"
+    },
+    {
+      "name": "Poção de pesquisa",
+      "path": "assets/icons/pocao-pesquisa.webp"
+    },
+    {
+      "name": "Prancheta de tarefas",
+      "path": "assets/icons/prancheta-tarefas.webp"
+    },
+    {
+      "name": "Precificação",
+      "path": "assets/icons/precificacao.webp"
+    },
+    {
+      "name": "Prestígio",
+      "path": "assets/icons/prestigio.webp"
+    },
+    {
+      "name": "Prestígio de conta",
+      "path": "assets/icons/prestigio-conta.webp"
+    },
+    {
+      "name": "Ranking",
+      "path": "assets/icons/ranking.webp"
+    },
+    {
+      "name": "Raízes",
+      "path": "assets/icons/raizes.webp"
+    },
+    {
+      "name": "Refeição",
+      "path": "assets/icons/refeicao.webp"
+    },
+    {
+      "name": "Regador e muda",
+      "path": "assets/icons/regador-muda.webp"
+    },
+    {
+      "name": "Relógio",
+      "path": "assets/icons/relogio.webp"
+    },
+    {
+      "name": "Relógio azul",
+      "path": "assets/icons/relogio-azul.webp"
+    },
+    {
+      "name": "Renovar contrato",
+      "path": "assets/icons/renovar-contrato.webp"
+    },
+    {
+      "name": "Retorno financeiro",
+      "path": "assets/icons/retorno-financeiro.webp"
+    },
+    {
+      "name": "Retorno offline",
+      "path": "assets/icons/retorno-offline.webp"
+    },
+    {
+      "name": "Saco de colheita",
+      "path": "assets/icons/saco-colheita.webp"
+    },
+    {
+      "name": "Sal",
+      "path": "assets/icons/sal.webp"
+    },
+    {
+      "name": "Seta para cima",
+      "path": "assets/icons/seta-cima.webp"
+    },
+    {
+      "name": "Silo",
+      "path": "assets/icons/silo.webp"
+    },
+    {
+      "name": "Social",
+      "path": "assets/icons/social.webp"
+    },
+    {
+      "name": "Sol no horizonte",
+      "path": "assets/icons/sol-horizonte.webp"
+    },
+    {
+      "name": "Troféu",
+      "path": "assets/icons/trofeu.webp"
+    }
+  ],
+  "plants": [
+    {
+      "name": "Abacate",
+      "path": "assets/plants/abacate.webp"
+    },
+    {
+      "name": "Abacaxi",
+      "path": "assets/plants/abacaxi.webp"
+    },
+    {
+      "name": "Abobora",
+      "path": "assets/plants/abobora.webp"
+    },
+    {
+      "name": "Acerola",
+      "path": "assets/plants/acerola.webp"
+    },
+    {
+      "name": "Aipim",
+      "path": "assets/plants/aipim.webp"
+    },
+    {
+      "name": "Alface",
+      "path": "assets/plants/alface.webp"
+    },
+    {
+      "name": "Algodao",
+      "path": "assets/plants/algodao.webp"
+    },
+    {
+      "name": "Alho",
+      "path": "assets/plants/alho.webp"
+    },
+    {
+      "name": "Alho Poro",
+      "path": "assets/plants/alho-poro.webp"
+    },
+    {
+      "name": "Ameixa",
+      "path": "assets/plants/ameixa.webp"
+    },
+    {
+      "name": "Amendoim",
+      "path": "assets/plants/amendoim.webp"
+    },
+    {
+      "name": "Amora",
+      "path": "assets/plants/amora.webp"
+    },
+    {
+      "name": "Arroz",
+      "path": "assets/plants/arroz.webp"
+    },
+    {
+      "name": "Aveia",
+      "path": "assets/plants/aveia.webp"
+    },
+    {
+      "name": "Azeitona",
+      "path": "assets/plants/azeitona.webp"
+    },
+    {
+      "name": "Açaí",
+      "path": "assets/plants/acai.webp"
+    },
+    {
+      "name": "Banana",
+      "path": "assets/plants/banana.webp"
+    },
+    {
+      "name": "Batata",
+      "path": "assets/plants/batata.webp"
+    },
+    {
+      "name": "Batata Doce",
+      "path": "assets/plants/batata-doce.webp"
+    },
+    {
+      "name": "Baunilha",
+      "path": "assets/plants/baunilha.webp"
+    },
+    {
+      "name": "Berinjela",
+      "path": "assets/plants/berinjela.webp"
+    },
+    {
+      "name": "Beterraba",
+      "path": "assets/plants/beterraba.webp"
+    },
+    {
+      "name": "Brócolis",
+      "path": "assets/plants/brocolis.webp"
+    },
+    {
+      "name": "Cacau",
+      "path": "assets/plants/cacau.webp"
+    },
+    {
+      "name": "Café",
+      "path": "assets/plants/cafe.webp"
+    },
+    {
+      "name": "Caju",
+      "path": "assets/plants/caju.webp"
+    },
+    {
+      "name": "Cajá",
+      "path": "assets/plants/caja.webp"
+    },
+    {
+      "name": "Carambola",
+      "path": "assets/plants/carambola.webp"
+    },
+    {
+      "name": "Cebola",
+      "path": "assets/plants/cebola.webp"
+    },
+    {
+      "name": "Cenoura",
+      "path": "assets/plants/cenoura.webp"
+    },
+    {
+      "name": "Cereja",
+      "path": "assets/plants/cereja.webp"
+    },
+    {
+      "name": "Coco",
+      "path": "assets/plants/coco.webp"
+    },
+    {
+      "name": "Couve",
+      "path": "assets/plants/couve.webp"
+    },
+    {
+      "name": "Couve Flor",
+      "path": "assets/plants/couve-flor.webp"
+    },
+    {
+      "name": "Cupuacu",
+      "path": "assets/plants/cupuacu.webp"
+    },
+    {
+      "name": "Ervilha",
+      "path": "assets/plants/ervilha.webp"
+    },
+    {
+      "name": "Espinafre",
+      "path": "assets/plants/espinafre.webp"
+    },
+    {
+      "name": "Feijão",
+      "path": "assets/plants/feijao.webp"
+    },
+    {
+      "name": "Figo",
+      "path": "assets/plants/figo.webp"
+    },
+    {
+      "name": "Folha",
+      "path": "assets/plants/folha.webp"
+    },
+    {
+      "name": "Framboesa",
+      "path": "assets/plants/framboesa.webp"
+    },
+    {
+      "name": "Gengibre",
+      "path": "assets/plants/gengibre.webp"
+    },
+    {
+      "name": "Goiaba",
+      "path": "assets/plants/goiaba.webp"
+    },
+    {
+      "name": "Graviola",
+      "path": "assets/plants/graviola.webp"
+    },
+    {
+      "name": "Guaraná",
+      "path": "assets/plants/guarana.webp"
+    },
+    {
+      "name": "Inhame",
+      "path": "assets/plants/inhame.webp"
+    },
+    {
+      "name": "Jabuticaba",
+      "path": "assets/plants/jabuticaba.webp"
+    },
+    {
+      "name": "Jaca",
+      "path": "assets/plants/jaca.webp"
+    },
+    {
+      "name": "Kiwi",
+      "path": "assets/plants/kiwi.webp"
+    },
+    {
+      "name": "Laranja",
+      "path": "assets/plants/laranja.webp"
+    },
+    {
+      "name": "Limão",
+      "path": "assets/plants/limao.webp"
+    },
+    {
+      "name": "Mamão",
+      "path": "assets/plants/mamao.webp"
+    },
+    {
+      "name": "Manga",
+      "path": "assets/plants/manga.webp"
+    },
+    {
+      "name": "Maracujá",
+      "path": "assets/plants/maracuja.webp"
+    },
+    {
+      "name": "Maçã",
+      "path": "assets/plants/maca.webp"
+    },
+    {
+      "name": "Melancia",
+      "path": "assets/plants/melancia.webp"
+    },
+    {
+      "name": "Melão",
+      "path": "assets/plants/melao.webp"
+    },
+    {
+      "name": "Milho",
+      "path": "assets/plants/milho.webp"
+    },
+    {
+      "name": "Mirtilo",
+      "path": "assets/plants/mirtilo.webp"
+    },
+    {
+      "name": "Morango",
+      "path": "assets/plants/morango.webp"
+    },
+    {
+      "name": "Pepino",
+      "path": "assets/plants/pepino.webp"
+    },
+    {
+      "name": "Pera",
+      "path": "assets/plants/pera.webp"
+    },
+    {
+      "name": "Pimenta",
+      "path": "assets/plants/pimenta.webp"
+    },
+    {
+      "name": "Pimentão",
+      "path": "assets/plants/pimentao.webp"
+    },
+    {
+      "name": "Pitaya",
+      "path": "assets/plants/pitaya.webp"
+    },
+    {
+      "name": "Pêssego",
+      "path": "assets/plants/pessego.webp"
+    },
+    {
+      "name": "Rabanete",
+      "path": "assets/plants/rabanete.webp"
+    },
+    {
+      "name": "Repolho",
+      "path": "assets/plants/repolho.webp"
+    },
+    {
+      "name": "Soja",
+      "path": "assets/plants/soja.webp"
+    },
+    {
+      "name": "Tamarindo",
+      "path": "assets/plants/tamarindo.webp"
+    },
+    {
+      "name": "Tangerina",
+      "path": "assets/plants/tangerina.webp"
+    },
+    {
+      "name": "Tomate",
+      "path": "assets/plants/tomate.webp"
+    },
+    {
+      "name": "Trigo",
+      "path": "assets/plants/trigo.webp"
+    },
+    {
+      "name": "Uva",
+      "path": "assets/plants/uva.webp"
+    }
+  ],
+  "avatars": [
+    {
+      "name": "Antílope",
+      "path": "assets/avatars/antilope.webp"
+    },
+    {
+      "name": "Arara azul",
+      "path": "assets/avatars/arara-azul.webp"
+    },
+    {
+      "name": "Bicho-preguiça",
+      "path": "assets/avatars/bicho-preguica.webp"
+    },
+    {
+      "name": "Borboleta",
+      "path": "assets/avatars/borboleta.webp"
+    },
+    {
+      "name": "Cegonha",
+      "path": "assets/avatars/cegonha.webp"
+    },
+    {
+      "name": "Cervo",
+      "path": "assets/avatars/cervo.webp"
+    },
+    {
+      "name": "Coelho",
+      "path": "assets/avatars/coelho.webp"
+    },
+    {
+      "name": "Crocodilo",
+      "path": "assets/avatars/crocodilo.webp"
+    },
+    {
+      "name": "Elefante",
+      "path": "assets/avatars/elefante.webp"
+    },
+    {
+      "name": "Gavião",
+      "path": "assets/avatars/gaviao.webp"
+    },
+    {
+      "name": "Girafa",
+      "path": "assets/avatars/girafa.webp"
+    },
+    {
+      "name": "Guaxinim",
+      "path": "assets/avatars/guaxinim.webp"
+    },
+    {
+      "name": "Hiena",
+      "path": "assets/avatars/hiena.webp"
+    },
+    {
+      "name": "Hipopótamo",
+      "path": "assets/avatars/hipopotamo.webp"
+    },
+    {
+      "name": "Leão",
+      "path": "assets/avatars/leao.webp"
+    },
+    {
+      "name": "Lobo",
+      "path": "assets/avatars/lobo.webp"
+    },
+    {
+      "name": "Lontra",
+      "path": "assets/avatars/lontra.webp"
+    },
+    {
+      "name": "Lêmure",
+      "path": "assets/avatars/lemure.webp"
+    },
+    {
+      "name": "Macaco",
+      "path": "assets/avatars/macaco.webp"
+    },
+    {
+      "name": "Ornitorrinco",
+      "path": "assets/avatars/ornitorrinco.webp"
+    },
+    {
+      "name": "Panda",
+      "path": "assets/avatars/panda.webp"
+    },
+    {
+      "name": "Pavão",
+      "path": "assets/avatars/pavao.webp"
+    },
+    {
+      "name": "Raposa",
+      "path": "assets/avatars/raposa.webp"
+    },
+    {
+      "name": "Rinoceronte",
+      "path": "assets/avatars/rinoceronte.webp"
+    },
+    {
+      "name": "Tigre",
+      "path": "assets/avatars/tigre.webp"
+    },
+    {
+      "name": "Tucano",
+      "path": "assets/avatars/tucano.webp"
+    },
+    {
+      "name": "Urso",
+      "path": "assets/avatars/urso.webp"
+    },
+    {
+      "name": "Urso-polar",
+      "path": "assets/avatars/urso-polar.webp"
+    },
+    {
+      "name": "Zebra",
+      "path": "assets/avatars/zebra.webp"
+    }
+  ]
+}
