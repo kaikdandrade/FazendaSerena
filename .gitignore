@@ -1,6 +1,9 @@
 # Firebase CLI
 .firebase/
 
+# VS Code
+.vscode/
+
 # Variáveis e credenciais locais
 .env
 .env.*
