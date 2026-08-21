@@ -393,6 +393,7 @@ service cloud.firestore {
                             && request.resource.data.keys().hasOnly([
                               'displayName',
                               'avatarId',
+                              'playerTitleId',
                               'profileComplete',
                               'prestigeTotal',
                               'prestigeCount',
@@ -407,6 +408,11 @@ service cloud.firestore {
                             && request.resource.data.avatarId is string
                             && request.resource.data.avatarId.size() >= 1
                             && request.resource.data.avatarId.size() <= 48
+                            && (!request.resource.data.keys().hasAny(['playerTitleId'])
+                                || (request.resource.data.playerTitleId is string
+                                    && request.resource.data.playerTitleId.size() >= 1
+                                    && request.resource.data.playerTitleId.size() <= 64
+                                    && request.resource.data.playerTitleId == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.settings.playerTitle))
                             && request.resource.data.profileComplete == true
                             && request.resource.data.prestigeTotal is int
                             && request.resource.data.prestigeTotal >= 0
@@ -432,6 +438,7 @@ service cloud.firestore {
                             && request.resource.data.keys().hasOnly([
                               'displayName',
                               'avatarId',
+                              'playerTitleId',
                               'friendCode',
                               'profileComplete',
                               'updatedAt',
@@ -443,6 +450,11 @@ service cloud.firestore {
                             && request.resource.data.avatarId is string
                             && request.resource.data.avatarId.size() >= 1
                             && request.resource.data.avatarId.size() <= 48
+                            && (!request.resource.data.keys().hasAny(['playerTitleId'])
+                                || (request.resource.data.playerTitleId is string
+                                    && request.resource.data.playerTitleId.size() >= 1
+                                    && request.resource.data.playerTitleId.size() <= 64
+                                    && request.resource.data.playerTitleId == getAfter(/databases/$(database)/documents/players/$(userId)/saves/main).data.state.settings.playerTitle))
                             && request.resource.data.friendCode == userId
                             && request.resource.data.profileComplete == true
                             && request.resource.data.updatedAtClient is int;
