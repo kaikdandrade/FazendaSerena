@@ -11,7 +11,10 @@ async function boot() {
   try {
     initialUser = await window.FirebaseManager.ready();
     if (initialUser) {
-      const moderation = await window.FirebaseManager.getOwnModeration?.({ force: true });
+      const [moderation] = await Promise.all([
+        window.FirebaseManager.getOwnModeration?.({ force: true }),
+        window.FirebaseManager.isCurrentUserAdmin?.({ force: true })
+      ]);
       if (moderation?.banned) {
         throw new Error(moderation.reason ? `Esta conta foi bloqueada: ${moderation.reason}` : "Esta conta foi bloqueada pela administração.");
       }
@@ -59,6 +62,7 @@ async function boot() {
     );
   }
   engine = new GameEngine(handleEngineEvent, initialState);
+  window.FazendaSerenaEngineSecurity?.hardenInstance(engine);
   setupCategoryFilter();
   setupEvents();
   setupFeedback();

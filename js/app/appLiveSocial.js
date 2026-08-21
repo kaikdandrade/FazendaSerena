@@ -2,7 +2,7 @@
 
   let liveSocialRefreshTimer = 0;
   let liveSocialCountdownTimer = 0;
-  let liveSocialStructureSignature = "";
+  let liveSocialStructureSignature = null;
 
   const weekdayNames = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
@@ -53,7 +53,7 @@
     }
 
     if (!dom.socialEventsList) return;
-    const signature = entries.map(({ event, start, end, active }) => `${event.id}:${event.name}:${event.description || ""}:${event.durationMinutes}:${start}:${end}:${active ? 1 : 0}`).join("|");
+    const signature = entries.map(({ event, start, end, active }) => `${event.id}:${event.name}:${event.icon || ""}:${event.description || ""}:${event.durationMinutes}:${start}:${end}:${active ? 1 : 0}`).join("|");
     if (signature === liveSocialStructureSignature) {
       updateEventCountdowns();
       return;
@@ -63,8 +63,10 @@
       const date = new Date(start);
       const weekday = weekdayNames[(event.weekday || 1) - 1] || "Dia";
       const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+      const eventIcon = String(event.icon || "assets/icons/calendario-eventos.webp");
       return `<article class="social-live-card ${active ? "active" : ""}" data-event-id="${escapeHtml(event.id)}">
-        <div class="social-event-copy"><small>${active ? "Acontecendo agora" : `${weekday} · ${time}`}</small><h3>${escapeHtml(event.name)}</h3><p>${escapeHtml(event.description || "Evento especial da comunidade.")}</p></div>
+        <div class="social-event-icon" aria-hidden="true"><img src="${escapeHtml(eventIcon)}" alt=""></div>
+        <div class="social-event-copy"><small>${active ? "Acontecendo agora" : `${weekday} · ${time}`}</small><h3>${enrichResourceText(event.name)}</h3><p>${enrichResourceText(event.description || "Evento especial da comunidade.")}</p></div>
         <div class="social-event-time ${active ? "is-running" : ""}"><img src="assets/icons/relogio.webp" alt=""><span>${active ? `<b data-event-countdown data-event-end="${end}">${formatEventCountdown(end - now)}</b>` : formatEventDuration(event.durationMinutes)}</span></div>
       </article>`;
     }).join("") : `<div class="empty-state social-live-empty">${runtimeTextHtml("socialEventsEmpty", "Nenhum evento programado para esta semana.")}</div>`;

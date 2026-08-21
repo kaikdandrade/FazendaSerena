@@ -1,79 +1,69 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#eef4e8">
-  <meta name="robots" content="noindex, follow">
-  <meta name="description" content="A página que você tentou acessar não foi encontrada na Fazenda Serena.">
-  <title>Fazenda Serena</title>
-  <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="css/home.css">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#eef4e8" name="theme-color"/>
+<meta content="noindex, follow" name="robots"/>
+<meta content="A página que você tentou acessar não foi encontrada na Fazenda Serena." name="description"/>
+<title>Fazenda Serena</title>
+<link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+<link href="css/home.css" rel="stylesheet"/>
 </head>
 <body class="home-page error-page">
-  <header class="home-header">
-    <div class="home-header-inner">
-      <a class="home-brand" href="index.html" aria-label="Fazenda Serena — início">
-        <img src="assets/logo.webp" alt="Logo Fazenda Serena">
-        <span><strong>Fazenda Serena</strong><small>Agricultura Industrial</small></span>
-      </a>
-      <nav class="home-nav" aria-label="Navegação principal">
-        <a href="index.html">Início</a>
-        <a href="noticias.html">Notícias</a>
-        <a href="tutorial.html">Tutorial</a>
-      </nav>
-      <a class="home-play-button compact" href="play.html">Jogar agora</a>
-    </div>
-  </header>
+<header class="home-header public-site-header">
+<div class="home-header-inner">
+<a aria-label="Fazenda Serena — início" class="home-brand" href="index.html">
+<img alt="Logo Fazenda Serena" src="assets/logo.webp"/>
+<span><strong>Fazenda Serena</strong><small>Agricultura Industrial</small></span>
+</a>
+<div class="home-header-actions">
+<nav aria-label="Navegação principal" class="home-nav">
+<a href="index.html">Início</a>
+<a href="noticias.html">Notícias</a>
+<a href="tutorial.html">Tutorial</a>
+</nav>
+<a class="home-play-button compact" href="play.html">Jogar agora</a>
+</div>
+</div>
+</header>
+<main class="error-main">
+<section aria-labelledby="errorTitle" class="error-card">
+<div aria-hidden="true" class="error-art error-art-image">
+<img alt="" src="assets/backgrounds/404-fazenda.webp"/>
+</div>
 
-  <main class="error-main">
-    <section class="error-card" aria-labelledby="errorTitle">
-      <div class="error-art error-art-image" aria-hidden="true">
-        <img src="assets/backgrounds/404-fazenda.webp" alt="">
-      </div>
+<div class="error-overlay-layout"><div class="error-copy">
+<span class="home-kicker">caminho não encontrado</span>
+<h1 id="errorTitle">Essa trilha não leva a nenhuma área da fazenda.</h1>
+<p>O endereço pode ter mudado, sido removido ou simplesmente nunca ter existido. Sua fazenda e seu progresso continuam no lugar certo.</p>
+<div class="error-actions">
+<a class="home-play-button" href="index.html">Voltar ao início</a>
+<a class="home-secondary-button" href="play.html">Ir para o jogo</a>
+</div>
+</div><section aria-label="Outros caminhos" class="error-shortcuts">
+<a href="noticias.html">
+<img alt="" src="assets/icons/agenda-comunicados.webp"/>
+<span><strong>Notícias</strong><small>Veja as últimas atualizações.</small></span>
+</a>
+<a href="tutorial.html">
+<img alt="" src="assets/icons/livros.webp"/>
+<span><strong>Tutorial</strong><small>Aprenda os sistemas do jogo.</small></span>
+</a>
+<a href="privacy.html">
+<img alt="" src="assets/icons/cadeado.webp"/>
+<span><strong>Privacidade</strong><small>Consulte nossa política.</small></span>
+</a>
+</section></div></section>
 
-      <div class="error-copy">
-        <span class="home-kicker">caminho não encontrado</span>
-        <h1 id="errorTitle">Essa trilha não leva a nenhuma área da fazenda.</h1>
-        <p>O endereço pode ter mudado, sido removido ou simplesmente nunca ter existido. Sua fazenda e seu progresso continuam no lugar certo.</p>
-
-        <div class="error-actions">
-          <a class="home-play-button" href="index.html">Voltar ao início</a>
-          <a class="home-secondary-button" href="play.html">Ir para o jogo</a>
-        </div>
-      </div>
-    </section>
-
-    <section class="error-shortcuts" aria-label="Outros caminhos">
-      <a href="noticias.html">
-        <img src="assets/icons/agenda-comunicados.webp" alt="">
-        <span><strong>Notícias</strong><small>Veja as últimas atualizações.</small></span>
-      </a>
-      <a href="tutorial.html">
-        <img src="assets/icons/livros.webp" alt="">
-        <span><strong>Tutorial</strong><small>Aprenda os sistemas do jogo.</small></span>
-      </a>
-      <a href="privacy.html">
-        <img src="assets/icons/cadeado.webp" alt="">
-        <span><strong>Privacidade</strong><small>Consulte nossa política.</small></span>
-      </a>
-    </section>
-  </main>
-
-  <footer class="home-footer error-footer">
-    <div class="home-footer-brand">
-      <img src="assets/logo.webp" alt="">
-      <span><strong>Fazenda Serena</strong><small>Agricultura Industrial</small></span>
-    </div>
-    <nav aria-label="Links do site">
-      <a href="index.html">Início</a>
-      <a href="play.html">Jogar</a>
-      <a href="noticias.html">Notícias</a>
-      <a href="tutorial.html">Tutorial</a>
-      <a href="terms.html">Termos de Uso</a>
-      <a href="privacy.html">Política de Privacidade</a>
-    </nav>
-    <p>© 2026 Fazenda Serena</p>
-  </footer>
+</main>
+<footer class="home-footer public-site-footer">
+<div class="home-footer-brand"><img alt="" src="assets/logo.webp"/><span><strong>Fazenda Serena</strong><small>Agricultura Industrial</small></span></div>
+<nav aria-label="Links do site">
+<a href="index.html">Início</a><a href="noticias.html">Notícias</a><a href="tutorial.html">Tutorial</a><a href="terms.html">Termos de Uso</a><a href="privacy.html">Política de Privacidade</a>
+</nav>
+<p>© 2026 Fazenda Serena</p>
+</footer>
 </body>
 </html>

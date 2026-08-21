@@ -143,7 +143,7 @@
       { key: "level", label: "Nível", value: `${currentFarmLevel} / ${GameEngine.MAX_FARM_LEVEL}` },
       { key: "owned", label: "Plantas compradas", value: `${engine.formatNumber(prestigeBreakdown.owned || 0)} / ${engine.formatNumber(totalCrops)}` },
       { key: "mastered", label: "Plantas prestigiadas", value: `${engine.formatNumber(prestigeBreakdown.mastered || 0)} / ${engine.formatNumber(totalCrops)}` },
-      { key: "orders", label: "Pedidos finalizados", value: engine.formatNumber(completedOrders) }
+      { key: "orders", label: "Pedidos finalizados", value: `${engine.formatNumber(completedOrders)} / ${engine.formatNumber(totalCrops)}` }
     ];
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-rework ${!prestigeUnlocked ? "prestige-locked" : ""}">

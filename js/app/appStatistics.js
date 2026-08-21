@@ -119,12 +119,15 @@
   function renderStats() {
     const state = engine.state;
     const stats = state.stats;
-    const claimed = engine.data.missions.filter(mission => state.missionsClaimed[mission.id]);
+    const visibleMissions = engine.data.missions.filter(mission => engine.isMissionVisible?.(mission) !== false);
+    const claimed = visibleMissions.filter(mission => state.missionsClaimed[mission.id]);
     const legacyEntries = engine.data.prestigeUpgrades.map(item => ({ item, level: Number(state.prestigeUpgrades[item.id] || 0) })).filter(entry => entry.level > 0);
     const researchEntries = engine.data.research.map(item => ({ item, level: Number(state.researchTechs[item.id] || 0) })).filter(entry => entry.level > 0);
     const legacyLevels = legacyEntries.reduce((sum, entry) => sum + entry.level, 0);
     const researchLevels = researchEntries.reduce((sum, entry) => sum + entry.level, 0);
     const totalLegacyLevels = engine.data.prestigeUpgrades.reduce((sum, item) => sum + Math.max(0, Number(item?.max) || 0), 0);
+    const masteredCropCount = engine.data.crops.filter(crop => Number(engine.state.crops?.[crop.id]?.level || 0) >= GameEngine.MAX_CROP_LEVEL).length;
+    const totalCropCount = engine.data.crops.length;
     const totalResearchLevels = engine.data.research.reduce((sum, item) => sum + Math.max(0, Number(item?.max) || 0), 0);
     if (dom.statsHero) { dom.statsHero.innerHTML = ""; dom.statsHero.hidden = true; }
 
@@ -134,18 +137,18 @@
       statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "", "featured", "lifetimeSold"),
       statCard("assets/icons/contrato-comercial.webp", "Contratos entregues", engine.formatNumber(stats.lifetimeContractsCompleted), "", "", "lifetimeContractsCompleted"),
       statCard("assets/icons/prancheta-tarefas.webp", "Pedidos entregues", engine.formatNumber(stats.lifetimeOrdersCompleted), "", "", "lifetimeOrdersCompleted"),
-      statCard("assets/icons/prestigio-conta.webp", "Nível de Prestígio", engine.formatNumber(stats.prestiges), "", "", "prestiges")
+      statCard("assets/icons/prestigio-conta.webp", "Prestígio de conta", engine.formatNumber(stats.prestiges), "", "", "prestiges")
     ].join("");
     dom.recordStats.innerHTML = [
       statCard("assets/icons/fazenda-celeiro.webp", "Maior nível", engine.formatNumber(stats.maxFarmLevel), "", "record", "maxFarmLevel"),
-      statCard("assets/icons/estrela-dominio-cultura.webp", "Platinadas", engine.formatNumber(stats.lifetimeCropPrestiges || 0), "", "record", "lifetimeCropPrestiges"),
+      statCard("assets/icons/estrela-dominio-cultura.webp", "Plantas platinadas", `${engine.formatNumber(masteredCropCount)} / ${engine.formatNumber(totalCropCount)}`, "", "record", "lifetimeCropPrestiges"),
       statCard("assets/icons/galpao-industrial.webp", "Maior estoque", engine.formatNumber(stats.maxStorageUsed), "", "record", "maxStorageUsed"),
       statCard("assets/icons/moeda.webp", "Maior saldo", resourceAmount("coins", stats.maxCoinsHeld), "", "record", "maxCoinsHeld")
     ].join("");
     dom.achievementSummary.innerHTML = `
       <article><span>${statIcon("assets/icons/livros.webp", "Pesquisa")}</span><div><small>Pesquisas adquiridas</small><strong data-achievement-live="researchLevels">${engine.formatNumber(researchLevels)} / ${engine.formatNumber(totalResearchLevels)} níveis</strong></div></article>
       <article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Legados permanentes</small><strong data-achievement-live="legacyLevels">${engine.formatNumber(legacyLevels)} / ${engine.formatNumber(totalLegacyLevels)} níveis</strong></div></article>
-      <article><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missões")}</span><div><small>Missões concluídas</small><strong data-achievement-live="missionsClaimed">${claimed.length} / ${engine.data.missions.length}</strong></div></article>`;
+      <article><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missões")}</span><div><small>Missões concluídas</small><strong data-achievement-live="missionsClaimed">${claimed.length} / ${visibleMissions.length}</strong></div></article>`;
 
     const researchMarkup = researchEntries.length ? researchEntries.map(({ item, level }) => {
       const benefits = summarizeEvolutionBenefits(item, level);
@@ -163,6 +166,6 @@
     dom.achievementGrid.innerHTML = `
       <section class="stats-benefit-section research-benefit-section"><header><div><small>benefícios acumulados</small><h3>Pesquisa</h3></div><b>${researchLevels}</b></header><div class="stats-benefit-list">${researchMarkup}</div></section>
       <section class="stats-benefit-section legacy-benefit-section"><header><div><small>benefícios permanentes</small><h3>Legado</h3></div><img data-prestige-icon="legacy" src="assets/icons/prestigio.webp" alt=""></header><div class="stats-benefit-list">${legacyMarkup}</div></section>
-      <details class="stats-mission-history" ${claimed.length ? "" : "open"}><summary>Missões concluídas <b>${claimed.length}</b></summary><div class="stats-benefit-list">${missionMarkup}</div></details>`;
+      <details class="stats-mission-history" ${claimed.length ? "" : "open"}><summary>Missões <b>${claimed.length}</b></summary><div class="stats-benefit-list">${missionMarkup}</div></details>`;
   }
 

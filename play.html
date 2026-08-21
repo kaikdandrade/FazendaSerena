@@ -45,6 +45,7 @@
 <script defer="" src="js/engine/GameEngineContracts.js"></script>
 <script defer="" src="js/engine/GameEngineOrdersMissions.js"></script>
 <script defer="" src="js/engine/GameEnginePrestigeSettings.js"></script>
+<script defer="" src="js/engine/GameEngineGuard.js"></script>
 <script defer="" src="js/gameAdmin.js"></script>
 <script defer="" src="js/ambientBackground.js"></script>
 <script defer="" src="js/app/appState.js"></script>
@@ -71,10 +72,6 @@
 <header class="app-header">
 <a aria-label="Ir para a fazenda" class="brand" data-go-view="farmView" href="?view=farmView">
 <img alt="Folha da Fazenda Serena" class="brand-logo" src="assets/logo.webp"/>
-<span class="brand-copy">
-<small>Agricultura Industrial</small>
-<strong>Fazenda Serena</strong>
-</span>
 </a>
 <section aria-label="Nível da fazenda" class="farm-progress">
 <div class="farm-progress-head">
@@ -233,12 +230,11 @@
 <img alt="" id="accountAvatar" src="assets/logo.webp"/>
 </div>
 <div class="account-identity">
-<p class="eyebrow">conta Google</p>
-<div class="account-name-title-line"><h2 id="accountName">Visitante</h2><span class="social-title-dot account-title-dot" id="accountTitleDot" data-title-rarity="common" aria-hidden="true"></span><div class="account-player-title" id="accountPlayerTitle" aria-label="Título equipado"></div></div>
+<div class="account-google-status-row"><p class="eyebrow">Conta Google</p><span class="account-connection-status is-disconnected" id="accountConnectionStatus">Conta não conectada</span></div>
+<div class="account-name-title-line"><h2 id="accountName">Visitante</h2><span class="social-title-dot account-title-dot" id="accountTitleDot" data-title-rarity="common" aria-hidden="true" hidden></span><div class="account-player-title" id="accountPlayerTitle" aria-label="Título equipado" hidden></div></div>
 <div class="account-detail-lines">
-<p class="account-email" id="accountEmail">Conta não conectada</p>
-<p class="account-privacy" id="accountDescription">Seu progresso existe somente
-                                            neste navegador e será salvo automaticamente enquanto você jogar como visitante.</p>
+<p class="account-email" id="accountEmail" hidden></p>
+<p class="account-privacy" id="accountDescription" hidden></p>
 </div>
 </div>
 </div>
@@ -300,16 +296,15 @@
 </div>
 </section></div>
 </section><section class="view" data-view-panel="settingsView" id="settingsView">
-<div class="panel-card settings-page-container">
 <div class="section-heading settings-page-heading"><div><p class="eyebrow">seu jeito de jogar</p><h1>Configurações</h1></div></div>
 <div class="settings-grid settings-grid-reworked">
 <article class="settings-card experience-settings-card">
 <header class="settings-card-head"><h2>Experiência visual</h2></header>
 <div class="settings-card-body">
-<label class="setting-row"><span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span><input id="ambientSetting" type="checkbox"/></label>
 <label class="setting-row appearance-mode-setting"><span><strong>Tema</strong><small>Use o tema do dispositivo ou escolha entre claro e escuro.</small></span><select aria-label="Tema do jogo" id="appearanceModeSetting"><option value="automatic">Automático</option><option value="light">Modo claro</option><option value="dark">Modo escuro</option></select></label>
-<label class="setting-row number-format-setting"><span><strong>Formato dos números</strong><small>Escolha entre vírgula brasileira e ponto internacional.</small></span><select aria-label="Formato dos números" id="numberFormatSetting"><option value="brazilian">Brasileiro (1,2K)</option><option value="international">Internacional (1.2K)</option></select></label>
 <label class="setting-row navigation-mode-setting"><span><strong>Navegação</strong><small>Escolha como as áreas do jogo aparecem no menu.</small></span><select aria-label="Modo de navegação" id="navigationModeSetting"><option value="automatic">Automático</option><option value="line">Tabulação em linha</option><option value="grid">Tabulação em grade</option></select></label>
+<label class="setting-row number-format-setting"><span><strong>Formato dos números</strong><small>Escolha entre vírgula brasileira e ponto internacional.</small></span><select aria-label="Formato dos números" id="numberFormatSetting"><option value="brazilian">Brasileiro (1,2K)</option><option value="international">Internacional (1.2K)</option></select></label>
+<label class="setting-row"><span><strong>Ambiente vivo</strong><small>Movimentos discretos de plantas e luz no fundo.</small></span><input id="ambientSetting" type="checkbox"/></label>
 
 </div></article>
 <article class="settings-card audio-settings-card">
@@ -327,7 +322,6 @@
 <div class="setting-row feedback-setting-row"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span><button class="button feedback-launch-button" id="openPlayerFeedback" type="button">Enviar feedback</button></div>
 </div>
 </article>
-</div>
 </section>
 </main>
 </div>
@@ -335,8 +329,6 @@
 <footer class="app-footer">
 <div class="footer-brand">
 <img alt="Folha da Fazenda Serena" src="assets/logo.webp"/>
-<span class="footer-brand-copy"><strong>Fazenda Serena</strong><small>Agricultura
-                        Industrial</small></span>
 </div>
 <nav aria-label="Informações e privacidade" class="footer-links">
 <a href="index.html">Início</a>

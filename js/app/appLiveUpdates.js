@@ -256,8 +256,11 @@ function updateLiveMissionsUI() {
     const value = engine.missionValue(mission.metric, mission);
     const completed = value >= mission.target;
     const progress = percent((value / Math.max(1, mission.target)) * 100);
-    const cropMilestone = mission.metric === "cropUnlocked" ? engine.getCrop(mission.cropId) : null;
-    if (!cropMilestone) {
+    const cropGoal = ["cropUnlocked", "cropPurchased"].includes(mission.metric) ? engine.getCrop(mission.cropId) : null;
+    if (cropGoal) {
+      const isPurchaseGoal = mission.metric === "cropPurchased";
+      setLiveText(card.querySelector("[data-mission-live-value]"), completed ? "Concluído" : (isPurchaseGoal ? "Pendente" : `Nível ${Math.max(1, Number(cropGoal.unlockLevel) || 1)}`));
+    } else {
       setLiveText(card.querySelector("[data-mission-live-value]"), `${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}`);
     }
     setLiveWidth(card.querySelector("[data-mission-live-progress]"), progress);
@@ -285,7 +288,7 @@ function updateLivePrestigeDashboardUI() {
     level: `${Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(engine.state.farmLevel) || 1)))} / ${GameEngine.MAX_FARM_LEVEL}`,
     owned: `${engine.formatNumber(breakdown.owned || 0)} / ${engine.formatNumber(totalCrops)}`,
     mastered: `${engine.formatNumber(breakdown.mastered || 0)} / ${engine.formatNumber(totalCrops)}`,
-    orders: engine.formatNumber(completedOrders)
+    orders: `${engine.formatNumber(completedOrders)} / ${engine.formatNumber(totalCrops)}`
   };
   Object.entries(values).forEach(([key, value]) => setLiveText(dom.prestigeDashboard.querySelector(`[data-prestige-live-driver="${key}"]`), value));
   const action = dom.prestigeDashboard.querySelector("[data-prestige-live-action]");
@@ -312,7 +315,10 @@ function updateLiveStatsUI() {
     const target = card?.querySelector?.("[data-stat-live-value]");
     if (!target) return;
     if (key === "lifetimeCoins" || key === "maxCoinsHeld") setLiveResourceValue(target, value);
-    else setLiveText(target, engine.formatNumber(value));
+    else if (key === "lifetimeCropPrestiges") {
+      const mastered = engine.data.crops.filter(crop => Number(engine.state.crops?.[crop.id]?.level || 0) >= GameEngine.MAX_CROP_LEVEL).length;
+      setLiveText(target, `${engine.formatNumber(mastered)} / ${engine.formatNumber(engine.data.crops.length)}`);
+    } else setLiveText(target, engine.formatNumber(value));
   });
 
   const researchLevels = engine.data.research.reduce((sum, item) => sum + Math.max(0, Number(engine.state.researchTechs[item.id]) || 0), 0);

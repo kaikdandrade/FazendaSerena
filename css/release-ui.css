@@ -6547,3 +6547,686 @@ html[data-theme="dark"] #profileSocialPanel .social-event-time.is-running {
 #stockView .catalog-filter-button > b[hidden] {
   display: none !important;
 }
+
+/* ========================================================================== */
+/* R39.5 — refinamentos de navegação e busca no tema claro                    */
+/* ========================================================================== */
+
+/* Navegação em linha: remove a borda duplicada do container pai da tab
+   secundária. O próprio .context-tabs continua responsável pela superfície. */
+body[data-navigation-mode="line"] .navigation-stack > .desktop-context-nav,
+body[data-navigation-mode="line"] .navigation-stack > .context-nav-column.desktop-context-nav {
+  border: 0 !important;
+}
+
+/* Busca expansível — acabamento do tema claro. */
+html:not([data-theme="dark"]) #farmView .catalog-search-field,
+html:not([data-theme="dark"]) #stockView .stock-search-field.catalog-search-field {
+  color: #294331 !important;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255,255,255,.96), transparent 38%),
+    linear-gradient(180deg, #ffffff 0%, #f3f8f1 100%) !important;
+  border: 1px solid rgba(67,112,72,.14) !important;
+  box-shadow:
+    0 7px 18px rgba(47,80,51,.08),
+    inset 0 1px 0 rgba(255,255,255,.92) !important;
+}
+html:not([data-theme="dark"]) #farmView .catalog-search-field:hover,
+html:not([data-theme="dark"]) #stockView .stock-search-field.catalog-search-field:hover {
+  border-color: rgba(75,126,81,.22) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #eef6ec 100%) !important;
+  box-shadow:
+    0 9px 22px rgba(47,80,51,.10),
+    inset 0 1px 0 #fff !important;
+}
+html:not([data-theme="dark"]) #farmView .catalog-search-field:focus-within,
+html:not([data-theme="dark"]) #stockView .stock-search-field.catalog-search-field:focus-within,
+html:not([data-theme="dark"]) #farmView .catalog-search-field:has(input:not(:placeholder-shown)),
+html:not([data-theme="dark"]) #stockView .stock-search-field.catalog-search-field:has(input:not(:placeholder-shown)) {
+  background: #ffffff !important;
+  border-color: rgba(74,137,83,.34) !important;
+  box-shadow:
+    0 0 0 3px rgba(86,151,96,.10),
+    0 10px 25px rgba(47,80,51,.10) !important;
+}
+html:not([data-theme="dark"]) #farmView .catalog-search-field .catalog-search-icon,
+html:not([data-theme="dark"]) #stockView .catalog-search-field .catalog-search-icon {
+  filter: drop-shadow(0 2px 3px rgba(48,75,50,.08)) !important;
+}
+html:not([data-theme="dark"]) #farmView .catalog-search-field input,
+html:not([data-theme="dark"]) #stockView .catalog-search-field input {
+  color: #263c2d !important;
+  caret-color: #4b8d58 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+}
+html:not([data-theme="dark"]) #farmView .catalog-search-field input::placeholder,
+html:not([data-theme="dark"]) #stockView .catalog-search-field input::placeholder {
+  color: #849287 !important;
+  font-weight: 600 !important;
+}
+
+/* ========================================================================== */
+/* R39.6 — navegação em linha: secundária sem moldura externa                 */
+/* ========================================================================== */
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]),
+body[data-navigation-mode="line"] .navigation-responsive-stack > .context-nav-column.desktop-context-nav:not([hidden]),
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .context-tabs,
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .office-tabs,
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .profile-tabs {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+
+/* ========================================================================== */
+/* R39.7 — Conta Google: estado desconectado e posição coerente do login       */
+/* ========================================================================== */
+#profileAccountPanel .account-email.is-disconnected {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  min-height: 30px !important;
+  margin-top: 2px !important;
+  padding: 5px 10px !important;
+  border-radius: 10px !important;
+  background: rgba(191, 105, 54, .08) !important;
+  color: #8b4f2d !important;
+  font-size: .82rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .01em !important;
+}
+#profileAccountPanel #accountDescription[hidden] { display: none !important; }
+
+/* Em desktop, Entrar com o Google ocupa exatamente o mesmo ponto visual em
+   que Perfil do ranking aparece depois da conexão. */
+@media (min-width: 769px) {
+  #profileAccountPanel #googleSignIn:not([hidden]) {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    left: auto !important;
+    z-index: 6 !important;
+    width: auto !important;
+    min-width: 150px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+  }
+  #profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) .account-settings-head {
+    padding-right: 184px !important;
+  }
+}
+
+/* Nas larguras menores o login ocupa o mesmo primeiro slot que o botão
+   Perfil do ranking ocupa quando a conta está conectada. */
+@media (min-width: 481px) and (max-width: 768px) {
+  #profileAccountPanel .account-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+  #profileAccountPanel #googleSignIn:not([hidden]) {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+  }
+}
+@media (max-width: 480px) {
+  #profileAccountPanel #googleSignIn:not([hidden]) {
+    order: 1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+  }
+}
+
+/* ========================================================================== */
+/* R39.8 — counters claros, Conta Google compacta e Estoque                  */
+/* ========================================================================== */
+
+/* Tema claro: counters primários e flutuantes preservam identidade visual. */
+html:not([data-theme="dark"]) body .app-header .resource-pill[data-resource-shortcut="coins"],
+html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-resource-shortcut="coins"] {
+  background: linear-gradient(180deg, #fff9df 0%, #f7efc8 100%) !important;
+  border-color: rgba(186, 145, 48, .18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+html:not([data-theme="dark"]) body .app-header .resource-pill[data-resource-shortcut="research"],
+html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-resource-shortcut="research"] {
+  background: linear-gradient(180deg, #f2f9ff 0%, #e2f1fb 100%) !important;
+  border-color: rgba(63, 126, 169, .17) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+html:not([data-theme="dark"]) body .app-header .resource-pill[data-resource-shortcut="prestige"],
+html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-resource-shortcut="prestige"] {
+  background: linear-gradient(180deg, #fbf5ff 0%, #eee2f7 100%) !important;
+  border-color: rgba(126, 77, 157, .17) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+html:not([data-theme="dark"]) body .app-header .resource-pill[data-resource-shortcut="coins"] small,
+html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-resource-shortcut="coins"] small { color: #8a6d2a !important; }
+html:not([data-theme="dark"]) body .app-header .resource-pill[data-resource-shortcut="research"] small,
+html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-resource-shortcut="research"] small { color: #47748f !important; }
+html:not([data-theme="dark"]) body .app-header .resource-pill[data-resource-shortcut="prestige"] small,
+html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-resource-shortcut="prestige"] small { color: #73558a !important; }
+
+/* Conta Google desconectada: status ao lado do título, sem título de jogador. */
+#profileAccountPanel .account-google-status-row {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  margin: 0 0 4px !important;
+}
+#profileAccountPanel .account-google-status-row > .eyebrow {
+  margin: 0 !important;
+}
+#profileAccountPanel .account-connection-status {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 25px !important;
+  padding: 3px 8px !important;
+  border: 1px solid rgba(177, 102, 57, .14) !important;
+  border-radius: 9px !important;
+  background: rgba(191, 105, 54, .08) !important;
+  color: #8b4f2d !important;
+  font-size: .68rem !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+#profileAccountPanel .account-connection-status[hidden],
+#profileAccountPanel .account-player-title[hidden],
+#profileAccountPanel .account-title-dot[hidden],
+#profileAccountPanel .account-email[hidden] {
+  display: none !important;
+}
+#profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) {
+  row-gap: 8px !important;
+  padding-bottom: 14px !important;
+}
+#profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) .account-actions {
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-top: 0 !important;
+}
+
+/* Estoque: cabeçalho do card não deve virar uma caixa dentro da caixa. */
+#stockView .stock-card .stock-head,
+#stockView .normalized-stock-card .stock-head {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ========================================================================== */
+/* R39.9 — Prestígio, Evoluções, Conta Google e Estatísticas                  */
+/* ========================================================================== */
+
+/* Em celulares compactos o status já é implícito pelo botão de login. */
+@media (max-width: 480px) {
+  #profileAccountPanel #accountConnectionStatus:not([hidden]) {
+    display: none !important;
+  }
+  #profileAccountPanel .account-google-status-row {
+    gap: 0 !important;
+  }
+}
+
+/* Evoluções sem saldo: manter identidade da moeda sem parecer botão quebrado. */
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .button[data-action="buy-research"]:disabled {
+  opacity: 1 !important;
+  filter: saturate(.72) !important;
+  color: #58748d !important;
+  background: linear-gradient(180deg, #e7f0f8 0%, #d8e6f2 100%) !important;
+  border: 1px solid rgba(63, 118, 163, .16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78) !important;
+  cursor: not-allowed !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .button[data-action="buy-prestige-upgrade"]:disabled {
+  opacity: 1 !important;
+  filter: saturate(.72) !important;
+  color: #765d87 !important;
+  background: linear-gradient(180deg, #efe7f4 0%, #e3d7eb 100%) !important;
+  border: 1px solid rgba(116, 76, 144, .16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78) !important;
+  cursor: not-allowed !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card:not([data-upgrade-completed="true"]) .button:disabled .resource-amount {
+  background: transparent !important;
+  border: 0 !important;
+  color: inherit !important;
+  box-shadow: none !important;
+}
+
+/* Estatísticas do jogador: menos caixas contornadas e tipografia consistente. */
+#profileAccountPanel .account-statistics-section {
+  border-color: rgba(67, 105, 73, .08) !important;
+}
+#profileAccountPanel .stats-section-plain {
+  padding: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+#profileAccountPanel .player-stat-card,
+#profileAccountPanel .achievement-summary > article,
+#profileAccountPanel .achievement-card,
+#profileAccountPanel .stats-benefit-section {
+  border: 0 !important;
+  outline: 0 !important;
+}
+#profileAccountPanel .player-stat-card {
+  box-shadow: 0 7px 18px rgba(48, 77, 55, .045) !important;
+}
+#profileAccountPanel .achievement-summary > article {
+  box-shadow: none !important;
+}
+#profileAccountPanel .achievement-card {
+  box-shadow: 0 5px 14px rgba(48, 77, 55, .035) !important;
+}
+#profileAccountPanel .stats-benefit-section {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#profileAccountPanel .stats-benefit-section > header h3,
+#profileAccountPanel .stats-mission-history > summary {
+  margin: 0 !important;
+  color: var(--ink, #22372b) !important;
+  font-size: .92rem !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+#profileAccountPanel .stats-benefit-section > header small {
+  margin-bottom: 3px !important;
+  font-size: .62rem !important;
+  font-weight: 850 !important;
+  line-height: 1.15 !important;
+  letter-spacing: .065em !important;
+}
+#profileAccountPanel .stats-mission-history {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+#profileAccountPanel .stats-mission-history > summary {
+  padding: 4px 4px 8px !important;
+}
+#profileAccountPanel .achievement-summary article small {
+  font-size: .61rem !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* ========================================================================== */
+/* R39.10 — normalização de largura, Configurações e footer                  */
+/* ========================================================================== */
+
+/* Todas as views usam exatamente o mesmo eixo lateral do header/footer. */
+.app-shell > .app-header,
+.app-shell > .workspace-shell,
+.app-shell > .app-footer {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.workspace-shell > .game-main {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+.workspace-shell > .game-main > .view {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Configurações deixa de ser uma caixa gigante envolvendo a página inteira. */
+#settingsView.view {
+  gap: var(--ui-gap) !important;
+  padding: 0 !important;
+}
+#settingsView.view.active {
+  display: flex !important;
+  flex-direction: column !important;
+}
+#settingsView > .settings-page-heading {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 2px 2px 4px !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+#settingsView > .settings-page-heading h1 {
+  margin: 2px 0 0 !important;
+}
+#settingsView .settings-grid-reworked {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: var(--ui-gap) !important;
+  align-items: start !important;
+}
+#settingsView .settings-grid-reworked > .settings-card,
+#settingsView > .feedback-settings-card {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: var(--ui-radius-lg) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+#settingsView .settings-card-head {
+  min-height: 0 !important;
+  padding: 15px 16px 13px !important;
+}
+#settingsView .settings-card-head h2 {
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem) !important;
+}
+#settingsView .settings-card-body {
+  padding: 12px !important;
+}
+#settingsView .settings-card-body > .setting-row,
+#settingsView .settings-card-body > .range-setting {
+  min-height: 64px !important;
+}
+#settingsView > .feedback-settings-card {
+  display: block !important;
+}
+
+/* Footer: links viram uma navegação compacta e responsiva, sem coluna longa. */
+.app-footer {
+  grid-template-columns: minmax(120px, auto) minmax(0, 1fr) minmax(170px, auto) !important;
+  gap: 14px !important;
+  padding: 16px 18px !important;
+}
+.app-footer .footer-links {
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-inline: auto !important;
+  padding: 5px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  border: 1px solid rgba(63, 101, 72, .09) !important;
+  border-radius: 14px !important;
+  background: rgba(244, 249, 242, .78) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7) !important;
+}
+.app-footer .footer-links a,
+.app-footer .footer-links .footer-link-button {
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  line-height: 1.15 !important;
+  transition: background .16s ease, color .16s ease, transform .16s ease !important;
+}
+.app-footer .footer-links a:hover,
+.app-footer .footer-links .footer-link-button:hover {
+  background: rgba(72, 126, 79, .09) !important;
+  text-decoration: none !important;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 980px) {
+  .app-footer {
+    grid-template-columns: auto minmax(0, 1fr) !important;
+  }
+  .app-footer .footer-links {
+    width: 100% !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  .app-footer .footer-credit {
+    justify-items: end !important;
+  }
+}
+
+@media (max-width: 700px) {
+  #settingsView .settings-grid-reworked {
+    grid-template-columns: 1fr !important;
+  }
+  .app-footer {
+    grid-template-columns: 1fr !important;
+    justify-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px 12px !important;
+  }
+  .app-footer .footer-brand {
+    justify-content: center !important;
+  }
+  .app-footer .footer-links {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    padding: 5px !important;
+  }
+  .app-footer .footer-links a,
+  .app-footer .footer-links .footer-link-button {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    padding: 8px 7px !important;
+    white-space: normal !important;
+    text-align: center !important;
+  }
+  .app-footer .footer-credit {
+    justify-items: center !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .app-footer .footer-links {
+    gap: 2px !important;
+  }
+  .app-footer .footer-links a,
+  .app-footer .footer-links .footer-link-button {
+    font-size: .68rem !important;
+  }
+}
+
+/* ========================================================================== */
+/* R40.4 — Missões com títulos + eventos com ícones                          */
+/* ========================================================================== */
+#profileMissionsPanel .mission-reward {
+  align-items: flex-start !important;
+  gap: 10px !important;
+}
+#profileMissionsPanel .mission-reward > span:first-child {
+  flex: 0 0 auto;
+  padding-top: 7px;
+}
+#profileMissionsPanel .mission-reward .resource-reward-group {
+  min-width: 0;
+  max-width: 100%;
+  justify-content: flex-end;
+}
+#profileMissionsPanel .mission-title-reward {
+  --mission-title-accent: #6f7778;
+  min-width: 0;
+  max-width: min(100%, 235px);
+  display: inline-grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px 6px 7px;
+  border: 1px solid color-mix(in srgb, var(--mission-title-accent) 18%, transparent);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--mission-title-accent) 7%, #fff);
+  color: #314239;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.58);
+  overflow: hidden;
+}
+#profileMissionsPanel .mission-title-reward[data-title-rarity="uncommon"] { --mission-title-accent: #278653; }
+#profileMissionsPanel .mission-title-reward[data-title-rarity="rare"] { --mission-title-accent: #2d6fd3; }
+#profileMissionsPanel .mission-title-reward[data-title-rarity="epic"] { --mission-title-accent: #864bc7; }
+#profileMissionsPanel .mission-title-reward[data-title-rarity="legendary"] { --mission-title-accent: #b68114; }
+#profileMissionsPanel .mission-title-reward-mark {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--mission-title-accent) !important;
+  background: color-mix(in srgb, var(--mission-title-accent) 12%, #fff);
+  font-size: .9rem;
+  line-height: 1;
+}
+#profileMissionsPanel .mission-title-reward-copy {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: 7px;
+  row-gap: 1px;
+  text-align: left;
+}
+#profileMissionsPanel .mission-title-reward-copy > small {
+  grid-column: 1 / -1;
+  color: #7b8882;
+  font-size: .56rem;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+#profileMissionsPanel .mission-title-reward-copy > b {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--mission-title-accent);
+  font-size: .74rem;
+  font-weight: 950;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+#profileMissionsPanel .mission-title-reward-copy > em {
+  color: #829088;
+  font-size: .55rem;
+  font-style: normal;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+#profileMissionsPanel .mission-crop-milestone.purchase-goal img {
+  background: rgba(76, 139, 86, .075) !important;
+}
+
+#profileSocialPanel .social-live-card {
+  min-width: 0;
+}
+#profileSocialPanel .social-event-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  padding: 7px;
+  border-radius: 14px;
+  border: 1px solid rgba(64, 111, 72, .10);
+  background: rgba(239, 247, 239, .86);
+}
+#profileSocialPanel .social-event-icon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+#profileSocialPanel .social-event-copy h3,
+#profileSocialPanel .social-event-copy p {
+  min-width: 0;
+}
+#profileSocialPanel .social-event-copy h3 .inline-point-token,
+#profileSocialPanel .social-event-copy p .inline-point-token {
+  vertical-align: middle;
+}
+
+@media (max-width: 620px) {
+  #profileMissionsPanel .mission-reward {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+  #profileMissionsPanel .mission-reward > span:first-child { padding-top: 0; }
+  #profileMissionsPanel .mission-reward .resource-reward-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  #profileMissionsPanel .mission-title-reward {
+    max-width: 100%;
+  }
+  #profileSocialPanel .social-live-card {
+    flex-wrap: wrap;
+    align-items: flex-start !important;
+  }
+  #profileSocialPanel .social-event-icon {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    padding: 6px;
+    border-radius: 12px;
+  }
+  #profileSocialPanel .social-event-time {
+    margin-left: 50px;
+  }
+}
+#profileMissionsPanel .mission-admin-only-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 21px;
+  margin: 0 0 6px 7px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: #75508b;
+  background: rgba(125, 76, 153, .08);
+  border: 1px solid rgba(125, 76, 153, .10);
+  font-size: .56rem;
+  font-weight: 900;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}

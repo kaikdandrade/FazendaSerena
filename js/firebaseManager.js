@@ -204,7 +204,7 @@ class FirebaseManager {
       window.localStorage?.setItem(FirebaseManager.GUEST_SAVE_KEY, JSON.stringify({
         state: snapshot,
         savedAt: Date.now(),
-        saveVersion: String(snapshot.version || window.FazendaSerenaConfig?.appVersion || "1.0.1")
+        saveVersion: String(snapshot.version || window.FazendaSerenaConfig?.appVersion || "1.0.0")
       }));
       this.emitSaveStatus("local", { savedAt: new Date() });
       return { ok: true, local: true, savedAt: new Date() };
@@ -336,6 +336,14 @@ class FirebaseManager {
   getAdminReference(user = this.currentUser) {
     if (!user?.email || !this.db || !this.sdk) return null;
     return this.sdk.doc(this.db, FirebaseManager.ADMIN_COLLECTION, String(user.email).trim().toLowerCase());
+  }
+
+  isCurrentUserAdminCached() {
+    const user = this.currentUser;
+    if (!user) return false;
+    const email = String(user.email || "").trim();
+    const cacheKey = `${user.uid}:${email}`;
+    return this.adminAccessCache.get(cacheKey) === true;
   }
 
   async isCurrentUserAdmin({ force = false } = {}) {
@@ -1096,7 +1104,7 @@ class FirebaseManager {
       subject: safeSubject,
       message: safeMessage,
       status: "new",
-      gameVersion: String(window.FazendaSerenaConfig?.appVersion || "1.0.1").slice(0, 30),
+      gameVersion: String(window.FazendaSerenaConfig?.appVersion || "1.0.0").slice(0, 30),
       createdAt: this.sdk.serverTimestamp(),
       createdAtClient: Date.now()
     });
@@ -1216,7 +1224,7 @@ class FirebaseManager {
     const result = await this.mutatePlayerSaveForAdmin(uid, state => {
       const preservedSettings = { ...(state.settings || {}) };
       const preservedCreatedAt = Math.max(1, Number(state.createdAt) || Date.now());
-      state.version = window.FazendaSerenaConfig?.appVersion || state.version || "1.0.1";
+      state.version = window.FazendaSerenaConfig?.appVersion || state.version || "1.0.0";
       state.coins = startingCoins;
       state.research = 0;
       state.prestigePoints = 0;

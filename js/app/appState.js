@@ -184,6 +184,7 @@
     equippedPlayerTitlePreview: $("#equippedPlayerTitlePreview"),
     playerTitleUnlockCount: $("#playerTitleUnlockCount"),
     accountTitleDot: $("#accountTitleDot"),
+    accountConnectionStatus: $("#accountConnectionStatus"),
     togglePlayerTitlePicker: $("#togglePlayerTitlePicker"),
     playerTitlePickerPanel: $("#playerTitlePickerPanel"),
     playerTitlePickerGrid: $("#playerTitlePickerGrid"),

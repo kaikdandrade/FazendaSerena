@@ -239,35 +239,38 @@
   function rewardHtml(reward) {
     const resources = resourceRewards(reward) || "";
     const title = reward?.titleId ? getPlayerTitleEntry(reward.titleId) : null;
-    const titleReward = title ? `<span class="mission-title-reward"><small>Título</small>${playerTitleMarkup(title, { showRarity: true, compact: true })}</span>` : "";
+    const rarity = title?.rarity || "common";
+    const titleReward = title ? `<span class="mission-title-reward" data-title-rarity="${escapeHtml(rarity)}" title="Título: ${escapeHtml(title.name)}"><span class="mission-title-reward-mark" aria-hidden="true">✦</span><span class="mission-title-reward-copy"><small>Título</small><b>${escapeHtml(title.name)}</b><em>${escapeHtml(playerTitleRarityLabel(rarity))}</em></span></span>` : "";
     return resources + titleReward;
   }
 
   function renderMissions() {
-    if (!engine.data.missions.length) {
+    const visibleMissions = engine.data.missions.filter(mission => engine.isMissionVisible?.(mission) !== false);
+    if (!visibleMissions.length) {
       reconcileLiveCards(dom.missionList, `<div class="empty-state" data-live-render-key="missions-empty" data-live-render-signature="empty">${runtimeTextHtml("emptyMissionsCatalog", "Nenhuma missão foi publicada no catálogo administrativo.")}</div>`);
       if (dom.toggleCompletedMissions) dom.toggleCompletedMissions.hidden = true;
       if (dom.completedMissionCount) dom.completedMissionCount.textContent = "";
       return;
     }
     const activeMissions = engine.getActiveMissions();
-    const claimedMissions = engine.data.missions.filter(mission => engine.state.missionsClaimed[mission.id]);
+    const claimedMissions = visibleMissions.filter(mission => engine.state.missionsClaimed[mission.id]);
     const list = showCompletedMissions ? [...activeMissions, ...claimedMissions] : activeMissions;
     const missionMarkup = list.map(mission => {
       const value = engine.missionValue(mission.metric, mission);
       const completed = value >= mission.target;
       const claimed = Boolean(engine.state.missionsClaimed[mission.id]);
       const progress = percent((value / mission.target) * 100);
-      const seriesMissions = engine.data.missions.filter(item => (item.series || item.id) === (mission.series || mission.id));
+      const seriesMissions = visibleMissions.filter(item => (item.series || item.id) === (mission.series || mission.id));
       const stage = mission.stage || 1;
-      const cropMilestone = mission.metric === "cropUnlocked" ? engine.getCrop(mission.cropId) : null;
-      const cropWasUnlocked = Boolean(cropMilestone && value >= 1);
-      const milestoneBadge = cropMilestone ? `<div class="mission-crop-milestone ${cropWasUnlocked ? "unlocked" : "locked"}"><img src="${cropWasUnlocked ? escapeHtml(cropMilestone.image) : "assets/icons/cadeado.webp"}" alt=""><span><small>Marco de desbloqueio</small><strong>${cropWasUnlocked ? escapeHtml(cropMilestone.name) : "Cultura misteriosa"}</strong><em>${cropWasUnlocked ? "Desbloqueada pela fazenda" : `Libera no nível ${Math.max(1, Number(cropMilestone.unlockLevel) || 1)}`}</em></span></div>` : "";
-      const progressLabel = cropMilestone ? "Desbloqueio por nível" : "Progresso acumulado";
-      const progressValue = cropMilestone ? (cropWasUnlocked ? "Concluído" : `Nível ${Math.max(1, Number(cropMilestone.unlockLevel) || 1)}`) : `${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}`;
-      return `<article class="mission-card ${claimed ? "claimed" : ""} ${cropMilestone ? "mission-crop-unlock-card" : ""}" data-live-render-key="mission:${escapeHtml(mission.id)}" data-live-render-signature="mission|${claimed ? 1 : 0}|${cropWasUnlocked ? 1 : 0}|${engine.state.settings.numberFormat || "brazilian"}" data-mission-id="${escapeHtml(mission.id)}">
-        <div class="mission-head"><div><span class="mission-stage-label">Série ${stage} de ${seriesMissions.length}</span><h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></div>
-        ${milestoneBadge}
+      const cropGoal = ["cropUnlocked", "cropPurchased"].includes(mission.metric) ? engine.getCrop(mission.cropId) : null;
+      const cropGoalComplete = Boolean(cropGoal && value >= 1);
+      const isPurchaseGoal = mission.metric === "cropPurchased";
+      const cropGoalBadge = cropGoal ? `<div class="mission-crop-milestone ${cropGoalComplete ? "unlocked" : "locked"} ${isPurchaseGoal ? "purchase-goal" : "unlock-goal"}"><img src="${cropGoalComplete || isPurchaseGoal ? escapeHtml(cropGoal.image) : "assets/icons/cadeado.webp"}" alt=""><span><small>${isPurchaseGoal ? "Compra específica" : "Marco de desbloqueio"}</small><strong>${escapeHtml(cropGoal.name)}</strong><em>${cropGoalComplete ? (isPurchaseGoal ? "Planta comprada" : "Desbloqueada pela fazenda") : (isPurchaseGoal ? "Compre esta planta para concluir" : `Libera no nível ${Math.max(1, Number(cropGoal.unlockLevel) || 1)}`)}</em></span></div>` : "";
+      const progressLabel = cropGoal ? (isPurchaseGoal ? "Compra da planta" : "Desbloqueio por nível") : "Progresso acumulado";
+      const progressValue = cropGoal ? (cropGoalComplete ? "Concluído" : (isPurchaseGoal ? "Pendente" : `Nível ${Math.max(1, Number(cropGoal.unlockLevel) || 1)}`)) : `${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}`;
+      return `<article class="mission-card ${claimed ? "claimed" : ""} ${cropGoal ? "mission-crop-unlock-card mission-crop-target-card" : ""}" data-live-render-key="mission:${escapeHtml(mission.id)}" data-live-render-signature="mission|${claimed ? 1 : 0}|${cropGoalComplete ? 1 : 0}|${engine.state.settings.numberFormat || "brazilian"}" data-mission-id="${escapeHtml(mission.id)}">
+        <div class="mission-head"><div><span class="mission-stage-label">Série ${stage} de ${seriesMissions.length}</span>${mission.hidden ? '<span class="mission-admin-only-badge">Somente administradores</span>' : ''}<h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></div>
+        ${cropGoalBadge}
         <div class="mission-progress"><div class="progress-label"><span>${progressLabel}</span><strong data-mission-live-value>${progressValue}</strong></div><div class="progress-track growth"><span data-mission-live-progress style="width:${progress}%"></span></div></div>
         <div class="mission-reward"><span>Recompensa</span><strong class="resource-reward-group">${rewardHtml(mission.reward)}</strong></div>
         ${claimed ? `<div class="mission-claimed-mark">✓ Recompensa recebida</div>` : `<button class="button ${completed ? "primary" : "secondary"} full" type="button" data-action="claim-mission" data-id="${mission.id}" data-mission-live-action ${completed ? "" : "disabled"}>Receber recompensa</button>`}
@@ -280,7 +283,7 @@
       dom.toggleCompletedMissions.setAttribute("aria-expanded", String(showCompletedMissions));
     }
     if (dom.completedMissionCount) dom.completedMissionCount.textContent = claimedMissions.length
-      ? `${claimedMissions.length} de ${engine.data.missions.length} séries concluídas na conta.`
+      ? `${claimedMissions.length} de ${visibleMissions.length} séries concluídas na conta.`
       : runtimeText("emptyMissionHistory", "Nenhuma missão concluída ainda.");
   }
 

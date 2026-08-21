@@ -14,13 +14,28 @@
       const config=await window.FazendaSerenaPublicCloud.loadConfig({force:true});
       const notes=(config?.updateNotes||[]).slice().sort((a,b)=>Number(b?.publishedAt||0)-Number(a?.publishedAt||0));
       if(config) window.FazendaSerenaConfig?.applyCloudVersion?.(window.FazendaSerenaConfig.versionFromConfig(config));
-      if(!notes.length){showFallbackStatus("Exibindo a nota oficial mais recente disponível no site.");return;}
-      feed.innerHTML=notes.map((note,index)=>`
-        <article class="news-card ${index===0?"latest":""}">
+      if(!notes.length) return;
+
+      // A nota de lançamento 1.0.0 é parte permanente da página. Notas publicadas
+      // pelo Admin entram acima dela, sem apagar o conteúdo editorial do release.
+      feed.querySelectorAll("[data-cloud-news]").forEach(node=>node.remove());
+      const staticVersion=String(feed.querySelector("[data-static-release]")?.dataset.staticRelease||"").trim();
+      const cloudNotes=notes.filter(note=>String(note?.version||"").trim()!==staticVersion);
+      if(!cloudNotes.length) return;
+      feed.querySelector("[data-static-release]")?.classList.remove("latest");
+
+      const fragment=document.createDocumentFragment();
+      cloudNotes.forEach((note,index)=>{
+        const article=document.createElement("article");
+        article.className=`news-card ${index===0?"latest":""}`;
+        article.dataset.cloudNews="true";
+        article.innerHTML=`
           <header><div><span class="news-version">v${escapeHtml(note.version||"Atualização")}</span>${index===0?'<span class="news-latest">mais recente</span>':""}</div>
           <time datetime="${new Date(Number(note.publishedAt)||Date.now()).toISOString()}">${escapeHtml(formatDate(note.publishedAt))}</time></header>
-          <h2>${escapeHtml(note.title||"Atualização")}</h2><p>${formatBody(note.body||"")}</p>
-        </article>`).join("");
+          <h2>${escapeHtml(note.title||"Atualização")}</h2><p>${formatBody(note.body||"")}</p>`;
+        fragment.appendChild(article);
+      });
+      feed.prepend(fragment);
     }catch(error){console.warn(error);showFallbackStatus("As notícias em nuvem não puderam ser atualizadas agora. A nota oficial continua disponível abaixo.");}
   }
   render();

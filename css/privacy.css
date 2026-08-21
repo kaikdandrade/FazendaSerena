@@ -178,3 +178,14 @@ html { font-size: 17.5px; }
 .privacy-section p, .privacy-section li, .privacy-callout, .privacy-action, .privacy-footer,
 .back-to-game { font-size: max(.78rem, 13px); }
 .privacy-section h3 { font-size: max(.92rem, 15px); }
+
+/* R39.8 — logotipo horizontal maior em Privacidade e Termos. */
+.privacy-brand img {
+  width: 122px !important;
+  height: auto !important;
+  max-height: 66px !important;
+  object-fit: contain !important;
+}
+@media (max-width: 680px) {
+  .privacy-brand img { width: 104px !important; max-height: 58px !important; }
+}

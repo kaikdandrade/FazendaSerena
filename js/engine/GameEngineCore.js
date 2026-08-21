@@ -1,6 +1,6 @@
 "use strict";
 
-class GameEngine {
+const GameEngine = class GameEngine {
   static APP_VERSION = window.FazendaSerenaConfig.appVersion;
   static EXPERIENCE_DEFAULTS = window.FazendaSerenaConfig.experienceDefaults;
   static AUDIO_DEFAULTS = window.FazendaSerenaConfig.audioDefaults;
@@ -681,6 +681,11 @@ class GameEngine {
       this.lastOfflineReport = null;
       return report;
     }
-}
+};
 
-window.GameEngine = GameEngine;
+Object.defineProperty(window, "GameEngine", {
+  value: GameEngine,
+  writable: false,
+  configurable: false,
+  enumerable: true
+});

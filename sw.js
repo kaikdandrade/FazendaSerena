@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "fazenda-serena-pwa-r39-4-install";
+const CACHE_NAME = "fazenda-serena";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -20,6 +20,7 @@ const APP_SHELL = [
   "/js/engine/GameEngineCore.js",
   "/js/engine/GameEngineOrdersMissions.js",
   "/js/engine/GameEnginePrestigeSettings.js",
+  "/js/engine/GameEngineGuard.js",
   "/js/app/appState.js",
   "/js/app/appUtils.js",
   "/js/app/appAccountSocial.js",

@@ -2023,3 +2023,363 @@ html[data-theme="dark"] #farmView .crop-art-progress.paused .crop-progress-perce
   border: 0 !important;
   box-shadow: none !important;
 }
+
+/* ========================================================================== */
+/* R39.5 — contraste do feedback e counters flutuantes                        */
+/* ========================================================================== */
+
+/* Feedback: textos legíveis no modal noturno. */
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-heading h2,
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-fields > label > span,
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-type > span {
+  color: #f1f6f2 !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-heading .eyebrow {
+  color: #8fc89a !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-heading p:not(.eyebrow) {
+  color: #c2d0c5 !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-fields small,
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-message-field small {
+  color: #aebdb2 !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-status {
+  color: #cbd8ce !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog :is(input,select,textarea)::placeholder {
+  color: #7f9185 !important;
+}
+
+/* Counter flutuante: replica a identidade cromática dos counters do header. */
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="coins"] {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(237,190,68,.10), transparent 48%),
+    linear-gradient(180deg, #2b2616 0%, #211d13 100%) !important;
+  border-color: rgba(225,188,91,.15) !important;
+}
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="research"] {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(77,157,220,.11), transparent 48%),
+    linear-gradient(180deg, #17293a 0%, #12212d 100%) !important;
+  border-color: rgba(103,170,224,.16) !important;
+}
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="prestige"] {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(164,103,214,.12), transparent 48%),
+    linear-gradient(180deg, #2b1d3a 0%, #21162e 100%) !important;
+  border-color: rgba(176,119,222,.18) !important;
+}
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="coins"] small { color: #c8b982 !important; }
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="research"] small { color: #9dbbd1 !important; }
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="prestige"] small { color: #bca4cf !important; }
+html[data-theme="dark"] body .floating-resource-strip .resource-pill strong { color: #f5f8f6 !important; }
+
+/* ========================================================================== */
+/* R39.6 — dark: não recolocar moldura na navegação secundária em linha       */
+/* ========================================================================== */
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]),
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .context-nav-column.desktop-context-nav:not([hidden]),
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .context-tabs,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .office-tabs,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .profile-tabs {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+
+/* ========================================================================== */
+/* R39.7 — refinamentos dark: tabs, divisórias, Conta e view de Contratos     */
+/* ========================================================================== */
+
+/* Tab secundário ativo em navegação de linha = exatamente a mesma linguagem
+   visual do tab primário ativo. Remove o antigo sublinhado exclusivo. */
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .main-nav .nav-tab.active,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #f2f7f3 !important;
+  background: linear-gradient(180deg, rgba(78, 140, 91, .20) 0%, rgba(48, 96, 59, .13) 100%) !important;
+  border: 1px solid rgba(112, 180, 126, .15) !important;
+  outline: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.028), 0 7px 18px rgba(0,0,0,.14) !important;
+}
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active::before,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active::after {
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .main-nav .nav-tab.active > .nav-tab-icon,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Linhas horizontais personalizadas: no dark deixam de parecer linhas cinza
+   chapadas e passam a usar uma transição suave integrada ao verde da UI. */
+html[data-theme="dark"] .contract-section-divider,
+html[data-theme="dark"] .experience-divider.contract-section-divider {
+  gap: 12px !important;
+  margin-block: 26px 22px !important;
+}
+html[data-theme="dark"] .contract-section-divider::before,
+html[data-theme="dark"] .experience-divider.contract-section-divider::before {
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(111,174,123,.06) 22%, rgba(120,186,133,.26) 100%) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-section-divider::after,
+html[data-theme="dark"] .experience-divider.contract-section-divider::after {
+  height: 1px !important;
+  background: linear-gradient(90deg, rgba(120,186,133,.26) 0%, rgba(111,174,123,.06) 78%, transparent 100%) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-section-divider > span,
+html[data-theme="dark"] .experience-divider.contract-section-divider > span {
+  width: 8px !important;
+  height: 8px !important;
+  flex: 0 0 8px !important;
+  border-radius: 999px !important;
+  background: #6eae7b !important;
+  border: 2px solid #172019 !important;
+  box-shadow: 0 0 0 3px rgba(110,174,123,.10), 0 0 14px rgba(110,174,123,.16) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .evolution-section-divider > span {
+  height: 1px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(116,178,129,.05) 13%,
+    rgba(135,192,147,.22) 42%,
+    rgba(172,113,207,.22) 58%,
+    rgba(154,102,190,.05) 87%,
+    transparent 100%) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.01) !important;
+}
+html[data-theme="dark"] .leaderboard-personal-divider::before,
+html[data-theme="dark"] .leaderboard-personal-divider::after,
+html[data-theme="dark"] .friend-code-divider::before,
+html[data-theme="dark"] .friend-code-divider::after {
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(133,163,142,.20), transparent) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .leaderboard-personal-divider span,
+html[data-theme="dark"] .friend-code-divider span {
+  color: #829388 !important;
+}
+
+/* Conta não conectada ganha evidência também no tema noturno. */
+html[data-theme="dark"] #profileAccountPanel .account-email.is-disconnected {
+  color: #efb08b !important;
+  background: rgba(179, 91, 50, .13) !important;
+  border: 1px solid rgba(217, 123, 77, .12) !important;
+}
+
+/* Contratos: o painel interno não é uma segunda caixa. A superfície arredondada
+   pertence somente ao .office-workspace, eliminando o outline quadrado. */
+html[data-theme="dark"] body #officeView > .office-workspace.panel-card {
+  border-radius: 21px !important;
+  outline: 0 !important;
+}
+html[data-theme="dark"] body #officeView > .office-workspace.panel-card > #officeContractsPanel.office-panel,
+html[data-theme="dark"] body #officeView > .office-workspace.panel-card > #officeContractsPanel.office-panel.active {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ========================================================================== */
+/* R39.8 — complementos dark da Conta Google e Estoque                       */
+/* ========================================================================== */
+html[data-theme="dark"] #profileAccountPanel .account-connection-status {
+  background: rgba(211, 126, 75, .10) !important;
+  border-color: rgba(225, 151, 104, .16) !important;
+  color: #e7b18d !important;
+}
+html[data-theme="dark"] #stockView .stock-card .stock-head,
+html[data-theme="dark"] #stockView .normalized-stock-card .stock-head {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ========================================================================== */
+/* R39.9 — Dark: pódio, Evoluções indisponíveis e Estatísticas                */
+/* ========================================================================== */
+
+/* Pódio: cada posição mantém uma assinatura cromática perceptível. */
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-1 {
+  background:
+    radial-gradient(22rem 8rem at 0% 50%, rgba(227, 188, 73, .18), transparent 68%),
+    linear-gradient(100deg, #302b1c 0%, #231f18 48%, #18201b 100%) !important;
+  border-color: rgba(227, 188, 73, .18) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-2 {
+  background:
+    radial-gradient(22rem 8rem at 0% 50%, rgba(166, 191, 207, .15), transparent 68%),
+    linear-gradient(100deg, #252e33 0%, #1e2629 48%, #18201b 100%) !important;
+  border-color: rgba(166, 191, 207, .16) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-3 {
+  background:
+    radial-gradient(22rem 8rem at 0% 50%, rgba(203, 137, 83, .16), transparent 68%),
+    linear-gradient(100deg, #30251d 0%, #241e19 48%, #18201b 100%) !important;
+  border-color: rgba(203, 137, 83, .17) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-4,
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-5 {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(91, 157, 106, .13), transparent 70%),
+    linear-gradient(100deg, #1d2a22 0%, #19231d 52%, #171e1a 100%) !important;
+  border-color: rgba(91, 157, 106, .12) !important;
+}
+
+/* Sem saldo: azul/roxo escuro, legível e claramente indisponível. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .button[data-action="buy-research"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #86a9c4 !important;
+  background: linear-gradient(180deg, #192936 0%, #14212b 100%) !important;
+  border-color: rgba(104, 161, 207, .14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .button[data-action="buy-prestige-upgrade"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #b493c8 !important;
+  background: linear-gradient(180deg, #2b2132 0%, #221a28 100%) !important;
+  border-color: rgba(164, 111, 195, .14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+/* Estatísticas: o painel é a superfície; conteúdos internos não ganham outlines sucessivos. */
+html[data-theme="dark"] #profileAccountPanel .account-statistics-section {
+  border-color: rgba(222, 236, 225, .065) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-section-plain,
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section,
+html[data-theme="dark"] #profileAccountPanel .stats-mission-history {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article,
+html[data-theme="dark"] #profileAccountPanel .achievement-card {
+  border: 0 !important;
+  outline: 0 !important;
+  background: linear-gradient(180deg, #1c251f 0%, #171e1a 100%) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section > header h3,
+html[data-theme="dark"] #profileAccountPanel .stats-mission-history > summary {
+  color: #edf4ee !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section > header small,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary article small {
+  color: #9dacA1 !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-icon,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article > span,
+html[data-theme="dark"] #profileAccountPanel .achievement-card > span {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+/* ========================================================================== */
+/* R39.10 — complementos dark para Configurações e footer normalizados       */
+/* ========================================================================== */
+html[data-theme="dark"] #settingsView > .settings-page-heading {
+  color: var(--dark-text) !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #settingsView .settings-grid-reworked > .settings-card,
+html[data-theme="dark"] #settingsView > .feedback-settings-card {
+  background: linear-gradient(180deg, #171f1b 0%, #121814 100%) !important;
+  border-color: rgba(225,238,228,.075) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] .app-footer .footer-links {
+  background: rgba(18, 26, 21, .72) !important;
+  border-color: rgba(225,238,228,.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] .app-footer .footer-links :is(a,.footer-link-button) {
+  color: #aebdb2 !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .app-footer .footer-links :is(a,.footer-link-button):hover {
+  color: #edf4ee !important;
+  background: rgba(105, 166, 117, .10) !important;
+}
+
+
+/* ========================================================================== */
+/* R39.11 — Agenda, configurações e ranking dark                              */
+/* ========================================================================== */
+
+/* Agenda: seta de abrir/fechar branca no modo escuro. */
+html[data-theme="dark"] #profileSocialPanel .social-events-chevron,
+html[data-theme="dark"] #profileSocialPanel .social-events-chevron img {
+  color: #fff !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-chevron img {
+  filter: brightness(0) invert(1) !important;
+  opacity: .94 !important;
+}
+
+/* Ranking: 4º e 5º voltam a ter identidades cromáticas distintas, como no claro. */
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-4 {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(91, 157, 106, .15), transparent 70%),
+    linear-gradient(100deg, #1d2a22 0%, #19231d 52%, #171e1a 100%) !important;
+  border-color: rgba(91, 157, 106, .14) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-5 {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(137, 105, 171, .16), transparent 70%),
+    linear-gradient(100deg, #292135 0%, #211b2b 52%, #171e1a 100%) !important;
+  border-color: rgba(137, 105, 171, .15) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-6:not(.current-player):not(.personal-rank-row) {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(89, 124, 145, .08), transparent 70%),
+    linear-gradient(100deg, #1b2428 0%, #182023 52%, #171e1a 100%) !important;
+  border-color: rgba(132, 155, 168, .09) !important;
+}
+
+/* R40.4 — missões e agenda */
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward {
+  color: #e8f0ea !important;
+  background: color-mix(in srgb, var(--mission-title-accent) 13%, #19211d) !important;
+  border-color: color-mix(in srgb, var(--mission-title-accent) 26%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-mark {
+  color: color-mix(in srgb, var(--mission-title-accent) 82%, #fff) !important;
+  background: color-mix(in srgb, var(--mission-title-accent) 18%, #151c18) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-copy > small,
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-copy > em {
+  color: #9baaa0 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-icon {
+  background: #202a24 !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-admin-only-badge {
+  color: #c8a7da !important;
+  background: rgba(144, 89, 174, .12) !important;
+  border-color: rgba(172, 119, 199, .16) !important;
+}

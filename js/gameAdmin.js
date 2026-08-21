@@ -288,8 +288,8 @@
   }
 
   const defaults = Object.freeze({
-    schemaVersion: 20,
-    gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.1",
+    schemaVersion: 21,
+    gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.0",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
     categories: [],
@@ -498,7 +498,7 @@
   const missionMetrics = new Set([
     "harvested", "owned", "cropPurchases", "sold", "cropLevels", "cropUpgrades",
     "orders", "contracts", "maxCropLevel", "farmLevel", "stock", "coinsEarned",
-    "prestiges", "categorySold", "cropUnlocked"
+    "prestiges", "categorySold", "cropPurchased", "cropUnlocked"
   ]);
 
   function normalizeReward(raw = {}) {
@@ -524,9 +524,10 @@
           title: text(item?.title, 100, `Missão ${index + 1}`),
           desc: text(item?.desc, 500, "Conclua o objetivo desta missão."),
           metric,
+          hidden: item?.hidden === true,
           series: item.series.slice(0, 200).map(serie => ({
-            target: metric === "cropUnlocked" ? 1 : integer(serie?.target, 1, Number.MAX_SAFE_INTEGER, 1),
-            ...(metric === "cropUnlocked" ? { cropId: id(serie?.cropId, "") } : {}),
+            target: ["cropUnlocked", "cropPurchased"].includes(metric) ? 1 : integer(serie?.target, 1, Number.MAX_SAFE_INTEGER, 1),
+            ...(["cropUnlocked", "cropPurchased"].includes(metric) ? { cropId: id(serie?.cropId, "") } : {}),
             reward: normalizeReward(serie?.reward)
           }))
         };
@@ -543,14 +544,15 @@
           title: text(item?.title, 100, `Missão ${index + 1}`),
           desc: text(item?.desc, 500, "Conclua o objetivo desta missão."),
           metric,
+          hidden: item?.hidden === true,
           ...(metric === "categorySold" ? { category: id(item?.category, "") } : {}),
           legacySeries: []
         });
       }
       legacyGroups.get(legacyKey).legacySeries.push({
         order: integer(item?.stage, 1, 1000, index + 1),
-        target: metric === "cropUnlocked" ? 1 : integer(item?.target, 1, Number.MAX_SAFE_INTEGER, 1),
-        ...(metric === "cropUnlocked" ? { cropId: id(item?.cropId, "") } : {}),
+        target: ["cropUnlocked", "cropPurchased"].includes(metric) ? 1 : integer(item?.target, 1, Number.MAX_SAFE_INTEGER, 1),
+        ...(["cropUnlocked", "cropPurchased"].includes(metric) ? { cropId: id(item?.cropId, "") } : {}),
         reward: normalizeReward(item?.reward)
       });
     });
@@ -561,6 +563,7 @@
         title: group.title,
         desc: group.desc,
         metric: group.metric,
+        hidden: group.hidden === true,
         ...(group.category ? { category: group.category } : {}),
         series: group.legacySeries.map(({ target, cropId, reward }) => ({ target, ...(cropId ? { cropId } : {}), reward }))
       });
@@ -579,9 +582,10 @@
         title: mission.title,
         desc: mission.desc,
         metric: mission.metric,
+        hidden: mission.hidden === true,
         ...(mission.category ? { category: mission.category } : {}),
-        ...(mission.metric === "cropUnlocked" && serie.cropId ? { cropId: serie.cropId } : {}),
-        target: mission.metric === "cropUnlocked" ? 1 : serie.target,
+        ...(["cropUnlocked", "cropPurchased"].includes(mission.metric) && serie.cropId ? { cropId: serie.cropId } : {}),
+        target: ["cropUnlocked", "cropPurchased"].includes(mission.metric) ? 1 : serie.target,
         reward: clone(serie.reward || {})
       }));
     });
@@ -696,6 +700,7 @@
       return {
         id: id(item?.id, `event_${index + 1}`),
         name: text(item?.name, 100, `Evento ${index + 1}`),
+        icon: assetPath(item?.icon, "assets/icons/calendario-eventos.webp"),
         description: text(item?.description, 320, "Um evento especial está chegando à Fazenda Serena."),
         type: eventTypes.has(item?.type) ? item.type : "harvest",
         bonusPercent: clamp(item?.bonusPercent, 0, 100000, 100),
@@ -713,7 +718,7 @@
     return uniqueById(raw.slice(0, 200).map((item, index) => ({
       id: id(item?.id, `note_${index + 1}`),
       title: text(item?.title, 120, `Atualização ${index + 1}`),
-      version: text(item?.version, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
+      version: text(item?.version, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
       publishedAt: Math.max(0, Math.floor(Number(item?.publishedAt) || Date.now())),
       body: text(item?.body, 2000, "Novidades da Fazenda Serena.")
     }))).sort((a, b) => b.publishedAt - a.publishedAt);
@@ -734,8 +739,8 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 20,
-      gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.1"),
+      schemaVersion: 21,
+      gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
       categories,
@@ -901,6 +906,7 @@
     const normalized = normalizeConfig(raw);
     const current = window.FazendaSerenaRuntimeConfig || clone(defaults);
     current.events = clone(normalized.events);
+    current.pointTypes = clone(normalized.pointTypes);
     current.gameVersion = normalized.gameVersion;
     current.texts = { ...(current.texts || {}), ...clone(normalized.texts) };
     window.FazendaSerenaConfig?.applyCloudVersion?.(normalized.gameVersion);
@@ -941,8 +947,11 @@
     const invalidMission = normalized.missions.find(mission => mission.metric === "categorySold" && !categoryIds.has(mission.category));
     if (invalidMission) throw new Error(`A missão “${invalidMission.title}” usa uma categoria que não existe.`);
     const cropIds = new Set(normalized.crops.map(item => item.id));
-    const invalidCropMilestone = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))
-      .find(entry => entry.mission.metric === "cropUnlocked" && entry.serie.cropId && !cropIds.has(entry.serie.cropId));
+    const cropTargetEntries = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))
+      .filter(entry => ["cropUnlocked", "cropPurchased"].includes(entry.mission.metric));
+    const missingCropTarget = cropTargetEntries.find(entry => !entry.serie.cropId);
+    if (missingCropTarget) throw new Error(`A missão “${missingCropTarget.mission.title}”, série ${missingCropTarget.index + 1}, precisa ter uma planta selecionada.`);
+    const invalidCropMilestone = cropTargetEntries.find(entry => !cropIds.has(entry.serie.cropId));
     if (invalidCropMilestone) throw new Error(`A missão “${invalidCropMilestone.mission.title}”, série ${invalidCropMilestone.index + 1}, aponta para uma planta que não existe.`);
     const titleIds = new Set(normalized.playerTitles.map(item => item.id));
     const invalidTitleReward = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))

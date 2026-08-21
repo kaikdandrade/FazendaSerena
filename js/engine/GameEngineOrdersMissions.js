@@ -90,6 +90,11 @@ Object.assign(GameEngine.prototype, {
         coinsEarned: this.state.stats.lifetimeCoins,
         prestiges: this.state.stats.prestiges,
         categorySold: mission?.category ? Number(this.state.stats.lifetimeSoldByCategory[mission.category] || 0) : 0,
+        cropPurchased: (() => {
+          const cropId = String(mission?.cropId || "");
+          if (!cropId || !this.getCrop(cropId)) return 0;
+          return this.state.cropsDiscovered?.[cropId] === true || this.state.crops?.[cropId]?.owned === true ? 1 : 0;
+        })(),
         cropUnlocked: (() => {
           const crop = mission?.cropId ? this.getCrop(mission.cropId) : null;
           if (!crop) return 0;
@@ -99,13 +104,19 @@ Object.assign(GameEngine.prototype, {
       return Number(map[metric] || 0);
     },
 
+  isMissionVisible(mission) {
+      if (!mission?.hidden) return true;
+      return window.FirebaseManager?.isCurrentUserAdminCached?.() === true;
+    },
+
   getActiveMissions() {
+      const visibleMissions = this.data.missions.filter(mission => this.isMissionVisible(mission));
       const seen = new Set();
       const active = [];
-      for (const mission of this.data.missions) {
+      for (const mission of visibleMissions) {
         const series = mission.series || mission.id;
         if (seen.has(series)) continue;
-        const next = this.data.missions.find(item => (item.series || item.id) === series && !this.state.missionsClaimed[item.id]);
+        const next = visibleMissions.find(item => (item.series || item.id) === series && !this.state.missionsClaimed[item.id]);
         if (next) active.push(next);
         seen.add(series);
       }
@@ -133,7 +144,7 @@ Object.assign(GameEngine.prototype, {
 
   claimMission(id) {
       const mission = this.data.missions.find(item => item.id === id);
-      if (!mission || this.state.missionsClaimed[id]) return { ok: false, message: "Missão indisponível." };
+      if (!mission || !this.isMissionVisible(mission) || this.state.missionsClaimed[id]) return { ok: false, message: "Missão indisponível." };
       if (this.missionValue(mission.metric, mission) < mission.target) return { ok: false, message: "Objetivo ainda não foi concluído." };
       const reward = mission.reward || {};
       if (reward.coins) this.addCoins(reward.coins);

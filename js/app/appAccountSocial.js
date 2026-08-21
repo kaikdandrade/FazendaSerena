@@ -65,8 +65,15 @@
     const equipped = getEquippedPlayerTitle();
     const preserveDraft = Boolean(dom.rankingProfileDialog?.open && dom.playerProfileForm?.dataset.dirty === "true");
 
-    if (dom.accountPlayerTitle) dom.accountPlayerTitle.innerHTML = playerTitleMarkup(equipped, { compact: true });
-    if (dom.accountTitleDot) dom.accountTitleDot.dataset.titleRarity = PLAYER_TITLE_RARITY_LABELS[equipped?.rarity] ? equipped.rarity : "common";
+    const accountSignedIn = Boolean(window.FirebaseManager?.getUser?.());
+    if (dom.accountPlayerTitle) {
+      dom.accountPlayerTitle.hidden = !accountSignedIn;
+      dom.accountPlayerTitle.innerHTML = accountSignedIn ? playerTitleMarkup(equipped, { compact: true }) : "";
+    }
+    if (dom.accountTitleDot) {
+      dom.accountTitleDot.hidden = !accountSignedIn;
+      dom.accountTitleDot.dataset.titleRarity = PLAYER_TITLE_RARITY_LABELS[equipped?.rarity] ? equipped.rarity : "common";
+    }
     if (dom.playerTitleUnlockCount) dom.playerTitleUnlockCount.textContent = `${unlocked.length} de ${titles.length} ${unlocked.length === 1 ? "desbloqueado" : "desbloqueados"}`;
 
     if (!dom.playerTitleSetting) return;
@@ -121,15 +128,21 @@
 
     renderPlayerTitleControl();
 
+    if (dom.accountConnectionStatus) {
+      dom.accountConnectionStatus.textContent = "Conta não conectada";
+      dom.accountConnectionStatus.hidden = signedIn;
+      dom.accountConnectionStatus.classList.toggle("is-disconnected", !signedIn);
+    }
     if (dom.accountEmail) {
-      dom.accountEmail.textContent = signedIn
-        ? (user.email || "Conta Google conectada")
-        : "Conta não conectada";
+      dom.accountEmail.textContent = signedIn ? (user.email || "Conta Google conectada") : "";
+      dom.accountEmail.hidden = !signedIn;
+      dom.accountEmail.classList.remove("is-disconnected");
     }
     if (dom.accountDescription) {
       dom.accountDescription.textContent = signedIn
         ? "Seu progresso é privado e salvo automaticamente na nuvem."
-        : "Seu progresso de visitante é salvo neste navegador e pode ser enviado para a nuvem ao entrar pela primeira vez.";
+        : "";
+      dom.accountDescription.hidden = !signedIn;
     }
 
     if (dom.accountAvatar) {

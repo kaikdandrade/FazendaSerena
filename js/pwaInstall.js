@@ -46,9 +46,11 @@
     if (kind === "android") {
       return `
         <ol class="pwa-install-steps">
-          <li><strong>Abra esta página no Chrome ou navegador compatível.</strong></li>
-          <li><strong>Abra o menu do navegador.</strong><span>Procure por “Instalar app” ou “Adicionar à tela inicial”.</span></li>
-          <li><strong>Confirme a instalação.</strong><span>O ícone da Fazenda Serena aparecerá junto aos seus aplicativos.</span></li>
+          <li><strong>Abra a Fazenda Serena no Chrome.</strong><span>Use esta página no navegador do seu Android.</span></li>
+          <li><strong>Toque no menu do Chrome.</strong><span>Abra o menu de três pontos no canto superior do navegador.</span></li>
+          <li><strong>Escolha “Instalar app” ou “Adicionar à tela inicial”.</strong><span>O nome da opção pode variar um pouco conforme a versão do Android ou do navegador.</span></li>
+          <li><strong>Confirme a instalação.</strong><span>Toque em Instalar ou Adicionar quando o Android pedir a confirmação.</span></li>
+          <li><strong>Abra pelo novo ícone.</strong><span>A Fazenda Serena ficará junto dos seus aplicativos e poderá ser aberta diretamente por ele.</span></li>
         </ol>`;
     }
     return `
@@ -77,7 +79,7 @@
       showInstructions("ios");
       return;
     }
-    if (kind === "android" && platform !== "android") {
+    if (kind === "android") {
       showInstructions("android");
       return;
     }
@@ -110,7 +112,7 @@
   window.addEventListener("beforeinstallprompt", event => {
     event.preventDefault();
     deferredInstallPrompt = event;
-    if (currentPlatform() === "android") setStatus("Este Android pode instalar a Fazenda Serena diretamente.", "available");
+    if (currentPlatform() === "android") setStatus("No Android, você pode adicionar a Fazenda Serena à tela inicial.", "available");
     else setStatus("Este computador pode instalar a Fazenda Serena como aplicativo.", "available");
   });
 
@@ -129,7 +131,7 @@
   } else if (isIOS) {
     setStatus("No iPhone/iPad, use “Adicionar à Tela de Início” para instalar.", "available");
   } else if (isAndroid) {
-    setStatus("Se o instalador automático não aparecer, use “Instalar app” no menu do navegador.", "ready");
+    setStatus("No Android, use “Instalar app” ou “Adicionar à tela inicial” no menu do navegador.", "ready");
   } else {
     setStatus("Seu navegador pode oferecer uma opção de instalação do jogo.", "ready");
   }
