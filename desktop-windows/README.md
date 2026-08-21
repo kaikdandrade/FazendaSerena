@@ -35,3 +35,12 @@ Para ARM64, troque `GOARCH=amd64` por `GOARCH=arm64`.
 ## Assinatura
 
 Os executáveis gerados neste projeto de teste **não possuem assinatura Authenticode**. Para distribuição pública, assine o instalador e o launcher com um certificado de code signing para reduzir alertas do Windows SmartScreen.
+
+
+## Identidade do executável e assinatura
+
+Os builds incorporam `CompanyName = Kaik D'Andrade`, `ProductName = Fazenda Serena`, descrição, versão e ícone nativo ao executável. Esses campos aparecem nas propriedades do arquivo e ajudam a identificar o produto.
+
+O aviso de segurança **Editor desconhecido**, porém, não é controlado por esses textos. Para distribuição pública, assine os executáveis com uma identidade/certificado Authenticode confiável usando `SIGN_WINDOWS.ps1`. Um certificado autoassinado serve para desenvolvimento, mas não é automaticamente confiável nos computadores dos jogadores.
+
+O script `SIGN_WINDOWS.ps1` aceita `FAZENDA_TIMESTAMP_URL` caso o provedor do seu certificado recomende um servidor RFC 3161 específico. Se não for definido, usa um serviço público de timestamp como padrão. A identidade mostrada como editor vem do certificado emitido/validado, não do campo `CompanyName`.
