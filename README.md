@@ -394,10 +394,11 @@ Componentes e serviços de terceiros permanecem sujeitos aos termos e licenças 
 
 ## Aplicativos instaláveis
 
-A mesma versão web também pode ser distribuída como aplicativo sem manter uma segunda lógica de jogo:
+A mesma versão web pode ser instalada sem manter uma segunda lógica de jogo:
 
 - **Windows:** `downloads/FazendaSerena-Setup-x64.exe` e `downloads/FazendaSerena-Setup-arm64.exe`. O instalador cria um launcher local que abre a origem oficial em modo aplicativo.
-- **Android:** a pasta `android-twa/` prepara um Trusted Web Activity com Bubblewrap. Depois do primeiro build, o APK é copiado para `downloads/FazendaSerena-Android.apk`.
-- **PWA:** continua disponível como alternativa em plataformas onde um pacote próprio não estiver publicado.
+- **Android:** a instalação é feita pelo próprio navegador, usando **Instalar app** ou **Adicionar à tela inicial**. Não existe pacote Android separado no projeto.
+- **iPhone / iPad:** no Safari, use **Compartilhar → Adicionar à Tela de Início**.
+- **Navegador:** o jogo continua disponível normalmente sem instalação.
 
-Os fontes de empacotamento são ignorados pelo Firebase Hosting; apenas os instaladores colocados em `downloads/` são publicados.
+No Android e no iOS, o aplicativo instalado usa a própria PWA publicada e recebe as atualizações da versão web.
