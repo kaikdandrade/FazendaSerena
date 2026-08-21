@@ -128,7 +128,7 @@ Entre os legados estão bônus de produção, capital inicial, capacidade de arm
 
 ### Perfil e ranking
 
-Jogadores conectados podem definir um apelido e escolher um avatar animal para participar do ranking global de prestígio. O mesmo perfil também gera um código de amizade, utilizado para enviar solicitações e manter uma lista de fazendas conectadas entre diferentes dispositivos.
+Todo jogador conectado que tenha configurado apelido e avatar participa automaticamente do ranking global de prestígio, salvo contas administrativas ou bloqueadas pela moderação. Nenhum nome ou e-mail da Conta Google é publicado automaticamente. O mesmo perfil também gera um código de amizade, utilizado para enviar solicitações e manter uma lista de fazendas conectadas entre diferentes dispositivos.
 
 As amizades formam a camada social do projeto e foram estruturadas para receber futuramente eventos cooperativos, desafios por período e disputas como a comparação de contratos concluídos. O perfil público exibe apenas apelido, avatar e identificadores necessários para esses recursos, enquanto o progresso completo permanece associado à conta autenticada.
 
@@ -314,7 +314,7 @@ A versão pública é distribuída pelo Firebase Hosting e está disponível em:
 
 ### Firebase Authentication
 
-O projeto utiliza o **Firebase Authentication** com login pelo Google. A autenticação identifica o jogador, permite associar seu progresso a uma conta e habilita a participação no ranking global quando o perfil é configurado.
+O projeto utiliza o **Firebase Authentication** com login pelo Google. A autenticação identifica o jogador, associa seu progresso à conta e o inclui automaticamente no ranking global, exceto para administradores ou contas bloqueadas no ranking pela moderação.
 
 ### Cloud Firestore
 
