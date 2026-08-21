@@ -1,4 +1,36 @@
 "use strict";
+  function reconcileLiveCards(container, html) {
+    if (!container) return;
+    const template = document.createElement("template");
+    template.innerHTML = String(html || "").trim();
+    const incoming = [...template.content.children];
+    const existing = new Map([...container.children].map((node, index) => [node.dataset.liveRenderKey || `index:${index}`, node]));
+    const keep = new Set();
+
+    incoming.forEach((freshNode, index) => {
+      const key = freshNode.dataset.liveRenderKey || `index:${index}`;
+      const current = existing.get(key);
+      const sameSignature = current
+        && (current.dataset.liveRenderSignature || "") === (freshNode.dataset.liveRenderSignature || "");
+      let node = sameSignature ? current : freshNode;
+
+      if (current && !sameSignature && current.isConnected) {
+        current.replaceWith(freshNode);
+        node = freshNode;
+      }
+
+      // Só move/insere quando a posição realmente mudou. Ao contrário de
+      // replaceChildren(), os nós reaproveitados permanecem conectados ao DOM,
+      // preservando imagens carregadas, foco, scroll interno e animações.
+      const atIndex = container.children[index];
+      if (atIndex !== node) container.insertBefore(node, atIndex || null);
+      keep.add(node);
+    });
+
+    [...container.children].forEach(node => {
+      if (!keep.has(node)) node.remove();
+    });
+  }
   function escapeHtml(value) {
     return String(value)
       .replaceAll("&", "&amp;")
@@ -287,7 +319,34 @@
         window.setTimeout(() => soundEngine.playConcurrent("levelUp"), index * 180);
       }
       if (Array.isArray(event.milestones) && event.milestones.length) showMilestoneDialog(event);
-      window.setTimeout(() => render(true), 0);
+
+      // Revisão 39: subir de nível não remonta a tela inteira. A estrutura só
+      // é refeita quando o intervalo atravessa um desbloqueio real.
+      window.setTimeout(() => {
+        const endLevel = Math.max(1, Math.floor(Number(event.level) || engine.state.farmLevel || 1));
+        const startLevel = Math.max(1, endLevel - count + 1);
+        const crossed = level => Number(level) >= startLevel && Number(level) <= endLevel;
+        const cropUnlocked = engine.data.crops.some(crop => crossed(crop.unlockLevel));
+        const ordersUnlocked = crossed(GameEngine.ORDER_UNLOCK_LEVEL);
+        const evolutionsUnlocked = crossed(GameEngine.EVOLUTION_UNLOCK_LEVEL);
+        const prestigeUnlocked = crossed(GameEngine.PRESTIGE_UNLOCK_LEVEL);
+
+        updateLiveHeader(performance.now(), true);
+        syncFeatureLocks();
+        updateLiveNavigationBadges?.();
+
+        if (activeView === "farmView" && cropUnlocked) renderCrops();
+        if (activeView === "officeView" && activeOfficeTab === "orders" && ordersUnlocked) renderOrders();
+        if (activeView === "officeView" && activeOfficeTab === "evolutions" && evolutionsUnlocked) {
+          lastResearchRenderSignature = "";
+          lastPrestigeRenderSignature = "";
+          renderResearch();
+          renderPrestigeUpgrades();
+        }
+        if (activeView === "profileView" && activeProfileTab === "missions" && cropUnlocked) renderMissions();
+        if (activeView === "profileView" && activeProfileTab === "account" && prestigeUnlocked) renderPrestigeDashboard();
+        updateLiveGameUI?.(performance.now(), true);
+      }, 0);
     }
   }
 

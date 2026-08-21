@@ -1,14 +1,19 @@
 "use strict";
   function render(force = false) {
     const now = performance.now();
-    if (!force && now < navigationScrollActiveUntil) return;
-    if (!force && now - lastRender < getPerformanceProfile().renderInterval) return;
+
+    // Revisão 39: render() é estrutural. O loop principal nunca deve remontar
+    // grids/cards inteiros. Sem force, apenas os campos vivos são atualizados.
+    if (!force) {
+      updateLiveGameUI?.(now);
+      return;
+    }
+
     lastRender = now;
     renderHeader();
-    applySettings();
 
     if (activeView === "farmView") {
-      if (force || !dom.cropGrid.children.length) renderCrops();
+      renderCrops();
     } else if (activeView === "stockView") {
       renderStock();
     } else if (activeView === "officeView") {
@@ -34,8 +39,12 @@
       if (activeProfileTab === "missions") renderMissions();
       showProfileTab(activeProfileTab, false);
     }
-    updateLiveHeader(now);
-    updateLiveFarmUI();
+
+    // Após um render estrutural, sincroniza somente valores/estados que podem
+    // ter mudado durante a própria montagem, sem recriar nenhum filho.
+    updateLiveHeader(now, true);
+    updateLiveFarmUI(now);
+    updateLiveGameUI?.(now, true);
   }
 
   function act(result) {
@@ -235,13 +244,16 @@
     if (action === "buy-research") act(engine.buyResearch(id));
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
     if (action === "accept-contract") {
+      const offer = engine.state.contractOffers.find(contract => contract.id === id);
+      const canSignNow = Boolean(offer && Number(offer.timeRemaining) > 0 && engine.state.activeContracts.length < engine.getActiveContractSlotLimit());
+      if (canSignNow) soundEngine.playImmediate("contractSignature");
       const result = engine.acceptContract(id);
-      if (result.ok) soundEngine.play("contractSignature");
       act(result);
     }
     if (action === "decline-contract") {
+      const offer = engine.state.contractOffers.find(contract => contract.id === id);
+      if (offer) soundEngine.playImmediate("contractRefusal");
       const result = engine.declineContract(id);
-      if (result.ok) soundEngine.play("contractRefusal");
       act(result);
     }
     if (action === "break-contract") {
@@ -255,8 +267,8 @@
       if (typeof dom.contractBreakDialog?.showModal === "function") dom.contractBreakDialog.showModal();
       else if (window.confirm(`Quebrar contrato e pagar ${engine.formatNumber(penalty)} moedas?`)) {
         pendingContractBreakId = "";
+        soundEngine.playImmediate("contractRefusal");
         const result = engine.breakContract(id);
-        if (result.ok) soundEngine.play("contractRefusal");
         act(result);
       }
     }

@@ -1,10 +1,100 @@
 "use strict";
+  const CATALOG_FILTER_STORAGE_KEY = "fazenda-serena-catalog-filters-v1";
+  const defaultCatalogFilterState = () => ({ categories: new Set(), hideMastered: false, hideLocked: false });
+
+  function loadCatalogFilters() {
+    const result = { farm: defaultCatalogFilterState(), stock: defaultCatalogFilterState() };
+    try {
+      const raw = JSON.parse(localStorage.getItem(CATALOG_FILTER_STORAGE_KEY) || "null");
+      ["farm", "stock"].forEach(context => {
+        if (!raw?.[context]) return;
+        result[context].categories = new Set(Array.isArray(raw[context].categories) ? raw[context].categories.map(String) : []);
+        result[context].hideMastered = Boolean(raw[context].hideMastered);
+        result[context].hideLocked = Boolean(raw[context].hideLocked);
+      });
+    } catch (_) {}
+    return result;
+  }
+
+  const catalogFilters = loadCatalogFilters();
+  let catalogFilterContext = "farm";
+
+  function saveCatalogFilters() {
+    try {
+      localStorage.setItem(CATALOG_FILTER_STORAGE_KEY, JSON.stringify({
+        farm: { ...catalogFilters.farm, categories: [...catalogFilters.farm.categories] },
+        stock: { ...catalogFilters.stock, categories: [...catalogFilters.stock.categories] }
+      }));
+    } catch (_) {}
+  }
+
+  function catalogFilterCount(context) {
+    const state = catalogFilters[context] || catalogFilters.farm;
+    return Number(state.hideMastered) + Number(context === "farm" && state.hideLocked) + Number(state.categories.size > 0);
+  }
+
+  function syncCatalogFilterButtons() {
+    [["farm", dom.farmFilterButton, dom.farmFilterCount], ["stock", dom.stockFilterButton, dom.stockFilterCount]].forEach(([context, button, badge]) => {
+      const count = catalogFilterCount(context);
+      button?.classList.toggle("has-active-filters", count > 0);
+      button?.setAttribute("aria-label", count ? `Filtros, ${count} ${count === 1 ? "filtro ativo" : "filtros ativos"}` : "Filtros");
+      if (badge) { badge.textContent = String(count); badge.hidden = count === 0; }
+    });
+  }
+
   function setupCategoryFilter() {
-    if (dom.categoryFilter) dom.categoryFilter.innerHTML = '<option value="all">Todas as categorias</option>';
-    const options = Object.entries(engine.data.categories)
-      .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`)
-      .join("");
-    dom.categoryFilter.insertAdjacentHTML("beforeend", `<option value="locked">Safras bloqueadas</option>${options}`);
+    const validCategories = new Set(Object.keys(engine.data.categories || {}));
+    ["farm", "stock"].forEach(context => {
+      catalogFilters[context].categories = new Set([...catalogFilters[context].categories].filter(id => validCategories.has(id)));
+    });
+    saveCatalogFilters();
+    syncCatalogFilterButtons();
+  }
+
+  function renderCatalogFilterDialog(context) {
+    catalogFilterContext = context === "stock" ? "stock" : "farm";
+    const state = catalogFilters[catalogFilterContext];
+    if (dom.catalogFilterTitle) dom.catalogFilterTitle.textContent = catalogFilterContext === "farm" ? "Filtros da Fazenda" : "Filtros do estoque";
+    if (dom.catalogFilterHideMastered) dom.catalogFilterHideMastered.checked = state.hideMastered;
+    if (dom.catalogFilterHideLocked) dom.catalogFilterHideLocked.checked = state.hideLocked;
+    if (dom.catalogFilterLockedRow) dom.catalogFilterLockedRow.hidden = catalogFilterContext !== "farm";
+    if (dom.catalogFilterCategoryGrid) {
+      dom.catalogFilterCategoryGrid.innerHTML = Object.entries(engine.data.categories || {}).map(([id, name]) => `
+        <label class="catalog-filter-category"><input type="checkbox" value="${escapeHtml(id)}" ${state.categories.has(id) ? "checked" : ""}><span>${escapeHtml(name)}</span><i aria-hidden="true">✓</i></label>`).join("");
+    }
+  }
+
+  function openCatalogFilterDialog(context) {
+    if (!dom.catalogFilterDialog) return;
+    renderCatalogFilterDialog(context);
+    if (typeof dom.catalogFilterDialog.showModal === "function" && !dom.catalogFilterDialog.open) dom.catalogFilterDialog.showModal();
+  }
+
+  function applyCatalogFilterDialog() {
+    const state = catalogFilters[catalogFilterContext];
+    if (!state) return;
+    state.hideMastered = Boolean(dom.catalogFilterHideMastered?.checked);
+    state.hideLocked = catalogFilterContext === "farm" && Boolean(dom.catalogFilterHideLocked?.checked);
+    state.categories = new Set($$("#catalogFilterCategoryGrid input[type=checkbox]:checked").map(input => input.value));
+    saveCatalogFilters();
+    syncCatalogFilterButtons();
+    dom.catalogFilterDialog?.close("applied");
+    if (catalogFilterContext === "stock") renderStock(); else renderCrops();
+  }
+
+  function resetCatalogFilterDraft() {
+    if (dom.catalogFilterHideMastered) dom.catalogFilterHideMastered.checked = false;
+    if (dom.catalogFilterHideLocked) dom.catalogFilterHideLocked.checked = false;
+    $$("#catalogFilterCategoryGrid input[type=checkbox]").forEach(input => { input.checked = false; });
+  }
+
+  function clearCatalogFilters(context) {
+    const key = context === "stock" ? "stock" : "farm";
+    catalogFilters[key] = defaultCatalogFilterState();
+    saveCatalogFilters();
+    syncCatalogFilterButtons();
+    if (dom.catalogFilterDialog?.open && catalogFilterContext === key) renderCatalogFilterDialog(key);
+    if (key === "stock") renderStock(); else renderCrops();
   }
 
   let scrollUiFrame = 0;
@@ -200,7 +290,11 @@
       ? settings.musicTrack
       : audioDefaults.musicTrack;
     const navigationMode = ["automatic", "line", "grid"].includes(settings.navigationMode) ? settings.navigationMode : "automatic";
-    const signature = JSON.stringify({ ambient: Boolean(ambient), fontScale, numberFormat, navigationMode, masterVolume, effectVolume, musicVolume, musicTrack });
+    const appearanceMode = ["automatic", "light", "dark"].includes(settings.appearanceMode) ? settings.appearanceMode : "automatic";
+    const effectiveTheme = window.FazendaSerenaTheme?.resolveTheme
+      ? window.FazendaSerenaTheme.resolveTheme(appearanceMode)
+      : (appearanceMode === "automatic" && window.matchMedia?.("(prefers-color-scheme: dark)")?.matches ? "dark" : appearanceMode === "automatic" ? "light" : appearanceMode);
+    const signature = JSON.stringify({ ambient: Boolean(ambient), fontScale, numberFormat, navigationMode, appearanceMode, effectiveTheme, masterVolume, effectVolume, musicVolume, musicTrack });
     if (!force && signature === appliedSettingsSignature) return;
     appliedSettingsSignature = signature;
 
@@ -213,6 +307,18 @@
     if (dom.numberFormatSetting && document.activeElement !== dom.numberFormatSetting) dom.numberFormatSetting.value = numberFormat;
     document.body.dataset.navigationMode = navigationMode;
     if (dom.navigationModeSetting && document.activeElement !== dom.navigationModeSetting) dom.navigationModeSetting.value = navigationMode;
+    if (window.FazendaSerenaTheme?.apply) {
+      window.FazendaSerenaTheme.apply(appearanceMode, { persist: true });
+    } else {
+      document.documentElement.dataset.themeMode = appearanceMode;
+      document.documentElement.dataset.theme = effectiveTheme;
+      document.body.dataset.theme = effectiveTheme;
+      document.documentElement.style.colorScheme = effectiveTheme;
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) themeColor.setAttribute("content", effectiveTheme === "dark" ? "#0b100d" : "#eef4e8");
+      try { localStorage.setItem("fazenda-serena-theme-mode", appearanceMode); } catch {}
+    }
+    if (dom.appearanceModeSetting && document.activeElement !== dom.appearanceModeSetting) dom.appearanceModeSetting.value = appearanceMode;
 
     soundEngine.configure({ ...settings, masterVolume, effectVolume, musicVolume, musicTrack });
     if (dom.masterVolumeSetting && document.activeElement !== dom.masterVolumeSetting) dom.masterVolumeSetting.value = String(masterVolume);
@@ -230,6 +336,9 @@
     const capacity = Math.max(1, Number(metrics.storageCapacity) || 1);
     const usage = percent((used / capacity) * 100);
     const full = used >= capacity;
+    const signature = `${used}|${capacity}|${Math.floor(usage)}|${full ? 1 : 0}`;
+    if (dom.stockNavTab?.dataset.liveStockSignature === signature) return;
+    if (dom.stockNavTab) dom.stockNavTab.dataset.liveStockSignature = signature;
     dom.stockNavTab.style.setProperty("--stock-progress", `${usage}%`);
     dom.stockNavTab.classList.toggle("stock-full", full);
     dom.stockNavBadge.hidden = !full;
@@ -260,11 +369,17 @@
     const sync = (selector, key, unlocked, label, level) => {
       document.querySelectorAll(selector).forEach(tab => {
         tab.disabled = false; // a prévia continua acessível; somente as ações ficam bloqueadas no painel.
-        tab.classList.toggle("feature-preview", !unlocked);
-        tab.dataset.featureLocked = String(!unlocked);
-        tab.title = unlocked ? label : `${label} · libera no nível ${level}`;
+        const preview = !unlocked;
+        if (tab.classList.contains("feature-preview") !== preview) tab.classList.toggle("feature-preview", preview);
+        const lockedValue = String(preview);
+        if (tab.dataset.featureLocked !== lockedValue) tab.dataset.featureLocked = lockedValue;
+        const title = unlocked ? label : `${label} · libera no nível ${level}`;
+        if (tab.title !== title) tab.title = title;
         const image = tab.querySelector("img");
-        if (image) image.src = unlocked ? iconFor(key) : "assets/icons/cadeado.webp";
+        const source = unlocked ? iconFor(key) : "assets/icons/cadeado.webp";
+        // Nunca reatribui src sem necessidade: isso evita piscar/redecodificar
+        // ícones da navegação em renders estruturais disparados por ações.
+        if (image && image.getAttribute("src") !== source) image.src = source;
       });
     };
     sync('[data-office-tab="orders"]', "orders", engine.isOrdersUnlocked(), "Pedidos", GameEngine.ORDER_UNLOCK_LEVEL);
@@ -276,18 +391,29 @@
     const maximumLevel = GameEngine.MAX_FARM_LEVEL;
     const atMaximum = state.farmLevel >= maximumLevel;
     const farmNeed = engine.getFarmXPNeed();
-    dom.farmLevelLabel.textContent = String(Math.min(maximumLevel, state.farmLevel));
+    const levelText = String(Math.min(maximumLevel, state.farmLevel));
+    if (dom.farmLevelLabel?.textContent !== levelText) dom.farmLevelLabel.textContent = levelText;
     dom.farmProgress?.classList.toggle("max-level", atMaximum);
-    dom.farmXPBar.style.width = atMaximum ? "100%" : `${percent((state.farmXP / farmNeed) * 100)}%`;
-    const xpIcon = '<img class="farm-xp-inline-icon" src="assets/icons/xp.webp" alt="XP">';
-    dom.farmXPText.innerHTML = atMaximum
-      ? `${xpIcon}<span>${engine.formatNumber(state.farmXP)}</span>`
-      : `${xpIcon}<span>${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)}</span>`;
+
+    const width = atMaximum ? "100%" : `${percent((state.farmXP / farmNeed) * 100)}%`;
+    if (dom.farmXPBar?.style.width !== width) dom.farmXPBar.style.width = width;
+
+    // A imagem de XP é criada uma única vez no HTML. No loop alteramos
+    // exclusivamente o texto, evitando o flash causado por innerHTML.
+    const xpValue = dom.farmXPText?.querySelector?.("[data-farm-xp-value]");
+    const xpText = atMaximum
+      ? engine.formatNumber(state.farmXP)
+      : `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)}`;
+    if (xpValue && xpValue.textContent !== xpText) xpValue.textContent = xpText;
+
     if (dom.farmXPTrack) {
-      dom.farmXPTrack.setAttribute("aria-valuemin", "0");
-      dom.farmXPTrack.setAttribute("aria-valuemax", atMaximum ? "100" : String(farmNeed));
-      dom.farmXPTrack.setAttribute("aria-valuenow", atMaximum ? "100" : String(Math.floor(state.farmXP)));
-      dom.farmXPTrack.setAttribute("aria-label", atMaximum ? `Nível máximo. ${engine.formatNumber(state.farmXP)} XP.` : "Experiência da fazenda");
+      const maxValue = atMaximum ? "100" : String(farmNeed);
+      const nowValue = atMaximum ? "100" : String(Math.floor(state.farmXP));
+      const label = atMaximum ? `Nível máximo. ${engine.formatNumber(state.farmXP)} XP.` : "Experiência da fazenda";
+      if (dom.farmXPTrack.getAttribute("aria-valuemin") !== "0") dom.farmXPTrack.setAttribute("aria-valuemin", "0");
+      if (dom.farmXPTrack.getAttribute("aria-valuemax") !== maxValue) dom.farmXPTrack.setAttribute("aria-valuemax", maxValue);
+      if (dom.farmXPTrack.getAttribute("aria-valuenow") !== nowValue) dom.farmXPTrack.setAttribute("aria-valuenow", nowValue);
+      if (dom.farmXPTrack.getAttribute("aria-label") !== label) dom.farmXPTrack.setAttribute("aria-label", label);
     }
   }
 
@@ -297,12 +423,12 @@
     const coinsText = engine.formatNumber(state.coins);
     const researchText = engine.formatNumber(state.research);
     const prestigeText = engine.formatNumber(state.prestigePoints);
-    dom.coinsCounter.textContent = coinsText;
-    dom.researchCounter.textContent = researchText;
-    dom.prestigeCounter.textContent = prestigeText;
-    if (dom.floatingCoinsCounter) dom.floatingCoinsCounter.textContent = coinsText;
-    if (dom.floatingResearchCounter) dom.floatingResearchCounter.textContent = researchText;
-    if (dom.floatingPrestigeCounter) dom.floatingPrestigeCounter.textContent = prestigeText;
+    if (dom.coinsCounter?.textContent !== coinsText) dom.coinsCounter.textContent = coinsText;
+    if (dom.researchCounter?.textContent !== researchText) dom.researchCounter.textContent = researchText;
+    if (dom.prestigeCounter?.textContent !== prestigeText) dom.prestigeCounter.textContent = prestigeText;
+    if (dom.floatingCoinsCounter?.textContent !== coinsText) dom.floatingCoinsCounter.textContent = coinsText;
+    if (dom.floatingResearchCounter?.textContent !== researchText) dom.floatingResearchCounter.textContent = researchText;
+    if (dom.floatingPrestigeCounter?.textContent !== prestigeText) dom.floatingPrestigeCounter.textContent = prestigeText;
     updateFarmProgressDisplay();
 
     const metrics = engine.getMetrics();
@@ -317,7 +443,7 @@
     if (dom.orderTabCount) dom.orderTabCount.hidden = readyOrders < 1;
     if (dom.missionTabCount) dom.missionTabCount.textContent = String(readyMissions);
     if (dom.missionTabCount) dom.missionTabCount.hidden = readyMissions < 1;
-    renderContractDock();
+    updateLiveContractDockUI?.();
   }
 
   function formatLiveTime(seconds) {
@@ -327,19 +453,19 @@
     return engine.formatTime(value);
   }
 
-  function updateLiveHeader(now = performance.now()) {
-    if (now - lastLiveHeader < getPerformanceProfile().liveHeaderInterval) return;
+  function updateLiveHeader(now = performance.now(), force = false) {
+    if (!force && now - lastLiveHeader < getPerformanceProfile().liveHeaderInterval) return;
     lastLiveHeader = now;
     const state = engine.state;
     const coinsText = engine.formatNumber(state.coins);
     const researchText = engine.formatNumber(state.research);
     const prestigeText = engine.formatNumber(state.prestigePoints);
-    dom.coinsCounter.textContent = coinsText;
-    dom.researchCounter.textContent = researchText;
-    dom.prestigeCounter.textContent = prestigeText;
-    if (dom.floatingCoinsCounter) dom.floatingCoinsCounter.textContent = coinsText;
-    if (dom.floatingResearchCounter) dom.floatingResearchCounter.textContent = researchText;
-    if (dom.floatingPrestigeCounter) dom.floatingPrestigeCounter.textContent = prestigeText;
+    if (dom.coinsCounter?.textContent !== coinsText) dom.coinsCounter.textContent = coinsText;
+    if (dom.researchCounter?.textContent !== researchText) dom.researchCounter.textContent = researchText;
+    if (dom.prestigeCounter?.textContent !== prestigeText) dom.prestigeCounter.textContent = prestigeText;
+    if (dom.floatingCoinsCounter && dom.floatingCoinsCounter.textContent !== coinsText) dom.floatingCoinsCounter.textContent = coinsText;
+    if (dom.floatingResearchCounter && dom.floatingResearchCounter.textContent !== researchText) dom.floatingResearchCounter.textContent = researchText;
+    if (dom.floatingPrestigeCounter && dom.floatingPrestigeCounter.textContent !== prestigeText) dom.floatingPrestigeCounter.textContent = prestigeText;
     updateFarmProgressDisplay();
     updateStockNavigation({
       stock: engine.getStorageUsed(),
@@ -354,6 +480,8 @@
       cropId: card.dataset.liveCrop,
       ring: $('[data-crop-ring]', card),
       progressLabel: $('[data-crop-percent]', card),
+      progressText: $('[data-crop-percent-text]', card),
+      pausedIcon: $('[data-crop-paused-icon]', card),
       cycle: $('[data-crop-cycle]', card),
       visible: true
     }));
@@ -387,7 +515,7 @@
 
     liveCropEntries.forEach(entry => {
       if (!entry.visible) return;
-      const { card, cropId, ring, progressLabel, cycle } = entry;
+      const { card, cropId, ring, progressLabel, progressText, pausedIcon, cycle } = entry;
       const cropState = engine.state.crops[cropId];
       if (!cropState?.owned) return;
       const growthTime = engine.getGrowthTime(cropId);
@@ -398,21 +526,40 @@
       const progress = optimizedRing ? 100 : percent(cropState.progress * 100);
       if (ring) {
         const previous = Number(ring.dataset.lastProgress || 0);
-        const wrapped = !optimizedRing && previous > 88 && progress < 25;
-        if (wrapped) ring.classList.add("progress-resetting");
-        ring.style.setProperty("--growth-progress", `${progress}%`);
-        if (wrapped) requestAnimationFrame(() => ring.classList.remove("progress-resetting"));
-        ring.dataset.lastProgress = String(progress);
-        ring.classList.toggle("instant", optimizedRing);
-        ring.classList.toggle("optimized-ring", optimizedRing && !instant);
-        ring.classList.toggle("paused", paused);
+        const progressValue = String(progress);
+        if (ring.dataset.lastProgress !== progressValue) {
+          const wrapped = !optimizedRing && previous > 88 && progress < 25;
+          if (wrapped) ring.classList.add("progress-resetting");
+          ring.style.setProperty("--growth-progress", `${progress}%`);
+          ring.dataset.lastProgress = progressValue;
+          if (wrapped) requestAnimationFrame(() => ring.classList.remove("progress-resetting"));
+        }
+        const ringState = `${optimizedRing ? 1 : 0}|${optimizedRing && !instant ? 1 : 0}|${paused ? 1 : 0}`;
+        if (ring.dataset.liveState !== ringState) {
+          ring.dataset.liveState = ringState;
+          ring.classList.toggle("instant", optimizedRing);
+          ring.classList.toggle("optimized-ring", optimizedRing && !instant);
+          ring.classList.toggle("paused", paused);
+        }
       }
       if (progressLabel) {
-        progressLabel.hidden = optimizedRing;
-        if (!optimizedRing) progressLabel.textContent = paused ? "Ⅱ" : `${Math.floor(progress)}%`;
+        if (progressLabel.hidden !== optimizedRing) progressLabel.hidden = optimizedRing;
+        if (!optimizedRing) {
+          progressLabel.classList.toggle("is-paused", paused);
+          if (pausedIcon && pausedIcon.hidden === paused) pausedIcon.hidden = !paused;
+          if (progressText && progressText.hidden !== paused) progressText.hidden = paused;
+          if (!paused && progressText) {
+            const label = `${Math.floor(progress)}%`;
+            if (progressText.textContent !== label) progressText.textContent = label;
+          }
+        }
       }
-      if (cycle) cycle.textContent = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
-      card.classList.toggle("auto-sell-enabled", Boolean(cropState.autoSell));
+      if (cycle) {
+        const cycleText = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
+        if (cycle.textContent !== cycleText) cycle.textContent = cycleText;
+      }
+      const autoSellEnabled = Boolean(cropState.autoSell);
+      if (card.classList.contains("auto-sell-enabled") !== autoSellEnabled) card.classList.toggle("auto-sell-enabled", autoSellEnabled);
 
       if (updateControls) updateCropUpgradePanel(card, cropId);
     });
@@ -425,12 +572,12 @@
         const unlocked = engine.isCropUnlocked(cropId);
         const buyCost = engine.getBuyCost(cropId);
         const canAfford = engine.state.coins >= buyCost;
-        card.classList.toggle("insufficient", unlocked && !canAfford);
+        const insufficient = unlocked && !canAfford;
+        if (card.classList.contains("insufficient") !== insufficient) card.classList.toggle("insufficient", insufficient);
         if (button) {
-          button.disabled = !unlocked || !canAfford;
-          button.innerHTML = !unlocked
-            ? `Necessário: Fazenda nível ${crop.unlockLevel}`
-            : `Comprar ${resourceAmount("coins", -buyCost, { compact: true })}`;
+          // Conteúdo e imagem são estruturais; no loop muda só a disponibilidade.
+          const disabled = !unlocked || !canAfford;
+          if (button.disabled !== disabled) button.disabled = disabled;
         }
       });
     }

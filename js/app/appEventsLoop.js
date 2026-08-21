@@ -125,9 +125,13 @@
       }
     });
 
-    [dom.searchCrop, dom.categoryFilter, dom.stockSearch].filter(Boolean).forEach(control => {
-      control.addEventListener(control.tagName === "INPUT" ? "input" : "change", () => render(true));
-    });
+    dom.searchCrop?.addEventListener("input", () => renderCrops());
+    dom.stockSearch?.addEventListener("input", () => renderStock());
+
+    dom.farmFilterButton?.addEventListener("click", () => openCatalogFilterDialog("farm"));
+    dom.stockFilterButton?.addEventListener("click", () => openCatalogFilterDialog("stock"));
+    dom.catalogFilterApply?.addEventListener("click", applyCatalogFilterDialog);
+    dom.catalogFilterReset?.addEventListener("click", resetCatalogFilterDraft);
 
     dom.toggleCompletedMissions?.addEventListener("click", () => {
       showCompletedMissions = !showCompletedMissions;
@@ -346,8 +350,8 @@
       pendingContractBreakId = "";
       dom.contractBreakDialog?.close("confirm");
       if (!id) return;
+      soundEngine.playImmediate("contractRefusal");
       const result = engine.breakContract(id);
-      if (result.ok) soundEngine.play("contractRefusal");
       act(result);
     });
     dom.contractBreakDialog?.addEventListener("close", () => { pendingContractBreakId = ""; });
@@ -429,6 +433,16 @@
       render(true);
       requestGameSave();
     });
+    dom.appearanceModeSetting?.addEventListener("change", () => {
+      engine.setSetting("appearanceMode", dom.appearanceModeSetting.value);
+      try { localStorage.setItem("fazenda-serena-theme-mode", dom.appearanceModeSetting.value); } catch {}
+      applySettings(true);
+      requestGameSave();
+    });
+    const systemThemeQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
+    systemThemeQuery?.addEventListener?.("change", () => {
+      if ((engine.state.settings.appearanceMode || "automatic") === "automatic") applySettings(true);
+    });
 
 
     dom.masterVolumeSetting?.addEventListener("input", () => {
@@ -496,6 +510,9 @@
           engine.simulate(elapsed, true, elapsed);
           engine.state.lastUpdate = now;
           render(true);
+          updateLiveHeader(performance.now(), true);
+          updateLiveContractsPulse(performance.now(), true);
+          updateLiveGameUI(performance.now(), true);
           const offlineReport = engine.consumeOfflineReport?.();
           if (offlineReport) window.setTimeout(() => showOfflineProgressDialog(offlineReport), 0);
         }
@@ -520,7 +537,8 @@
       engine.tick(dt);
       updateLiveHeader(now);
       updateLiveFarmUI(now);
-      render(false);
+      updateLiveContractsPulse(now);
+      updateLiveGameUI(now);
 
       if (now - lastSave >= 15000) {
         requestGameSave({ force: true });

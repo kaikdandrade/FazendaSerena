@@ -95,6 +95,18 @@ class SoundEngine {
     document.addEventListener("touchstart", this.musicActivationHandler, { passive: true, capture: true });
     document.addEventListener("keydown", this.musicActivationHandler, { capture: true });
 
+    // R39.3: acorda o AudioContext ainda no pointerdown, antes do click que
+    // executa ações de contrato. Isso remove o atraso causado por resume() no
+    // mesmo instante em que o efeito precisa começar.
+    this.effectActivationHandler = () => {
+      if (this.audioContext && this.audioContext.state !== "running") {
+        try { this.audioContext.resume().catch(() => {}); } catch (_) {}
+      }
+    };
+    document.addEventListener("pointerdown", this.effectActivationHandler, { passive: true, capture: true });
+    document.addEventListener("touchstart", this.effectActivationHandler, { passive: true, capture: true });
+    document.addEventListener("keydown", this.effectActivationHandler, { capture: true });
+
     this.preloadEffects();
   }
 
@@ -229,6 +241,33 @@ class SoundEngine {
       group: "concurrent",
       delaySeconds: 0
     });
+    return true;
+  }
+
+  // Efeito crítico de interação: usa Web Audio somente quando o contexto já
+  // está acordado. Caso contrário, toca imediatamente pelo pool HTMLAudio já
+  // pré-carregado e acorda o contexto para as próximas ações.
+  playImmediate(action, options = {}) {
+    const source = options.source ?? SoundEngine.FIXED_MAPPINGS[action];
+    const volume = this.getEffectPlaybackVolume(options);
+    if (!source || volume <= 0) return false;
+
+    const buffer = this.effectBuffers.get(source);
+    if (buffer && this.audioContext?.state === "running") {
+      this.playDecodedBuffer(buffer, volume, {
+        sequence: this.playSequence,
+        group: "concurrent",
+        delaySeconds: 0
+      });
+      return true;
+    }
+
+    this.playFallback(source, volume, {
+      sequence: this.playSequence,
+      group: "concurrent",
+      delaySeconds: 0
+    });
+    this.unlockAudio();
     return true;
   }
 

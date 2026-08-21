@@ -13,7 +13,7 @@
   };
   let currentVersion = readKnownVersion();
 
-  const experienceDefaults = Object.freeze({ ambient: true, fontScale: 100, numberFormat: "brazilian" });
+  const experienceDefaults = Object.freeze({ ambient: true, fontScale: 100, numberFormat: "brazilian", appearanceMode: "automatic" });
   const audioDefaults = Object.freeze({ masterVolume: 100, musicVolume: 10, effectVolume: 55, musicTrack: "betweenLightAndShadows" });
 
   function renderVersion(version = currentVersion) {
@@ -34,7 +34,7 @@
 
   const config = Object.freeze({
     get appVersion(){ return currentVersion; },
-    assetCacheVersion: "assets-r37f",
+    assetCacheVersion: "assets-r38p",
     releaseChannel: "release",
     experienceDefaults,
     audioDefaults,
@@ -58,9 +58,11 @@
     renderVersion(currentVersion);
     const ambient=document.getElementById("ambientSetting");
     const numbers=document.getElementById("numberFormatSetting");
+    const appearance=document.getElementById("appearanceModeSetting");
     const music=document.getElementById("musicTrackSetting");
     if(ambient) ambient.checked=experienceDefaults.ambient;
     if(numbers) numbers.value=experienceDefaults.numberFormat;
+    if(appearance) appearance.value=experienceDefaults.appearanceMode;
     if(music) music.value=audioDefaults.musicTrack;
     setRangeDefault("fontScaleSetting","fontScaleText",experienceDefaults.fontScale);
     setRangeDefault("masterVolumeSetting","masterVolumeText",audioDefaults.masterVolume);

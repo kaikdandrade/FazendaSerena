@@ -1,0 +1,2025 @@
+/* ========================================================================== */
+/* Fazenda Serena — tema escuro consolidado                                   */
+/* R38s: camada final do dark mode.                                           */
+/* ========================================================================== */
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Tokens atuais */
+  --ui-bg: #0b100d;
+  --ui-surface: #141b17;
+  --ui-surface-strong: #19221d;
+  --ui-surface-soft: #111713;
+  --ui-border: rgba(225, 238, 228, .085);
+  --ui-border-strong: rgba(225, 238, 228, .14);
+  --ui-text: #edf4ef;
+  --ui-muted: #97a79c;
+  --ui-green: #6cae79;
+  --ui-green-strong: #8ac594;
+  --ui-green-soft: #17231a;
+  --ui-gold-soft: #2b2619;
+  --ui-red: #e78e84;
+  --ui-red-soft: #2f1e1c;
+  --ui-shadow: 0 24px 60px rgba(0,0,0,.36);
+  --ui-shadow-soft: 0 12px 28px rgba(0,0,0,.25);
+
+  /* Tokens históricos ainda usados por componentes antigos */
+  --green: #72b87f;
+  --green-deep: #8cc697;
+  --green-soft: #1a291e;
+  --ink: #edf4ef;
+  --ink-soft: #9aaaa0;
+  --line: rgba(225, 238, 228, .085);
+  --page: #0b100d;
+  --page-deep: #070b09;
+  --surface: #151c18;
+  --surface-soft: #111713;
+  --surface-solid: #19211d;
+  --shadow-md: 0 20px 48px rgba(0,0,0,.30);
+  --shadow-sm: 0 9px 24px rgba(0,0,0,.22);
+
+  /* Paleta semântica do dark */
+  --dark-page: #0b100d;
+  --dark-page-deep: #070b09;
+  --dark-panel: #141b17;
+  --dark-panel-2: #18211c;
+  --dark-card: #1b241f;
+  --dark-card-2: #202a24;
+  --dark-recess: #0f1512;
+  --dark-line: rgba(224,238,227,.085);
+  --dark-line-strong: rgba(224,238,227,.14);
+  --dark-text: #edf4ef;
+  --dark-muted: #98a89d;
+  --dark-green: #72b87f;
+  --dark-green-bright: #8fd39c;
+  --dark-blue: #6faee8;
+  --dark-purple: #b17be1;
+  --dark-gold: #e1bd61;
+  --dark-red: #e8897f;
+  --dark-orange: #e99d6c;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Base / background                                                          */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] body {
+  color: var(--dark-text) !important;
+  background:
+    radial-gradient(70rem 38rem at 7% -10%, rgba(81, 139, 94, .15), transparent 64%),
+    radial-gradient(58rem 36rem at 96% 8%, rgba(80, 107, 137, .10), transparent 65%),
+    radial-gradient(50rem 34rem at 55% 100%, rgba(84, 65, 105, .08), transparent 68%),
+    linear-gradient(155deg, #0b100d 0%, #0d120f 46%, #080c0a 100%) !important;
+}
+html[data-theme="dark"] body::before {
+  background-image:
+    linear-gradient(rgba(171, 205, 180, .018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(171, 205, 180, .018) 1px, transparent 1px) !important;
+  opacity: .42 !important;
+}
+html[data-theme="dark"] .ambient-layer {
+  opacity: .30 !important;
+  filter: saturate(.68) brightness(.55) !important;
+}
+html[data-theme="dark"] :is(h1,h2,h3,h4,h5,strong,b) { color: var(--dark-text); }
+html[data-theme="dark"] :is(p,small,.eyebrow) { text-wrap: pretty; }
+html[data-theme="dark"] .eyebrow { color: #78b885 !important; }
+html[data-theme="dark"] ::selection { background: rgba(105, 174, 119, .28); color: #fff; }
+
+/* -------------------------------------------------------------------------- */
+/* Loading                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .game-loading-screen {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(84,143,98,.18), transparent 36%),
+    linear-gradient(160deg, #0a0f0c, #111813 54%, #080c0a) !important;
+}
+html[data-theme="dark"] .game-loading-card {
+  background: linear-gradient(180deg, rgba(27,37,31,.96), rgba(17,24,20,.98)) !important;
+  border-color: rgba(225,238,228,.10) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .game-loading-progress { background: #0d130f !important; }
+
+/* -------------------------------------------------------------------------- */
+/* Header / recursos                                                          */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .app-header {
+  background: linear-gradient(180deg, rgba(20,28,23,.94), rgba(15,22,18,.94)) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .brand-copy small { color: #91a299 !important; }
+html[data-theme="dark"] .brand-copy strong { color: #f2f6f3 !important; }
+html[data-theme="dark"] .farm-progress,
+html[data-theme="dark"] .resource-pill {
+  background: linear-gradient(180deg, #1b251f, #161e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .farm-progress {
+  background:
+    radial-gradient(circle at 16% 20%, rgba(104,177,118,.08), transparent 50%),
+    linear-gradient(180deg, #1b251f, #161e1a) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="coins"] {
+  background: linear-gradient(180deg, #292516, #201d14) !important;
+  border-color: rgba(225,188,91,.13) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="research"] {
+  background: linear-gradient(180deg, #172636, #13202b) !important;
+  border-color: rgba(103,170,224,.14) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="prestige"] {
+  background: linear-gradient(180deg, #291c37, #21162e) !important;
+  border-color: rgba(176,119,222,.16) !important;
+}
+html[data-theme="dark"] :is(.farm-progress,.resource-pill) small { color: #9aaaa0 !important; }
+html[data-theme="dark"] :is(.farm-progress,.resource-pill) strong { color: #f4f7f5 !important; }
+html[data-theme="dark"] .soft-progress,
+html[data-theme="dark"] .progress-track { background: #0c120e !important; }
+
+/* Counter flutuante */
+html[data-theme="dark"] .floating-resource-strip,
+html[data-theme="dark"] body.page-scrolled .floating-resource-strip {
+  background: rgba(12,17,14,.91) !important;
+  border: 1px solid rgba(225,238,228,.095) !important;
+  box-shadow: 0 18px 46px rgba(0,0,0,.44) !important;
+  backdrop-filter: blur(18px) saturate(1.05) !important;
+}
+html[data-theme="dark"] .floating-resource-strip .resource-pill {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Navegação                                                                  */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .main-nav,
+html[data-theme="dark"] .context-tabs {
+  background: linear-gradient(180deg, rgba(21,29,24,.96), rgba(16,23,19,.96)) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab,
+html[data-theme="dark"] .context-tabs .office-tab,
+html[data-theme="dark"] .context-tabs .profile-tab,
+html[data-theme="dark"] .context-tabs .evolution-tab {
+  color: #aebdb2 !important;
+  background: rgba(255,255,255,.018) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab:hover:not(.active),
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #dfe8e1 !important;
+  background: rgba(255,255,255,.045) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active,
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #eff8f1 !important;
+  background: linear-gradient(180deg, rgba(83,143,96,.25), rgba(53,103,65,.20)) !important;
+  border-color: rgba(121,190,135,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 8px 18px rgba(0,0,0,.15) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active .nav-tab-icon,
+html[data-theme="dark"] .context-tabs .active i {
+  background: rgba(255,255,255,.035) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Painéis, cabeçalhos e estados vazios                                       */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] :is(.panel-card,.settings-card,.account-settings-card,.order-board,.social-profile-panel,.prestige-leaderboard,.evolution-panel,.account-statistics-section) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #151c18 0%, #111713 100%) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .section-heading,
+html[data-theme="dark"] .settings-card-head {
+  color: var(--dark-text) !important;
+  background: transparent !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] .office-empty,
+html[data-theme="dark"] .social-live-empty,
+html[data-theme="dark"] .friends-empty-state {
+  color: #cbd7ce !important;
+  background: linear-gradient(180deg, #19211c, #141a17) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Formulários / botões                                                       */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] :is(input,select,textarea) {
+  color: #edf4ef !important;
+  background: #0e1411 !important;
+  border-color: rgba(225,238,228,.13) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] :is(input,select,textarea):focus {
+  border-color: rgba(114,184,127,.48) !important;
+  box-shadow: 0 0 0 3px rgba(91,160,104,.12) !important;
+}
+html[data-theme="dark"] :is(input,textarea)::placeholder { color: #6f7d74 !important; }
+html[data-theme="dark"] select option { background: #111713; color: #edf4ef; }
+html[data-theme="dark"] .button.primary,
+html[data-theme="dark"] button.button.primary {
+  color: #f7fff8 !important;
+  background: linear-gradient(180deg, #559b65, #3f7e4e) !important;
+  border-color: rgba(129,203,144,.18) !important;
+  box-shadow: 0 8px 18px rgba(26,82,38,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+html[data-theme="dark"] .button.primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #64aa73, #4a8c59) !important;
+}
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button) {
+  color: #d6e0d8 !important;
+  background: linear-gradient(180deg, #252f29, #1e2722) !important;
+  border-color: rgba(225,238,228,.10) !important;
+}
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button):hover:not(:disabled) {
+  color: #f1f6f2 !important;
+  background: linear-gradient(180deg, #303c34, #27322c) !important;
+}
+html[data-theme="dark"] .button.gold {
+  color: #f5dea0 !important;
+  background: linear-gradient(180deg, #4a3d20, #362d1b) !important;
+  border-color: rgba(225,188,91,.19) !important;
+}
+html[data-theme="dark"] :is(.button.danger,.contract-decline-button-v2,.contract-break-button-v3,.contract-penalty-action) {
+  color: #efaaa3 !important;
+  background: linear-gradient(180deg, #402624, #311e1d) !important;
+  border-color: rgba(229,126,117,.17) !important;
+}
+html[data-theme="dark"] :is(.button,.crop-upgrade-cta,.order-card .button):disabled {
+  color: #718078 !important;
+  background: #1c231f !important;
+  border-color: rgba(225,238,228,.055) !important;
+  box-shadow: none !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* FAZENDA — cards de plantas                                                 */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #farmView .crop-card {
+  color: var(--dark-text) !important;
+  background:
+    radial-gradient(24rem 12rem at 50% -10%, rgba(111,183,126,.12), transparent 66%),
+    linear-gradient(180deg, #1c261f 0%, #171e1a 100%) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.23), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #farmView .crop-card:hover {
+  border-color: rgba(121,190,135,.16) !important;
+  box-shadow: 0 18px 38px rgba(0,0,0,.29), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #farmView .crop-card :is(.crop-art,.crop-art-progress,.locked-art,.crop-preview-unlocked) {
+  background:
+    radial-gradient(circle at 50% 28%, rgba(112,177,123,.08), transparent 64%),
+    linear-gradient(180deg, #202a24, #1a221e) !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-strip {
+  color: #cbd7ce !important;
+  background: rgba(9,14,11,.50) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card :is(.crop-category-list,.crop-quick-stats>span,.crop-progress-percent) {
+  color: #b9c8bd !important;
+  background: #121914 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card h3 { color: #f2f7f3 !important; }
+html[data-theme="dark"] #farmView .crop-card :is(.crop-upgrade-panel,.crop-upgrade-redesign) {
+  background: linear-gradient(180deg, rgba(11,16,13,.54), rgba(13,18,15,.34)) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card :is(.crop-upgrade-summary,.upgrade-mode-selector) {
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option {
+  color: #b7c5ba !important;
+  background: #1c251f !important;
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option.active {
+  color: #f2fff4 !important;
+  background: linear-gradient(180deg, #4c8d5b, #377246) !important;
+  border-color: rgba(126,197,140,.16) !important;
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered {
+  background:
+    radial-gradient(25rem 12rem at 50% -8%, rgba(225,189,97,.10), transparent 64%),
+    linear-gradient(180deg, #24251d, #191c17) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* ESTOQUE                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #stockView :is(.summary-card,.normalized-summary-card,.stock-card,.normalized-stock-card) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #1c251f, #171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #stockView .summary-card-heading small,
+html[data-theme="dark"] #stockView .stock-ident small,
+html[data-theme="dark"] #stockView .stock-card small { color: #98a89d !important; }
+html[data-theme="dark"] #stockView :is(.summary-status,.stock-value-grid>div,.auto-sell-toggle,.compact-auto-toggle,.stock-favorite-button) {
+  color: #d5e0d8 !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #stockView .stock-ident > img {
+  background: linear-gradient(180deg,#222d26,#19211c) !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #stockView .favorite-stock-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(225,189,97,.08), transparent 36%),
+    linear-gradient(180deg, #20261f, #181e1a) !important;
+}
+html[data-theme="dark"] #stockView .auto-sell-card {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(114,184,127,.08), transparent 34%),
+    linear-gradient(180deg, #1d271f, #171e1a) !important;
+}
+html[data-theme="dark"] #stockView .stock-favorite-button.active {
+  color: #f1ca66 !important;
+  background: #312a19 !important;
+  border-color: rgba(225,189,97,.15) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* PEDIDOS                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #officeOrdersPanel .order-board-section {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #1c251f, #171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card :is(.order-head,.order-progress,.contract-reward-unified,.completed-order-identity,.completed-order-status) {
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card p,
+html[data-theme="dark"] #officeOrdersPanel .order-card small { color: #9eada2 !important; }
+html[data-theme="dark"] #officeOrdersPanel .order-ready-to-deliver {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.09), transparent 34%),
+    linear-gradient(180deg, #1e2922, #171f1b) !important;
+  border-color: rgba(114,184,127,.14) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-complete {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(225,189,97,.09), transparent 34%),
+    linear-gradient(180deg, #25251c, #1a1b16) !important;
+  border-color: rgba(225,189,97,.14) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* MISSÕES                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #profileMissionsPanel :is(.mission-card,.mission-series-card,.achievement-card) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #1c251f, #171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel :is(.mission-card,.mission-series-card,.achievement-card) :is(p,small) { color: #9eada2 !important; }
+html[data-theme="dark"] #profileMissionsPanel .mission-card.claimed {
+  opacity: .88 !important;
+  background: linear-gradient(180deg,#18201b,#141a17) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-crop-unlock-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.08), transparent 34%),
+    linear-gradient(180deg,#1c261f,#171e1a) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CONTRATOS — rework principal                                               */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 {
+  color: #dce6df !important;
+  background: linear-gradient(180deg, #19221c, #141b17) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2,
+html[data-theme="dark"] #officeContractsPanel .friendly-contract-card {
+  position: relative;
+  color: var(--dark-text) !important;
+  background:
+    radial-gradient(28rem 14rem at 100% -5%, color-mix(in srgb, var(--contract-type-color, #72b87f) 12%, transparent), transparent 64%),
+    linear-gradient(180deg, #1b241f 0%, #151c18 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #72b87f) 18%, rgba(225,238,228,.07)) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 38px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.02) !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2::before {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--contract-type-color, #72b87f);
+  opacity: .75;
+  pointer-events: none;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2:hover {
+  border-color: color-mix(in srgb, var(--contract-type-color, #72b87f) 28%, rgba(225,238,228,.08)) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-header-v2 {
+  background: rgba(10,15,12,.22) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 > span,
+html[data-theme="dark"] #officeContractsPanel .contract-company-mark > span {
+  background: #202a24 !important;
+  border: 1px solid rgba(225,238,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 small { color: #8f9f94 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 strong { color: #eaf1eb !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-proposal-time-v3 {
+  color: #c5d2c8 !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.08) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2.urgent {
+  color: #f0ad82 !important;
+  background: #35241d !important;
+  border-color: rgba(233,157,108,.18) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 {
+  background: transparent !important;
+  border-color: rgba(225,238,228,.06) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 > img {
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--contract-type-color,#72b87f) 12%, transparent), transparent 70%),
+    linear-gradient(180deg,#222d26,#19211c) !important;
+  border: 1px solid rgba(225,238,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-type-label {
+  color: color-mix(in srgb, var(--contract-type-color,#72b87f) 70%, #ffffff) !important;
+  background: color-mix(in srgb, var(--contract-type-color,#72b87f) 9%, #101611) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#72b87f) 18%, transparent) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 { color: #f3f7f4 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 span { color: #becbc1 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-meta > span { color: #8f9f94 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-stock-chip {
+  color: #dbe5dd !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip {
+  color: #d6e1d8 !important;
+  background: rgba(9,14,11,.34) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3 span,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 span,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip > span { color: #8f9f94 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track { background: #0b100d !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track > span {
+  background: linear-gradient(90deg, #66a974, #83c88f) !important;
+  box-shadow: 0 0 14px rgba(114,184,127,.12) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip .resource-amount {
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.06) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-footer-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 {
+  background: rgba(8,12,10,.22) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-footer-v3 {
+  border-top-color: rgba(229,126,117,.10) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3 {
+  color: #dca09a !important;
+  background: linear-gradient(180deg, rgba(78,42,39,.62), rgba(50,29,28,.72)) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(94,49,45,.74), rgba(62,34,32,.82)) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-completed-card {
+  background:
+    radial-gradient(28rem 14rem at 100% -5%, rgba(225,189,97,.12), transparent 64%),
+    linear-gradient(180deg, #24231b 0%, #191a15 100%) !important;
+  border-color: rgba(225,189,97,.16) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-completed-card::before { background: #d8b456; }
+html[data-theme="dark"] #officeContractsPanel .contract-defaulted-card {
+  background:
+    radial-gradient(28rem 14rem at 100% -5%, rgba(232,137,127,.10), transparent 64%),
+    linear-gradient(180deg, #281e1c 0%, #1d1716 100%) !important;
+  border-color: rgba(232,137,127,.15) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-defaulted-card::before { background: #d9786f; }
+html[data-theme="dark"] #officeContractsPanel .contract-deadline-warning:not(.contract-defaulted-card) {
+  border-color: rgba(233,157,108,.19) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-cooldown-card {
+  background: linear-gradient(180deg,#19211c,#141a17) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-cooldown-v2 {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* ATALHO DE CONTRATOS — rework noturno                                      */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2,
+html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-v2 {
+  background:
+    radial-gradient(30rem 15rem at 100% -10%, rgba(102,166,115,.10), transparent 65%),
+    linear-gradient(180deg, rgba(20,28,23,.985), rgba(13,19,16,.99)) !important;
+  border: 1px solid rgba(225,238,228,.10) !important;
+  box-shadow: 0 26px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header {
+  background: linear-gradient(180deg, rgba(31,42,35,.96), rgba(22,31,26,.96)) !important;
+  border-bottom-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header strong { color: #f0f5f1 !important; }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header small { color: #8e9f94 !important; }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header > button:first-child:hover {
+  background: rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle,
+html[data-theme="dark"] .contract-dock-compact-button {
+  color: #dce6de !important;
+  background: linear-gradient(180deg,#27322c,#202923) !important;
+  border-color: rgba(225,238,228,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list,
+html[data-theme="dark"] .contract-dock .contract-dock-list,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)),
+html[data-theme="dark"] .contract-dock .contract-dock-list:has(> :nth-child(4)) {
+  background: #0f1512 !important;
+  border-color: transparent !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 {
+  color: #e8f0ea !important;
+  background:
+    radial-gradient(16rem 8rem at 0% 0%, rgba(105,174,119,.055), transparent 72%),
+    linear-gradient(180deg,#1d2721,#18201c) !important;
+  border-color: rgba(225,238,228,.075) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2:hover {
+  background:
+    radial-gradient(16rem 8rem at 0% 0%, rgba(105,174,119,.09), transparent 72%),
+    linear-gradient(180deg,#222e26,#1b241f) !important;
+  border-color: rgba(121,190,135,.15) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .contract-dock-crop-shell {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(116,184,128,.08), transparent 70%),
+    linear-gradient(180deg,#253129,#1b251f) !important;
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > strong { color: #f1f6f2 !important; }
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > small {
+  color: #b9c9bd !important;
+  background: #111813 !important;
+  border: 1px solid rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] .contract-dock-meta-line > em { color: #8f9f94 !important; }
+html[data-theme="dark"] .contract-dock-state {
+  color: #aebdb2 !important;
+  background: #111713 !important;
+  border: 1px solid rgba(225,238,228,.06) !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-urgent {
+  color: #efaa80 !important;
+  background: #35241d !important;
+  border-color: rgba(233,157,108,.14) !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-completed {
+  color: #e6c96d !important;
+  background: #302b1b !important;
+  border-color: rgba(225,189,97,.14) !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-defaulted {
+  color: #eda099 !important;
+  background: #36201f !important;
+  border-color: rgba(232,137,127,.14) !important;
+}
+html[data-theme="dark"] .contract-dock-progress { background: #0a0f0c !important; }
+html[data-theme="dark"] .contract-dock-progress > .delivered {
+  background: linear-gradient(90deg,#5b9d69,#87c991) !important;
+  box-shadow: 0 0 10px rgba(114,184,127,.13) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  color: #dce6de !important;
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.055) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.reward-ready {
+  background:
+    radial-gradient(18rem 9rem at 0% 0%, rgba(225,189,97,.10), transparent 72%),
+    linear-gradient(180deg,#28271d,#1d1d17) !important;
+  border-color: rgba(225,189,97,.15) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.contract-defaulted {
+  background:
+    radial-gradient(18rem 9rem at 0% 0%, rgba(232,137,127,.09), transparent 72%),
+    linear-gradient(180deg,#2a201e,#1f1817) !important;
+  border-color: rgba(232,137,127,.15) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
+  background:
+    radial-gradient(18rem 9rem at 0% 0%, rgba(233,157,108,.08), transparent 72%),
+    linear-gradient(180deg,#27211c,#1d1916) !important;
+  border-color: rgba(233,157,108,.14) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* EVOLUÇÕES / PESQUISA                                                       */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1b241f,#161d19) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(111,174,232,.10), transparent 40%),
+    linear-gradient(180deg,#1a2530,#151d24) !important;
+  border-color: rgba(111,174,232,.13) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(177,123,225,.11), transparent 40%),
+    linear-gradient(180deg,#251d2c,#1b161f) !important;
+  border-color: rgba(177,123,225,.14) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .upgrade-icon {
+  background: rgba(8,13,10,.34) !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .upgrade-description { color: #a0afa5 !important; }
+html[data-theme="dark"] #officeEvolutionsPanel .upgrade-level-badge {
+  background: #101611 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel [data-upgrade-kind="research"] .upgrade-level-badge { color: #9dc9ef !important; }
+html[data-theme="dark"] #officeEvolutionsPanel [data-upgrade-kind="prestige"] .upgrade-level-badge { color: #d0a5ee !important; }
+
+/* -------------------------------------------------------------------------- */
+/* MINHA CONTA / ESTATÍSTICAS / PRESTÍGIO                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #profileAccountPanel .account-card,
+html[data-theme="dark"] #profileAccountPanel .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article,
+html[data-theme="dark"] #profileAccountPanel .achievement-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-icon,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article > span,
+html[data-theme="dark"] #profileAccountPanel .achievement-card > span {
+  background: linear-gradient(180deg,#263229,#1d2721) !important;
+  border-color: rgba(225,238,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card small,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary small { color: #98a89d !important; }
+html[data-theme="dark"] #profileAccountPanel .account-statistics-section {
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-section-plain {
+  background: transparent !important;
+}
+
+/* Prestígio mantém a identidade mística, mas integrado ao dark */
+html[data-theme="dark"] #profileAccountPanel .account-prestige-section {
+  box-shadow: 0 22px 50px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* SOCIAL / RANKING / AGENDA                                                  */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #profileSocialPanel :is(.friends-beta-panel,.social-ranking-section,.prestige-leaderboard) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #profileSocialPanel :is(.friends-beta-option,.friend-card,.leaderboard-row) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.current-player,
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.personal-rank-row {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.08), transparent 40%),
+    linear-gradient(180deg,#1e2922,#171f1b) !important;
+  border-color: rgba(114,184,127,.14) !important;
+}
+html[data-theme="dark"] .social-events-accordion {
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.20) !important;
+}
+html[data-theme="dark"] .social-events-accordion > summary {
+  color: #e8f0ea !important;
+  background: linear-gradient(180deg,#1b251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] .social-events-accordion-icon {
+  background: #202a24 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] .social-events-accordion-copy small,
+html[data-theme="dark"] .social-events-accordion-copy em { color: #91a196 !important; }
+html[data-theme="dark"] .social-live-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .social-live-card.active {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.10), transparent 40%),
+    linear-gradient(180deg,#1f2b23,#18211c) !important;
+  border-color: rgba(114,184,127,.16) !important;
+}
+html[data-theme="dark"] .social-event-copy small { color: #86bd91 !important; }
+html[data-theme="dark"] .social-event-copy p { color: #9dada2 !important; }
+html[data-theme="dark"] .social-event-time {
+  color: #c9d7cc !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] .social-event-time.is-running {
+  color: #a5d8ae !important;
+  background: #17251b !important;
+  border-color: rgba(114,184,127,.14) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CONFIGURAÇÕES                                                              */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #settingsView .settings-page-container,
+html[data-theme="dark"] #settingsView .settings-card,
+html[data-theme="dark"] #settingsView .feedback-settings-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > :is(.setting-row,.range-setting),
+html[data-theme="dark"] #settingsView .feedback-setting-row {
+  color: #e7efe9 !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > :is(.setting-row,.range-setting):hover {
+  background: linear-gradient(180deg,#212c25,#1b241f) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* FOOTER                                                                     */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .app-footer {
+  color: #8f9f94 !important;
+  background: linear-gradient(180deg,rgba(15,21,17,.72),rgba(9,13,11,.92)) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] .app-footer::before { background: rgba(225,238,228,.06) !important; }
+html[data-theme="dark"] .app-footer .footer-brand-copy strong { color: #dce6de !important; }
+html[data-theme="dark"] .app-footer :is(a,.footer-link-button) { color: #a9b9ae !important; }
+html[data-theme="dark"] .app-footer :is(a,.footer-link-button):hover { color: #e8f0ea !important; }
+html[data-theme="dark"] .app-footer .footer-version-link {
+  color: #a5c7ac !important;
+  background: #17201a !important;
+  border-color: rgba(114,184,127,.10) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* MODAIS                                                                     */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] dialog,
+html[data-theme="dark"] dialog > form,
+html[data-theme="dark"] .confirmation-dialog,
+html[data-theme="dark"] .ranking-profile-dialog,
+html[data-theme="dark"] .friend-code-dialog,
+html[data-theme="dark"] .friends-list-dialog,
+html[data-theme="dark"] .contract-break-dialog {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#171f1b,#111713) !important;
+  border-color: rgba(225,238,228,.10) !important;
+  box-shadow: 0 34px 100px rgba(0,0,0,.58) !important;
+}
+html[data-theme="dark"] dialog::backdrop {
+  background: rgba(2,5,3,.72) !important;
+  backdrop-filter: blur(6px) !important;
+}
+html[data-theme="dark"] :is(.friends-dialog-header,.player-profile-heading,.player-profile-actions,.offline-progress-header,.offline-progress-actions,.player-feedback-heading,.player-feedback-actions) {
+  background: #171f1b !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] :is(.friend-code-share code,.friend-request-form-dialog input,.profile-nickname-field,.profile-avatar-field,.profile-player-title-field,.selected-avatar-preview,.selected-player-title-card,.avatar-picker-panel,.player-title-picker-panel,.player-title-picker-option,.contract-break-calculation article,.contract-break-amount,.offline-gain-card) {
+  color: #e7efe9 !important;
+  background: #1c251f !important;
+  border-color: var(--dark-line) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Recursos, gates e pequenos elementos internos                              */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .resource-amount {
+  color: inherit !important;
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] .feature-gate-card {
+  color: #dce6de !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.07), transparent 38%),
+    linear-gradient(180deg,#1b241f,#151c18) !important;
+  border-color: rgba(225,238,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .feature-gate-level {
+  color: #b9d9c0 !important;
+  background: #16231a !important;
+  border-color: rgba(114,184,127,.12) !important;
+}
+html[data-theme="dark"] .contract-section-divider > span,
+html[data-theme="dark"] .mission-history-toggle::before {
+  background: linear-gradient(90deg,transparent,rgba(225,238,228,.08),transparent) !important;
+}
+html[data-theme="dark"] .back-to-top {
+  color: #e8f0ea !important;
+  background: linear-gradient(180deg,#26332b,#1e2922) !important;
+  border-color: rgba(225,238,228,.10) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.32) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scrollbar                                                                  */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] * {
+  scrollbar-color: rgba(126,151,133,.40) transparent;
+}
+html[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgba(126,151,133,.32) !important;
+  border-radius: 999px;
+}
+html[data-theme="dark"] *::-webkit-scrollbar-thumb:hover { background: rgba(143,171,151,.46) !important; }
+html[data-theme="dark"] *::-webkit-scrollbar-track { background: transparent !important; }
+
+/* ========================================================================== */
+/* R38t — Contratos e Pedidos: acabamento noturno definitivo                  */
+/* ========================================================================== */
+html[data-theme="dark"] #officeContractsPanel {
+  --contract-dark-card: #171d1b;
+  --contract-dark-card-2: #121816;
+  --contract-dark-panel: #0f1513;
+  --contract-dark-line: rgba(224,236,228,.075);
+  --contract-dark-muted: #91a097;
+}
+
+/* Capacidade: sem pílula branca e sem tons cinza lavados. */
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 {
+  color: #e8efe9 !important;
+  background: linear-gradient(145deg, #171e1b 0%, #121816 100%) !important;
+  border: 1px solid var(--contract-dark-line) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > div > img {
+  background: linear-gradient(180deg,#202a25,#18201c) !important;
+  border-color: rgba(224,236,228,.08) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 small { color: #92a198 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 strong { color: #f2f7f3 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > b,
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > b.available {
+  color: #9ed8aa !important;
+  background: #17251b !important;
+  border: 1px solid rgba(107,177,121,.14) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > b.full {
+  color: #e5a09a !important;
+  background: #2a1b1a !important;
+  border-color: rgba(219,116,107,.15) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-section-divider::before,
+html[data-theme="dark"] #officeContractsPanel .contract-section-divider::after,
+html[data-theme="dark"] #officeContractsPanel .contract-section-divider > span {
+  background: rgba(225,237,228,.075) !important;
+  border-color: rgba(225,237,228,.075) !important;
+}
+
+/* Card: neutro profundo; a cor do contrato entra só como luz/acento contextual. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2,
+html[data-theme="dark"] #officeContractsPanel .friendly-contract-card.contract-custom-color {
+  position: relative !important;
+  color: #eaf1eb !important;
+  background:
+    radial-gradient(26rem 12rem at 18% -12%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 62%),
+    linear-gradient(155deg, #1b2220 0%, #151b19 58%, #111614 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.075)) !important;
+  border-radius: 19px !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02) !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2::before,
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2::after {
+  display: none !important;
+  content: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2:hover {
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 23%, rgba(225,237,228,.09)) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.31), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+/* Cabeçalho e empresa. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2 .contract-card-header-v2 {
+  background: rgba(8,12,10,.16) !important;
+  border-bottom: 1px solid rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 > span,
+html[data-theme="dark"] #officeContractsPanel .contract-company-mark > span {
+  background:
+    radial-gradient(circle at 35% 20%, color-mix(in srgb, var(--contract-type-color,#70a978) 9%, transparent), transparent 62%),
+    #1d2621 !important;
+  border: 1px solid rgba(225,237,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 small { color: #88978e !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 strong { color: #f0f5f1 !important; }
+
+/* Tempo/proposta sem cápsula cinza. */
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-proposal-time-v3 {
+  color: #c9d5cc !important;
+  background: #101613 !important;
+  border: 1px solid rgba(225,237,228,.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.012) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2 img,
+html[data-theme="dark"] #officeContractsPanel .contract-proposal-time-v3 img { opacity: .88; }
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2.urgent,
+html[data-theme="dark"] #officeContractsPanel .contract-deadline-warning .contract-time-v2 {
+  color: #ffc08d !important;
+  background: #2c2019 !important;
+  border-color: rgba(235,158,101,.16) !important;
+}
+
+/* Conteúdo principal: imagem e identidade do tipo conversam sem exagero. */
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 {
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 > img {
+  background:
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--contract-type-color,#70a978) 10%, transparent), transparent 66%),
+    linear-gradient(180deg,#202924,#171f1b) !important;
+  border: 1px solid rgba(225,237,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018), 0 8px 18px rgba(0,0,0,.13) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-type-label {
+  color: color-mix(in srgb, var(--contract-type-color,#70a978) 72%, #f5fff7) !important;
+  background: color-mix(in srgb, var(--contract-type-color,#70a978) 7%, #101613) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 17%, transparent) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 { color: #f6faf7 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 span { color: #b7c5bb !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-meta > span { color: #8b9a90 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-stock-chip {
+  color: #e0e9e2 !important;
+  background: #101613 !important;
+  border: 1px solid rgba(225,237,228,.07) !important;
+}
+
+/* Blocos de tempo/progresso/recompensa: mesma família escura, sem faixas cinza. */
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip {
+  color: #d9e4dc !important;
+  background: linear-gradient(180deg, rgba(12,18,15,.80), rgba(9,14,11,.78)) !important;
+  border-color: rgba(225,237,228,.055) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.012) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3 span,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 span,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip > span { color: #87978c !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3 strong,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 strong { color: #f0f5f1 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track {
+  background: #080d0a !important;
+  border: 1px solid rgba(225,237,228,.045) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track > span {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--contract-type-color,#70a978) 78%, #467851),
+    color-mix(in srgb, var(--contract-type-color,#70a978) 68%, #8bc495)) !important;
+  box-shadow: 0 0 13px color-mix(in srgb, var(--contract-type-color,#70a978) 14%, transparent) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip .resource-amount,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip .resource-reward-group > * {
+  color: #e9f0ea !important;
+  background: #171e1a !important;
+  border-color: rgba(225,237,228,.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.014) !important;
+}
+
+/* Rodapé do card. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-footer-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 {
+  background: #0d1210 !important;
+  border-top: 1px solid rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 .button.primary {
+  color: #f4fff6 !important;
+  background: linear-gradient(180deg,#4da363,#3b8650) !important;
+  border-color: rgba(117,200,137,.19) !important;
+  box-shadow: 0 7px 18px rgba(35,103,54,.20) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 .button.primary:hover:not(:disabled) {
+  background: linear-gradient(180deg,#59af6e,#45945a) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 .contract-decline-button-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-penalty-action {
+  color: #efa8a2 !important;
+  background: linear-gradient(180deg,#342120,#2a1b1a) !important;
+  border-color: rgba(222,117,108,.15) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 .contract-decline-button-v2:hover:not(:disabled),
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  color: #ffc0ba !important;
+  background: linear-gradient(180deg,#402625,#321f1e) !important;
+}
+
+/* Estados especiais. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-completed-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,189,97,.09), transparent 62%),
+    linear-gradient(155deg,#201f19,#171714 58%,#121311) !important;
+  border-color: rgba(225,189,97,.14) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-defaulted-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,118,108,.08), transparent 62%),
+    linear-gradient(155deg,#241b1a,#1b1514 58%,#151110) !important;
+  border-color: rgba(225,118,108,.14) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-cooldown-card {
+  background: linear-gradient(155deg,#19201d,#121714) !important;
+  border-color: rgba(225,237,228,.065) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-cooldown-v2 {
+  color: #dce6de !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Atalho de contratos — mais limpo e com acento por contrato                 */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2,
+html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-v2 {
+  background: linear-gradient(165deg,#151b18 0%,#0e1311 100%) !important;
+  border: 1px solid rgba(225,237,228,.09) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header {
+  background: linear-gradient(180deg,#1b231f,#151c18) !important;
+  border-bottom: 1px solid rgba(225,237,228,.06) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header > button:first-child > img,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle,
+html[data-theme="dark"] .contract-dock-compact-button {
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.075) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list,
+html[data-theme="dark"] .contract-dock .contract-dock-list,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)),
+html[data-theme="dark"] .contract-dock .contract-dock-list:has(> :nth-child(4)) {
+  background: #0d1210 !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 {
+  color: #e8efe9 !important;
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, color-mix(in srgb, var(--contract-type-color,#70a978) 7%, transparent), transparent 68%),
+    linear-gradient(160deg,#1b231f,#151b18 70%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.065)) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2:hover {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, color-mix(in srgb, var(--contract-type-color,#70a978) 11%, transparent), transparent 68%),
+    linear-gradient(160deg,#202923,#18201c 70%) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 23%, rgba(225,237,228,.08)) !important;
+}
+html[data-theme="dark"] .contract-dock-crop-shell {
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 68%),
+    #1d2621 !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > small {
+  color: #c7d3ca !important;
+  background: #101613 !important;
+  border-color: rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] .contract-dock-state {
+  color: #9eada2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding-inline: 0 !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-urgent { color: #f2ae7e !important; }
+html[data-theme="dark"] .contract-dock-state.is-completed { color: #dfc56e !important; }
+html[data-theme="dark"] .contract-dock-state.is-defaulted { color: #e99a93 !important; }
+html[data-theme="dark"] .contract-dock-progress {
+  background: #080d0a !important;
+  border: 1px solid rgba(225,237,228,.035) !important;
+}
+html[data-theme="dark"] .contract-dock-progress > .delivered {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--contract-type-color,#70a978) 78%, #457650),
+    color-mix(in srgb, var(--contract-type-color,#70a978) 65%, #83ba8c)) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  color: #dce6de !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.reward-ready {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, rgba(225,189,97,.08), transparent 68%),
+    linear-gradient(160deg,#211f18,#171713 70%) !important;
+  border-color: rgba(225,189,97,.13) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.contract-defaulted {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, rgba(225,118,108,.07), transparent 68%),
+    linear-gradient(160deg,#231918,#191312 70%) !important;
+  border-color: rgba(225,118,108,.13) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, rgba(235,158,101,.07), transparent 68%),
+    linear-gradient(160deg,#211b17,#171411 70%) !important;
+  border-color: rgba(235,158,101,.12) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Pedidos — cores mais profundas e menos blocos soltos                       */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #officeOrdersPanel .order-board {
+  background: linear-gradient(160deg,#151b18,#101512) !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-board-section { background: transparent !important; }
+html[data-theme="dark"] #officeOrdersPanel .order-card,
+html[data-theme="dark"] #officeOrdersPanel .normalized-order-card {
+  color: #eaf1eb !important;
+  background:
+    radial-gradient(18rem 9rem at 100% 0%, rgba(94,145,105,.055), transparent 68%),
+    linear-gradient(155deg,#1b231f,#151b18 72%) !important;
+  border: 1px solid rgba(225,237,228,.07) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card .order-head {
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card .contract-crop > img,
+html[data-theme="dark"] #officeOrdersPanel .completed-order-identity > img {
+  background: linear-gradient(180deg,#202a24,#171f1b) !important;
+  border-color: rgba(225,237,228,.075) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card p { color: #98a89d !important; }
+html[data-theme="dark"] #officeOrdersPanel .order-progress,
+html[data-theme="dark"] #officeOrdersPanel .contract-reward-unified {
+  background: #101613 !important;
+  border-color: rgba(225,237,228,.055) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.012) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .progress-track { background: #080d0a !important; }
+html[data-theme="dark"] #officeOrdersPanel .contract-reward-unified .resource-amount {
+  background: #171e1a !important;
+  border-color: rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-ready-to-deliver {
+  background:
+    radial-gradient(18rem 9rem at 100% 0%, rgba(95,177,115,.10), transparent 68%),
+    linear-gradient(155deg,#1c2720,#151c18 72%) !important;
+  border-color: rgba(95,177,115,.15) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-ready-to-deliver .progress-track > span {
+  background: linear-gradient(90deg,#4f9b61,#72bd80) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-complete,
+html[data-theme="dark"] #officeOrdersPanel .compact-completed-order {
+  background:
+    radial-gradient(18rem 9rem at 100% 0%, rgba(219,183,78,.075), transparent 68%),
+    linear-gradient(155deg,#201f18,#171713 72%) !important;
+  border-color: rgba(219,183,78,.12) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .completed-order-status {
+  color: #d9c473 !important;
+  background: #201d12 !important;
+  border-color: rgba(219,183,78,.11) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Modal de filtros no tema escuro                                            */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .catalog-filter-dialog,
+html[data-theme="dark"] .catalog-filter-form {
+  color: #eaf1eb !important;
+  background: #151b18 !important;
+  border-color: rgba(225,237,228,.09) !important;
+}
+html[data-theme="dark"] .catalog-filter-header,
+html[data-theme="dark"] .catalog-filter-footer {
+  background: linear-gradient(180deg,#1b231f,#161c19) !important;
+  border-color: rgba(225,237,228,.065) !important;
+}
+html[data-theme="dark"] .catalog-filter-header h2,
+html[data-theme="dark"] .catalog-filter-section-heading strong,
+html[data-theme="dark"] .catalog-filter-toggle > span strong { color: #edf4ee !important; }
+html[data-theme="dark"] .catalog-filter-header p:not(.eyebrow),
+html[data-theme="dark"] .catalog-filter-section-heading small,
+html[data-theme="dark"] .catalog-filter-section-heading p,
+html[data-theme="dark"] .catalog-filter-toggle > span small { color: #92a198 !important; }
+html[data-theme="dark"] .catalog-filter-section,
+html[data-theme="dark"] .catalog-filter-toggle,
+html[data-theme="dark"] .catalog-filter-category {
+  color: #dce6de !important;
+  background: #1b231f !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .catalog-filter-category i,
+html[data-theme="dark"] .catalog-filter-toggle > i {
+  background: #28312c !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .catalog-filter-toggle input:checked + i { background: #4f965e !important; }
+html[data-theme="dark"] .catalog-filter-category:has(input:checked) {
+  color: #bce3c4 !important;
+  background: #1a2a1f !important;
+  border-color: rgba(91,166,108,.18) !important;
+}
+html[data-theme="dark"] .catalog-filter-category input:checked ~ i { color: #fff !important; background: #4b915a !important; }
+html[data-theme="dark"] .catalog-filter-button {
+  color: #dce6de !important;
+  background: #1b231f !important;
+  border-color: rgba(225,237,228,.08) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .catalog-filter-button:hover { background: #222b26 !important; }
+html[data-theme="dark"] .catalog-filter-button.has-active-filters {
+  color: #b9dfc1 !important;
+  background: #19291e !important;
+  border-color: rgba(88,163,105,.18) !important;
+}
+html[data-theme="dark"] .catalog-filter-clear { color: #9daca2 !important; }
+html[data-theme="dark"] .catalog-filter-clear:hover { color: #dce6de !important; background: rgba(255,255,255,.035) !important; }
+
+/* Alta especificidade para neutralizar regras históricas claras de contratos. */
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2:not(.contract-completed-card):not(.contract-defaulted-card):not(.contract-cooldown-card) {
+  background:
+    radial-gradient(26rem 12rem at 18% -12%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 62%),
+    linear-gradient(155deg, #1b2220 0%, #151b19 58%, #111614 100%) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.075)) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2:not(.contract-completed-card):not(.contract-defaulted-card) .contract-reward-strip {
+  background: linear-gradient(180deg, rgba(12,18,15,.80), rgba(9,14,11,.78)) !important;
+  border-color: rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-completed-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,189,97,.09), transparent 62%),
+    linear-gradient(155deg,#201f19,#171714 58%,#121311) !important;
+  border-color: rgba(225,189,97,.14) !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-completed-card .contract-reward-strip {
+  background: linear-gradient(180deg,#171713,#12120f) !important;
+  border-color: rgba(225,189,97,.08) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-completed-card .contract-time-v2 {
+  color: #dfc66f !important;
+  background: #211e12 !important;
+  border-color: rgba(225,189,97,.12) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-defaulted-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,118,108,.08), transparent 62%),
+    linear-gradient(155deg,#241b1a,#1b1514 58%,#151110) !important;
+  border-color: rgba(225,118,108,.14) !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-defaulted-card .contract-time-v2 {
+  color: #e99a93 !important;
+  background: #2a1b1a !important;
+  border-color: rgba(225,118,108,.12) !important;
+}
+
+/* ========================================================================== */
+/* R38u — lapidação dirigida do modo noturno                                  */
+/* ========================================================================== */
+
+/* Navegação principal e secundária: mais limpa, menos "caixas dentro de caixas". */
+html[data-theme="dark"] .main-nav {
+  background: linear-gradient(180deg, #151d19 0%, #111713 100%) !important;
+  border: 1px solid rgba(219,234,223,.075) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab {
+  color: #9dac9f !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab .nav-tab-icon {
+  background: rgba(255,255,255,.025) !important;
+  border: 1px solid rgba(225,238,228,.055) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab:hover:not(.active) {
+  color: #dce6de !important;
+  background: rgba(255,255,255,.028) !important;
+  border-color: rgba(225,238,228,.055) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active {
+  color: #eff8f1 !important;
+  background: linear-gradient(180deg, rgba(73,130,85,.19), rgba(43,86,54,.12)) !important;
+  border-color: rgba(112,177,125,.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 7px 18px rgba(0,0,0,.13) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active .nav-tab-icon {
+  background: rgba(91,155,104,.11) !important;
+  border-color: rgba(123,192,137,.12) !important;
+}
+html[data-theme="dark"] .context-tabs {
+  background: #121915 !important;
+  border: 1px solid rgba(219,234,223,.07) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.20) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) {
+  color: #98a79b !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i {
+  background: rgba(255,255,255,.024) !important;
+  border-color: rgba(225,238,228,.05) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #d9e4db !important;
+  background: rgba(255,255,255,.026) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #eef7f0 !important;
+  background: rgba(77,139,90,.12) !important;
+  border-color: rgba(112,177,125,.12) !important;
+  box-shadow: inset 0 -2px 0 rgba(101,178,117,.52) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  background: rgba(91,155,104,.10) !important;
+  border-color: transparent !important;
+}
+
+/* Fazenda: restaura o anel de produção e remove caixas desnecessárias. */
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #63ad72 var(--growth-progress, 0%),
+    rgba(99,173,114,.13) 0) !important;
+  border: 0 !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress.paused:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #c5a450 var(--growth-progress, 0%),
+    rgba(197,164,80,.14) 0) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress .crop-art {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(103,160,113,.08), transparent 62%),
+    #17201b !important;
+  border-color: #202b24 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-progress-percent {
+  color: #eff8f1 !important;
+  background: rgba(12,18,14,.86) !important;
+  border-color: rgba(128,190,140,.12) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-category-list {
+  color: #91a599 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-inline: 0 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-selector {
+  background: rgba(9,14,11,.24) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Estoque: plantas em uma superfície mais orgânica e valores menos acinzentados. */
+html[data-theme="dark"] #stockView .stock-card,
+html[data-theme="dark"] #stockView .normalized-stock-card {
+  background:
+    radial-gradient(22rem 10rem at 0% 0%, rgba(85,151,99,.075), transparent 64%),
+    linear-gradient(155deg, #1b2620 0%, #151d19 68%, #131916 100%) !important;
+  border-color: rgba(215,232,219,.075) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.23), inset 0 1px 0 rgba(255,255,255,.017) !important;
+}
+html[data-theme="dark"] #stockView .stock-card:hover {
+  border-color: rgba(112,177,125,.13) !important;
+  background:
+    radial-gradient(22rem 10rem at 0% 0%, rgba(91,160,106,.105), transparent 64%),
+    linear-gradient(155deg, #1e2923 0%, #171f1b 68%, #141b17 100%) !important;
+}
+html[data-theme="dark"] #stockView .stock-ident > img {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(112,181,125,.13), transparent 62%),
+    linear-gradient(180deg, #17251c, #111a15) !important;
+  border: 1px solid rgba(117,181,129,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 7px 16px rgba(0,0,0,.16) !important;
+}
+html[data-theme="dark"] #stockView .stock-value-grid > div {
+  color: #dce7de !important;
+  background: rgba(7,12,9,.22) !important;
+  border-color: rgba(215,232,219,.055) !important;
+}
+html[data-theme="dark"] #stockView .auto-sell-toggle,
+html[data-theme="dark"] #stockView .compact-auto-toggle {
+  background: rgba(10,16,12,.28) !important;
+  border-color: rgba(215,232,219,.06) !important;
+}
+html[data-theme="dark"] #stockView .auto-sell-toggle.active,
+html[data-theme="dark"] #stockView .compact-auto-toggle.active {
+  background: rgba(61,112,72,.15) !important;
+  border-color: rgba(100,173,115,.13) !important;
+}
+html[data-theme="dark"] #stockView .favorite-stock-card {
+  background:
+    radial-gradient(18rem 9rem at 100% 0%, rgba(225,189,97,.07), transparent 64%),
+    radial-gradient(20rem 10rem at 0% 0%, rgba(85,151,99,.06), transparent 64%),
+    linear-gradient(155deg, #20261f 0%, #181d19 68%, #151815 100%) !important;
+}
+
+/* Contratos: a categoria não precisa de cápsula/borda. */
+html[data-theme="dark"] #officeContractsPanel .contract-type-label,
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-type-label {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Evoluções concluídas: botão discreto e coerente com Pesquisa/Legado. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .button[data-action="buy-research"] {
+  opacity: 1 !important;
+  color: #a9cae7 !important;
+  background: linear-gradient(180deg, #1b2b39 0%, #17232e 100%) !important;
+  border-color: rgba(104,164,216,.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed .button[data-action="buy-prestige-upgrade"] {
+  opacity: 1 !important;
+  color: #d0ace7 !important;
+  background: linear-gradient(180deg, #2d2134 0%, #241a2a 100%) !important;
+  border-color: rgba(172,115,207,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+html[data-theme="dark"] #friendCodeDialog .friend-code-share > small,
+html[data-theme="dark"] #friendCodeDialog .friend-request-form-dialog > label {
+  color: #a8b8ad !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option {
+  border: 0 !important;
+}
+
+
+/* ========================================================================== */
+/* R38v — dark mode: correções finais com seletores exatos                    */
+/* ========================================================================== */
+
+/* Navegação principal e contextual — contraste e hierarquia sem caixas claras. */
+html[data-theme="dark"] .navigation-stack .main-nav,
+html[data-theme="dark"] .navigation-stack .mobile-direct-nav,
+html[data-theme="dark"] .navigation-stack .context-tabs {
+  background: linear-gradient(180deg, #131a16 0%, #0f1512 100%) !important;
+  border: 1px solid rgba(214,231,219,.075) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) {
+  color: #99a99e !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i {
+  background: rgba(255,255,255,.018) !important;
+  border: 1px solid rgba(218,233,222,.045) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab:hover:not(.active),
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #dce7de !important;
+  background: rgba(255,255,255,.026) !important;
+  border-color: rgba(218,233,222,.05) !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab.active,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #f1f7f2 !important;
+  background: linear-gradient(180deg, rgba(77,139,90,.18), rgba(49,98,60,.11)) !important;
+  border-color: rgba(111,178,125,.14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 7px 18px rgba(0,0,0,.13) !important;
+}
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  box-shadow: inset 0 -2px 0 rgba(104,180,120,.56) !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab.active .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  background: rgba(90,158,104,.09) !important;
+  border-color: rgba(116,187,130,.10) !important;
+}
+
+/* Fazenda — anel de produção volta a ser visível. */
+html[data-theme="dark"] body.compact-cards #farmView .crop-card .crop-art-progress:not(.instant),
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #65b576 0 var(--growth-progress, 0%),
+    rgba(101,181,118,.13) var(--growth-progress, 0%) 100%) !important;
+  border: 0 !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.22), 0 0 0 1px rgba(111,188,126,.06) !important;
+}
+html[data-theme="dark"] body.compact-cards #farmView .crop-card .crop-art-progress.paused:not(.instant),
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress.paused:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #d0ad55 0 var(--growth-progress, 0%),
+    rgba(208,173,85,.14) var(--growth-progress, 0%) 100%) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress:not(.instant) > .crop-art {
+  background: radial-gradient(circle at 50% 32%, rgba(104,161,115,.08), transparent 62%), #151d18 !important;
+  border-color: #202a23 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-meta-row .crop-category-list {
+  color: #91a39a !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel .upgrade-mode-selector,
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel .crop-upgrade-summary {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel .upgrade-mode-option {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+/* Estoque — fundos mais naturais e menos cinza. */
+html[data-theme="dark"] #stockView .stock-card.normalized-stock-card {
+  background:
+    radial-gradient(20rem 11rem at -5% -5%, rgba(91,163,106,.11), transparent 64%),
+    radial-gradient(17rem 9rem at 105% 110%, rgba(55,105,66,.055), transparent 70%),
+    linear-gradient(150deg, #1b2720 0%, #151e19 62%, #121814 100%) !important;
+  border-color: rgba(207,227,212,.075) !important;
+  box-shadow: 0 15px 34px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] #stockView .stock-card.normalized-stock-card:hover {
+  background:
+    radial-gradient(20rem 11rem at -5% -5%, rgba(101,177,117,.145), transparent 64%),
+    radial-gradient(17rem 9rem at 105% 110%, rgba(62,117,74,.07), transparent 70%),
+    linear-gradient(150deg, #1e2b23 0%, #17211b 62%, #131a16 100%) !important;
+  border-color: rgba(116,183,129,.14) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .stock-ident > img {
+  background: radial-gradient(circle at 50% 35%, rgba(112,186,127,.12), transparent 58%), #131d17 !important;
+  border-color: rgba(112,181,126,.09) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .stock-value-grid > div {
+  background: rgba(6,11,8,.24) !important;
+  border-color: rgba(207,227,212,.05) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .compact-auto-toggle {
+  background: rgba(7,12,9,.25) !important;
+  border-color: rgba(207,227,212,.055) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .compact-auto-toggle.active {
+  background: rgba(65,122,76,.14) !important;
+  border-color: rgba(103,174,117,.12) !important;
+}
+
+/* Contratos — categoria sem cápsula/borda, preservando apenas o ponto e a cor. */
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2 .contract-type-label,
+html[data-theme="dark"] #officeView #officeContractsPanel .friendly-contract-card.contract-custom-color .contract-type-label {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Pesquisa / Legados concluídos — não herdam o cinza genérico de disabled. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"][data-upgrade-completed="true"] button[data-action="buy-research"]:disabled,
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed button[data-action="buy-research"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #a9d2f3 !important;
+  background: linear-gradient(180deg, #20374a 0%, #182b3a 100%) !important;
+  border: 1px solid rgba(106,171,226,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"][data-upgrade-completed="true"] button[data-action="buy-prestige-upgrade"]:disabled,
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed button[data-action="buy-prestige-upgrade"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #d7b5ef !important;
+  background: linear-gradient(180deg, #36263f 0%, #291e31 100%) !important;
+  border: 1px solid rgba(176,119,210,.17) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+/* Filtros e Adicionar amigo no dark mantêm os novos tamanhos/estrutura. */
+html[data-theme="dark"] #catalogFilterDialog .catalog-filter-section-title { color: #dfe9e2 !important; }
+html[data-theme="dark"] #catalogFilterDialog .catalog-filter-header h2 { color: #eff5f0 !important; }
+html[data-theme="dark"] #friendCodeDialog .friend-code-share > small,
+html[data-theme="dark"] #friendCodeDialog .friend-request-form-dialog > label { color: #aab9ae !important; }
+
+/* ========================================================================== */
+/* R39.2 — refinamentos pedidos                                               */
+/* ========================================================================== */
+
+/* Navegação em linha e em grade: ícones sem qualquer borda no modo escuro. */
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab.active .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .main-nav-grid .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .mobile-direct-nav .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Contratos: a área dos botões não deve virar uma faixa escura separada. */
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-card-footer-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-break-footer-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-full-action-footer {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Atalho: novo posicionamento do tempo e ícones de controle brancos. */
+html[data-theme="dark"] .contract-dock-time {
+  color: #9eaea3 !important;
+}
+html[data-theme="dark"] .contract-dock-time.is-urgent {
+  color: #ef9a83 !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle > img,
+html[data-theme="dark"] #officeContractsPanel .contract-cooldown-v2 > img {
+  filter: brightness(0) invert(1) opacity(.92) !important;
+}
+
+/* Cookies — banner e preferências totalmente integrados ao modo noturno. */
+html[data-theme="dark"] .cookie-banner {
+  color: #eaf1eb !important;
+  background: linear-gradient(165deg, rgba(25,34,29,.985), rgba(16,22,18,.985)) !important;
+  border-color: rgba(220,235,224,.10) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .cookie-banner-icon {
+  color: #b8d8bf !important;
+  background: linear-gradient(145deg, #243329, #19231d) !important;
+  border-color: rgba(118,178,130,.13) !important;
+}
+html[data-theme="dark"] .cookie-banner-copy h2 {
+  color: #f0f6f1 !important;
+}
+html[data-theme="dark"] .cookie-banner-copy p {
+  color: #a4b2a8 !important;
+}
+html[data-theme="dark"] .cookie-banner-copy a {
+  color: #8fc49a !important;
+}
+html[data-theme="dark"] .cookie-button.primary {
+  color: #f5fff6 !important;
+  background: linear-gradient(180deg,#4c9b60,#3c7f4f) !important;
+  border-color: rgba(127,199,142,.20) !important;
+}
+html[data-theme="dark"] .cookie-button.secondary {
+  color: #d8e5da !important;
+  background: #202b25 !important;
+  border-color: rgba(220,235,224,.10) !important;
+}
+html[data-theme="dark"] .cookie-button.ghost {
+  color: #b9c6bc !important;
+  background: #171f1b !important;
+  border-color: rgba(220,235,224,.08) !important;
+}
+html[data-theme="dark"] .cookie-preferences-dialog {
+  color: #eaf1eb !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .cookie-preferences-dialog::backdrop {
+  background: rgba(4,7,5,.72) !important;
+  backdrop-filter: blur(6px) !important;
+}
+html[data-theme="dark"] .cookie-preferences-dialog > form {
+  color: #eaf1eb !important;
+  background: linear-gradient(165deg,#1b241f,#121814) !important;
+  border-color: rgba(220,235,224,.10) !important;
+  box-shadow: 0 30px 84px rgba(0,0,0,.56), inset 0 1px 0 rgba(255,255,255,.022) !important;
+}
+html[data-theme="dark"] .cookie-dialog-heading .eyebrow {
+  color: #82b88d !important;
+}
+html[data-theme="dark"] .cookie-dialog-heading h2,
+html[data-theme="dark"] .cookie-category-copy strong {
+  color: #edf4ee !important;
+}
+html[data-theme="dark"] .cookie-dialog-heading p,
+html[data-theme="dark"] .cookie-category-copy small,
+html[data-theme="dark"] .cookie-dialog-note {
+  color: #9facA2 !important;
+}
+html[data-theme="dark"] .cookie-category {
+  color: #e8efe9 !important;
+  background: linear-gradient(180deg,#202a24,#19211d) !important;
+  border-color: rgba(220,235,224,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .cookie-state-required {
+  color: #a9d2b1 !important;
+  background: #1b2b20 !important;
+  border: 1px solid rgba(111,177,124,.12) !important;
+}
+html[data-theme="dark"] .cookie-switch > span[aria-hidden="true"] {
+  background: #36423b !important;
+  box-shadow: inset 0 0 0 1px rgba(220,235,224,.07) !important;
+}
+html[data-theme="dark"] .cookie-switch > span[aria-hidden="true"]::after {
+  background: #dfe8e1 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.36) !important;
+}
+html[data-theme="dark"] .cookie-switch input:checked + span[aria-hidden="true"] {
+  background: #4d9560 !important;
+}
+
+/* ========================================================================== */
+/* R39.3 — correções verificadas do prompt anterior                           */
+/* ========================================================================== */
+
+/* Navegação: nenhum contorno, cápsula ou fundo ao redor dos ÍCONES. */
+html[data-theme="dark"] body .navigation-stack :is(.main-nav,.main-nav-grid,.mobile-direct-nav) .nav-tab > .nav-tab-icon,
+html[data-theme="dark"] body .navigation-stack :is(.main-nav,.main-nav-grid,.mobile-direct-nav) .nav-tab.active > .nav-tab-icon,
+html[data-theme="dark"] body .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i,
+html[data-theme="dark"] body .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i,
+html[data-theme="dark"] body[data-navigation-mode="grid"] .mobile-direct-nav .nav-tab > .nav-tab-icon,
+html[data-theme="dark"] body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab i {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body .navigation-stack :is(.main-nav,.main-nav-grid,.mobile-direct-nav) .nav-tab > .nav-tab-icon > img,
+html[data-theme="dark"] body .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i > img {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Contratos: o rodapé de Assinar/Recusar é apenas layout, nunca uma faixa. */
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-offer-card > footer.contract-offer-actions-v2,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-v2 > footer.contract-card-footer-v2,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-v2 > footer.contract-break-footer-v3,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-v2 > footer.contract-full-action-footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Atalho: porcentagem/conclusão no canto superior direito e tempo abaixo da barra. */
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent] {
+  color: #aebdb2 !important;
+  background: rgba(255,255,255,.035) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent].is-completed {
+  color: #e4c76e !important;
+  background: rgba(183,148,54,.12) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent].is-defaulted {
+  color: #ef9a92 !important;
+  background: rgba(184,74,67,.11) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent].is-urgent {
+  color: #efa086 !important;
+  background: rgba(180,83,58,.11) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-time {
+  color: #9caca1 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Ícones solicitados brancos, sem a antiga plaquinha branca/cinza. */
+html[data-theme="dark"] body .contract-dock-v2 .contract-dock-collapse-toggle,
+html[data-theme="dark"] body .contract-dock-v2 .contract-dock-collapse-toggle:hover {
+  border-color: rgba(226,238,229,.08) !important;
+}
+html[data-theme="dark"] body .contract-dock-v2 .contract-dock-collapse-toggle > img,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-cooldown-v2 > img {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+}
+
+/* Cookies: banner e modal completos, incluindo áreas que ainda herdavam o tema claro. */
+html[data-theme="dark"] body #cookieBanner.cookie-banner {
+  color: #edf4ee !important;
+  background: linear-gradient(150deg, #1b251f 0%, #131a16 58%, #0f1512 100%) !important;
+  border: 1px solid rgba(220,236,224,.11) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-banner-copy,
+html[data-theme="dark"] body #cookieBanner .cookie-banner-copy > div,
+html[data-theme="dark"] body #cookieBanner .cookie-banner-actions {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-banner-icon {
+  background: rgba(95,158,108,.10) !important;
+  border: 1px solid rgba(112,179,126,.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-banner-icon img {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body #cookieBanner h2 { color: #f2f7f3 !important; }
+html[data-theme="dark"] body #cookieBanner p { color: #a5b4a9 !important; }
+html[data-theme="dark"] body #cookieBanner a { color: #91c89d !important; }
+html[data-theme="dark"] body #cookieBanner .cookie-banner-actions {
+  grid-template-columns: repeat(2, minmax(0,auto)) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-button.primary,
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-button.primary {
+  color: #f7fff8 !important;
+  background: linear-gradient(180deg,#4c9a5e,#387a49) !important;
+  border-color: rgba(126,199,141,.19) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-button.secondary {
+  color: #dce7de !important;
+  background: #202a24 !important;
+  border-color: rgba(220,236,224,.09) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog.cookie-preferences-dialog {
+  color: #edf4ee !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog.cookie-preferences-dialog > form {
+  color: #edf4ee !important;
+  background: linear-gradient(150deg,#1b251f,#121914 66%,#0f1512) !important;
+  border: 1px solid rgba(220,236,224,.10) !important;
+  box-shadow: 0 30px 86px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-dialog-heading,
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category-list,
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-dialog-actions {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg,#202a24,#18201c) !important;
+  border: 1px solid rgba(220,236,224,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category-copy strong { color: #eef5ef !important; }
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category-copy small { color: #9faea3 !important; }
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-state-required {
+  color: #b8d9bf !important;
+  background: rgba(77,142,90,.14) !important;
+  border: 1px solid rgba(111,180,124,.12) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-button.ghost {
+  color: #c1cec4 !important;
+  background: #1a221e !important;
+  border-color: rgba(220,236,224,.08) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-switch > span[aria-hidden="true"] {
+  background: #303c35 !important;
+  box-shadow: inset 0 0 0 1px rgba(220,236,224,.07) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-switch input:checked + span[aria-hidden="true"] {
+  background: #4c955e !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-switch > span[aria-hidden="true"]::after {
+  background: #f0f5f1 !important;
+}
+
+/* R39.4 — novos controles de busca/filtro e pausa no modo escuro. */
+html[data-theme="dark"] #farmView .catalog-search-field,
+html[data-theme="dark"] #stockView .catalog-search-field,
+html[data-theme="dark"] #farmView .catalog-filter-button,
+html[data-theme="dark"] #stockView .catalog-filter-button {
+  color: #eef5ef !important;
+  background: linear-gradient(180deg, #202923 0%, #18201c 100%) !important;
+  border: 1px solid rgba(226,237,228,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 8px 18px rgba(0,0,0,.14) !important;
+}
+html[data-theme="dark"] #farmView .catalog-search-field:focus-within,
+html[data-theme="dark"] #stockView .catalog-search-field:focus-within {
+  border-color: rgba(110,178,124,.26) !important;
+  box-shadow: 0 0 0 3px rgba(83,145,95,.10), 0 10px 22px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] #farmView .catalog-search-field input,
+html[data-theme="dark"] #stockView .catalog-search-field input {
+  color: #edf4ee !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] #farmView .catalog-filter-button:hover,
+html[data-theme="dark"] #stockView .catalog-filter-button:hover {
+  background: linear-gradient(180deg, #253029 0%, #1c2520 100%) !important;
+}
+html[data-theme="dark"] #farmView .catalog-filter-button.has-active-filters,
+html[data-theme="dark"] #stockView .catalog-filter-button.has-active-filters {
+  border-color: rgba(120,188,133,.24) !important;
+  background: linear-gradient(180deg, #243129 0%, #1b2820 100%) !important;
+}
+html[data-theme="dark"] #farmView .crop-progress-percent.is-paused,
+html[data-theme="dark"] #farmView .crop-art-progress.paused .crop-progress-percent.is-paused {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}

@@ -11,15 +11,24 @@
     const mobile = mobileViewportQuery.matches;
     const touchDevice = coarsePointerQuery.matches;
     return {
+      // O motor continua rodando em passos curtos para manter a produção suave,
+      // mas a UI não é mais reconstruída nesse ritmo. Os painéis dinâmicos
+      // recebem patches pontuais em cadências próprias.
       loopInterval: mobile ? 180 : touchDevice || tabletViewportQuery.matches ? 135 : 90,
-      renderInterval: mobile ? 3200 : touchDevice || tabletViewportQuery.matches ? 2400 : 1800,
-      liveHeaderInterval: mobile ? 260 : touchDevice ? 180 : 100,
-      cropControlsInterval: mobile ? 900 : touchDevice ? 700 : 450
+      livePanelInterval: 1000,
+      // Contratos usam uma leitura mais frequente para que o contador inteiro
+      // nunca pule um segundo por causa do desalinhamento entre o tick do motor
+      // e a borda de 1000 ms. O DOM só é escrito se o valor realmente mudou.
+      liveContractsInterval: 250,
+      liveHeaderInterval: mobile ? 350 : touchDevice ? 250 : 180,
+      cropControlsInterval: mobile ? 1000 : touchDevice ? 850 : 650
     };
   };
   let lastFrame = performance.now();
   let lastRender = 0;
   let lastLiveHeader = 0;
+  let lastLivePanelUpdate = 0;
+  let lastLiveContractsUpdate = 0;
   let lastCropControls = 0;
   let lastSave = 0;
   let gameLoopTimer = 0;
@@ -86,8 +95,19 @@
     cropGrid: $("#cropGrid"),
     cropEmpty: $("#cropEmpty"),
     searchCrop: $("#searchCrop"),
-    categoryFilter: $("#categoryFilter"),
     stockSearch: $("#stockSearch"),
+    farmFilterButton: $("#farmFilterButton"),
+    farmFilterCount: $("#farmFilterCount"),
+    stockFilterButton: $("#stockFilterButton"),
+    stockFilterCount: $("#stockFilterCount"),
+    catalogFilterDialog: $("#catalogFilterDialog"),
+    catalogFilterTitle: $("#catalogFilterTitle"),
+    catalogFilterHideMastered: $("#catalogFilterHideMastered"),
+    catalogFilterHideLocked: $("#catalogFilterHideLocked"),
+    catalogFilterLockedRow: $("#catalogFilterLockedRow"),
+    catalogFilterCategoryGrid: $("#catalogFilterCategoryGrid"),
+    catalogFilterReset: $("#catalogFilterReset"),
+    catalogFilterApply: $("#catalogFilterApply"),
     stockGrid: $("#stockGrid"),
     stockSummary: $("#stockSummary"),
     researchList: $("#researchList"),
@@ -144,6 +164,7 @@
     fontScaleText: $("#fontScaleText"),
     numberFormatSetting: $("#numberFormatSetting"),
     navigationModeSetting: $("#navigationModeSetting"),
+    appearanceModeSetting: $("#appearanceModeSetting"),
     masterVolumeSetting: $("#masterVolumeSetting"),
     masterVolumeText: $("#masterVolumeText"),
     effectVolumeSetting: $("#effectVolumeSetting"),

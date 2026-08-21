@@ -78,6 +78,7 @@ class GameEngine {
         musicTrack: GameEngine.MUSIC_TRACKS.includes(requestedMusicTrack) ? requestedMusicTrack : audioDefaults.musicTrack,
         numberFormat: ["brazilian", "international"].includes(requestedNumberFormat) ? requestedNumberFormat : experienceDefaults.numberFormat,
         navigationMode: ["automatic", "line", "grid"].includes(permanent.settings?.navigationMode) ? permanent.settings.navigationMode : "automatic",
+        appearanceMode: ["automatic", "light", "dark"].includes(permanent.settings?.appearanceMode) ? permanent.settings.appearanceMode : "automatic",
         playerNickname: String(permanent.settings?.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24),
         playerAvatar: String(permanent.settings?.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48),
         playerTitle: String(permanent.settings?.playerTitle || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro",
@@ -271,6 +272,7 @@ class GameEngine {
       merged.settings.musicTrack = GameEngine.MUSIC_TRACKS.includes(merged.settings.musicTrack) ? merged.settings.musicTrack : audioDefaults.musicTrack;
       merged.settings.numberFormat = ["brazilian", "international"].includes(merged.settings.numberFormat) ? merged.settings.numberFormat : experienceDefaults.numberFormat;
       merged.settings.navigationMode = ["automatic", "line", "grid"].includes(merged.settings.navigationMode) ? merged.settings.navigationMode : "automatic";
+      merged.settings.appearanceMode = ["automatic", "light", "dark"].includes(merged.settings.appearanceMode) ? merged.settings.appearanceMode : "automatic";
       merged.settings.playerNickname = String(merged.settings.playerNickname || "").replace(/[<>]/g, "").trim().slice(0, 24);
       merged.settings.playerAvatar = String(merged.settings.playerAvatar || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
       const validPlayerTitles = new Set((this.data.playerTitles || []).map(item => String(item.id || "")).filter(Boolean));

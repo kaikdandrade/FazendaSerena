@@ -103,3 +103,37 @@ body.game-ready > .app-shell { visibility: visible !important; opacity: 1 !impor
   .game-loading-spinner { animation-duration: 1.8s; }
   .game-loading-screen { transition: none; }
 }
+
+
+/* Tema escuro da tela crítica de inicialização. O atributo data-theme é definido
+   por themeBootstrap.js antes deste CSS ser carregado. */
+html[data-theme="dark"] .game-loading-screen {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(112, 166, 103, .16), transparent 32rem),
+    radial-gradient(circle at 84% 14%, rgba(113, 83, 146, .14), transparent 30rem),
+    linear-gradient(145deg, #09100c 0%, #0f1712 48%, #0a100d 100%);
+}
+html[data-theme="dark"] .game-loading-card {
+  background: linear-gradient(180deg, rgba(27, 36, 31, .96), rgba(18, 25, 21, .98));
+  border-color: rgba(224, 238, 228, .09);
+  box-shadow: 0 28px 82px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.025);
+}
+html[data-theme="dark"] .game-loading-copy small { color: #80b78a; }
+html[data-theme="dark"] .game-loading-copy h1 { color: #eef5ef; }
+html[data-theme="dark"] .game-loading-copy p { color: #9daca2; }
+html[data-theme="dark"] .game-loading-spinner {
+  border-color: rgba(118, 181, 126, .13);
+  border-top-color: #73ad79;
+}
+html[data-theme="dark"] .game-loading-progress {
+  background: rgba(226, 239, 229, .08);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.24);
+}
+html[data-theme="dark"] .game-loading-progress > span {
+  background: linear-gradient(90deg, #5d9b69, #b7984a);
+}
+html[data-theme="dark"] .game-loading-retry {
+  background: linear-gradient(180deg, #4d925b, #3d7b49);
+  color: #f5fff6;
+  box-shadow: 0 8px 18px rgba(20,68,31,.25);
+}

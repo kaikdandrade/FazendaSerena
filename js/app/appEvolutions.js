@@ -36,7 +36,7 @@
         ? `Disponível no nível ${GameEngine.EVOLUTION_UNLOCK_LEVEL}`
         : `${prestigeKind ? "Desenvolver" : "Pesquisar"} ${resourceAmount(resourceType, -cost, { compact: true })}`;
     return `
-      <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${maxed ? "evolution-upgrade-completed" : ""} ${journeyLocked ? "upgrade-card-preview" : ""}" data-upgrade-kind="${kind}" data-upgrade-completed="${String(maxed)}">
+      <article class="upgrade-card normalized-upgrade-card redesigned-evolution-card ${maxed ? "evolution-upgrade-completed" : ""} ${journeyLocked ? "upgrade-card-preview" : ""}" data-live-render-key="${kind}:${escapeHtml(item.id)}" data-live-render-signature="${kind}|${level}|${maxed ? 1 : 0}|${journeyLocked ? 1 : 0}|${engine.state.settings.numberFormat || "brazilian"}" data-upgrade-kind="${kind}" data-upgrade-completed="${String(maxed)}">
         <div class="upgrade-level-badge" aria-label="${maxed ? `Nível máximo ${item.max}` : `Nível ${level} de ${item.max}`}"><strong>${maxed ? "Máximo" : `Nível ${level}/${item.max}`}</strong></div>
         <div class="upgrade-card-identity">
           <span class="upgrade-icon" aria-hidden="true">${iconMarkup}</span>
@@ -54,6 +54,7 @@
     // game loop — o antigo efeito visual de "refresh" desaparece.
     return JSON.stringify({
       unlocked: Boolean(unlocked),
+      numberFormat: engine.state.settings.numberFormat || "brazilian",
       cards: (items || []).map(item => {
         const level = Math.max(0, Number(levels?.[item.id]) || 0);
         const maxed = level >= Number(item.max || 0);
@@ -90,7 +91,7 @@
     if (signature === lastResearchRenderSignature) return;
     lastResearchRenderSignature = signature;
     if (!engine.data.research.length) {
-      dom.researchList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyResearchCatalog", "Nenhuma pesquisa foi publicada no catálogo administrativo.")}</div>`;
+      reconcileLiveCards(dom.researchList, `<div class="empty-state office-empty" data-live-render-key="research-empty" data-live-render-signature="empty">${runtimeTextHtml("emptyResearchCatalog", "Nenhuma pesquisa foi publicada no catálogo administrativo.")}</div>`);
       return;
     }
     const researchUnlocked = engine.isEvolutionUnlocked();
@@ -100,7 +101,8 @@
       description: "Explore as tecnologias agora. As compras com pontos de pesquisa ficam disponíveis quando sua fazenda alcançar o nível necessário.",
       level: GameEngine.EVOLUTION_UNLOCK_LEVEL
     });
-    dom.researchList.innerHTML = `${researchGate}${engine.data.research.map(item => renderUpgradeCard(item, "research")).join("")}`;
+    const researchMarkup = `${researchGate ? researchGate.replace('<section class="feature-gate-card"', '<section class="feature-gate-card" data-live-render-key="research-gate" data-live-render-signature="gate"') : ""}${engine.data.research.map(item => renderUpgradeCard(item, "research")).join("")}`;
+    reconcileLiveCards(dom.researchList, researchMarkup);
     updateEvolutionAffordability("research");
   }
 
@@ -109,7 +111,7 @@
     if (signature === lastPrestigeRenderSignature) return;
     lastPrestigeRenderSignature = signature;
     if (!engine.data.prestigeUpgrades.length) {
-      dom.prestigeList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyPrestigeCatalog", "Nenhum legado permanente foi publicado no catálogo administrativo.")}</div>`;
+      reconcileLiveCards(dom.prestigeList, `<div class="empty-state office-empty" data-live-render-key="prestige-empty" data-live-render-signature="empty">${runtimeTextHtml("emptyPrestigeCatalog", "Nenhum legado permanente foi publicado no catálogo administrativo.")}</div>`);
       return;
     }
     const unlocked = engine.isEvolutionUnlocked();
@@ -119,7 +121,8 @@
       description: "Você pode conhecer os legados agora. As compras com pontos de prestígio ficam disponíveis junto das Evoluções no nível configurado.",
       level: GameEngine.EVOLUTION_UNLOCK_LEVEL
     });
-    dom.prestigeList.innerHTML = `${gate}${engine.data.prestigeUpgrades.map(item => renderUpgradeCard(item, "prestige")).join("")}`;
+    const prestigeMarkup = `${gate ? gate.replace('<section class="feature-gate-card"', '<section class="feature-gate-card" data-live-render-key="prestige-gate" data-live-render-signature="gate"') : ""}${engine.data.prestigeUpgrades.map(item => renderUpgradeCard(item, "prestige")).join("")}`;
+    reconcileLiveCards(dom.prestigeList, prestigeMarkup);
     updateEvolutionAffordability("prestige");
   }
 
@@ -127,29 +130,33 @@
     const prestigeBreakdown = engine.getPrestigeBreakdown();
     const gain = prestigeBreakdown.total;
     const prestigeUnlocked = engine.isPrestigeUnlocked();
-    const cropStates = engine.data.crops.map(crop => engine.state.crops?.[crop.id] || {});
-    const averageCropLevel = cropStates.length
-      ? Math.floor(cropStates.reduce((sum, item) => sum + Math.max(0, Number(item.level) || 0), 0) / cropStates.length)
+    const totalCrops = Math.max(0, Number(prestigeBreakdown.totalCrops) || engine.data.crops.length || 0);
+    const currentFarmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(engine.state.farmLevel) || 1)));
+    const totalOrderSteps = Math.max(0, Number(engine.data.orderSteps?.length) || 0);
+    const completedOrders = totalOrderSteps > 0
+      ? engine.data.crops.reduce((count, crop) => {
+          const tier = Math.max(0, Math.floor(Number(engine.state.orders?.[crop.id]?.tier) || 0));
+          return count + (tier >= totalOrderSteps ? 1 : 0);
+        }, 0)
       : 0;
     const drivers = [
-      { label: "Níveis úteis", value: `${Math.max(0, engine.state.farmLevel - GameEngine.PRESTIGE_UNLOCK_LEVEL)} / ${Math.max(0, GameEngine.MAX_FARM_LEVEL - GameEngine.PRESTIGE_UNLOCK_LEVEL)}` },
-      { label: "Culturas", value: `${prestigeBreakdown.owned || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}` },
-      { label: "Nível médio", value: `${averageCropLevel} / ${GameEngine.MAX_CROP_LEVEL}` },
-      { label: "Platinadas", value: `${prestigeBreakdown.mastered || 0} / ${prestigeBreakdown.totalCrops || engine.data.crops.length}` },
-      ...(Number(prestigeBreakdown.configuredBonus) > 0 ? [{ label: "Bônus", value: `+${engine.formatNumber(prestigeBreakdown.configuredBonus)}` }] : [])
+      { key: "level", label: "Nível", value: `${currentFarmLevel} / ${GameEngine.MAX_FARM_LEVEL}` },
+      { key: "owned", label: "Plantas compradas", value: `${engine.formatNumber(prestigeBreakdown.owned || 0)} / ${engine.formatNumber(totalCrops)}` },
+      { key: "mastered", label: "Plantas prestigiadas", value: `${engine.formatNumber(prestigeBreakdown.mastered || 0)} / ${engine.formatNumber(totalCrops)}` },
+      { key: "orders", label: "Pedidos finalizados", value: engine.formatNumber(completedOrders) }
     ];
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-rework ${!prestigeUnlocked ? "prestige-locked" : ""}">
         <div class="prestige-rework-gain">
           <span class="prestige-rework-kicker">${prestigeUnlocked ? "Prestígio desta jornada" : `Disponível no nível ${GameEngine.PRESTIGE_UNLOCK_LEVEL}`}</span>
           <div class="prestige-rework-icon"><img data-prestige-icon="account" src="assets/icons/prestigio.webp" alt=""></div>
-          <strong>${resourceAmount("prestige", gain)}</strong>
+          <strong data-prestige-live-gain>${resourceAmount("prestige", gain)}</strong>
           ${prestigeUnlocked ? `<small>O valor final considera o avanço desta jornada e os bônus permanentes.</small>` : ""}
-          <div class="prestige-rework-details">${drivers.map(item => `<article><small>${escapeHtml(item.label)}</small><strong>${item.value}</strong></article>`).join("")}</div>
+          <div class="prestige-rework-details">${drivers.map(item => `<article><small>${escapeHtml(item.label)}</small><strong data-prestige-live-driver="${item.key}">${item.value}</strong></article>`).join("")}</div>
         </div>
         ${prestigeUnlocked ? `<footer class="prestige-rework-footer">
           <p>Converta a jornada atual em pontos permanentes. A fazenda recomeça; seus legados continuam.</p>
-          <button class="button prestige-rework-action" type="button" data-action="perform-prestige" ${gain < 1 ? "disabled" : ""}>Prestigiar</button>
+          <button class="button prestige-rework-action" type="button" data-action="perform-prestige" data-prestige-live-action ${gain < 1 ? "disabled" : ""}>Prestigiar</button>
         </footer>` : ""}
       </section>`;
   }

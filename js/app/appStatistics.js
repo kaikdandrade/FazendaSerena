@@ -3,8 +3,9 @@
     return `<img alt="" aria-hidden="true" src="${escapeHtml(source)}" title="${escapeHtml(label)}">`;
   }
 
-  function statCard(iconSource, label, value, note = "", variant = "") {
-    return `<article class="player-stat-card ${variant ? `stat-${escapeHtml(variant)}` : ""}"><span class="player-stat-icon">${statIcon(iconSource, label)}</span><div><small>${escapeHtml(label)}</small><strong>${value}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div></article>`;
+  function statCard(iconSource, label, value, note = "", variant = "", liveKey = "") {
+    const liveAttr = liveKey ? ` data-stat-live="${escapeHtml(liveKey)}"` : "";
+    return `<article class="player-stat-card ${variant ? `stat-${escapeHtml(variant)}` : ""}"${liveAttr}><span class="player-stat-icon">${statIcon(iconSource, label)}</span><div><small>${escapeHtml(label)}</small><strong data-stat-live-value>${value}</strong>${note ? `<p>${escapeHtml(note)}</p>` : ""}</div></article>`;
   }
 
 
@@ -123,26 +124,28 @@
     const researchEntries = engine.data.research.map(item => ({ item, level: Number(state.researchTechs[item.id] || 0) })).filter(entry => entry.level > 0);
     const legacyLevels = legacyEntries.reduce((sum, entry) => sum + entry.level, 0);
     const researchLevels = researchEntries.reduce((sum, entry) => sum + entry.level, 0);
+    const totalLegacyLevels = engine.data.prestigeUpgrades.reduce((sum, item) => sum + Math.max(0, Number(item?.max) || 0), 0);
+    const totalResearchLevels = engine.data.research.reduce((sum, item) => sum + Math.max(0, Number(item?.max) || 0), 0);
     if (dom.statsHero) { dom.statsHero.innerHTML = ""; dom.statsHero.hidden = true; }
 
     dom.lifetimeStats.innerHTML = [
-      statCard("assets/icons/moeda.webp", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "", "featured"),
-      statCard("assets/icons/caixa-colheita.webp", "Produção total", engine.formatNumber(stats.lifetimeHarvested), "itens", "featured"),
-      statCard("assets/icons/carteira-moedas.webp", "Vendas", engine.formatNumber(stats.lifetimeSold), "itens vendidos", "featured"),
-      statCard("assets/icons/contrato-comercial.webp", "Contratos", engine.formatNumber(stats.lifetimeContractsCompleted), `${engine.formatNumber(stats.lifetimeContractUnitsDelivered)} unidades`),
-      statCard("assets/icons/prancheta-tarefas.webp", "Pedidos", engine.formatNumber(stats.lifetimeOrdersCompleted), `${engine.formatNumber(stats.lifetimeOrderUnitsDelivered)} unidades`),
-      statCard("assets/icons/prestigio.webp", "Ciclos concluídos", engine.formatNumber(stats.prestiges), "")
+      statCard("assets/icons/moeda.webp", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "", "featured", "lifetimeCoins"),
+      statCard("assets/icons/caixa-colheita.webp", "Produção total", engine.formatNumber(stats.lifetimeHarvested), "", "featured", "lifetimeHarvested"),
+      statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "", "featured", "lifetimeSold"),
+      statCard("assets/icons/contrato-comercial.webp", "Contratos entregues", engine.formatNumber(stats.lifetimeContractsCompleted), "", "", "lifetimeContractsCompleted"),
+      statCard("assets/icons/prancheta-tarefas.webp", "Pedidos entregues", engine.formatNumber(stats.lifetimeOrdersCompleted), "", "", "lifetimeOrdersCompleted"),
+      statCard("assets/icons/prestigio-conta.webp", "Nível de Prestígio", engine.formatNumber(stats.prestiges), "", "", "prestiges")
     ].join("");
     dom.recordStats.innerHTML = [
-      statCard("assets/icons/fazenda-celeiro.webp", "Maior nível", engine.formatNumber(stats.maxFarmLevel), "", "record"),
-      statCard("assets/icons/estrela-dominio-cultura.webp", "Platinadas", engine.formatNumber(stats.lifetimeCropPrestiges || 0), "", "record"),
-      statCard("assets/icons/galpao-industrial.webp", "Maior estoque", engine.formatNumber(stats.maxStorageUsed), "", "record"),
-      statCard("assets/icons/moeda.webp", "Maior saldo", resourceAmount("coins", stats.maxCoinsHeld), "", "record")
+      statCard("assets/icons/fazenda-celeiro.webp", "Maior nível", engine.formatNumber(stats.maxFarmLevel), "", "record", "maxFarmLevel"),
+      statCard("assets/icons/estrela-dominio-cultura.webp", "Platinadas", engine.formatNumber(stats.lifetimeCropPrestiges || 0), "", "record", "lifetimeCropPrestiges"),
+      statCard("assets/icons/galpao-industrial.webp", "Maior estoque", engine.formatNumber(stats.maxStorageUsed), "", "record", "maxStorageUsed"),
+      statCard("assets/icons/moeda.webp", "Maior saldo", resourceAmount("coins", stats.maxCoinsHeld), "", "record", "maxCoinsHeld")
     ].join("");
     dom.achievementSummary.innerHTML = `
-      <article><span>${statIcon("assets/icons/livros.webp", "Pesquisa")}</span><div><small>Pesquisa adquirida</small><strong>${researchLevels} níveis</strong></div></article>
-      <article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Legados permanentes</small><strong>${legacyLevels} níveis</strong></div></article>
-      <article><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missões")}</span><div><small>Missões concluídas</small><strong>${claimed.length} / ${engine.data.missions.length}</strong></div></article>`;
+      <article><span>${statIcon("assets/icons/livros.webp", "Pesquisa")}</span><div><small>Pesquisas adquiridas</small><strong data-achievement-live="researchLevels">${engine.formatNumber(researchLevels)} / ${engine.formatNumber(totalResearchLevels)} níveis</strong></div></article>
+      <article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Legados permanentes</small><strong data-achievement-live="legacyLevels">${engine.formatNumber(legacyLevels)} / ${engine.formatNumber(totalLegacyLevels)} níveis</strong></div></article>
+      <article><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missões")}</span><div><small>Missões concluídas</small><strong data-achievement-live="missionsClaimed">${claimed.length} / ${engine.data.missions.length}</strong></div></article>`;
 
     const researchMarkup = researchEntries.length ? researchEntries.map(({ item, level }) => {
       const benefits = summarizeEvolutionBenefits(item, level);

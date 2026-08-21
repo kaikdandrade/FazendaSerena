@@ -2460,3 +2460,4090 @@
   overflow: visible !important;
   transform: none !important;
 }
+
+/* R38 — Prestígio: identidade roxa, sem alterar a estrutura do painel. */
+#profileAccountPanel .account-prestige-section {
+  border-color: rgba(104, 65, 135, .18) !important;
+  background: linear-gradient(145deg, #ead8f4 0%, #dfc6ed 52%, #efe3f6 100%) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  background: transparent !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-kicker {
+  border-color: rgba(95, 56, 124, .18) !important;
+  background: rgba(255,255,255,.48) !important;
+  color: #5f3b78 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  min-width: min(100%, 390px) !important;
+  min-height: 86px !important;
+  padding: 12px 28px !important;
+  gap: 13px !important;
+  border-color: rgba(98, 59, 128, .17) !important;
+  background: rgba(255,255,255,.60) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount img {
+  width: 46px !important;
+  height: 46px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b {
+  color: #56356d !important;
+  font-size: clamp(2rem, 5vw, 3.25rem) !important;
+  line-height: 1 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article {
+  border-color: rgba(96, 58, 124, .14) !important;
+  background: rgba(255,255,255,.56) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article small {
+  color: #755d82 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article strong {
+  color: #523d5d !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  border-color: rgba(96, 58, 124, .13) !important;
+  background: rgba(255,255,255,.28) !important;
+}
+@media (max-width: 540px) {
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+    min-width: min(100%, 310px) !important;
+    min-height: 72px !important;
+    padding: 10px 20px !important;
+    gap: 10px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount img {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b {
+    font-size: clamp(1.75rem, 9vw, 2.55rem) !important;
+  }
+}
+
+
+/* R38a — ajustes solicitados: ranking, Conta Google, Adicionar amigo e Prestígio. */
+
+/* Conta Google: Perfil do ranking e Sair da conta formam um único grupo de ações. */
+#profileAccountPanel .ranking-profile-launch-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  width: auto !important;
+}
+#profileAccountPanel .ranking-profile-launch-actions > [hidden] { display: none !important; }
+#profileAccountPanel .ranking-profile-launch-actions .button {
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 768px) {
+  #profileAccountPanel .ranking-profile-launch-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+  #profileAccountPanel .ranking-profile-launch-actions .button {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Adicionar amigo: o CTA termina no fim vertical da sua própria área. */
+#friendCodeDialog .friend-request-form-dialog .button {
+  align-self: end !important;
+}
+
+/* Ranking: devolve presença visual aos rankers sem voltar a criar linhas extras. */
+@media (min-width: 621px) {
+  .social-ranking-section .leaderboard-list { gap: 10px !important; }
+  .social-ranking-section .leaderboard-row {
+    grid-template-columns: 72px 62px minmax(0, 1fr) !important;
+    gap: 13px !important;
+    min-height: 94px !important;
+    padding: 11px 14px !important;
+    border-radius: 15px !important;
+  }
+  .social-ranking-section .leaderboard-position {
+    width: 68px !important;
+    min-height: 68px !important;
+    height: 68px !important;
+  }
+  .social-ranking-section .leaderboard-position > .leaderboard-rank-badge {
+    width: 68px !important;
+    height: 68px !important;
+    max-width: 68px !important;
+  }
+  .social-ranking-section .leaderboard-row > .leaderboard-avatar {
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 15px !important;
+  }
+  .social-ranking-section .leaderboard-player { gap: 7px !important; }
+  .leaderboard-identity-line { gap: 8px !important; }
+  .leaderboard-display-name {
+    max-width: min(46%, 310px) !important;
+    font-size: 1.02rem !important;
+    line-height: 1.2 !important;
+  }
+  .leaderboard-identity-line .player-title {
+    font-size: .82rem !important;
+    line-height: 1.2 !important;
+  }
+  .social-ranking-section .leaderboard-player-meta { gap: 7px !important; }
+  .social-ranking-section .leaderboard-account-prestige,
+  .social-ranking-section .leaderboard-current-level {
+    min-height: 30px !important;
+    padding: 4px 10px 4px 6px !important;
+    gap: 5px !important;
+    border-radius: 999px !important;
+  }
+  .social-ranking-section .leaderboard-account-prestige > img,
+  .social-ranking-section .leaderboard-current-level > img {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  .social-ranking-section .leaderboard-account-prestige > b,
+  .social-ranking-section .leaderboard-current-level > b {
+    font-size: .8rem !important;
+  }
+  .social-ranking-section .leaderboard-position-number {
+    min-height: 20px !important;
+    min-width: 32px !important;
+    font-size: .64rem !important;
+  }
+}
+@media (max-width: 620px) {
+  .social-ranking-section .leaderboard-list { gap: 9px !important; }
+  .social-ranking-section .leaderboard-row {
+    grid-template-columns: 58px 50px minmax(0, 1fr) !important;
+    gap: 9px !important;
+    min-height: 80px !important;
+    padding: 9px 10px !important;
+  }
+  .social-ranking-section .leaderboard-position,
+  .social-ranking-section .leaderboard-position > .leaderboard-rank-badge {
+    width: 54px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    max-width: 54px !important;
+  }
+  .social-ranking-section .leaderboard-row > .leaderboard-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 13px !important;
+  }
+  .leaderboard-display-name { font-size: .88rem !important; max-width: 43% !important; }
+  .leaderboard-identity-line .player-title { font-size: .72rem !important; }
+  .social-ranking-section .leaderboard-account-prestige > img,
+  .social-ranking-section .leaderboard-current-level > img { width: 19px !important; height: 19px !important; }
+  .social-ranking-section .leaderboard-account-prestige > b,
+  .social-ranking-section .leaderboard-current-level > b { font-size: .72rem !important; }
+}
+
+/* Prestígio: roxo visível de verdade em toda a superfície principal. */
+#profileAccountPanel .account-prestige-section {
+  background: linear-gradient(145deg, #cba4df 0%, #b985d1 52%, #d8bce7 100%) !important;
+  border-color: rgba(91, 48, 119, .24) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  background: transparent !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-kicker,
+#profileAccountPanel .account-prestige-section .prestige-rework-details article,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  background: rgba(255, 255, 255, .66) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  background: rgba(255, 255, 255, .34) !important;
+}
+
+/* ========================================================================== */
+/* R38b — ajustes pontuais de Evoluções, Prestígio, Estatísticas e Fazenda   */
+/* ========================================================================== */
+
+/* Evoluções: ações acompanham a identidade visual da moeda usada. */
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] .button[data-action="buy-research"] {
+  border-color: rgba(45, 102, 170, .30) !important;
+  background: linear-gradient(135deg, #5a9be2 0%, #3e7fc8 52%, #2f68aa 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 9px 20px rgba(47, 104, 170, .20) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] .button[data-action="buy-research"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #67a8ea 0%, #4789d2 52%, #356fb4 100%) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] .button[data-action="buy-research"]:disabled {
+  border-color: rgba(67, 116, 174, .15) !important;
+  background: linear-gradient(135deg, #b8cee8, #9fbcdb) !important;
+  color: rgba(255,255,255,.88) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] .button[data-action="buy-prestige-upgrade"] {
+  border-color: rgba(101, 57, 132, .32) !important;
+  background: linear-gradient(135deg, #9a62bb 0%, #7c4a9e 52%, #60377e 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 9px 20px rgba(91, 50, 119, .21) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] .button[data-action="buy-prestige-upgrade"]:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a970c8 0%, #8754aa 52%, #6a3e88 100%) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] .button[data-action="buy-prestige-upgrade"]:disabled {
+  border-color: rgba(110, 77, 132, .15) !important;
+  background: linear-gradient(135deg, #d3c1df, #c2a9d2) !important;
+  color: rgba(255,255,255,.90) !important;
+}
+
+/* Prestígio: o elemento pai assume uma identidade roxa evidente e elegante. */
+#profileAccountPanel .account-prestige-section {
+  border-color: rgba(78, 37, 105, .30) !important;
+  background: linear-gradient(135deg, #5b2f76 0%, #744092 30%, #965db2 62%, #74418f 82%, #5c3175 100%) !important;
+  box-shadow: 0 18px 42px rgba(71, 35, 94, .18) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  min-width: min(100%, 360px) !important;
+  padding: 8px 22px !important;
+  gap: 11px !important;
+  box-sizing: border-box !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount img {
+  width: 34px !important;
+  height: 34px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b {
+  font-size: clamp(1.75rem, 4.2vw, 2.45rem) !important;
+  line-height: 1 !important;
+}
+
+/* Fazenda: cultura prestigiada recebe o destaque dourado na lateral esquerda. */
+.crop-card.crop-mastered::before {
+  top: 0 !important;
+  right: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 4px !important;
+  height: auto !important;
+  background: linear-gradient(180deg, #ffd95a 0%, #e5ad1d 48%, #ffd96a 100%) !important;
+}
+
+@media (max-width: 540px) {
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    min-width: min(100%, 300px) !important;
+    padding: 8px 18px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > small {
+  color: rgba(255,255,255,.88) !important;
+  text-shadow: 0 1px 1px rgba(55,25,73,.18) !important;
+}
+
+
+/* R38c — Prestígio místico, estatísticas e perfil do ranking */
+#profileAccountPanel .account-prestige-section {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(143, 99, 194, .38) !important;
+  background:
+    radial-gradient(120% 95% at 50% -10%, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 42%),
+    radial-gradient(70% 60% at 14% 20%, rgba(201,121,255,.20) 0%, rgba(201,121,255,0) 72%),
+    radial-gradient(72% 60% at 88% 82%, rgba(107,54,166,.26) 0%, rgba(107,54,166,0) 70%),
+    linear-gradient(155deg, #16091f 0%, #28103a 28%, #4b1f71 58%, #311048 82%, #180a22 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 18px 36px rgba(34, 10, 55, .20) !important;
+}
+#profileAccountPanel .account-prestige-section::before,
+#profileAccountPanel .account-prestige-section::after {
+  content: "";
+  position: absolute;
+  inset: auto;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 999px;
+}
+#profileAccountPanel .account-prestige-section::before {
+  top: -80px;
+  right: -70px;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, rgba(221,187,255,.18) 0%, rgba(221,187,255,0) 72%);
+}
+#profileAccountPanel .account-prestige-section::after {
+  left: -40px;
+  bottom: -70px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(128,72,198,.22) 0%, rgba(128,72,198,0) 72%);
+}
+#profileAccountPanel .account-prestige-section .prestige-rework,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain,
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  position: relative !important;
+  z-index: 1 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  min-height: clamp(320px, 36vw, 404px) !important;
+  padding: 28px 22px 20px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-kicker {
+  color: #f4eaff !important;
+  background: rgba(255,255,255,.12) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-icon {
+  width: 88px !important;
+  height: 88px !important;
+  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.20), rgba(255,255,255,.08) 60%, rgba(255,255,255,.02) 100%) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  box-shadow: 0 14px 30px rgba(16, 5, 26, .28) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-icon img {
+  width: 62px !important;
+  height: 62px !important;
+  filter: drop-shadow(0 10px 22px rgba(26, 7, 39, .45)) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong {
+  color: #fbf4ff !important;
+  min-width: min(100%, 372px) !important;
+  margin: 12px auto 10px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  min-width: min(100%, 352px) !important;
+  width: min(100%, 352px) !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+  padding: 10px 20px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.09)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 12px 26px rgba(22, 5, 35, .28) !important;
+  color: #fff !important;
+  backdrop-filter: blur(10px) saturate(1.08);
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount img {
+  width: 34px !important;
+  height: 34px !important;
+  filter: drop-shadow(0 6px 12px rgba(20, 5, 29, .38)) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount strong,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount span:last-child {
+  color: #fff !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > small {
+  color: rgba(246,236,255,.90) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain .prestige-rework-details {
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 12px !important;
+  margin-top: 14px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article {
+  padding: 11px 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,.11) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.07)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article small {
+  color: #d9c7f0 !important;
+  font-size: .66rem !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article strong {
+  color: #fff !important;
+  font-size: 1rem !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  margin: 0 16px 16px !important;
+  padding: 14px 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.07)) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer p { color: rgba(244,235,255,.92) !important; }
+#profileAccountPanel .account-prestige-section .prestige-rework-action {
+  background: linear-gradient(135deg, #a05de2, #6f32af) !important;
+  color: #fff !important;
+  box-shadow: 0 12px 22px rgba(39, 12, 66, .22) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-action:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b775ee, #8141c3) !important;
+}
+
+/* Estatísticas do topo: 6 blocos em 3 colunas. */
+#profileAccountPanel #lifetimeStats.stats-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+@media (max-width: 980px) {
+  #profileAccountPanel #lifetimeStats.stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 560px) {
+  #profileAccountPanel #lifetimeStats.stats-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Perfil do ranking: rodapé fixo e galeria acompanha o scroll do modal. */
+#rankingProfileDialog .player-profile-actions {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 8 !important;
+  padding: 12px 18px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  background: rgba(252,253,251,.99) !important;
+  box-shadow: 0 -10px 24px rgba(39, 64, 45, .08) !important;
+}
+#rankingProfileDialog .player-profile-actions .button {
+  min-height: 46px !important;
+  align-self: stretch !important;
+}
+#rankingProfileDialog .avatar-picker-panel {
+  overflow: visible !important;
+  min-height: 0 !important;
+  padding-bottom: 0 !important;
+}
+#rankingProfileDialog .avatar-picker {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Fazenda: a borda dourada das plantas prestigiadas fica na base do card. */
+.crop-card.crop-mastered::before {
+  top: auto !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #ffd95a 0%, #e5ad1d 48%, #ffd96a 100%) !important;
+}
+
+
+/* R38d — Rework completo do Prestígio + botão fixo do modal Adicionar amigo */
+#friendCodeDialog.friend-code-dialog {
+  width: min(560px, calc(100vw - 20px)) !important;
+  max-height: min(82vh, 720px) !important;
+}
+#friendCodeDialog > .friend-code-dialog-shell {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: min(82vh, 720px) !important;
+}
+#friendCodeDialog .friend-code-dialog-body {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  overflow-y: auto !important;
+  padding: 15px 15px 18px !important;
+}
+#friendCodeDialog .friend-request-form-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-height: 190px !important;
+}
+#friendCodeDialog .friend-request-form-dialog > input {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(61,95,63,.11) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-sizing: border-box !important;
+}
+#friendCodeDialog .friend-request-form-footer {
+  margin-top: auto !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  padding-top: 10px !important;
+  background: linear-gradient(180deg, rgba(249,251,248,0) 0%, rgba(249,251,248,.92) 24%, rgba(249,251,248,1) 100%) !important;
+}
+#friendCodeDialog .friend-request-form-footer .button {
+  width: 100% !important;
+  min-height: 46px !important;
+}
+
+#profileAccountPanel .account-prestige-section {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(146, 103, 211, .35) !important;
+  background:
+    radial-gradient(1200px 380px at 10% 0%, rgba(172,100,255,.18), transparent 60%),
+    radial-gradient(900px 340px at 100% 100%, rgba(121,52,203,.18), transparent 58%),
+    linear-gradient(160deg, #0f0717 0%, #1a0d29 18%, #2b1143 43%, #4c1b79 68%, #251038 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 20px 50px rgba(31, 11, 48, .28) !important;
+}
+#profileAccountPanel .account-prestige-section::before,
+#profileAccountPanel .account-prestige-section::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+#profileAccountPanel .account-prestige-section::before {
+  inset: 0;
+  background:
+    radial-gradient(2px 2px at 12% 18%, rgba(255,255,255,.55), transparent 70%),
+    radial-gradient(1.8px 1.8px at 78% 12%, rgba(255,255,255,.42), transparent 70%),
+    radial-gradient(2px 2px at 88% 42%, rgba(255,255,255,.35), transparent 72%),
+    radial-gradient(1.6px 1.6px at 26% 72%, rgba(255,255,255,.32), transparent 72%),
+    radial-gradient(2px 2px at 64% 82%, rgba(255,255,255,.28), transparent 72%);
+  opacity: .75;
+}
+#profileAccountPanel .account-prestige-section::after {
+  inset: auto -60px -90px auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(158,88,255,.22) 0%, rgba(158,88,255,0) 72%);
+  filter: blur(4px);
+}
+#profileAccountPanel .account-prestige-section .prestige-rework {
+  position: relative !important;
+  z-index: 1 !important;
+  padding: 18px !important;
+  gap: 14px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  position: relative !important;
+  z-index: 1 !important;
+  min-height: clamp(330px, 40vw, 440px) !important;
+  padding: 26px 24px 20px !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.035)),
+    radial-gradient(140% 100% at 50% 0%, rgba(193,118,255,.14), rgba(193,118,255,0) 56%),
+    linear-gradient(180deg, rgba(40,16,62,.88), rgba(24,9,36,.95)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 22px 44px rgba(10,3,18,.28) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 auto auto 50% !important;
+  transform: translateX(-50%) !important;
+  width: 68% !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-kicker {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 34px !important;
+  margin: 0 auto 18px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(223,205,255,.18) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)) !important;
+  color: #f4e9ff !important;
+  font-size: .78rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 10px 22px rgba(18,4,31,.22) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-icon {
+  width: 112px !important;
+  height: 112px !important;
+  margin: 2px auto 16px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255,255,255,.24), rgba(255,255,255,.10) 46%, rgba(255,255,255,.03) 68%, rgba(255,255,255,0) 100%),
+    radial-gradient(circle at 50% 50%, rgba(162,89,255,.28), rgba(162,89,255,0) 72%) !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: 0 18px 34px rgba(12, 3, 20, .38) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-icon img {
+  width: 72px !important;
+  height: 72px !important;
+  filter: drop-shadow(0 12px 18px rgba(31, 8, 48, .55)) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong {
+  margin: 0 auto 12px !important;
+  min-width: min(100%, 430px) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  width: min(100%, 430px) !important;
+  min-width: min(100%, 430px) !important;
+  min-height: 70px !important;
+  height: 70px !important;
+  padding: 12px 22px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(228,208,255,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.07)),
+    linear-gradient(135deg, rgba(106,45,171,.55), rgba(55,23,91,.64)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 18px 32px rgba(12,3,22,.32) !important;
+  color: #fff !important;
+  backdrop-filter: blur(6px) saturate(1.1) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount img {
+  width: 36px !important;
+  height: 36px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount strong,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount span:last-child {
+  font-size: clamp(1.9rem, 5vw, 2.8rem) !important;
+  font-weight: 900 !important;
+  color: #fff !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,.22) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > small {
+  display: block !important;
+  max-width: 64ch !important;
+  margin: 0 auto 16px !important;
+  color: rgba(240,231,255,.90) !important;
+  font-size: .92rem !important;
+  line-height: 1.45 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain .prestige-rework-details {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+  gap: 12px !important;
+  margin-top: 4px !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article {
+  min-height: 86px !important;
+  padding: 14px 14px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)),
+    linear-gradient(180deg, rgba(29,10,44,.54), rgba(18,6,27,.60)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article small {
+  color: #cfb8ef !important;
+  font-size: .72rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-details article strong {
+  margin-top: 7px !important;
+  color: #ffffff !important;
+  font-size: 1.32rem !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  position: relative !important;
+  z-index: 1 !important;
+  margin: 0 !important;
+  padding: 16px 18px !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)),
+    linear-gradient(180deg, rgba(24,9,37,.72), rgba(17,6,26,.78)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer p {
+  color: rgba(240,231,255,.94) !important;
+  font-size: .92rem !important;
+  line-height: 1.45 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-action {
+  min-width: 240px !important;
+  min-height: 50px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: linear-gradient(135deg, #b56cff, #7b3cc6 55%, #5f2e9c 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 16px 26px rgba(22, 6, 38, .30), inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-action:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c886ff, #9050de 55%, #6d35b0 100%) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-action:disabled {
+  opacity: .55 !important;
+}
+@media (max-width: 720px) {
+  #profileAccountPanel .account-prestige-section .prestige-rework {
+    padding: 14px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain {
+    min-height: 350px !important;
+    padding: 22px 16px 16px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-icon {
+    width: 96px !important;
+    height: 96px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-icon img {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+    width: min(100%, 340px) !important;
+    min-width: min(100%, 340px) !important;
+    height: 64px !important;
+    min-height: 64px !important;
+  }
+  #profileAccountPanel .account-prestige-section .prestige-rework-details article strong {
+    font-size: 1.16rem !important;
+  }
+}
+
+
+/* R38e — ajustes finos solicitados */
+/* Prestígio: o roxo escuro ocupa 100% do elemento pai, sem halo/borda branca ao redor. */
+#profileAccountPanel .account-prestige-section,
+#profileAccountPanel .account-prestige-section.stats-section {
+  padding: 18px !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(123, 82, 184, .55) !important;
+  background:
+    radial-gradient(1200px 420px at 10% 0%, rgba(183,113,255,.20), transparent 58%),
+    radial-gradient(900px 360px at 100% 100%, rgba(118,54,214,.18), transparent 58%),
+    linear-gradient(180deg, #5d4576 0%, #3e2d57 18%, #261a37 55%, #21152f 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 18px 42px rgba(18, 7, 30, .22) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-hero {
+  width: 100% !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework {
+  padding: 0 !important;
+  gap: 14px !important;
+  background: transparent !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain,
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  background-clip: padding-box !important;
+}
+
+/* Modal adicionar amigo: botão realmente no fundo e sem margens exageradas. */
+#friendCodeDialog .friend-code-dialog-body {
+  min-height: 340px !important;
+}
+#friendCodeDialog .friend-request-form-dialog {
+  flex: 1 1 auto !important;
+  min-height: 210px !important;
+  margin: 0 !important;
+}
+#friendCodeDialog .friend-request-form-footer {
+  margin-top: auto !important;
+  padding-top: 8px !important;
+  padding-bottom: 0 !important;
+  background: none !important;
+  position: sticky !important;
+  bottom: 0 !important;
+}
+#friendCodeDialog .friend-request-form-footer .button,
+#friendCodeDialog .friend-request-form-dialog .button {
+  margin: 0 !important;
+  width: 100% !important;
+  align-self: stretch !important;
+}
+
+/* Ranking: aumentar os ícones de prestígio de conta e nível da fazenda. */
+@media (min-width: 621px) {
+  .social-ranking-section .leaderboard-account-prestige > img,
+  .social-ranking-section .leaderboard-current-level > img {
+    width: 26px !important;
+    height: 26px !important;
+  }
+  .social-ranking-section .leaderboard-account-prestige,
+  .social-ranking-section .leaderboard-current-level {
+    min-height: 32px !important;
+    padding: 4px 11px 4px 7px !important;
+    gap: 6px !important;
+  }
+}
+@media (max-width: 620px) {
+  .social-ranking-section .leaderboard-account-prestige > img,
+  .social-ranking-section .leaderboard-current-level > img {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+
+
+/* R38f — ajustes finais solicitados */
+/* Prestígio: remove a borda interna clara e faz o fundo místico ocupar toda a área. */
+#profileAccountPanel .account-prestige-section {
+  padding: 0 !important;
+  border-radius: 28px !important;
+  border: 1px solid rgba(137, 90, 210, .58) !important;
+  background:
+    radial-gradient(1200px 520px at 50% -10%, rgba(192,126,255,.28), transparent 48%),
+    radial-gradient(900px 420px at 20% 10%, rgba(142,78,228,.20), transparent 56%),
+    radial-gradient(920px 460px at 82% 90%, rgba(96,46,173,.18), transparent 58%),
+    linear-gradient(135deg, #6f4a98 0%, #5b3f82 18%, #422d62 40%, #2d1e45 72%, #1b132b 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 22px 42px rgba(21, 9, 36, .22) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework {
+  padding: 18px !important;
+  gap: 14px !important;
+  background: transparent !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  min-height: auto !important;
+  padding: 26px 24px 12px !important;
+  border: none !important;
+  border-radius: 22px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain::before {
+  display: none !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer {
+  border: 1px solid rgba(255,255,255,.08) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)),
+    linear-gradient(180deg, rgba(33,16,50,.38), rgba(18,8,28,.46)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+/* Modal adicionar amigo: botão preso no final do modal, sem margens exageradas. */
+#friendCodeDialog > .friend-code-dialog-shell {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: min(78vh, 560px) !important;
+}
+#friendCodeDialog .friend-code-dialog-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 360px !important;
+  gap: 12px !important;
+}
+#friendCodeDialog .friends-feedback {
+  order: 2 !important;
+  margin: 0 !important;
+  min-height: 18px !important;
+}
+#friendCodeDialog .friend-request-form-dialog {
+  order: 3 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 220px !important;
+  margin: 0 !important;
+}
+#friendCodeDialog .friend-request-form-footer {
+  margin-top: auto !important;
+  padding: 10px 0 0 !important;
+  background: none !important;
+  position: static !important;
+}
+#friendCodeDialog .friend-request-form-footer .button,
+#friendCodeDialog .friend-request-form-dialog .button {
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  align-self: stretch !important;
+}
+
+
+/* R38g — correções finais pedidas */
+/* Prestígio: fundo radial roxo visível em toda a área, sem moldura/miolo branco. */
+#profileAccountPanel .account-prestige-section,
+#profileAccountPanel .account-prestige-section.stats-section,
+#profileAccountPanel .account-prestige-section .prestige-hero {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 28px !important;
+  background:
+    radial-gradient(900px 460px at 50% 18%, rgba(182, 110, 255, .38) 0%, rgba(182,110,255,.18) 24%, rgba(182,110,255,0) 58%),
+    radial-gradient(520px 260px at 84% 88%, rgba(144, 74, 255, .18) 0%, rgba(144,74,255,0) 72%),
+    radial-gradient(420px 240px at 14% 12%, rgba(167, 92, 255, .16) 0%, rgba(167,92,255,0) 72%),
+    linear-gradient(180deg, #6b4a94 0%, #4a326d 20%, #2e2148 56%, #1c142d 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 16px 34px rgba(20, 7, 31, .18) !important;
+}
+#profileAccountPanel .account-prestige-section::before,
+#profileAccountPanel .account-prestige-section::after {
+  opacity: 1 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework {
+  padding: 22px 18px 18px !important;
+  gap: 14px !important;
+  background: transparent !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-footer,
+#profileAccountPanel .account-prestige-section .prestige-rework-details article {
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)), linear-gradient(180deg, rgba(34,17,52,.34), rgba(18,8,28,.44)) !important;
+}
+
+/* Modal adicionar amigo: remove o gap gigante e mantém o botão bem alinhado no final. */
+#friendCodeDialog > .friend-code-dialog-shell {
+  min-height: auto !important;
+}
+#friendCodeDialog .friend-code-dialog-body {
+  min-height: auto !important;
+  gap: 10px !important;
+}
+#friendCodeDialog .friend-request-form-dialog {
+  min-height: auto !important;
+  flex: 0 0 auto !important;
+  gap: 10px !important;
+}
+#friendCodeDialog .friend-request-form-footer {
+  margin-top: 10px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ranking: aumentar somente o ícone de prestígio de conta. */
+.social-ranking-section .leaderboard-account-prestige > img {
+  width: 24px !important;
+  height: 24px !important;
+}
+@media (min-width: 621px) {
+  .social-ranking-section .leaderboard-current-level > img {
+    width: 19px !important;
+    height: 19px !important;
+  }
+}
+@media (max-width: 620px) {
+  .social-ranking-section .leaderboard-current-level > img {
+    width: 17px !important;
+    height: 17px !important;
+  }
+}
+
+
+/* R38h — ajustes pedidos após validação visual */
+/* Prestígio: o fundo místico roxo precisa aparecer de verdade em TODA a área, sem miolo claro. */
+#profileAccountPanel .account-prestige-section,
+#profileAccountPanel .account-prestige-section.stats-section,
+#profileAccountPanel .account-prestige-section > #prestigeDashboard,
+#profileAccountPanel .account-prestige-section > .prestige-hero,
+#profileAccountPanel #prestigeDashboard {
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  background-color: #241536 !important;
+  background-image:
+    radial-gradient(circle at 50% 14%, rgba(197, 132, 255, .40) 0%, rgba(197,132,255,.22) 18%, rgba(197,132,255,0) 44%),
+    radial-gradient(circle at 88% 92%, rgba(147, 76, 255, .22) 0%, rgba(147,76,255,0) 34%),
+    radial-gradient(circle at 8% 10%, rgba(171, 92, 255, .18) 0%, rgba(171,92,255,0) 28%),
+    linear-gradient(135deg, #7a55a7 0%, #694792 14%, #4e366f 34%, #33234b 58%, #241536 78%, #170f24 100%) !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 16px 36px rgba(18, 7, 31, .22) !important;
+}
+#profileAccountPanel .account-prestige-section::before,
+#profileAccountPanel .account-prestige-section::after,
+#profileAccountPanel #prestigeDashboard::before,
+#profileAccountPanel #prestigeDashboard::after {
+  opacity: .92 !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework,
+#profileAccountPanel #prestigeDashboard .prestige-rework {
+  background: transparent !important;
+}
+
+/* Modal adicionar amigo: sem gap gigante; botão visualmente bem resolvido. */
+#friendCodeDialog .friend-code-dialog-body {
+  display: block !important;
+  overflow: visible !important;
+  min-height: 0 !important;
+  padding: 15px 15px 16px !important;
+}
+#friendCodeDialog .friends-feedback {
+  min-height: 0 !important;
+}
+#friendCodeDialog .friend-request-form-dialog {
+  display: block !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+#friendCodeDialog .friend-request-form-footer {
+  position: static !important;
+  bottom: auto !important;
+  margin-top: 12px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+#friendCodeDialog .friend-request-form-footer .button,
+#friendCodeDialog .friend-request-form-dialog .button {
+  margin: 0 !important;
+}
+
+/* Ranking: manter somente o ícone de prestígio maior. */
+.social-ranking-section .leaderboard-account-prestige > img {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+
+/* R38i — Minha Conta + rework responsivo do atalho de contratos */
+/* Em desktop os botões da conta ficam na mesma linha: não há necessidade da divisória. */
+@media (min-width: 769px) {
+  #profileAccountPanel .account-actions {
+    border-top: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+
+/* Atalho de contratos: estrutura única, independente da quantidade de contratos. */
+.contract-dock.visible:not(.collapsed) {
+  width: clamp(360px, 31vw, 430px) !important;
+  max-width: calc(100vw - 24px) !important;
+}
+.contract-dock-v2 {
+  width: 100% !important;
+  overflow: hidden !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(57, 91, 61, .14) !important;
+  background: rgba(251,253,250,.985) !important;
+  box-shadow: 0 18px 44px rgba(24, 45, 29, .18) !important;
+}
+.contract-dock-v2 .contract-dock-header {
+  min-height: 62px !important;
+  padding: 9px 10px 9px 12px !important;
+  border-bottom: 1px solid rgba(59,91,63,.08) !important;
+  background: linear-gradient(180deg, #fbfdf9, #f5f9f3) !important;
+}
+.contract-dock-v2 .contract-dock-header > button:first-child {
+  gap: 10px !important;
+}
+.contract-dock-v2 .contract-dock-header > button:first-child > img {
+  width: 40px !important;
+  height: 40px !important;
+}
+.contract-dock-v2 .contract-dock-header strong {
+  font-size: .88rem !important;
+  line-height: 1.15 !important;
+}
+.contract-dock-v2 .contract-dock-header small {
+  margin-top: 2px !important;
+  color: #708078 !important;
+  font-size: .64rem !important;
+}
+.contract-dock-v2 .contract-dock-collapse-toggle {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 11px !important;
+}
+.contract-dock-summary {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 6px !important;
+  padding: 8px 10px !important;
+  border-bottom: 1px solid rgba(59,91,63,.07) !important;
+  background: #f8fbf7 !important;
+}
+.contract-dock-summary > span {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 6px 7px !important;
+  border: 1px solid rgba(58,91,61,.08) !important;
+  border-radius: 10px !important;
+  background: rgba(255,255,255,.82) !important;
+  color: #718078 !important;
+  font-size: .58rem !important;
+  font-weight: 750 !important;
+  white-space: nowrap !important;
+}
+.contract-dock-summary > span > b {
+  color: #395b3f !important;
+  font-size: .78rem !important;
+  font-weight: 900 !important;
+}
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list:has(> :nth-child(4)),
+.contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) !important;
+  align-content: start !important;
+  gap: 7px !important;
+  max-height: min(54vh, 470px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 8px !important;
+  background: #f4f8f2 !important;
+  scrollbar-gutter: stable !important;
+}
+.contract-dock-item-v2,
+.contract-dock-list > :only-child {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 102px !important;
+  display: grid !important;
+  grid-template-columns: 52px minmax(0,1fr) !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px !important;
+  border: 1px solid rgba(59,91,63,.10) !important;
+  border-radius: 15px !important;
+  background: #fff !important;
+  box-shadow: 0 3px 10px rgba(34,59,38,.035) !important;
+  text-align: left !important;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease !important;
+}
+.contract-dock-item-v2:hover {
+  border-color: rgba(68,113,70,.20) !important;
+  background: #fcfefb !important;
+  box-shadow: 0 7px 17px rgba(34,59,38,.07) !important;
+  transform: translateY(-1px) !important;
+}
+.contract-dock-crop-shell {
+  width: 52px !important;
+  height: 52px !important;
+  display: grid !important;
+  place-items: center !important;
+  align-self: start !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg,#f7faf5,#edf4e9) !important;
+  border: 1px solid rgba(59,91,63,.08) !important;
+}
+.contract-dock-item-v2 .contract-dock-crop {
+  width: 46px !important;
+  height: 46px !important;
+  padding: 3px !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  background: transparent !important;
+  object-fit: contain !important;
+}
+.contract-dock-item-v2 .contract-dock-copy {
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0,1fr) !important;
+  gap: 5px !important;
+}
+.contract-dock-item-v2 .contract-dock-title-line {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+.contract-dock-item-v2 .contract-dock-title-line > strong {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: #314e37 !important;
+  font-size: .82rem !important;
+  font-weight: 900 !important;
+}
+.contract-dock-item-v2 .contract-dock-title-line > small {
+  flex: 0 0 auto !important;
+  padding: 3px 7px !important;
+  border-radius: 999px !important;
+  background: #eef5ec !important;
+  color: #55705a !important;
+  font-size: .62rem !important;
+  font-weight: 900 !important;
+}
+.contract-dock-meta-line {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 7px !important;
+}
+.contract-dock-meta-line > em {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  color: #7a8780 !important;
+  font-size: .61rem !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+}
+.contract-dock-state {
+  flex: 0 0 auto !important;
+  max-width: 48% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  padding: 3px 7px !important;
+  border-radius: 999px !important;
+  text-decoration: none !important;
+  background: #f0f4ee !important;
+  color: #64746b !important;
+  font-size: .58rem !important;
+  font-weight: 850 !important;
+}
+.contract-dock-state.is-urgent { background: #fff0eb !important; color: #a84e3d !important; }
+.contract-dock-state.is-completed { background: #fff7d9 !important; color: #8a681d !important; }
+.contract-dock-state.is-defaulted { background: #fae7e4 !important; color: #93463e !important; }
+.contract-dock-progress {
+  width: 100% !important;
+  height: 6px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+  background: #e4ebe1 !important;
+}
+.contract-dock-progress > .delivered {
+  display: block !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg,#87bc78,#4f8d58) !important;
+}
+.contract-dock-item-v2 .contract-dock-rewards {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 4px !important;
+  overflow: hidden !important;
+}
+.contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  min-width: 0 !important;
+  flex: 0 1 auto !important;
+  padding: 2px 5px !important;
+  border-radius: 7px !important;
+  font-size: .57rem !important;
+}
+.contract-dock-item-v2 .contract-dock-rewards .resource-amount img {
+  width: 14px !important;
+  height: 14px !important;
+}
+.contract-dock-item-v2.reward-ready {
+  border-color: rgba(202,157,45,.27) !important;
+  background: linear-gradient(135deg,#fffdf5,#fff7d9) !important;
+}
+.contract-dock-item-v2.contract-defaulted {
+  border-color: rgba(174,77,68,.25) !important;
+  background: linear-gradient(135deg,#fff9f7,#fbe8e4) !important;
+}
+.contract-dock-item-v2.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
+  border-color: rgba(190,91,66,.22) !important;
+  background: linear-gradient(135deg,#fffaf8,#fff0eb) !important;
+}
+
+@media (max-width: 760px) {
+  .contract-dock.visible:not(.collapsed) {
+    width: min(430px, calc(100vw - 20px)) !important;
+    right: 10px !important;
+    bottom: 10px !important;
+  }
+  .contract-dock-v2 .contract-dock-list {
+    max-height: min(52vh, 420px) !important;
+  }
+}
+@media (max-width: 480px) {
+  .contract-dock.visible:not(.collapsed) {
+    width: calc(100vw - 16px) !important;
+    right: 8px !important;
+    bottom: 8px !important;
+  }
+  .contract-dock-v2 { border-radius: 17px !important; }
+  .contract-dock-v2 .contract-dock-header { min-height: 58px !important; padding: 8px 9px 8px 10px !important; }
+  .contract-dock-v2 .contract-dock-header > button:first-child > img { width: 36px !important; height: 36px !important; }
+  .contract-dock-summary { padding: 7px 8px !important; gap: 5px !important; }
+  .contract-dock-summary > span { padding: 5px 4px !important; font-size: .54rem !important; }
+  .contract-dock-summary > span > b { font-size: .72rem !important; }
+  .contract-dock-v2 .contract-dock-list { max-height: min(50vh, 365px) !important; padding: 7px !important; gap: 6px !important; }
+  .contract-dock-item-v2,
+  .contract-dock-list > :only-child {
+    min-height: 94px !important;
+    grid-template-columns: 46px minmax(0,1fr) !important;
+    gap: 9px !important;
+    padding: 9px !important;
+    border-radius: 13px !important;
+  }
+  .contract-dock-crop-shell { width: 46px !important; height: 46px !important; border-radius: 12px !important; }
+  .contract-dock-item-v2 .contract-dock-crop { width: 41px !important; height: 41px !important; }
+  .contract-dock-item-v2 .contract-dock-title-line > strong { font-size: .77rem !important; }
+  .contract-dock-item-v2 .contract-dock-rewards .resource-amount { font-size: .53rem !important; padding-inline: 4px !important; }
+  .contract-dock-item-v2 .contract-dock-rewards .resource-amount img { width: 13px !important; height: 13px !important; }
+}
+
+
+/* R38j — ajustes finos no atalho de contratos */
+/* Resumo Ativos/Vagas/Slots removido; caso cache antigo ainda injete o bloco, ele não aparece. */
+.contract-dock-summary { display: none !important; }
+
+/* Imagem da cultura centralizada verticalmente dentro de qualquer altura de card. */
+.contract-dock-crop-shell {
+  align-self: center !important;
+  justify-self: center !important;
+}
+
+/* Margens laterais visualmente simétricas; sem gutter reservado à direita. */
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list,
+.contract-dock .contract-dock-list:has(> :nth-child(4)),
+.contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  scrollbar-gutter: auto !important;
+}
+@media (max-width: 480px) {
+  .contract-dock-v2 .contract-dock-list,
+  .contract-dock .contract-dock-list {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+}
+
+
+/* R38k — scroll estável do atalho de contratos */
+.contract-dock.visible:not(.collapsed) {
+  inline-size: clamp(360px, 31vw, 430px) !important;
+  width: clamp(360px, 31vw, 430px) !important;
+  max-inline-size: calc(100vw - 24px) !important;
+  max-width: calc(100vw - 24px) !important;
+  contain: inline-size !important;
+}
+.contract-dock-v2,
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list,
+.contract-dock .contract-dock-list:has(> :nth-child(4)),
+.contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-gutter: stable both-edges !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(75,116,73,.26) transparent !important;
+}
+.contract-dock-v2 .contract-dock-list::-webkit-scrollbar,
+.contract-dock .contract-dock-list::-webkit-scrollbar { width: 6px !important; }
+.contract-dock-v2 .contract-dock-list::-webkit-scrollbar-track,
+.contract-dock .contract-dock-list::-webkit-scrollbar-track { background: transparent !important; }
+.contract-dock-v2 .contract-dock-list::-webkit-scrollbar-thumb,
+.contract-dock .contract-dock-list::-webkit-scrollbar-thumb {
+  background: rgba(75,116,73,.24) !important;
+  border-radius: 999px !important;
+}
+@media (max-width: 760px) {
+  .contract-dock.visible:not(.collapsed) {
+    inline-size: min(430px, calc(100vw - 20px)) !important;
+    width: min(430px, calc(100vw - 20px)) !important;
+  }
+}
+@media (max-width: 480px) {
+  .contract-dock.visible:not(.collapsed) {
+    inline-size: calc(100vw - 16px) !important;
+    width: calc(100vw - 16px) !important;
+  }
+  .contract-dock-v2 .contract-dock-list,
+  .contract-dock .contract-dock-list {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+}
+
+/* R38l — largura invariável e atualização imediata do atalho de contratos */
+/* A quantidade de contratos nunca altera a largura externa do atalho. */
+.contract-dock.visible:not(.collapsed),
+.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
+  inline-size: min(430px, calc(100vw - 24px)) !important;
+  width: min(430px, calc(100vw - 24px)) !important;
+  min-inline-size: 0 !important;
+  min-width: 0 !important;
+  max-inline-size: min(430px, calc(100vw - 24px)) !important;
+  max-width: min(430px, calc(100vw - 24px)) !important;
+  box-sizing: border-box !important;
+  contain: none !important;
+}
+.contract-dock-panel.contract-dock-v2,
+.contract-dock.visible:not(.collapsed) .contract-dock-v2 {
+  inline-size: 100% !important;
+  width: 100% !important;
+  min-inline-size: 0 !important;
+  min-width: 0 !important;
+  max-inline-size: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+/* Mesmo com 4+ contratos, a lista continua em uma única coluna. */
+.contract-dock .contract-dock-list,
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list:has(> :nth-child(4)),
+.contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  grid-template-columns: minmax(0, 1fr) !important;
+  inline-size: 100% !important;
+  width: 100% !important;
+  min-inline-size: 0 !important;
+  min-width: 0 !important;
+  max-inline-size: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  scrollbar-gutter: stable both-edges !important;
+}
+.contract-dock-list > *,
+.contract-dock-list > :only-child,
+.contract-dock-item-v2 {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 760px) {
+  .contract-dock.visible:not(.collapsed),
+  .contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
+    inline-size: min(430px, calc(100vw - 20px)) !important;
+    width: min(430px, calc(100vw - 20px)) !important;
+    max-inline-size: min(430px, calc(100vw - 20px)) !important;
+    max-width: min(430px, calc(100vw - 20px)) !important;
+  }
+}
+@media (max-width: 480px) {
+  .contract-dock.visible:not(.collapsed),
+  .contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
+    inline-size: calc(100vw - 16px) !important;
+    width: calc(100vw - 16px) !important;
+    max-inline-size: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+  }
+}
+
+
+/* R38m — normalização do atalho de contratos + tema Claro/Escuro */
+/* Atalho: a área útil usa respiro proporcional, sem laterais visualmente maiores. */
+.contract-dock-v2 .contract-dock-list,
+.contract-dock .contract-dock-list,
+.contract-dock .contract-dock-list:has(> :nth-child(4)),
+.contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  padding: 7px 3px 7px 7px !important;
+  gap: 7px !important;
+  scrollbar-gutter: stable !important;
+  overflow-y: auto !important;
+}
+.contract-dock-v2 .contract-dock-list::-webkit-scrollbar,
+.contract-dock .contract-dock-list::-webkit-scrollbar { width: 4px !important; }
+
+/* Aparência: o modo escuro preserva os acentos verdes, azuis, roxos e dourados do jogo. */
+html[data-theme="dark"] {
+  --ui-bg: #101512;
+  --ui-surface: rgba(25, 33, 28, .94);
+  --ui-surface-strong: #1a231d;
+  --ui-surface-soft: rgba(29, 39, 32, .92);
+  --ui-border: rgba(191, 218, 194, .12);
+  --ui-border-strong: rgba(191, 218, 194, .20);
+  --ui-text: #e7efe8;
+  --ui-muted: #9eada1;
+  --ui-green: #73ad7c;
+  --ui-green-strong: #91c698;
+  --ui-green-soft: #23372a;
+  --ui-gold-soft: #3b3420;
+  --ui-red: #e08a86;
+  --ui-red-soft: #402524;
+  --ui-shadow: 0 16px 38px rgba(0,0,0,.28);
+  --ui-shadow-soft: 0 7px 20px rgba(0,0,0,.20);
+  --ink: #e7efe8;
+  --ink-soft: #9eada1;
+  --line: rgba(191,218,194,.12);
+  --page: #101512;
+  --page-deep: #0b100d;
+  --surface: rgba(25,33,28,.94);
+  --surface-soft: #18221b;
+  --surface-solid: #1b251e;
+  --release-surface: #18211b;
+  --release-border: rgba(191,218,194,.12);
+  --release-shadow: 0 18px 48px rgba(0,0,0,.30);
+  color-scheme: dark;
+}
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] body {
+  color: var(--ui-text) !important;
+  background:
+    radial-gradient(circle at 8% 5%, rgba(74,105,78,.18), transparent 24rem),
+    radial-gradient(circle at 92% 12%, rgba(55,91,70,.18), transparent 28rem),
+    linear-gradient(150deg, #101512, #131a16 55%, #0b100d) !important;
+}
+html[data-theme="dark"] body::before {
+  background-image: linear-gradient(rgba(190,218,194,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(190,218,194,.025) 1px, transparent 1px) !important;
+}
+html[data-theme="dark"] :is(.app-header,.main-nav,.context-tabs,.panel-card,.settings-card,.account-settings-card,.order-board,.social-profile-panel,.prestige-leaderboard,.evolution-panel,.stats-section-plain,.achievement-card,.player-stat-card,.account-card,.mission-card,.crop-card,.contract-card,.order-card,.friends-beta-panel,.social-ranking-section) {
+  border-color: var(--ui-border) !important;
+  color: var(--ui-text) !important;
+}
+html[data-theme="dark"] :is(.app-header,.main-nav,.context-tabs,.panel-card,.settings-card,.account-settings-card,.order-board,.social-profile-panel,.prestige-leaderboard,.evolution-panel,.stats-section-plain,.account-card) {
+  background: rgba(24,32,27,.94) !important;
+  box-shadow: var(--ui-shadow-soft) !important;
+}
+html[data-theme="dark"] :is(.resource-pill,.farm-progress,.floating-resource-strip .resource-pill,.setting-row,.range-setting,.achievement-summary > article,.player-stat-card,.achievement-card,.mission-card,.crop-card,.contract-card,.order-card,.leaderboard-row,.friend-card,.friends-beta-option) {
+  background: rgba(30,40,33,.92) !important;
+  border-color: rgba(191,218,194,.11) !important;
+  color: var(--ui-text) !important;
+}
+html[data-theme="dark"] :is(input,select,textarea) {
+  color: #edf4ee !important;
+  background: #131b16 !important;
+  border-color: rgba(191,218,194,.16) !important;
+}
+html[data-theme="dark"] :is(input,textarea)::placeholder { color: #7f9183 !important; }
+html[data-theme="dark"] :is(.section-heading,.settings-card-head,.friends-dialog-header,.player-profile-heading) {
+  color: var(--ui-text) !important;
+}
+html[data-theme="dark"] :is(.eyebrow,small,.setting-row small,.range-setting small,.leaderboard-player-meta,.friend-card-copy > small,.stats-section p) { color: var(--ui-muted) !important; }
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button) {
+  color: #dce8de !important;
+  background: #26332b !important;
+  border-color: rgba(191,218,194,.13) !important;
+}
+html[data-theme="dark"] :is(.button.secondary,button.secondary):hover:not(:disabled) { background: #304039 !important; }
+html[data-theme="dark"] .nav-tab:not(.active),
+html[data-theme="dark"] .office-tab:not(.active),
+html[data-theme="dark"] .profile-tab:not(.active),
+html[data-theme="dark"] .evolution-tab:not(.active) { color: #bcc9be !important; }
+html[data-theme="dark"] :is(.nav-tab.active,.office-tab.active,.profile-tab.active,.evolution-tab.active) {
+  background: rgba(64,104,71,.28) !important;
+  color: #dff0e1 !important;
+}
+html[data-theme="dark"] .app-footer { color: #a8b7aa !important; }
+html[data-theme="dark"] .app-footer a,
+html[data-theme="dark"] .footer-link-button { color: #cbd7cd !important; }
+html[data-theme="dark"] dialog:not(#offlineProgressDialog) {
+  color: var(--ui-text) !important;
+  background: #18211b !important;
+  border-color: rgba(191,218,194,.14) !important;
+}
+html[data-theme="dark"] :is(#rankingProfileDialog .player-profile-heading,#rankingProfileDialog .player-profile-actions,#friendsListDialog .friends-dialog-body,#friendCodeDialog.friend-code-dialog,#friendCodeDialog .friend-code-dialog-body) {
+  background: #18211b !important;
+  color: var(--ui-text) !important;
+}
+html[data-theme="dark"] #rankingProfileDialog :is(.profile-nickname-field,.profile-avatar-field,.profile-player-title-field,.selected-avatar-preview,.selected-player-title-card,.avatar-picker-panel,.player-title-picker-panel,.player-title-picker-option) {
+  background: rgba(31,42,34,.94) !important;
+  border-color: rgba(191,218,194,.12) !important;
+  color: var(--ui-text) !important;
+}
+html[data-theme="dark"] #friendCodeDialog :is(.friend-code-share code,.friend-request-form-dialog > input) {
+  color: #e8f0e9 !important;
+  background: #111914 !important;
+  border-color: rgba(191,218,194,.13) !important;
+}
+html[data-theme="dark"] .friend-code-divider::before,
+html[data-theme="dark"] .friend-code-divider::after { background: rgba(191,218,194,.10) !important; }
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2 {
+  background: rgba(20,29,23,.985) !important;
+  border-color: rgba(191,218,194,.12) !important;
+  box-shadow: 0 16px 44px rgba(0,0,0,.32) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header {
+  background: linear-gradient(180deg,#1d2921,#172019) !important;
+  border-color: rgba(191,218,194,.09) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle {
+  background: #26332b !important;
+  border-color: rgba(191,218,194,.10) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 {
+  background: #1d2821 !important;
+  color: var(--ui-text) !important;
+  border-color: rgba(191,218,194,.09) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.reward-ready { background: linear-gradient(135deg,#3a3521,#2e2b1e) !important; }
+html[data-theme="dark"] .contract-dock-item-v2.contract-defaulted { background: linear-gradient(135deg,#3b2523,#2b1d1b) !important; }
+html[data-theme="dark"] :is(.crop-upgrade-panel,.contract-main-v2,.order-main,.mission-series-card,.evolution-card,.redesigned-evolution-card) {
+  border-color: rgba(191,218,194,.10) !important;
+}
+html[data-theme="dark"] #settingsView .feedback-settings-card {
+  background: rgba(24,32,27,.94) !important;
+  border-color: var(--ui-border) !important;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme-mode="automatic"] { color-scheme: dark; }
+}
+
+
+/* R38n — Dark mode refinado: carvão elegante + acentos do jogo */
+html[data-theme="dark"] {
+  --ui-bg: #0d1110;
+  --ui-surface: #171d1a;
+  --ui-surface-strong: #1c2420;
+  --ui-surface-soft: #202925;
+  --ui-border: rgba(222, 235, 225, .095);
+  --ui-border-strong: rgba(222, 235, 225, .16);
+  --ui-text: #edf3ee;
+  --ui-muted: #a0aea4;
+  --ui-green: #64a873;
+  --ui-green-strong: #7bc48a;
+  --ui-green-soft: #1b3122;
+  --ui-gold-soft: #3a311d;
+  --ui-red: #ef918c;
+  --ui-red-soft: #3a2222;
+  --ui-shadow: 0 20px 50px rgba(0, 0, 0, .34);
+  --ui-shadow-soft: 0 8px 22px rgba(0, 0, 0, .22);
+  --ink: #edf3ee;
+  --ink-soft: #a0aea4;
+  --line: rgba(222, 235, 225, .095);
+  --page: #0d1110;
+  --page-deep: #090c0b;
+  --surface: #171d1a;
+  --surface-soft: #1c2420;
+  --surface-solid: #202925;
+  --release-surface: #171d1a;
+  --release-border: rgba(222, 235, 225, .095);
+  --release-shadow: 0 20px 48px rgba(0, 0, 0, .30);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+  color: #edf3ee !important;
+  background:
+    radial-gradient(850px 520px at 8% 0%, rgba(61, 111, 76, .16), transparent 62%),
+    radial-gradient(760px 520px at 96% 12%, rgba(45, 87, 70, .11), transparent 66%),
+    linear-gradient(145deg, #0e1311 0%, #101613 48%, #0a0e0c 100%) !important;
+}
+html[data-theme="dark"] body::before {
+  opacity: .18 !important;
+  background-image:
+    linear-gradient(rgba(215, 233, 220, .025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 233, 220, .025) 1px, transparent 1px) !important;
+}
+html[data-theme="dark"] .ambient-layer { opacity: .34 !important; filter: saturate(.72) brightness(.64); }
+
+/* Superfícies principais: não achatar tudo na mesma cor. */
+html[data-theme="dark"] :is(.app-header,.main-nav,.context-tabs) {
+  background: rgba(20, 27, 23, .88) !important;
+  border-color: rgba(222,235,225,.09) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.22) !important;
+  backdrop-filter: blur(18px) saturate(1.05) !important;
+}
+html[data-theme="dark"] :is(.panel-card,.settings-card,.account-settings-card,.order-board,.social-profile-panel,.prestige-leaderboard,.evolution-panel,.social-ranking-section) {
+  background: linear-gradient(180deg, #191f1c 0%, #151b18 100%) !important;
+  border-color: rgba(222,235,225,.085) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.18) !important;
+  color: #edf3ee !important;
+}
+html[data-theme="dark"] .settings-page-container,
+html[data-theme="dark"] .account-statistics-section {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Header e recursos ganham separação sem virar blocos cinza iguais. */
+html[data-theme="dark"] .farm-progress,
+html[data-theme="dark"] .resource-pill {
+  background: linear-gradient(180deg, rgba(35,46,40,.96), rgba(27,36,31,.96)) !important;
+  border-color: rgba(222,235,225,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="coins"] {
+  background: linear-gradient(180deg, rgba(52,45,26,.78), rgba(34,31,22,.94)) !important;
+  border-color: rgba(213,177,89,.15) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="research"] {
+  background: linear-gradient(180deg, rgba(28,44,58,.88), rgba(24,34,43,.96)) !important;
+  border-color: rgba(99,163,214,.14) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="prestige"] {
+  background: linear-gradient(180deg, rgba(54,32,77,.90), rgba(33,23,46,.97)) !important;
+  border-color: rgba(169,104,225,.17) !important;
+}
+html[data-theme="dark"] :is(.resource-pill,.farm-progress) small { color: #9eaca2 !important; }
+html[data-theme="dark"] :is(.resource-pill,.farm-progress) strong { color: #f0f5f1 !important; }
+
+/* Navegação: ativa clara, inativa discreta. */
+html[data-theme="dark"] :is(.nav-tab,.office-tab,.profile-tab,.evolution-tab) {
+  color: #aebbb1 !important;
+  border-color: transparent !important;
+}
+html[data-theme="dark"] :is(.nav-tab,.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #d8e2da !important;
+  background: rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] :is(.nav-tab.active,.office-tab.active,.profile-tab.active,.evolution-tab.active) {
+  color: #e9f5eb !important;
+  background: linear-gradient(180deg, rgba(74,126,84,.30), rgba(49,91,60,.24)) !important;
+  border-color: rgba(112,173,124,.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+
+/* Títulos/textos: contraste sem branco estourado. */
+html[data-theme="dark"] :is(h1,h2,h3,h4,.settings-card-head,.section-heading,.player-profile-heading,.friends-dialog-header) {
+  color: #eef4ef !important;
+}
+html[data-theme="dark"] :is(.eyebrow,.setting-row small,.range-setting small,.leaderboard-player-meta,.friend-card-copy > small,.stats-section p,.settings-card-body small) {
+  color: #9aa9a0 !important;
+}
+html[data-theme="dark"] .eyebrow { color: #7fb58a !important; }
+
+/* Cards internos com relevo sutil. */
+html[data-theme="dark"] :is(.setting-row,.range-setting,.achievement-summary > article,.player-stat-card,.achievement-card,.mission-card,.crop-card,.contract-card,.order-card,.leaderboard-row,.friend-card,.friends-beta-option) {
+  background: linear-gradient(180deg, #202824 0%, #1b231f 100%) !important;
+  border-color: rgba(222,235,225,.075) !important;
+  color: #e9f0ea !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.022) !important;
+}
+html[data-theme="dark"] :is(.setting-row,.range-setting):hover {
+  background: linear-gradient(180deg, #232d28 0%, #1e2722 100%) !important;
+}
+html[data-theme="dark"] .settings-card-head {
+  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent) !important;
+  border-color: rgba(222,235,225,.07) !important;
+}
+
+/* Fazenda/estoque: preservar identidade vegetal e leitura. */
+html[data-theme="dark"] .crop-card {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(82,130,90,.10), transparent 42%),
+    linear-gradient(180deg, #202a24 0%, #1a221e 100%) !important;
+}
+html[data-theme="dark"] .crop-card .crop-level-strip {
+  background: rgba(13,18,15,.56) !important;
+  border-color: rgba(222,235,225,.07) !important;
+}
+html[data-theme="dark"] :is(.crop-upgrade-panel,.crop-upgrade-redesign) {
+  background: rgba(12,17,14,.34) !important;
+  border-color: rgba(222,235,225,.07) !important;
+}
+
+/* Contratos: neutro escuro, mantendo status e cores específicas. */
+html[data-theme="dark"] .contract-card {
+  background: linear-gradient(180deg, #212925 0%, #1b211e 100%) !important;
+  border-color: rgba(222,235,225,.08) !important;
+}
+html[data-theme="dark"] .contract-card-header-v2 {
+  border-color: rgba(222,235,225,.065) !important;
+}
+html[data-theme="dark"] :is(.contract-main-v2,.contract-progress-v2,.contract-reward-strip) {
+  background: rgba(10,14,12,.22) !important;
+  border-color: rgba(222,235,225,.065) !important;
+}
+html[data-theme="dark"] .contract-defaulted-card {
+  background: linear-gradient(180deg, #2d211f 0%, #211918 100%) !important;
+  border-color: rgba(218,112,102,.17) !important;
+}
+html[data-theme="dark"] .contract-completed-card {
+  background: linear-gradient(180deg, #2c2a1c 0%, #211f17 100%) !important;
+  border-color: rgba(220,182,78,.16) !important;
+}
+
+/* Evoluções têm identidade própria no escuro. */
+html[data-theme="dark"] .redesigned-evolution-card[data-upgrade-kind="research"] {
+  background: linear-gradient(180deg, #1e2933 0%, #182129 100%) !important;
+  border-color: rgba(89,148,205,.14) !important;
+}
+html[data-theme="dark"] .redesigned-evolution-card[data-upgrade-kind="prestige"] {
+  background: linear-gradient(180deg, #2b2134 0%, #211927 100%) !important;
+  border-color: rgba(155,96,194,.15) !important;
+}
+html[data-theme="dark"] .evolution-legacy-section { border-color: rgba(185,134,217,.09) !important; }
+
+/* Estatísticas/ranking. */
+html[data-theme="dark"] .player-stat-card {
+  background: linear-gradient(180deg, #202824 0%, #1b221f 100%) !important;
+}
+html[data-theme="dark"] .achievement-summary > article {
+  background: linear-gradient(180deg, #202925, #1a211e) !important;
+}
+html[data-theme="dark"] .leaderboard-row {
+  background: linear-gradient(180deg, #202824, #1a211e) !important;
+}
+html[data-theme="dark"] .leaderboard-row.current-player,
+html[data-theme="dark"] .leaderboard-row.personal-rank-row {
+  border-color: rgba(108,171,120,.18) !important;
+  background: linear-gradient(180deg, #243128, #1c2720) !important;
+}
+
+/* Inputs e selects: superfície distinta do card, foco limpo. */
+html[data-theme="dark"] :is(input,select,textarea) {
+  color: #ecf3ed !important;
+  background: #111714 !important;
+  border-color: rgba(222,235,225,.13) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] :is(input,select,textarea):focus {
+  border-color: rgba(107,169,119,.45) !important;
+  box-shadow: 0 0 0 3px rgba(83,145,95,.13) !important;
+}
+html[data-theme="dark"] :is(input,textarea)::placeholder { color: #738178 !important; }
+html[data-theme="dark"] select option { color: #e9f0ea; background: #171d1a; }
+
+/* Botões com contraste adequado. */
+html[data-theme="dark"] .button.primary,
+html[data-theme="dark"] button.button.primary {
+  color: #f5fff6 !important;
+  background: linear-gradient(180deg, #4e965f 0%, #3e7e4e 100%) !important;
+  border-color: rgba(126,197,140,.22) !important;
+  box-shadow: 0 7px 16px rgba(23,73,34,.24) !important;
+}
+html[data-theme="dark"] .button.primary:hover:not(:disabled) { background: linear-gradient(180deg, #5ba66c, #488d58) !important; }
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button) {
+  color: #d7e1d9 !important;
+  background: #252e2a !important;
+  border-color: rgba(222,235,225,.10) !important;
+}
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button):hover:not(:disabled) {
+  background: #2d3832 !important;
+  color: #f0f5f1 !important;
+}
+html[data-theme="dark"] .button.gold {
+  color: #f5df9b !important;
+  background: linear-gradient(180deg, #40371f, #332c1b) !important;
+  border-color: rgba(218,181,80,.18) !important;
+}
+html[data-theme="dark"] :is(.button.danger,.contract-break-button-v3,.contract-decline-button-v2,.contract-penalty-action) {
+  color: #f0aaa5 !important;
+  background: linear-gradient(180deg, #402524, #34201f) !important;
+  border-color: rgba(224,122,114,.18) !important;
+}
+
+/* Modais: painel elevado, não uma caixa verde acinzentada. */
+html[data-theme="dark"] dialog:not(#offlineProgressDialog) {
+  color: #edf3ee !important;
+  background: #171e1a !important;
+  border-color: rgba(222,235,225,.10) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.52) !important;
+}
+html[data-theme="dark"] dialog::backdrop {
+  background: rgba(4,7,5,.68) !important;
+  backdrop-filter: blur(5px) !important;
+}
+html[data-theme="dark"] :is(#rankingProfileDialog .player-profile-heading,#rankingProfileDialog .player-profile-actions,#friendsListDialog .friends-dialog-body,#friendCodeDialog.friend-code-dialog,#friendCodeDialog .friend-code-dialog-body) {
+  background: #171e1a !important;
+  color: #edf3ee !important;
+}
+html[data-theme="dark"] #rankingProfileDialog :is(.profile-nickname-field,.profile-avatar-field,.profile-player-title-field,.selected-avatar-preview,.selected-player-title-card,.avatar-picker-panel,.player-title-picker-panel,.player-title-picker-option) {
+  background: #202824 !important;
+  border-color: rgba(222,235,225,.08) !important;
+  color: #edf3ee !important;
+}
+html[data-theme="dark"] #friendCodeDialog :is(.friend-code-share code,.friend-request-form-dialog > input) {
+  color: #edf3ee !important;
+  background: #111714 !important;
+  border-color: rgba(222,235,225,.11) !important;
+}
+
+/* Atalho de contratos coerente com o novo dark. */
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2 {
+  background: #151c18 !important;
+  border-color: rgba(222,235,225,.10) !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.40) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header {
+  background: linear-gradient(180deg,#1d2721,#18201c) !important;
+  border-color: rgba(222,235,225,.07) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle {
+  background: #252f29 !important;
+  border-color: rgba(222,235,225,.09) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 {
+  background: linear-gradient(180deg,#202924,#1b231f) !important;
+  color: #edf3ee !important;
+  border-color: rgba(222,235,225,.075) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2:hover { background: linear-gradient(180deg,#253029,#1f2923) !important; }
+html[data-theme="dark"] .contract-dock-item-v2.reward-ready { background: linear-gradient(135deg,#39331f,#292619) !important; border-color: rgba(211,173,70,.15) !important; }
+html[data-theme="dark"] .contract-dock-item-v2.contract-defaulted { background: linear-gradient(135deg,#382321,#291b1a) !important; border-color: rgba(220,116,107,.15) !important; }
+html[data-theme="dark"] .contract-dock-state.is-urgent { background: #3b2820 !important; color: #f0a180 !important; }
+html[data-theme="dark"] .contract-dock-state.is-completed { background: #38331f !important; color: #e2c66d !important; }
+html[data-theme="dark"] .contract-dock-state.is-defaulted { background: #3b2322 !important; color: #ee9b94 !important; }
+
+/* Configurações e feedback seguem a mesma superfície. */
+html[data-theme="dark"] #settingsView .feedback-settings-card {
+  background: linear-gradient(180deg, #191f1c, #151b18) !important;
+  border-color: rgba(222,235,225,.085) !important;
+}
+
+/* Rodapé e scrollbar. */
+html[data-theme="dark"] .app-footer { color: #8f9d93 !important; }
+html[data-theme="dark"] .app-footer a,
+html[data-theme="dark"] .footer-link-button { color: #bfcac1 !important; }
+html[data-theme="dark"] * { scrollbar-color: rgba(137,157,143,.36) transparent; }
+html[data-theme="dark"] *::-webkit-scrollbar-thumb { background: rgba(137,157,143,.30); }
+
+/* ========================================================================== */
+/* R38o — Dark mode: correção global de superfícies claras herdadas           */
+/* ========================================================================== */
+html[data-theme="dark"] {
+  --dark-page: #0c100e;
+  --dark-surface-0: #111713;
+  --dark-surface-1: #171e1a;
+  --dark-surface-2: #1c2520;
+  --dark-surface-3: #222c26;
+  --dark-border: rgba(225, 237, 228, .09);
+  --dark-border-strong: rgba(225, 237, 228, .14);
+  --dark-text: #edf3ee;
+  --dark-muted: #9aa8a0;
+}
+
+/* Configurações — as linhas antigas tinham #fff !important com seletor por ID. */
+html[data-theme="dark"] #settingsView .settings-card-body > .setting-row,
+html[data-theme="dark"] #settingsView .settings-card-body > .range-setting {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #202923 0%, #1a221e 100%) !important;
+  border-color: var(--dark-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.022) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > .setting-row:hover,
+html[data-theme="dark"] #settingsView .settings-card-body > .range-setting:hover {
+  background: linear-gradient(180deg, #252f29 0%, #1d2722 100%) !important;
+}
+
+/* Feedback — modal e conteúdo inteiro seguem o tema, inclusive header/footer. */
+html[data-theme="dark"] #playerFeedbackDialog.player-feedback-dialog,
+html[data-theme="dark"] #playerFeedbackDialog.player-feedback-dialog > form,
+html[data-theme="dark"] #playerFeedbackDialog > form {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-heading {
+  color: var(--dark-text) !important;
+  background: linear-gradient(135deg, #202c25 0%, #18201c 78%) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-heading-icon,
+html[data-theme="dark"] .feedback-settings-copy > img {
+  background: var(--dark-surface-3) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-fields input,
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-fields select,
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-fields textarea {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-0) !important;
+  border-color: var(--dark-border-strong) !important;
+}
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-fields input:focus,
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-fields select:focus,
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-fields textarea:focus {
+  background: #141c17 !important;
+  border-color: rgba(105,171,118,.46) !important;
+}
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-actions {
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Offline — antes estava explicitamente fora do dark mode e continuava branco. */
+html[data-theme="dark"] #offlineProgressDialog.offline-progress-dialog,
+html[data-theme="dark"] #offlineProgressDialog.offline-progress-dialog > form,
+html[data-theme="dark"] #offlineProgressDialog > form {
+  color: var(--dark-text) !important;
+  background: #161d19 !important;
+  border-color: var(--dark-border) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.52) !important;
+}
+html[data-theme="dark"] #offlineProgressDialog .offline-progress-header {
+  color: var(--dark-text) !important;
+  background: linear-gradient(135deg, #202c24 0%, #172019 78%) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #offlineProgressDialog .offline-gain-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #202923 0%, #1a221e 100%) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #offlineProgressDialog .offline-progress-actions {
+  background: #161d19 !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Social / Amigos — elimina superfícies brancas internas de todas as variações. */
+html[data-theme="dark"] #friendsListDialog.friends-list-dialog,
+html[data-theme="dark"] #friendsListDialog.friends-list-dialog > form,
+html[data-theme="dark"] #friendsListDialog > form,
+html[data-theme="dark"] #friendsListDialog .friends-dialog-body,
+html[data-theme="dark"] #friendsListDialog .friends-dialog-actions {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #friendsListDialog .friends-dialog-header {
+  color: var(--dark-text) !important;
+  background: linear-gradient(135deg, #202b24 0%, #18201c 78%) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #friendsListDialog .friends-dialog-summary > span,
+html[data-theme="dark"] #friendsListDialog .friends-dialog-sections .friends-list-section {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-2) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #friendsListDialog .friends-dialog-sections .friends-list-incoming {
+  background: linear-gradient(135deg, #2c291d, #211f19 65%) !important;
+  border-color: rgba(220,184,82,.13) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .friends-hub-actions-restored > .friends-beta-option,
+html[data-theme="dark"] .friends-hub-launch,
+html[data-theme="dark"] .friends-request-option,
+html[data-theme="dark"] .friends-hub-action-card,
+html[data-theme="dark"] .friends-hub-action-card:hover {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #202923, #1a221e) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .friend-code-inline code,
+html[data-theme="dark"] .friend-code-share code {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-0) !important;
+  border-color: var(--dark-border-strong) !important;
+}
+html[data-theme="dark"] #friendCodeDialog.friend-code-dialog,
+html[data-theme="dark"] #friendCodeDialog .friend-code-dialog-body {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+}
+html[data-theme="dark"] #friendCodeDialog .friend-request-form-dialog input {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-0) !important;
+  border-color: var(--dark-border-strong) !important;
+}
+html[data-theme="dark"] .remove-friend-dialog,
+html[data-theme="dark"] .remove-friend-dialog > form {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Perfil do ranking e seletor de títulos. */
+html[data-theme="dark"] #rankingProfileDialog.ranking-profile-dialog,
+html[data-theme="dark"] #rankingProfileDialog.ranking-profile-dialog > form,
+html[data-theme="dark"] #rankingProfileDialog > form,
+html[data-theme="dark"] #rankingProfileDialog .player-profile-actions {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #rankingProfileDialog .player-profile-heading {
+  background: linear-gradient(135deg, #202b24 0%, #18201c 78%) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #rankingProfileDialog .profile-nickname-field,
+html[data-theme="dark"] #rankingProfileDialog .profile-avatar-field,
+html[data-theme="dark"] #rankingProfileDialog .profile-player-title-field,
+html[data-theme="dark"] #rankingProfileDialog .selected-avatar-preview,
+html[data-theme="dark"] #rankingProfileDialog .selected-player-title-card,
+html[data-theme="dark"] #rankingProfileDialog .avatar-picker-panel,
+html[data-theme="dark"] #rankingProfileDialog .player-title-picker-panel,
+html[data-theme="dark"] #rankingProfileDialog .player-title-picker-option,
+html[data-theme="dark"] #rankingProfileDialog .player-title-picker-option:hover,
+html[data-theme="dark"] .player-title-select-trigger,
+html[data-theme="dark"] .player-title-control select {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-2) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Estatísticas — alguns cards/ícones tinham seletor por ID mais forte que o dark anterior. */
+html[data-theme="dark"] #profileAccountPanel .player-stat-icon {
+  background: linear-gradient(145deg, #26332b, #1d2721) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .achievement-summary article {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #202923, #1a221e) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Contratos — sobrescreve regras antigas por ID que ainda pintavam cards de branco. */
+html[data-theme="dark"] #officeView .contract-card-v2,
+html[data-theme="dark"] #officeView .contract-card-v2:not(.contract-completed-card):not(.contract-defaulted-card):not(.contract-cooldown-card),
+html[data-theme="dark"] #officeView .friendly-contract-card.contract-custom-color {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #212a25 0%, #1a211e 100%) !important;
+  border-color: var(--dark-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2.contract-completed-card {
+  background: linear-gradient(180deg, #2d2a1d 0%, #211f18 100%) !important;
+  border-color: rgba(220,184,82,.16) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2.contract-defaulted-card {
+  background: linear-gradient(180deg, #30211f 0%, #231918 100%) !important;
+  border-color: rgba(223,117,107,.17) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2 :is(.contract-time-v2,.contract-main-v2,.contract-reward-strip,.contract-capacity-v2),
+html[data-theme="dark"] #officeView .friendly-contract-card :is(.contract-clock-badge,.contract-company-mark > span),
+html[data-theme="dark"] #officeView .contract-main-v2 > img {
+  color: var(--dark-text) !important;
+  background: #18201c !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2 .contract-time-v2.urgent {
+  background: #3b2820 !important;
+  color: #f0a180 !important;
+  border-color: rgba(239,161,128,.13) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2.contract-completed-card .contract-time-v2 {
+  background: #39331e !important;
+  color: #e7c76b !important;
+  border-color: rgba(220,184,82,.14) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2.contract-defaulted-card .contract-time-v2,
+html[data-theme="dark"] #officeView .contract-penalty-v2 {
+  background: #3b2322 !important;
+  color: #efa09a !important;
+  border-color: rgba(223,117,107,.14) !important;
+}
+html[data-theme="dark"] .contract-cooldown-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(145deg,#1d2621,#18201c) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .contract-cooldown-v2 > img,
+html[data-theme="dark"] .contract-dock-compact-button,
+html[data-theme="dark"] .contract-dock-crop-shell {
+  background: var(--dark-surface-2) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Modal de quebra/multa de contrato. */
+html[data-theme="dark"] .contract-break-dialog,
+html[data-theme="dark"] .contract-break-dialog > form,
+html[data-theme="dark"] .contract-break-calculation article,
+html[data-theme="dark"] .contract-break-amount,
+html[data-theme="dark"] .contract-break-calculation-simple .contract-break-amount {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .contract-break-amount,
+html[data-theme="dark"] .contract-break-calculation-simple .contract-break-amount {
+  background: #34211f !important;
+  border-color: rgba(224,122,114,.15) !important;
+}
+
+/* Marcos e confirmações antigas. */
+html[data-theme="dark"] .confirmation-dialog-milestone,
+html[data-theme="dark"] .confirmation-dialog-milestone > form {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-1) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .milestone-preview-header {
+  background: linear-gradient(135deg, #202b24, #18201c) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .milestone-preview-card {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-2) !important;
+  border-color: var(--dark-border) !important;
+}
+
+/* Ranking — posições mantêm acento, mas sem terminar em branco. */
+html[data-theme="dark"] .leaderboard-row.rank-position-1 {
+  background: linear-gradient(90deg, #39331f 0%, #25241b 36%, #1c231f 100%) !important;
+  border-color: rgba(225,190,88,.15) !important;
+}
+html[data-theme="dark"] .leaderboard-row.rank-position-2 {
+  background: linear-gradient(90deg, #2a3034 0%, #22292b 36%, #1c231f 100%) !important;
+  border-color: rgba(171,188,199,.12) !important;
+}
+html[data-theme="dark"] .leaderboard-row.rank-position-3 {
+  background: linear-gradient(90deg, #33281f 0%, #29221d 36%, #1c231f 100%) !important;
+  border-color: rgba(199,142,95,.13) !important;
+}
+html[data-theme="dark"] .leaderboard-row.rank-position-4,
+html[data-theme="dark"] .leaderboard-row.rank-position-5 {
+  background: linear-gradient(90deg, #203027 0%, #1d2922 38%, #1b231f 100%) !important;
+}
+html[data-theme="dark"] .leaderboard-row.current-player,
+html[data-theme="dark"] .leaderboard-row.personal-rank-row.current-player {
+  background: linear-gradient(90deg, #24362a 0%, #1f2d24 42%, #1b231f 100%) !important;
+  border-color: rgba(112,177,124,.16) !important;
+}
+
+/* Conta Google — mantém identidade do botão sem virar um retângulo branco luminoso. */
+html[data-theme="dark"] .google-sign-in-button,
+html[data-theme="dark"] .google-sign-in-button:hover {
+  color: var(--dark-text) !important;
+  background: var(--dark-surface-2) !important;
+  border-color: var(--dark-border-strong) !important;
+}
+
+/* Fallback para shells internos recorrentes que devem acompanhar o card pai. */
+html[data-theme="dark"] :is(
+  .stats-content,
+  .mission-history-toggle,
+  .order-progress-summary,
+  .order-main,
+  .mission-series-card,
+  .evolution-card,
+  .redesigned-evolution-card,
+  .friends-list-section,
+  .account-actions
+) {
+  border-color: var(--dark-border) !important;
+}
+
+/* Elementos menores que ainda recebiam superfícies claras literais. */
+html[data-theme="dark"] .social-live-launch {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #202923, #1a221e) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] .player-title-unlock-icon {
+  background: linear-gradient(145deg, #34301f, #24231b) !important;
+  border-color: rgba(222,184,75,.15) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2 .contract-type-label,
+html[data-theme="dark"] #officeView .friendly-contract-card.contract-custom-color .contract-type-label {
+  background: rgba(255,255,255,.045) !important;
+  border-color: var(--dark-border) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2 .contract-type-label > i {
+  border-color: rgba(255,255,255,.10) !important;
+}
+
+
+/* ========================================================================== */
+/* R38p — Dark mode estrutural: elimina superfícies claras que escapavam       */
+/* ========================================================================== */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #171e1a;
+  --ui-surface: #171e1a;
+  --ui-surface-soft: #1b241f;
+  --release-surface: #171e1a;
+  --green-soft: #1c2a20;
+  --release-green-soft: #1c2a20;
+  --border: rgba(225,237,228,.09);
+  --ui-border: rgba(225,237,228,.09);
+  --ink: #edf3ee;
+  --ink-soft: #a3b0a7;
+  --muted: #91a097;
+}
+html[data-theme="dark"] body,
+html[data-theme="dark"] .app-shell,
+html[data-theme="dark"] .workspace-shell,
+html[data-theme="dark"] main {
+  color: #eaf1eb !important;
+}
+
+/* Navegação principal: o legado usa .main-nav .nav-tab com !important. */
+html[data-theme="dark"] .main-nav,
+html[data-theme="dark"] .navigation-stack > .main-nav,
+html[data-theme="dark"] .navigation-responsive-stack > .desktop-main-nav,
+html[data-theme="dark"] .mobile-direct-nav {
+  background: linear-gradient(180deg, #151d19 0%, #111713 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02), 0 8px 22px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab,
+html[data-theme="dark"] .main-nav.main-nav-grid .nav-tab,
+html[data-theme="dark"] .mobile-direct-nav .nav-tab {
+  color: #b8c4bc !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border: 1px solid rgba(225,237,228,.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab:hover:not(.active),
+html[data-theme="dark"] .main-nav.main-nav-grid .nav-tab:hover:not(.active),
+html[data-theme="dark"] .mobile-direct-nav .nav-tab:hover:not(.active) {
+  color: #eef4ef !important;
+  background: linear-gradient(180deg, #27312b 0%, #202924 100%) !important;
+  border-color: rgba(124,177,134,.13) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active,
+html[data-theme="dark"] .main-nav.main-nav-grid .nav-tab.active,
+html[data-theme="dark"] .mobile-direct-nav .nav-tab.active {
+  color: #f0f8f1 !important;
+  background: linear-gradient(180deg, #284232 0%, #213628 100%) !important;
+  border-color: rgba(109,172,121,.22) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] .main-nav .stock-nav-tab.stock-full,
+html[data-theme="dark"] .main-nav .stock-nav-tab.stock-full.active,
+html[data-theme="dark"] .mobile-direct-nav .mobile-stock-nav-tab.stock-full {
+  color: #efb0aa !important;
+  background: linear-gradient(180deg, #392522, #2b1d1b) !important;
+  border-color: rgba(224,126,117,.18) !important;
+}
+html[data-theme="dark"] .main-nav .office-nav-tab.has-attention:not(.active),
+html[data-theme="dark"] .main-nav .office-nav-tab.has-attention:not(.active):hover {
+  color: #c4cec6 !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .context-tabs .office-tab.active i,
+html[data-theme="dark"] .context-tabs .evolution-tab.active i {
+  background: transparent !important;
+}
+
+/* Configurações: sobrescreve exatamente os seletores #settingsView ... do legado. */
+html[data-theme="dark"] #settingsView .settings-page-container {
+  color: #edf3ee !important;
+  background:
+    radial-gradient(circle at 92% 4%, rgba(91,145,102,.08), transparent 28%),
+    linear-gradient(180deg, #171e1a 0%, #131915 100%) !important;
+  border-color: rgba(225,237,228,.085) !important;
+  box-shadow: 0 16px 40px rgba(0,0,0,.20) !important;
+}
+html[data-theme="dark"] #settingsView .settings-page-heading {
+  color: #edf3ee !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #settingsView .settings-grid-reworked > .settings-card,
+html[data-theme="dark"] #settingsView .experience-settings-card,
+html[data-theme="dark"] #settingsView .audio-settings-card,
+html[data-theme="dark"] #settingsView .feedback-settings-card {
+  color: #edf3ee !important;
+  background: linear-gradient(180deg, #1b231f 0%, #161d19 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-head,
+html[data-theme="dark"] #settingsView .feedback-settings-card > .settings-card-head {
+  color: #eef4ef !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0)) !important;
+  border-bottom-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body,
+html[data-theme="dark"] #settingsView .feedback-settings-card > .feedback-settings-body {
+  color: #e8efe9 !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > .setting-row,
+html[data-theme="dark"] #settingsView .settings-card-body > .range-setting {
+  color: #e9f0ea !important;
+  background: linear-gradient(180deg, #202923 0%, #1a221e 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > .setting-row::before,
+html[data-theme="dark"] #settingsView .settings-card-body > .range-setting::before {
+  background: #5c9569 !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body select,
+html[data-theme="dark"] #settingsView .settings-card-body input[type="text"],
+html[data-theme="dark"] #settingsView .settings-card-body input[type="number"] {
+  color: #e9f0ea !important;
+  background: #111713 !important;
+  border-color: rgba(225,237,228,.13) !important;
+}
+html[data-theme="dark"] #settingsView .settings-range-row output {
+  color: #b8d8bf !important;
+  background: #17241b !important;
+  border-color: rgba(108,170,120,.18) !important;
+}
+
+/* Superfícies-base comuns que ainda podiam herdar branco por seletor de ID/classe. */
+html[data-theme="dark"] #profileAccountPanel .account-settings-card,
+html[data-theme="dark"] #profileAccountPanel .account-card,
+html[data-theme="dark"] #profileSocialPanel,
+html[data-theme="dark"] #officeView .office-panel,
+html[data-theme="dark"] #officeView .office-evolutions-panel,
+html[data-theme="dark"] #farmView .panel-card,
+html[data-theme="dark"] #stockView .panel-card {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #191f1c 0%, #151b18 100%) !important;
+  border-color: rgba(225,237,228,.085) !important;
+}
+
+/* Cards/controles internos com backgrounds claros de alta especificidade. */
+html[data-theme="dark"] #officeView .friendly-contract-card.contract-custom-color .contract-clock-badge,
+html[data-theme="dark"] #officeView .contract-card-v2,
+html[data-theme="dark"] #officeView .contract-main-v2,
+html[data-theme="dark"] #officeView .contract-reward-strip,
+html[data-theme="dark"] #officeView .contract-capacity-v2 {
+  color: #eaf1eb !important;
+  background: #1d2521 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2.contract-completed-card {
+  background: linear-gradient(180deg, #2d2a1c, #211f17) !important;
+  border-color: rgba(220,182,78,.16) !important;
+}
+html[data-theme="dark"] #officeView .contract-card-v2.contract-defaulted-card {
+  background: linear-gradient(180deg, #30211f, #231918) !important;
+  border-color: rgba(218,112,102,.17) !important;
+}
+html[data-theme="dark"] .confirmation-dialog-milestone,
+html[data-theme="dark"] .milestone-preview-card {
+  color: #eaf1eb !important;
+  background: #171e1a !important;
+  border-color: rgba(225,237,228,.09) !important;
+}
+html[data-theme="dark"] .friends-dialog-sections .friends-list-section {
+  color: #eaf1eb !important;
+  background: #1c2520 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] .google-sign-in-button {
+  color: #e8efe9 !important;
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.11) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+
+/* Ícones circulares/caixas que não precisam ser brancos no modo escuro. */
+html[data-theme="dark"] #playerFeedbackDialog .player-feedback-heading-icon,
+html[data-theme="dark"] .feedback-settings-copy > img,
+html[data-theme="dark"] .contract-cooldown-v2 > img,
+html[data-theme="dark"] #rankingProfileDialog .selected-avatar-preview,
+html[data-theme="dark"] #rankingProfileDialog .selected-player-title-card {
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+
+/* Mantém branco somente em elementos funcionais pequenos (thumb/toggle), não em superfícies. */
+html[data-theme="dark"] .setting-row input[type="checkbox"]::before,
+html[data-theme="dark"] .range-setting input[type="range"]::-webkit-slider-thumb,
+html[data-theme="dark"] .range-setting input[type="range"]::-moz-range-thumb {
+  background: #f2f6f3 !important;
+}
+
+/* R38p.1 — superfícies legadas restantes com !important claro */
+html[data-theme="dark"] .navigation-stack > .context-nav-column,
+html[data-theme="dark"] .navigation-stack > .context-nav-column .context-tabs,
+html[data-theme="dark"] .navigation-stack > .context-nav-column .office-tabs,
+html[data-theme="dark"] .navigation-stack > .context-nav-column .profile-tabs {
+  background: linear-gradient(180deg, #151d19 0%, #111713 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .context-tabs .office-tab,
+html[data-theme="dark"] .context-tabs .evolution-tab,
+html[data-theme="dark"] .context-tabs .profile-tab {
+  color: #b7c3ba !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .context-tabs .office-tab:hover:not(.active),
+html[data-theme="dark"] .context-tabs .evolution-tab:hover:not(.active),
+html[data-theme="dark"] .context-tabs .profile-tab:hover:not(.active) {
+  color: #eef4ef !important;
+  background: rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] .context-tabs .office-tab.active,
+html[data-theme="dark"] .context-tabs .evolution-tab.active,
+html[data-theme="dark"] .context-tabs .profile-tab.active {
+  color: #f0f7f1 !important;
+  background: linear-gradient(180deg, #284232, #213628) !important;
+  border-color: rgba(109,172,121,.20) !important;
+}
+html[data-theme="dark"] .context-tabs .evolution-tab.feature-preview i,
+html[data-theme="dark"] .context-tabs .evolution-tab.feature-preview.active i,
+html[data-theme="dark"] :is(#officeView .office-evolutions-panel,#profileView .prestige-profile-panel) .upgrade-icon,
+html[data-theme="dark"] :is(#officeView .office-evolutions-panel,#profileView .prestige-profile-panel) [data-upgrade-kind="upgrade"] .upgrade-icon,
+html[data-theme="dark"] .redesigned-evolution-card.upgrade-card-preview .upgrade-icon {
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] :is(#officeView .office-evolutions-panel,#profileView .prestige-profile-panel) .evolution-upgrade-completed,
+html[data-theme="dark"] .redesigned-evolution-card.evolution-upgrade-completed {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #213029 0%, #19241f 100%) !important;
+  border-color: rgba(105,170,118,.20) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+
+html[data-theme="dark"] #profileAccountPanel .account-statistics-section {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #171e1a 0%, #131915 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel .player-stat-card.stat-featured {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] .social-ranking-section,
+html[data-theme="dark"] #profileSocialPanel .social-ranking-section {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #171e1a 0%, #131915 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .friends-hub-card,
+html[data-theme="dark"] #profileSocialPanel .friends-hub-actions-restored > .friends-beta-option,
+html[data-theme="dark"] #profileSocialPanel .friends-request-option,
+html[data-theme="dark"] .friends-hub-actions > .friends-beta-option {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .friends-hub-actions-restored .friends-hub-launch > b,
+html[data-theme="dark"] .friends-request-option > summary > b,
+html[data-theme="dark"] #friendsListDialog .friends-list-heading > span {
+  color: #b9d5bf !important;
+  background: #18251c !important;
+  border-color: rgba(108,170,120,.15) !important;
+}
+html[data-theme="dark"] #friendsListDialog .friends-list-accordion,
+html[data-theme="dark"] #friendsListDialog .friends-dialog-icon {
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+
+html[data-theme="dark"] #offlineProgressDialog .offline-gain-card,
+html[data-theme="dark"] .offline-gain-card {
+  color: #eaf1eb !important;
+  background: #1c2520 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] #offlineProgressDialog .offline-progress-symbol {
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] #offlineProgressDialog .offline-progress-heading strong {
+  color: #b8d8bf !important;
+  background: #17241b !important;
+  border-color: rgba(108,170,120,.16) !important;
+}
+
+html[data-theme="dark"] #settingsView .feedback-settings-body {
+  background: transparent !important;
+}
+html[data-theme="dark"] .contract-dock-summary,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  background: #151c18 !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .contract-dock-summary > span {
+  color: #d9e4db !important;
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > small {
+  color: #a9b8ad !important;
+  background: #18211c !important;
+}
+html[data-theme="dark"] .contract-dock-progress {
+  background: #101611 !important;
+}
+
+html[data-theme="dark"] .compact-auto-toggle,
+html[data-theme="dark"] .compact-auto-toggle.active,
+html[data-theme="dark"] .prestige-driver-grid article,
+html[data-theme="dark"] .prestige-driver-grid article.ready {
+  color: #dfe9e1 !important;
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.09) !important;
+}
+html[data-theme="dark"] :is(.button,.button.primary,.button.secondary,.button.gold,.crop-upgrade-cta,.upgrade-card .button,.order-card .button):disabled {
+  color: #748078 !important;
+  background: #202622 !important;
+  border-color: rgba(225,237,228,.06) !important;
+  box-shadow: none !important;
+}
+
+
+/* ========================================================================== */
+/* R38q — Dark mode polish for farm, stock, orders, missions and contracts    */
+/* ========================================================================== */
+html[data-theme="dark"] {
+  --dark-surface-1: #171f1b;
+  --dark-surface-2: #1c2520;
+  --dark-surface-3: #202a24;
+  --dark-surface-4: #111713;
+  --dark-border-soft: rgba(226, 237, 228, .08);
+  --dark-border-strong: rgba(226, 237, 228, .12);
+  --dark-shadow-soft: 0 16px 36px rgba(0, 0, 0, .24);
+  --dark-shadow-deep: 0 22px 48px rgba(0, 0, 0, .34);
+}
+
+/* Containers e áreas-base que ainda podiam herdar branco. */
+html[data-theme="dark"] :is(#farmView, #stockView, #officeView, #profileView, #settingsView),
+html[data-theme="dark"] :is(.stock-summary, .stock-grid, .crop-grid, .order-grid, .mission-grid, .active-contract-grid, .contract-grid) {
+  color: #ebf2ec !important;
+}
+
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] #achievementGrid > .empty-state,
+html[data-theme="dark"] .friends-empty-state {
+  color: #d7e3d9 !important;
+  background: linear-gradient(180deg, #1b231f 0%, #171d19 100%) !important;
+  border-color: var(--dark-border-soft) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+
+/* Counter flutuante ao descer a tela. */
+html[data-theme="dark"] .floating-resource-strip,
+html[data-theme="dark"] body.page-scrolled .floating-resource-strip {
+  background: linear-gradient(180deg, rgba(19, 25, 21, .95), rgba(15, 20, 17, .92)) !important;
+  border-color: rgba(226, 237, 228, .10) !important;
+  box-shadow: 0 18px 44px rgba(0,0,0,.38) !important;
+}
+html[data-theme="dark"] .floating-resource-strip .resource-pill,
+html[data-theme="dark"] body.page-scrolled .floating-resource-strip .resource-pill {
+  color: #edf4ee !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226, 237, 228, .09) !important;
+}
+html[data-theme="dark"] .floating-resource-strip .resource-pill small { color: #9cac9f !important; }
+html[data-theme="dark"] .floating-resource-strip .resource-pill strong { color: #f2f7f3 !important; }
+
+/* Fazenda — visualização das plantas. */
+html[data-theme="dark"] #farmView .crop-card,
+html[data-theme="dark"] #farmView .crop-card.locked,
+html[data-theme="dark"] #farmView .crop-card.level-locked {
+  color: #ebf2ec !important;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(103, 154, 113, .14), transparent 38%),
+    linear-gradient(180deg, #202923 0%, #191f1b 100%) !important;
+  border-color: var(--dark-border-soft) !important;
+  box-shadow: var(--dark-shadow-soft) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-strip,
+html[data-theme="dark"] #farmView .crop-card .crop-quick-stats > span,
+html[data-theme="dark"] #farmView .crop-card .crop-progress-percent,
+html[data-theme="dark"] #farmView .crop-card .crop-category-list {
+  color: #dbe6dd !important;
+  background: rgba(10, 15, 12, .36) !important;
+  border-color: rgba(226, 237, 228, .07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-strip small,
+html[data-theme="dark"] #farmView .crop-card .crop-info small,
+html[data-theme="dark"] #farmView .crop-card .mystery-crop-name,
+html[data-theme="dark"] #farmView .crop-card .mystery-crop-glyphs {
+  color: #afbeb3 !important;
+}
+html[data-theme="dark"] #farmView .crop-card h3,
+html[data-theme="dark"] #farmView .crop-card strong,
+html[data-theme="dark"] #farmView .crop-card b {
+  color: #f2f7f3 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art,
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress,
+html[data-theme="dark"] #farmView .crop-card .locked-art,
+html[data-theme="dark"] #farmView .crop-card .crop-preview-unlocked {
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)) !important;
+  border-color: rgba(226, 237, 228, .08) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel,
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-redesign,
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-summary,
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-selector {
+  background: rgba(10, 14, 12, .28) !important;
+  border-color: rgba(226, 237, 228, .07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option {
+  color: #d4e0d6 !important;
+  background: #202823 !important;
+  border-color: rgba(226,237,228,.09) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option.active {
+  color: #f5fff6 !important;
+  background: linear-gradient(180deg, #4e965f 0%, #3c7d4b 100%) !important;
+  border-color: rgba(126,197,140,.22) !important;
+}
+
+/* Estoque — resumo e cards individuais. */
+html[data-theme="dark"] #stockView .summary-card,
+html[data-theme="dark"] #stockView .normalized-summary-card,
+html[data-theme="dark"] #stockView .stock-card,
+html[data-theme="dark"] #stockView .normalized-stock-card {
+  color: #e9f0ea !important;
+  background: linear-gradient(180deg, #202824 0%, #191f1c 100%) !important;
+  border-color: var(--dark-border-soft) !important;
+  box-shadow: var(--dark-shadow-soft) !important;
+}
+html[data-theme="dark"] #stockView .summary-card small,
+html[data-theme="dark"] #stockView .stock-card small,
+html[data-theme="dark"] #stockView .summary-card-heading small,
+html[data-theme="dark"] #stockView .stock-ident small {
+  color: #9eada2 !important;
+}
+html[data-theme="dark"] #stockView .summary-card strong,
+html[data-theme="dark"] #stockView .stock-card strong,
+html[data-theme="dark"] #stockView .stock-card h3,
+html[data-theme="dark"] #stockView .stock-value-grid strong {
+  color: #f2f7f3 !important;
+}
+html[data-theme="dark"] #stockView .summary-status,
+html[data-theme="dark"] #stockView .stock-value-grid > div,
+html[data-theme="dark"] #stockView .stock-actions,
+html[data-theme="dark"] #stockView .stock-head,
+html[data-theme="dark"] #stockView .stock-favorite-button,
+html[data-theme="dark"] #stockView .auto-sell-toggle,
+html[data-theme="dark"] #stockView .compact-auto-toggle {
+  background: rgba(10, 15, 12, .28) !important;
+  color: #dde8df !important;
+  border-color: rgba(226, 237, 228, .08) !important;
+}
+html[data-theme="dark"] #stockView .stock-favorite-button.active {
+  color: #ffd66d !important;
+  background: rgba(56, 47, 22, .70) !important;
+  border-color: rgba(219, 183, 81, .18) !important;
+}
+html[data-theme="dark"] #stockView .stock-card.favorite-stock-card {
+  background:
+    radial-gradient(circle at top right, rgba(255, 214, 109, .10), transparent 34%),
+    linear-gradient(180deg, #222925 0%, #1b201d 100%) !important;
+}
+html[data-theme="dark"] #stockView .stock-card.auto-sell-card {
+  background:
+    radial-gradient(circle at top left, rgba(99, 174, 118, .11), transparent 30%),
+    linear-gradient(180deg, #202924 0%, #1a201d 100%) !important;
+}
+html[data-theme="dark"] #stockView .progress-track {
+  background: #101611 !important;
+}
+html[data-theme="dark"] #stockView .progress-track > span {
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset !important;
+}
+
+/* Pedidos — cards e grupos. */
+html[data-theme="dark"] #officeOrdersPanel .order-board-section,
+html[data-theme="dark"] #officeOrdersPanel .order-card,
+html[data-theme="dark"] #officeOrdersPanel .normalized-order-card,
+html[data-theme="dark"] #officeOrdersPanel .compact-completed-order {
+  color: #e9f0ea !important;
+  background: linear-gradient(180deg, #202824 0%, #1a201c 100%) !important;
+  border-color: var(--dark-border-soft) !important;
+  box-shadow: var(--dark-shadow-soft) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-board-heading,
+html[data-theme="dark"] #officeOrdersPanel .order-board-heading-minimal,
+html[data-theme="dark"] #officeOrdersPanel .order-head,
+html[data-theme="dark"] #officeOrdersPanel .order-progress,
+html[data-theme="dark"] #officeOrdersPanel .contract-reward-unified,
+html[data-theme="dark"] #officeOrdersPanel .completed-order-identity,
+html[data-theme="dark"] #officeOrdersPanel .completed-order-status {
+  background: rgba(10, 14, 12, .28) !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card small,
+html[data-theme="dark"] #officeOrdersPanel .order-board-heading > small,
+html[data-theme="dark"] #officeOrdersPanel .order-card p {
+  color: #a3b2a7 !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-card h3,
+html[data-theme="dark"] #officeOrdersPanel .order-card strong,
+html[data-theme="dark"] #officeOrdersPanel .order-card b {
+  color: #f2f7f3 !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-ready-to-deliver {
+  background:
+    radial-gradient(circle at top right, rgba(103, 174, 120, .10), transparent 30%),
+    linear-gradient(180deg, #222b25 0%, #1b221f 100%) !important;
+}
+html[data-theme="dark"] #officeOrdersPanel .order-complete.compact-completed-order {
+  background:
+    radial-gradient(circle at top right, rgba(218, 186, 82, .10), transparent 28%),
+    linear-gradient(180deg, #24261d 0%, #1d1e18 100%) !important;
+  border-color: rgba(218, 186, 82, .14) !important;
+}
+
+/* Missões — cards e séries. */
+html[data-theme="dark"] #profileMissionsPanel .mission-card,
+html[data-theme="dark"] #profileMissionsPanel .mission-series-card,
+html[data-theme="dark"] #profileMissionsPanel .achievement-card {
+  color: #e8f0ea !important;
+  background: linear-gradient(180deg, #202824 0%, #191f1c 100%) !important;
+  border-color: var(--dark-border-soft) !important;
+  box-shadow: var(--dark-shadow-soft) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-card p,
+html[data-theme="dark"] #profileMissionsPanel .mission-card small,
+html[data-theme="dark"] #profileMissionsPanel .mission-series-card small,
+html[data-theme="dark"] #profileMissionsPanel .achievement-card small {
+  color: #9eada2 !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-card strong,
+html[data-theme="dark"] #profileMissionsPanel .mission-card h3,
+html[data-theme="dark"] #profileMissionsPanel .mission-series-card strong,
+html[data-theme="dark"] #profileMissionsPanel .achievement-card strong {
+  color: #f3f8f4 !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-card.claimed {
+  opacity: .9 !important;
+  background: linear-gradient(180deg, #1f2622 0%, #171d19 100%) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-card.mission-crop-unlock-card {
+  background:
+    radial-gradient(circle at top right, rgba(115, 188, 130, .10), transparent 28%),
+    linear-gradient(180deg, #202925 0%, #1a211e 100%) !important;
+}
+
+/* Contratos — cards e componentes internos. */
+html[data-theme="dark"] #officeContractsPanel .contract-card,
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2,
+html[data-theme="dark"] #officeContractsPanel .friendly-contract-card {
+  color: #ebf2ec !important;
+  background: linear-gradient(180deg, #202824 0%, #191f1c 100%) !important;
+  border-color: var(--dark-border-soft) !important;
+  box-shadow: var(--dark-shadow-soft) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-header-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip,
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-stock-chip,
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 > span,
+html[data-theme="dark"] #officeContractsPanel .contract-company-mark > span,
+html[data-theme="dark"] #officeContractsPanel .contract-cooldown-v2 {
+  color: #dce7de !important;
+  background: rgba(10, 15, 12, .28) !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-type-label {
+  color: #dce7de !important;
+  background: rgba(10, 15, 12, .38) !important;
+  border-color: rgba(226,237,228,.07) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card small,
+html[data-theme="dark"] #officeContractsPanel .contract-card p,
+html[data-theme="dark"] #officeContractsPanel .contract-main-meta span {
+  color: #a4b3a8 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card h3,
+html[data-theme="dark"] #officeContractsPanel .contract-card strong,
+html[data-theme="dark"] #officeContractsPanel .contract-card b {
+  color: #f3f8f4 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-completed-card {
+  background:
+    radial-gradient(circle at top right, rgba(220, 184, 78, .10), transparent 28%),
+    linear-gradient(180deg, #26251c 0%, #1e1d17 100%) !important;
+  border-color: rgba(220,184,78,.14) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-defaulted-card {
+  background:
+    radial-gradient(circle at top right, rgba(212, 105, 96, .10), transparent 28%),
+    linear-gradient(180deg, #29201e 0%, #1f1716 100%) !important;
+  border-color: rgba(212,105,96,.15) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-cooldown-card {
+  background: linear-gradient(180deg, #1e2521 0%, #181d1a 100%) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .progress-track,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track {
+  background: #101611 !important;
+}
+
+/* Atalho de contratos. */
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2,
+html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-v2 {
+  color: #ebf2ec !important;
+  background: linear-gradient(180deg, #171e1a 0%, #131915 100%) !important;
+  border-color: rgba(226,237,228,.10) !important;
+  box-shadow: var(--dark-shadow-deep) !important;
+}
+html[data-theme="dark"] .contract-dock-summary,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)) {
+  background: #151c18 !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] .contract-dock-summary > span,
+html[data-theme="dark"] .contract-dock-item-v2,
+html[data-theme="dark"] .contract-dock-crop-shell,
+html[data-theme="dark"] .contract-dock-collapse-toggle,
+html[data-theme="dark"] .contract-dock-compact-button {
+  color: #e7efe8 !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > strong,
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-rewards .resource-amount,
+html[data-theme="dark"] .contract-dock-summary > span > b {
+  color: #f2f7f3 !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > small,
+html[data-theme="dark"] .contract-dock-meta-line,
+html[data-theme="dark"] .contract-dock-meta-line > em {
+  color: #a5b4a9 !important;
+}
+html[data-theme="dark"] .contract-dock-progress {
+  background: #0f1411 !important;
+}
+
+/* ========================================================================== */
+/* R38r — Pedidos independentes + refinamento dark mode                       */
+/* ========================================================================== */
+
+/* Pedidos: cada card possui sua própria altura, sem ser esticado pelo vizinho. */
+#officeOrdersPanel .order-grid,
+#officeOrdersPanel .completed-order-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  align-content: flex-start !important;
+  gap: 12px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+#officeOrdersPanel .order-grid > .order-card,
+#officeOrdersPanel .completed-order-grid > .order-card {
+  flex: 0 0 calc((100% - 24px) / 3) !important;
+  width: calc((100% - 24px) / 3) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: flex-start !important;
+}
+#officeOrdersPanel .normalized-order-card,
+#officeOrdersPanel .order-card.compact-completed-order {
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: flex-start !important;
+}
+#officeOrdersPanel .order-grid > .empty-state,
+#officeOrdersPanel .completed-order-grid > .empty-state {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+}
+@media (max-width: 1120px) {
+  #officeOrdersPanel .order-grid > .order-card,
+  #officeOrdersPanel .completed-order-grid > .order-card {
+    flex-basis: calc((100% - 12px) / 2) !important;
+    width: calc((100% - 12px) / 2) !important;
+  }
+}
+@media (max-width: 680px) {
+  #officeOrdersPanel .order-grid > .order-card,
+  #officeOrdersPanel .completed-order-grid > .order-card {
+    flex-basis: 100% !important;
+    width: 100% !important;
+  }
+}
+
+/* Footer: superfície real de dark mode, em vez de vidro claro herdado. */
+html[data-theme="dark"] .app-footer {
+  color: #9facA2 !important;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(91, 151, 103, .08), transparent 32%),
+    linear-gradient(180deg, #151c18 0%, #101511 100%) !important;
+  border-color: rgba(226, 237, 228, .09) !important;
+  box-shadow: 0 -10px 34px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .app-footer .footer-brand-copy strong,
+html[data-theme="dark"] .app-footer strong {
+  color: #eef5ef !important;
+}
+html[data-theme="dark"] .app-footer .footer-brand-copy small,
+html[data-theme="dark"] .app-footer .footer-credit > span {
+  color: #8f9f94 !important;
+}
+html[data-theme="dark"] .app-footer .footer-links a,
+html[data-theme="dark"] .app-footer .footer-link-button {
+  color: #c8d4ca !important;
+  background: rgba(255,255,255,.025) !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+  padding: 5px 8px !important;
+}
+html[data-theme="dark"] .app-footer .footer-links a:hover,
+html[data-theme="dark"] .app-footer .footer-link-button:hover {
+  color: #eff6f0 !important;
+  background: #202924 !important;
+  border-color: rgba(226,237,228,.08) !important;
+  text-decoration: none !important;
+}
+html[data-theme="dark"] .app-footer .footer-version-link {
+  color: #b9d7c0 !important;
+  background: #17231b !important;
+  border-color: rgba(108,170,120,.14) !important;
+}
+
+/* Aprimoramento das plantas: painel interno com hierarquia e contraste. */
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel.crop-upgrade-redesign {
+  background: linear-gradient(180deg, #161e19 0%, #121813 100%) !important;
+  border: 1px solid rgba(226,237,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-selector {
+  background: #0f1511 !important;
+  border: 1px solid rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option {
+  color: #aab9ae !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option:hover:not(.active) {
+  color: #dce7de !important;
+  background: rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option.active {
+  color: #f4fff6 !important;
+  background: linear-gradient(180deg, #4d925c 0%, #3c7649 100%) !important;
+  border-color: rgba(123,191,136,.22) !important;
+  box-shadow: 0 4px 10px rgba(25,67,34,.24) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-summary {
+  background: #202a24 !important;
+  border: 1px solid rgba(226,237,228,.08) !important;
+  color: #e9f1eb !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-summary > strong {
+  color: #eef6ef !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-cta .resource-amount {
+  color: inherit !important;
+  background: rgba(6,12,8,.20) !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-cta:disabled .resource-amount {
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(226,237,228,.05) !important;
+}
+
+/* Pesquisa e Legados: superfícies próprias, sem caixas cinzas/brancas genéricas. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] {
+  color: #e9f2f8 !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(72,135,199,.13), transparent 34%),
+    linear-gradient(180deg, #1a2732 0%, #141d25 100%) !important;
+  border-color: rgba(82,145,207,.17) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] {
+  color: #f1eaf5 !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(157,90,201,.14), transparent 34%),
+    linear-gradient(180deg, #281d31 0%, #1e1725 100%) !important;
+  border-color: rgba(162,98,202,.17) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] .upgrade-icon {
+  background: linear-gradient(145deg, #1c3041, #14232f) !important;
+  border-color: rgba(91,154,215,.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] .upgrade-icon {
+  background: linear-gradient(145deg, #34233e, #261b2f) !important;
+  border-color: rgba(172,107,213,.18) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] .upgrade-level-badge {
+  color: #acd0f1 !important;
+  background: #142637 !important;
+  border-color: rgba(89,151,211,.18) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] .upgrade-level-badge {
+  color: #d7b4ec !important;
+  background: #2c1d36 !important;
+  border-color: rgba(163,98,203,.19) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card .upgrade-description {
+  color: #aab8ae !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card h3 {
+  color: #f1f6f2 !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card .button .resource-amount {
+  color: inherit !important;
+  background: rgba(5,9,7,.16) !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .evolution-legacy-section {
+  border-color: rgba(181,126,215,.12) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .evolution-section-divider > span {
+  background: linear-gradient(90deg, transparent, rgba(171,112,207,.26), transparent) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #1b2d30 0%, #162326 100%) !important;
+  border-color: rgba(93,165,149,.17) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #2b2332 0%, #211b27 100%) !important;
+  border-color: rgba(166,117,195,.18) !important;
+}
+
+/* Estatísticas do jogador: seção, cards, benefícios e ícones. */
+html[data-theme="dark"] #profileAccountPanel .account-statistics-section {
+  color: #ebf2ec !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(90,145,100,.055), transparent 28%),
+    linear-gradient(180deg, #161d19 0%, #121713 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: 0 15px 36px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .account-statistics-heading {
+  background: linear-gradient(180deg, rgba(255,255,255,.025), transparent) !important;
+  border-color: rgba(226,237,228,.07) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel .player-stat-card.stat-featured,
+html[data-theme="dark"] #profileAccountPanel .player-stat-card.stat-record {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card:hover {
+  background: linear-gradient(180deg, #232d28 0%, #1c2521 100%) !important;
+  border-color: rgba(112,173,124,.16) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-icon {
+  background: linear-gradient(145deg, #26342c 0%, #1d2721 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .achievement-summary article {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+/* Corrige especificamente os ícones da quarta linha que ainda herdavam fundo branco. */
+html[data-theme="dark"] #profileAccountPanel .achievement-summary article > span,
+html[data-theme="dark"] #profileAccountPanel .achievement-card > span {
+  color: #dce8de !important;
+  background: linear-gradient(145deg, #26342c 0%, #1b2520 100%) !important;
+  border: 1px solid rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section > header {
+  color: #eaf1eb !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section > header > b {
+  color: #c8e2ce !important;
+  background: #17231b !important;
+  border: 1px solid rgba(108,170,120,.14) !important;
+  border-radius: 999px !important;
+  padding: 5px 9px !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section,
+html[data-theme="dark"] #profileAccountPanel .stats-mission-history {
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .progression-benefit-card,
+html[data-theme="dark"] #profileAccountPanel .achievement-card.progression-benefit-card {
+  color: #e8f0ea !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .progression-benefit-card small,
+html[data-theme="dark"] #profileAccountPanel .progression-benefit-card p {
+  color: #9daca1 !important;
+}
+html[data-theme="dark"] #profileAccountPanel .progression-benefit-card h3,
+html[data-theme="dark"] #profileAccountPanel .stats-mission-history > summary {
+  color: #edf4ee !important;
+}
+
+/* Agenda da comunidade. */
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion {
+  color: #eaf1eb !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(89,151,102,.07), transparent 30%),
+    linear-gradient(180deg, #181f1b 0%, #131915 100%) !important;
+  border-color: rgba(226,237,228,.09) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion > summary {
+  background: transparent !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion-icon {
+  background: #202a24 !important;
+  border: 1px solid rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion-copy small,
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion-copy em {
+  color: #98a89d !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion-copy strong {
+  color: #dbeadd !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion-body {
+  background: #121814 !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion .social-live-card {
+  color: #e9f0ea !important;
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-accordion .social-live-card.active {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(91,159,105,.10), transparent 32%),
+    linear-gradient(180deg, #213029 0%, #1a251f 100%) !important;
+  border-color: rgba(102,173,116,.22) !important;
+  box-shadow: inset 3px 0 0 rgba(92,160,105,.72) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-copy small,
+html[data-theme="dark"] #profileSocialPanel .social-event-copy p {
+  color: #9caca1 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-copy h3 {
+  color: #eef5ef !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-time {
+  color: #d7e3d9 !important;
+  background: #151f19 !important;
+  border: 1px solid rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-time.is-running {
+  color: #ecd486 !important;
+  background: #2f2b1b !important;
+  border-color: rgba(218,183,81,.15) !important;
+}
+
+/* ========================================================================== */
+/* R38t — Filtros de Fazenda e Estoque                                        */
+/* ========================================================================== */
+.catalog-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  width: min(100%, 620px) !important;
+  max-width: 620px !important;
+}
+.catalog-search-field {
+  flex: 1 1 270px !important;
+  min-width: 190px !important;
+}
+.catalog-search-field input { width: 100% !important; }
+.catalog-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+.catalog-filter-button,
+.catalog-filter-clear {
+  min-height: 42px;
+  border-radius: 13px;
+  border: 1px solid rgba(67, 103, 68, .14);
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.catalog-filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: #365d3e;
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 5px 14px rgba(44, 73, 48, .06);
+}
+.catalog-filter-button:hover { transform: translateY(-1px); background: #fff; border-color: rgba(67,103,68,.24); }
+.catalog-filter-button.has-active-filters {
+  color: #2f7040;
+  background: linear-gradient(180deg, #f2fbf2, #eaf6e9);
+  border-color: rgba(70, 135, 78, .25);
+}
+.catalog-filter-button > b {
+  min-width: 21px;
+  height: 21px;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #fff;
+  background: #4f965e;
+  font-size: .68rem;
+  line-height: 1;
+}
+.catalog-filter-glyph {
+  width: 20px;
+  height: 18px;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+}
+.catalog-filter-glyph i {
+  position: relative;
+  display: block;
+  height: 2px;
+  border-radius: 99px;
+  background: currentColor;
+  opacity: .88;
+}
+.catalog-filter-glyph i:nth-child(1) { width: 18px; }
+.catalog-filter-glyph i:nth-child(2) { width: 13px; margin-left: 3px; }
+.catalog-filter-glyph i:nth-child(3) { width: 8px; margin-left: 6px; }
+.catalog-filter-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 10px;
+  color: #6b756d;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.catalog-filter-clear:hover { color: #3f5d46; background: rgba(70,105,72,.07); }
+.catalog-filter-clear > span { font-size: 1.15rem; line-height: .8; }
+
+.catalog-filter-dialog {
+  width: min(620px, calc(100vw - 24px));
+  max-height: min(84vh, 760px);
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid rgba(61, 95, 63, .14);
+  border-radius: 24px;
+  background: #f8fbf7;
+  box-shadow: 0 30px 90px rgba(25, 46, 30, .28);
+}
+.catalog-filter-dialog::backdrop { background: rgba(19,31,21,.54); backdrop-filter: blur(5px); }
+.catalog-filter-form {
+  display: flex;
+  flex-direction: column;
+  max-height: min(84vh, 760px);
+  margin: 0;
+}
+.catalog-filter-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 19px 16px;
+  border-bottom: 1px solid rgba(61,95,63,.09);
+  background: linear-gradient(180deg, #ffffff, #f7faf6);
+}
+.catalog-filter-header h2 { margin: 2px 0 3px; font-size: 1.2rem; color: #2f4434; }
+.catalog-filter-header p:not(.eyebrow) { margin: 0; color: #718078; font-size: .78rem; }
+.catalog-filter-body {
+  display: grid;
+  gap: 14px;
+  padding: 15px 18px 18px;
+  overflow-y: auto;
+}
+.catalog-filter-section {
+  padding: 14px;
+  border: 1px solid rgba(61,95,63,.10);
+  border-radius: 17px;
+  background: rgba(255,255,255,.78);
+}
+.catalog-filter-section-heading { margin-bottom: 10px; }
+.catalog-filter-section-heading small { display: block; color: #75827b; font-size: .62rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.catalog-filter-section-heading strong { display: block; margin-top: 2px; color: #33483a; font-size: .88rem; }
+.catalog-filter-section-heading p { margin: 3px 0 0; color: #829087; font-size: .69rem; }
+.catalog-filter-toggle-list { display: grid; gap: 8px; }
+.catalog-filter-toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 61px;
+  padding: 10px 11px;
+  border: 1px solid rgba(61,95,63,.09);
+  border-radius: 13px;
+  background: #f8faf7;
+  cursor: pointer;
+}
+.catalog-filter-toggle > span strong { display: block; color: #35493c; font-size: .8rem; }
+.catalog-filter-toggle > span small { display: block; margin-top: 2px; color: #7c8981; font-size: .66rem; line-height: 1.32; }
+.catalog-filter-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.catalog-filter-toggle > i {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: #dce4dc;
+  box-shadow: inset 0 0 0 1px rgba(55,87,59,.08);
+  transition: background .18s ease;
+}
+.catalog-filter-toggle > i::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(39,65,43,.18);
+  transition: transform .18s ease;
+}
+.catalog-filter-toggle input:checked + i { background: #62a36a; }
+.catalog-filter-toggle input:checked + i::after { transform: translateX(18px); }
+.catalog-filter-toggle:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(76,137,82,.12); }
+.catalog-filter-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 7px;
+}
+.catalog-filter-category {
+  position: relative;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 9px 8px 10px;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(61,95,63,.09);
+  border-radius: 12px;
+  background: #f8faf7;
+  color: #4d5f52;
+  cursor: pointer;
+  font-size: .75rem;
+  font-weight: 780;
+}
+.catalog-filter-category input { position: absolute; opacity: 0; pointer-events: none; }
+.catalog-filter-category i {
+  width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  color: transparent;
+  background: #e8eee7;
+  border: 1px solid rgba(61,95,63,.08);
+  font-style: normal;
+  font-size: .68rem;
+}
+.catalog-filter-category:has(input:checked) {
+  color: #2f7040;
+  background: #eff8ee;
+  border-color: rgba(75,143,84,.23);
+}
+.catalog-filter-category input:checked ~ i { color: #fff; background: #579761; border-color: #579761; }
+.catalog-filter-category:has(input:focus-visible) { box-shadow: 0 0 0 3px rgba(76,137,82,.12); }
+.catalog-filter-footer {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0,1.2fr);
+  gap: 9px;
+  padding: 12px 18px 16px;
+  border-top: 1px solid rgba(61,95,63,.09);
+  background: rgba(248,251,247,.98);
+}
+.catalog-filter-footer .button { width: 100%; min-height: 44px; }
+
+@media (max-width: 760px) {
+  .catalog-toolbar { width: 100% !important; max-width: none !important; display: grid !important; grid-template-columns: minmax(0,1fr) auto !important; }
+  .catalog-search-field { min-width: 0 !important; }
+  .catalog-filter-actions { gap: 4px; }
+  .catalog-filter-clear { padding-inline: 7px; font-size: .7rem; }
+}
+@media (max-width: 520px) {
+  .catalog-toolbar { grid-template-columns: 1fr !important; }
+  .catalog-filter-actions { justify-content: stretch; }
+  .catalog-filter-button { flex: 1 1 auto; }
+  .catalog-filter-category-grid { grid-template-columns: 1fr; }
+  .catalog-filter-dialog { width: calc(100vw - 12px); border-radius: 18px; }
+  .catalog-filter-header { padding: 14px; }
+  .catalog-filter-body { padding: 12px; }
+  .catalog-filter-footer { padding: 10px 12px 12px; }
+}
+.catalog-filter-clear[hidden],
+.catalog-filter-button > b[hidden],
+.catalog-filter-toggle[hidden] { display: none !important; }
+
+/* ========================================================================== */
+/* R38u — refinamentos de filtros, social e estatísticas                      */
+/* ========================================================================== */
+
+/* Estatísticas: a mensagem de Missões concluídas fica realmente centralizada. */
+#profileAccountPanel .stats-mission-history .stats-benefit-list:has(.stats-mission-empty) {
+  min-height: 92px !important;
+}
+#profileAccountPanel .stats-mission-empty {
+  min-height: 92px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 16px 18px !important;
+}
+#profileAccountPanel .stats-mission-empty small {
+  margin: 0 auto !important;
+  max-width: 64ch !important;
+}
+
+/* Adicionar amigo: labels e campos com a mesma escala visual. */
+#friendCodeDialog .friend-code-share > small,
+#friendCodeDialog .friend-request-form-dialog > label {
+  display: block !important;
+  margin: 0 !important;
+  font-size: .74rem !important;
+  line-height: 1.25 !important;
+  font-weight: 820 !important;
+  letter-spacing: 0 !important;
+}
+#friendCodeDialog .friend-code-share code,
+#friendCodeDialog .friend-request-form-dialog > input {
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+  font-size: .82rem !important;
+  line-height: 1.2 !important;
+}
+#friendCodeDialog .friend-code-share .compact-friend-button {
+  height: 46px !important;
+  min-height: 46px !important;
+  padding-block: 0 !important;
+}
+
+/* Busca + filtros: uma barra única, compacta e sempre inline. */
+.catalog-toolbar,
+#stockView .stock-toolbar.catalog-toolbar,
+#farmView .farm-catalog-toolbar {
+  width: min(100%, 720px) !important;
+  max-width: 720px !important;
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  justify-content: end !important;
+  gap: 7px !important;
+  margin: 0 !important;
+}
+.catalog-search-field,
+#stockView .stock-search-field.catalog-search-field {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+.catalog-search-field input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  min-height: 42px !important;
+}
+.catalog-filter-actions {
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
+}
+.catalog-filter-button {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 11px !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.catalog-filter-clear {
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 8px !important;
+  border-radius: 11px !important;
+}
+.catalog-filter-clear > span[aria-hidden="true"] {
+  font-size: 1.05rem !important;
+}
+
+/* Modal de filtros: centralizado na viewport e hierarquia mais limpa. */
+.catalog-filter-dialog {
+  position: fixed !important;
+  inset: 0 !important;
+  margin: auto !important;
+  width: min(580px, calc(100vw - 24px)) !important;
+  max-width: 580px !important;
+  height: fit-content !important;
+  max-height: min(82vh, 720px) !important;
+}
+.catalog-filter-form {
+  max-height: min(82vh, 720px) !important;
+}
+.catalog-filter-header {
+  align-items: center !important;
+  padding: 16px 18px !important;
+}
+.catalog-filter-header h2 {
+  margin: 2px 0 0 !important;
+}
+.catalog-filter-body {
+  gap: 11px !important;
+  padding: 13px 16px 16px !important;
+}
+.catalog-filter-section {
+  padding: 12px !important;
+}
+.catalog-filter-section-heading {
+  margin: 0 0 9px !important;
+}
+.catalog-filter-section-heading strong {
+  display: block !important;
+  margin: 0 !important;
+  font-size: .78rem !important;
+  line-height: 1.2 !important;
+  font-weight: 900 !important;
+  letter-spacing: .065em !important;
+  text-transform: uppercase !important;
+}
+.catalog-filter-toggle {
+  min-height: 50px !important;
+  padding: 9px 10px !important;
+}
+.catalog-filter-toggle > span strong {
+  font-size: .76rem !important;
+  line-height: 1.3 !important;
+}
+.catalog-filter-footer {
+  padding: 10px 16px 14px !important;
+}
+
+@media (max-width: 760px) {
+  .catalog-toolbar,
+  #stockView .stock-toolbar.catalog-toolbar,
+  #farmView .farm-catalog-toolbar {
+    width: 100% !important;
+    max-width: none !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    gap: 5px !important;
+  }
+  .catalog-filter-clear-label { display: none !important; }
+  .catalog-filter-clear { width: 38px !important; padding: 0 !important; }
+}
+@media (max-width: 520px) {
+  .catalog-toolbar,
+  #stockView .stock-toolbar.catalog-toolbar,
+  #farmView .farm-catalog-toolbar {
+    grid-template-columns: minmax(0,1fr) auto !important;
+  }
+  .catalog-filter-actions { justify-content: flex-end !important; }
+  .catalog-filter-button { flex: 0 0 auto !important; padding-inline: 9px !important; }
+  .catalog-filter-dialog { width: calc(100vw - 12px) !important; }
+}
+
+
+/* ========================================================================== */
+/* R38v — correções efetivas do prompt anterior                               */
+/* ========================================================================== */
+
+/* Estatísticas — descrição vazia de Missões concluídas centralizada nos 2 eixos. */
+#profileAccountPanel .stats-mission-history .stats-benefit-list:has(> .stats-mission-empty) {
+  min-height: 104px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+#profileAccountPanel .stats-mission-history .stats-mission-empty {
+  width: 100% !important;
+  min-height: 104px !important;
+  margin: 0 !important;
+  padding: 16px 20px !important;
+  display: grid !important;
+  place-items: center !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+}
+#profileAccountPanel .stats-mission-history .stats-mission-empty > small {
+  display: block !important;
+  margin: 0 !important;
+  max-width: 66ch !important;
+  line-height: 1.45 !important;
+}
+
+/* Adicionar amigo — labels e campos com a mesma escala e altura real. */
+#friendCodeDialog .friend-code-share > small,
+#friendCodeDialog .friend-request-form-dialog > label {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 18px !important;
+  margin: 0 0 6px !important;
+  font-size: .78rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+#friendCodeDialog .friend-code-share > div {
+  align-items: stretch !important;
+}
+#friendCodeDialog .friend-code-share code,
+#friendCodeDialog .friend-request-form-dialog > input,
+#friendCodeDialog .compact-friend-button {
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  box-sizing: border-box !important;
+  font-size: .82rem !important;
+  line-height: 1.2 !important;
+}
+#friendCodeDialog .friend-code-share code,
+#friendCodeDialog .friend-request-form-dialog > input {
+  padding: 0 12px !important;
+}
+#friendCodeDialog .friend-code-share code {
+  display: flex !important;
+  align-items: center !important;
+}
+#friendCodeDialog .compact-friend-button {
+  padding: 0 14px !important;
+}
+
+/* Busca + filtros — uma única linha em Fazenda e Estoque. */
+#farmView > .section-heading,
+#stockView > .section-heading {
+  gap: 14px !important;
+}
+#farmView .catalog-toolbar,
+#stockView .stock-toolbar.catalog-toolbar {
+  width: min(100%, 760px) !important;
+  max-width: 760px !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  margin: 0 !important;
+}
+#farmView .catalog-search-field,
+#stockView .stock-search-field.catalog-search-field {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+#farmView .catalog-search-field input,
+#stockView .catalog-search-field input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+}
+#farmView .catalog-filter-actions,
+#stockView .catalog-filter-actions {
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  margin: 0 !important;
+}
+#farmView .catalog-filter-button,
+#stockView .catalog-filter-button,
+#farmView .catalog-filter-clear,
+#stockView .catalog-filter-clear {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 900px) {
+  #farmView > .section-heading,
+  #stockView > .section-heading {
+    align-items: stretch !important;
+  }
+  #farmView .catalog-toolbar,
+  #stockView .stock-toolbar.catalog-toolbar {
+    width: 100% !important;
+    max-width: none !important;
+  }
+  .catalog-filter-clear-label { display: none !important; }
+  #farmView .catalog-filter-clear,
+  #stockView .catalog-filter-clear { width: 40px !important; padding-inline: 0 !important; }
+}
+@media (max-width: 560px) {
+  #farmView .catalog-filter-button > span:not(.catalog-filter-glyph),
+  #stockView .catalog-filter-button > span:not(.catalog-filter-glyph) { display: none !important; }
+  #farmView .catalog-filter-button,
+  #stockView .catalog-filter-button { width: 42px !important; padding: 0 !important; justify-content: center !important; }
+}
+
+/* Modal de filtros — centro real da viewport, sem subtítulos/descrições extras. */
+#catalogFilterDialog.catalog-filter-dialog {
+  position: fixed !important;
+  inset: auto !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  width: min(560px, calc(100vw - 24px)) !important;
+  max-width: 560px !important;
+  height: auto !important;
+  max-height: min(82dvh, 720px) !important;
+}
+#catalogFilterDialog .catalog-filter-form {
+  max-height: min(82dvh, 720px) !important;
+}
+#catalogFilterDialog .catalog-filter-header {
+  min-height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding: 14px 16px !important;
+}
+#catalogFilterDialog .catalog-filter-header h2 {
+  margin: 0 !important;
+  font-size: 1.12rem !important;
+  line-height: 1.2 !important;
+}
+#catalogFilterDialog .catalog-filter-section {
+  padding: 12px !important;
+}
+#catalogFilterDialog .catalog-filter-section-title {
+  display: block !important;
+  margin: 0 0 9px !important;
+  font-size: .8rem !important;
+  line-height: 1.2 !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+#catalogFilterDialog .catalog-filter-toggle {
+  min-height: 46px !important;
+  padding: 9px 10px !important;
+}
+#catalogFilterDialog .catalog-filter-toggle > span strong {
+  font-size: .78rem !important;
+  line-height: 1.25 !important;
+}
+#catalogFilterDialog .catalog-filter-toggle > span small,
+#catalogFilterDialog .catalog-filter-section-heading,
+#catalogFilterDialog .catalog-filter-header .eyebrow,
+#catalogFilterDialog .catalog-filter-header p { display: none !important; }
+
+/* R39.2 — Atalho de contratos: porcentagem no meta, tempo abaixo do progresso. */
+.contract-dock-time {
+  min-height: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 4px !important;
+  color: #66766c !important;
+  font-size: .58rem !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+}
+.contract-dock-time[hidden] { display: none !important; }
+.contract-dock-time > img {
+  width: 13px !important;
+  height: 13px !important;
+  object-fit: contain !important;
+}
+.contract-dock-time > b {
+  color: inherit !important;
+  font: inherit !important;
+}
+.contract-dock-time.is-urgent { color: #a84e3d !important; }
+.contract-dock-meta-line > [data-contract-dock-percent] {
+  max-width: 52% !important;
+}
+
+/* ========================================================================== */
+/* R39.3 — Atalho de contratos: posições solicitadas                         */
+/* ========================================================================== */
+.contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent] {
+  flex: 0 0 auto !important;
+  max-width: 48% !important;
+  margin-left: auto !important;
+}
+.contract-dock-item-v2 .contract-dock-meta-line {
+  justify-content: flex-start !important;
+}
+.contract-dock-item-v2 .contract-dock-meta-line > em {
+  max-width: 100% !important;
+}
+.contract-dock-item-v2 .contract-dock-progress { order: 3 !important; }
+.contract-dock-item-v2 .contract-dock-time {
+  order: 4 !important;
+  width: 100% !important;
+  min-height: 16px !important;
+  justify-content: flex-start !important;
+  margin-top: -1px !important;
+}
+.contract-dock-item-v2 .contract-dock-rewards { order: 5 !important; }
+.contract-dock-item-v2.reward-ready .contract-dock-time,
+.contract-dock-item-v2.contract-defaulted .contract-dock-time { display: none !important; }
+
+/* ========================================================================== */
+/* R39.4 — Busca expansível, filtro por ícone e pausa de produção por ícone   */
+/* ========================================================================== */
+#farmView .catalog-toolbar,
+#stockView .stock-toolbar.catalog-toolbar {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+}
+
+#farmView .catalog-search-field,
+#stockView .stock-search-field.catalog-search-field {
+  position: relative !important;
+  flex: 0 0 46px !important;
+  width: 46px !important;
+  min-width: 46px !important;
+  max-width: 46px !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  cursor: text !important;
+  border-radius: 15px !important;
+  transition:
+    width .28s cubic-bezier(.2,.75,.25,1),
+    max-width .28s cubic-bezier(.2,.75,.25,1),
+    flex-basis .28s cubic-bezier(.2,.75,.25,1),
+    border-radius .22s ease,
+    box-shadow .22s ease !important;
+}
+
+#farmView .catalog-search-field:focus-within,
+#stockView .stock-search-field.catalog-search-field:focus-within,
+#farmView .catalog-search-field:has(input:not(:placeholder-shown)),
+#stockView .stock-search-field.catalog-search-field:has(input:not(:placeholder-shown)) {
+  flex: 1 1 320px !important;
+  width: min(360px, 46vw) !important;
+  min-width: 190px !important;
+  max-width: 360px !important;
+  border-radius: 16px !important;
+}
+
+#farmView .catalog-search-field .catalog-search-icon,
+#stockView .catalog-search-field .catalog-search-icon {
+  position: absolute !important;
+  z-index: 2 !important;
+  left: 5px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+#farmView .catalog-search-field .catalog-search-icon img,
+#stockView .catalog-search-field .catalog-search-icon img {
+  display: block !important;
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain !important;
+  pointer-events: none !important;
+}
+
+#farmView .catalog-search-field input,
+#stockView .catalog-search-field input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  padding: 0 13px 0 47px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: opacity .16s ease .06s !important;
+}
+
+#farmView .catalog-search-field:focus-within input,
+#stockView .stock-search-field.catalog-search-field:focus-within input,
+#farmView .catalog-search-field:has(input:not(:placeholder-shown)) input,
+#stockView .stock-search-field.catalog-search-field:has(input:not(:placeholder-shown)) input {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+#farmView .catalog-filter-actions,
+#stockView .catalog-filter-actions {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  gap: 0 !important;
+}
+
+#farmView .catalog-filter-button,
+#stockView .catalog-filter-button {
+  position: relative !important;
+  width: 46px !important;
+  min-width: 46px !important;
+  max-width: 46px !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 15px !important;
+}
+
+#farmView .catalog-filter-button .catalog-filter-icon,
+#stockView .catalog-filter-button .catalog-filter-icon {
+  display: block !important;
+  width: 36px !important;
+  height: 36px !important;
+  object-fit: contain !important;
+}
+
+#farmView .catalog-filter-button > b,
+#stockView .catalog-filter-button > b {
+  position: absolute !important;
+  top: -4px !important;
+  right: -4px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 4px !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: .58rem !important;
+  line-height: 1 !important;
+  border-radius: 999px !important;
+  z-index: 3 !important;
+}
+
+/* O atalho externo de limpar filtros foi removido da interface na R39.4. */
+#farmFilterClear,
+#stockFilterClear { display: none !important; }
+
+/* Ícone de pausa no lugar do antigo caractere II. */
+.crop-progress-percent > [data-crop-percent-text] {
+  display: inline !important;
+}
+.crop-progress-percent > [data-crop-percent-text][hidden],
+.crop-progress-percent > [data-crop-paused-icon][hidden] {
+  display: none !important;
+}
+.crop-progress-percent > [data-crop-paused-icon] {
+  width: 30px !important;
+  height: 25px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+.crop-art-progress.paused .crop-progress-percent.is-paused,
+.crop-progress-percent.is-paused {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 30px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 700px) {
+  #farmView .catalog-search-field:focus-within,
+  #stockView .stock-search-field.catalog-search-field:focus-within,
+  #farmView .catalog-search-field:has(input:not(:placeholder-shown)),
+  #stockView .stock-search-field.catalog-search-field:has(input:not(:placeholder-shown)) {
+    flex: 1 1 auto !important;
+    width: min(100%, 320px) !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+}
+#farmView .catalog-filter-button > b[hidden],
+#stockView .catalog-filter-button > b[hidden] {
+  display: none !important;
+}

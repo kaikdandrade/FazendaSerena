@@ -2,6 +2,7 @@
 
   let liveSocialRefreshTimer = 0;
   let liveSocialCountdownTimer = 0;
+  let liveSocialStructureSignature = "";
 
   const weekdayNames = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
@@ -45,21 +46,28 @@
     const entries = weeklyEvents(now);
     const activeCount = entries.filter(entry => entry.active).length;
     if (dom.socialEventsSummary) {
-      dom.socialEventsSummary.textContent = entries.length
+      const summary = entries.length
         ? `${entries.length} ${entries.length === 1 ? "evento nesta semana" : "eventos nesta semana"}${activeCount ? ` · ${activeCount} agora` : ""}.`
         : runtimeText("socialEventsEmpty", "Nenhum evento programado para esta semana.");
+      if (dom.socialEventsSummary.textContent !== summary) dom.socialEventsSummary.textContent = summary;
     }
-    if (dom.socialEventsList) {
-      dom.socialEventsList.innerHTML = entries.length ? entries.map(({ event, start, end, active }) => {
-        const date = new Date(start);
-        const weekday = weekdayNames[(event.weekday || 1) - 1] || "Dia";
-        const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-        return `<article class="social-live-card ${active ? "active" : ""}" data-event-id="${escapeHtml(event.id)}">
-          <div class="social-event-copy"><small>${active ? "Acontecendo agora" : `${weekday} · ${time}`}</small><h3>${escapeHtml(event.name)}</h3><p>${escapeHtml(event.description || "Evento especial da comunidade.")}</p></div>
-          <div class="social-event-time ${active ? "is-running" : ""}"><img src="assets/icons/relogio.webp" alt=""><span>${active ? `<b data-event-countdown data-event-end="${end}">${formatEventCountdown(end - now)}</b>` : formatEventDuration(event.durationMinutes)}</span></div>
-        </article>`;
-      }).join("") : `<div class="empty-state social-live-empty">${runtimeTextHtml("socialEventsEmpty", "Nenhum evento programado para esta semana.")}</div>`;
+
+    if (!dom.socialEventsList) return;
+    const signature = entries.map(({ event, start, end, active }) => `${event.id}:${event.name}:${event.description || ""}:${event.durationMinutes}:${start}:${end}:${active ? 1 : 0}`).join("|");
+    if (signature === liveSocialStructureSignature) {
+      updateEventCountdowns();
+      return;
     }
+    liveSocialStructureSignature = signature;
+    dom.socialEventsList.innerHTML = entries.length ? entries.map(({ event, start, end, active }) => {
+      const date = new Date(start);
+      const weekday = weekdayNames[(event.weekday || 1) - 1] || "Dia";
+      const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+      return `<article class="social-live-card ${active ? "active" : ""}" data-event-id="${escapeHtml(event.id)}">
+        <div class="social-event-copy"><small>${active ? "Acontecendo agora" : `${weekday} · ${time}`}</small><h3>${escapeHtml(event.name)}</h3><p>${escapeHtml(event.description || "Evento especial da comunidade.")}</p></div>
+        <div class="social-event-time ${active ? "is-running" : ""}"><img src="assets/icons/relogio.webp" alt=""><span>${active ? `<b data-event-countdown data-event-end="${end}">${formatEventCountdown(end - now)}</b>` : formatEventDuration(event.durationMinutes)}</span></div>
+      </article>`;
+    }).join("") : `<div class="empty-state social-live-empty">${runtimeTextHtml("socialEventsEmpty", "Nenhum evento programado para esta semana.")}</div>`;
   }
 
   async function refreshLiveSocialContent() {

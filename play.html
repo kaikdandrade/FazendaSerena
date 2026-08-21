@@ -7,7 +7,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta content="#eef4e8" name="theme-color"/>
 <meta content="Jogue Fazenda Serena, um jogo incremental de agricultura para navegador com culturas, contratos, pesquisas, eventos e prestígio." name="description"/>
-<title>Jogar Fazenda Serena — Agricultura Industrial</title>
+<title>Fazenda Serena</title>
 <link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
 <link href="manifest.webmanifest" rel="manifest"/>
 <link href="assets/pwa/apple-touch-icon.png" rel="apple-touch-icon"/>
@@ -16,46 +16,49 @@
 <meta content="default" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="Fazenda Serena" name="apple-mobile-web-app-title"/>
 <link href="https://fazenda-serena.web.app/play.html" rel="canonical"/>
+<script src="js/themeBootstrap.js"></script>
 <link href="css/loading.css" rel="stylesheet"/>
 <link href="css/legacy/game-base.css" rel="stylesheet"/>
 <link href="css/legacy/game-revisions.css" rel="stylesheet"/>
 <link href="css/style.css" rel="stylesheet"/>
 <link href="css/shared-game-modals.css" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
-<link href="css/release-ui.css?v=r37h" rel="stylesheet"/>
+<link href="css/release-ui.css" rel="stylesheet"/>
+<link href="css/dark-theme.css" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
-<script defer="" src="js/appConfig.js?v=r37f"></script>
+<script defer="" src="js/appConfig.js"></script>
 <script defer="" src="js/cacheManager.js"></script>
 <script defer="" src="js/privacyConsent.js"></script>
 <script defer="" src="js/modalGuard.js"></script>
 <script defer="" src="js/adsense-config.js"></script>
 <script defer="" src="js/firebase-config.js"></script>
 <script defer="" src="js/avatars.js"></script>
-<script defer="" src="js/firebaseManager.js?v=r37f"></script>
-<script defer="" src="js/data.js?v=r37f"></script>
+<script defer="" src="js/firebaseManager.js"></script>
+<script defer="" src="js/data.js"></script>
 <script defer="" src="js/cropEconomy.js"></script>
 <script defer="" src="js/soundEngine.js"></script>
-<script defer="" src="js/engine/GameEngineCore.js?v=r37f"></script>
+<script defer="" src="js/engine/GameEngineCore.js"></script>
 <script defer="" src="js/engine/GameEngineProduction.js"></script>
 <script defer="" src="js/engine/GameEngineProgression.js"></script>
 <script defer="" src="js/engine/GameEngineStorage.js"></script>
 <script defer="" src="js/engine/GameEngineContracts.js"></script>
-<script defer="" src="js/engine/GameEngineOrdersMissions.js?v=r37f"></script>
-<script defer="" src="js/engine/GameEnginePrestigeSettings.js?v=r37f"></script>
-<script defer="" src="js/gameAdmin.js?v=r37f"></script>
+<script defer="" src="js/engine/GameEngineOrdersMissions.js"></script>
+<script defer="" src="js/engine/GameEnginePrestigeSettings.js"></script>
+<script defer="" src="js/gameAdmin.js"></script>
 <script defer="" src="js/ambientBackground.js"></script>
-<script defer="" src="js/app/appState.js?v=r37f"></script>
-<script defer="" src="js/app/appUtils.js?v=r37f"></script>
-<script defer="" src="js/app/appAccountSocial.js?v=r37f"></script>
+<script defer="" src="js/app/appState.js"></script>
+<script defer="" src="js/app/appUtils.js"></script>
+<script defer="" src="js/app/appAccountSocial.js"></script>
 <script defer="" src="js/app/appNavigation.js"></script>
-<script defer="" src="js/app/appCropsStock.js?v=r37f"></script>
+<script defer="" src="js/app/appCropsStock.js"></script>
 <script defer="" src="js/app/appEvolutions.js"></script>
-<script defer="" src="js/app/appCommerceMissions.js?v=r37f"></script>
-<script defer="" src="js/app/appStatistics.js?v=r37f"></script>
+<script defer="" src="js/app/appCommerceMissions.js"></script>
+<script defer="" src="js/app/appStatistics.js"></script>
+<script defer="" src="js/app/appLiveUpdates.js"></script>
 <script defer="" src="js/app/appLiveSocial.js"></script>
-<script defer="" src="js/app/appRendererActions.js?v=r37f"></script>
-<script defer="" src="js/app/appEventsLoop.js?v=r37f"></script>
+<script defer="" src="js/app/appRendererActions.js"></script>
+<script defer="" src="js/app/appEventsLoop.js"></script>
 <script defer="" src="js/app/appFeedback.js"></script>
 <script defer="" src="js/app/bootstrap.js"></script>
 </head>
@@ -81,7 +84,7 @@
 <div aria-label="Experiência da fazenda" class="soft-progress" role="progressbar">
 <span id="farmXPBar"></span>
 </div>
-<small id="farmXPText">0 / 232 <img class="farm-xp-inline-icon" src="assets/icons/xp.webp" alt="XP"></small>
+<small id="farmXPText"><img class="farm-xp-inline-icon" src="assets/icons/xp.webp" alt="XP"><span data-farm-xp-value>0 / 232</span></small>
 </section>
 <section aria-label="Recursos do jogo" class="resource-strip">
 <article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda">
@@ -140,14 +143,14 @@
 <p class="eyebrow">área de cultivo</p>
 <h2>Culturas</h2>
 </div>
-<div class="toolbar">
-<label class="search-field">
-<span aria-hidden="true">⌕</span>
-<input autocomplete="off" id="searchCrop" placeholder="Buscar cultura..." type="search"/>
+<div class="toolbar catalog-toolbar farm-catalog-toolbar">
+<label class="search-field catalog-search-field" title="Pesquisar plantas">
+<span class="catalog-search-icon" aria-hidden="true"><img src="assets/icons/pesquisa-catalogo.webp" alt=""></span>
+<input autocomplete="off" id="searchCrop" placeholder="Buscar cultura..." type="search" aria-label="Pesquisar plantas"/>
 </label>
-<select aria-label="Filtrar por categoria" id="categoryFilter">
-<option value="all">Todas as categorias</option>
-</select>
+<div class="catalog-filter-actions">
+<button class="catalog-filter-button" id="farmFilterButton" type="button" aria-haspopup="dialog" aria-controls="catalogFilterDialog" title="Filtros"><img class="catalog-filter-icon" src="assets/icons/filtro-catalogo.webp" alt=""><b id="farmFilterCount" hidden>0</b></button>
+</div>
 </div>
 </div>
 <div class="crop-grid" id="cropGrid"></div>
@@ -160,8 +163,11 @@
 <h1>Estoque da fazenda</h1>
 
 </div>
-<div class="stock-toolbar">
-<label class="search-field stock-search-field"><span aria-hidden="true">⌕</span><input autocomplete="off" id="stockSearch" placeholder="Buscar no estoque..." type="search" aria-label="Buscar cultura no estoque"></label>
+<div class="stock-toolbar catalog-toolbar">
+<label class="search-field stock-search-field catalog-search-field" title="Pesquisar no estoque"><span class="catalog-search-icon" aria-hidden="true"><img src="assets/icons/pesquisa-catalogo.webp" alt=""></span><input autocomplete="off" id="stockSearch" placeholder="Buscar no estoque..." type="search" aria-label="Pesquisar no estoque"></label>
+<div class="catalog-filter-actions">
+<button class="catalog-filter-button" id="stockFilterButton" type="button" aria-haspopup="dialog" aria-controls="catalogFilterDialog" title="Filtros"><img class="catalog-filter-icon" src="assets/icons/filtro-catalogo.webp" alt=""><b id="stockFilterCount" hidden>0</b></button>
+</div>
 </div>
 </div>
 <div class="stock-summary" id="stockSummary"></div>
@@ -243,12 +249,10 @@
 <h3>Perfil do ranking</h3>
 
 </div>
-<button class="button primary" id="openRankingProfileButton" type="button">Perfil do ranking</button>
+<span class="ranking-profile-launch-actions"><button class="button primary" id="openRankingProfileButton" type="button">Perfil do ranking</button><button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair da conta</button></span>
 </section>
 <button class="button google-sign-in-button" id="googleSignIn" type="button"><img alt="" aria-hidden="true" src="assets/icons/logo-google.webp"/> Entrar com o
                                     Google</button>
-<button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair
-                                    da conta</button>
 
 </div>
 </article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
@@ -303,6 +307,7 @@
 <header class="settings-card-head"><h2>Experiência visual</h2></header>
 <div class="settings-card-body">
 <label class="setting-row"><span><strong>Ambiente vivo</strong><small>Movimentos discretos de folhas e luz no fundo.</small></span><input id="ambientSetting" type="checkbox"/></label>
+<label class="setting-row appearance-mode-setting"><span><strong>Tema</strong><small>Use o tema do dispositivo ou escolha entre claro e escuro.</small></span><select aria-label="Tema do jogo" id="appearanceModeSetting"><option value="automatic">Automático</option><option value="light">Modo claro</option><option value="dark">Modo escuro</option></select></label>
 <label class="setting-row number-format-setting"><span><strong>Formato dos números</strong><small>Escolha entre vírgula brasileira e ponto internacional.</small></span><select aria-label="Formato dos números" id="numberFormatSetting"><option value="brazilian">Brasileiro (1,2K)</option><option value="international">Internacional (1.2K)</option></select></label>
 <label class="setting-row navigation-mode-setting"><span><strong>Navegação</strong><small>Escolha como as áreas do jogo aparecem no menu.</small></span><select aria-label="Modo de navegação" id="navigationModeSetting"><option value="automatic">Automático</option><option value="line">Tabulação em linha</option><option value="grid">Tabulação em grade</option></select></label>
 
@@ -352,6 +357,19 @@
 </section>
 <button aria-label="Subir ao início da página" class="back-to-top" hidden="" id="backToTop" title="Voltar ao topo" type="button"><img alt="" src="assets/icons/seta-cima.webp"/><span class="sr-only">Voltar ao topo</span></button>
 <aside aria-label="Acompanhamento dos contratos ativos" class="contract-dock" id="contractDock"></aside>
+<dialog aria-labelledby="catalogFilterTitle" class="catalog-filter-dialog" id="catalogFilterDialog">
+<form class="catalog-filter-form" method="dialog">
+<header class="catalog-filter-header"><h2 id="catalogFilterTitle">Filtros</h2><button class="dialog-icon-button" value="cancel" type="submit" aria-label="Fechar filtros" title="Fechar">×</button></header>
+<div class="catalog-filter-body">
+<section class="catalog-filter-section"><strong class="catalog-filter-section-title">Visibilidade</strong><div class="catalog-filter-toggle-list">
+<label class="catalog-filter-toggle"><span><strong>Ocultar plantas prestigiadas</strong></span><input id="catalogFilterHideMastered" type="checkbox"><i aria-hidden="true"></i></label>
+<label class="catalog-filter-toggle" id="catalogFilterLockedRow"><span><strong>Ocultar plantas ainda não desbloqueadas</strong></span><input id="catalogFilterHideLocked" type="checkbox"><i aria-hidden="true"></i></label>
+</div></section>
+<section class="catalog-filter-section"><strong class="catalog-filter-section-title">Categorias</strong><div class="catalog-filter-category-grid" id="catalogFilterCategoryGrid"></div></section>
+</div>
+<footer class="catalog-filter-footer"><button class="button secondary" id="catalogFilterReset" type="button">Limpar filtros</button><button class="button primary" id="catalogFilterApply" type="button">Aplicar filtros</button></footer>
+</form>
+</dialog>
 <dialog aria-labelledby="rankingProfileDialogTitle" class="ranking-profile-dialog" id="rankingProfileDialog"><form class="player-profile-form ranking-profile-modal-form" id="playerProfileForm" novalidate="">
 <div class="player-profile-heading">
 <div>

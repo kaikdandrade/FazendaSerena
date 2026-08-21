@@ -2,12 +2,9 @@
 
 Object.assign(GameEngine.prototype, {
   getPrestigeBreakdown() {
-      if (!this.isPrestigeUnlocked()) {
-        return { level: 0, ownership: 0, upgrades: 0, mastery: 0, base: 0, total: 0 };
-      }
-
+      const prestigeUnlocked = this.isPrestigeUnlocked();
       const unlockLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(GameEngine.PRESTIGE_UNLOCK_LEVEL) || 1)));
-      const currentLevel = Math.max(unlockLevel, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(this.state.farmLevel) || 1)));
+      const currentLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(this.state.farmLevel) || 1)));
       const levelRange = Math.max(1, GameEngine.MAX_FARM_LEVEL - unlockLevel);
       const levelProgress = Math.max(0, currentLevel - unlockLevel) / levelRange;
 
@@ -38,7 +35,9 @@ Object.assign(GameEngine.prototype, {
       const missionMultiplier = this.state.permanentBonuses.prestigeDouble ? 2 : 1;
       const configuredBonus = Math.max(0, Math.floor(Number(GameEngine.PRESTIGE_BONUS) || 0));
       const calculated = Math.max(0, Math.floor(base * resonance * missionMultiplier));
-      const total = Math.max(0, calculated + configuredBonus);
+      // Os indicadores continuam refletindo o progresso real antes do desbloqueio,
+      // mas pontos de Prestígio só podem ser recebidos após o nível configurado.
+      const total = prestigeUnlocked ? Math.max(0, calculated + configuredBonus) : 0;
 
       return {
         level: Math.max(0, Math.floor(levelScore)),

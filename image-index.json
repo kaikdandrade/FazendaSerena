@@ -135,6 +135,10 @@
       "path": "assets/icons/fertilizante.webp"
     },
     {
+      "name": "Filtro de catálogo",
+      "path": "assets/icons/filtro-catalogo.webp"
+    },
+    {
       "name": "Galpão de madeira",
       "path": "assets/icons/galpao-madeira.webp"
     },
@@ -211,8 +215,16 @@
       "path": "assets/icons/pacote.webp"
     },
     {
+      "name": "Pausa de produção",
+      "path": "assets/icons/pausa-producao.webp"
+    },
+    {
       "name": "Perfil",
       "path": "assets/icons/perfil.webp"
+    },
+    {
+      "name": "Pesquisa de catálogo",
+      "path": "assets/icons/pesquisa-catalogo.webp"
     },
     {
       "name": "Poção de pesquisa",
