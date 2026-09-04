@@ -5,7 +5,7 @@
 <meta charset="utf-8"/>
 <meta content="ca-pub-4578037304455366" name="google-adsense-account"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="#eef4e8" name="theme-color"/>
+<meta content="#4f8d56" name="theme-color"/>
 <meta content="Jogue Fazenda Serena, um jogo incremental de agricultura para navegador com culturas, contratos, pesquisas, eventos e prestígio." name="description"/>
 <title>Fazenda Serena</title>
 <link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
@@ -17,8 +17,9 @@
 <meta content="Fazenda Serena" name="apple-mobile-web-app-title"/>
 <link href="https://fazenda-serena.web.app/play.html" rel="canonical"/>
 <script src="js/themeBootstrap.js"></script>
+<style id="loadingBackdropBootstrap">html,body{background:#4f8d56}</style>
 <link href="css/stylish.css" rel="stylesheet"/>
-<link href="css/play.css?v=62" rel="stylesheet"/>
+<link href="css/play.css?v=66" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
@@ -60,7 +61,7 @@
 </head>
 <body class="compact-cards is-loading" data-adsense-disabled="true">
 <div aria-busy="true" aria-live="polite" class="game-loading-screen" id="gameLoadingScreen" role="status">
-<div class="game-loading-card"><img alt="Fazenda Serena" class="game-loading-logo" src="assets/logo.webp"/><div class="game-loading-copy"><small>Fazenda Serena</small><h1>Agricultura Industrial</h1><p id="gameLoadingStatus">Preparando sua fazenda...</p></div><div aria-hidden="true" class="game-loading-spinner"></div><div aria-hidden="true" class="game-loading-progress"><span id="gameLoadingProgress"></span></div><button class="game-loading-retry" hidden="" id="gameLoadingRetry" type="button">Recarregar jogo</button></div>
+<div class="game-loading-card"><img alt="Fazenda Serena" class="game-loading-logo" src="assets/logo.webp"/><div class="game-loading-copy"><small class="game-loading-index-copy">Fazenda Serena</small><h1 class="game-loading-index-copy">Agricultura Industrial</h1><p id="gameLoadingStatus">Preparando sua fazenda...</p></div><div aria-hidden="true" class="game-loading-spinner"></div><div aria-hidden="true" class="game-loading-progress"><span id="gameLoadingProgress"></span></div><button class="game-loading-retry" hidden="" id="gameLoadingRetry" type="button">Recarregar jogo</button></div>
 </div>
 <section class="maintenance-screen" hidden id="maintenanceScreen" role="status" aria-live="polite">
   <div class="maintenance-card">
@@ -100,7 +101,6 @@
 <button class="nav-tab active" data-navigation-key="farm" data-view="farmView" title="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="farm" src="assets/icons/muda-vaso.webp"/></span><span class="nav-tab-label">Fazenda</span></button>
 <button class="nav-tab direct-child-tab" data-navigation-key="contracts" data-office-tab="contracts" id="contractsOfficeTab" data-view="officeView" title="Contratos" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp"/></span><span class="nav-tab-label">Contratos</span></button>
 <button class="nav-tab direct-child-tab" data-navigation-key="evolutions" data-office-tab="evolutions" id="evolutionsOfficeTab" data-view="officeView" title="Evoluções" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="evolutions" src="assets/icons/livros.webp"/></span><span class="nav-tab-label">Evoluções</span></button>
-<button class="nav-tab direct-child-tab" data-navigation-key="missions" data-profile-tab="missions" data-view="profileView" id="missionsProfileTab" title="Missões" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp"/></span><span class="nav-tab-label">Missões</span></button>
 <button class="nav-tab direct-child-tab" data-navigation-key="social" data-profile-tab="social" data-view="profileView" id="socialProfileTab" title="Social" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="social" src="assets/icons/social.webp"/></span><span class="nav-tab-label">Social</span></button>
 <button class="nav-tab direct-child-tab profile-nav-tab" data-navigation-key="profile" data-profile-tab="account" data-view="profileView" id="profileNavTab" title="Perfil" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="profile" src="assets/icons/perfil.webp"/></span><span class="nav-tab-label">Perfil</span></button>
 <button class="nav-tab settings-nav-tab" data-navigation-key="settings" data-view="settingsView" title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="settings" src="assets/icons/configuracoes.webp"/></span><span class="nav-tab-label">Configurações</span></button>
@@ -109,7 +109,6 @@
 <button aria-label="Fazenda" class="nav-tab active" data-grid-navigation-key="farm" data-view="farmView" title="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="farm" src="assets/icons/muda-vaso.webp"/></span></button>
 <button aria-label="Contratos" class="nav-tab direct-child-tab" data-grid-navigation-key="contracts" data-office-tab="contracts" data-view="officeView" title="Contratos" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp"/></span></button>
 <button aria-label="Evoluções" class="nav-tab direct-child-tab" data-grid-navigation-key="evolutions" data-office-tab="evolutions" data-view="officeView" title="Evoluções" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="evolutions" src="assets/icons/livros.webp"/></span></button>
-<button aria-label="Missões" class="nav-tab direct-child-tab" data-grid-navigation-key="missions" data-profile-tab="missions" data-view="profileView" title="Missões" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp"/></span></button>
 <button aria-label="Social" class="nav-tab direct-child-tab" data-grid-navigation-key="social" data-profile-tab="social" data-view="profileView" title="Social" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="social" src="assets/icons/social.webp"/></span></button>
 <button aria-label="Perfil" class="nav-tab direct-child-tab" data-grid-navigation-key="profile" data-profile-tab="account" data-view="profileView" title="Perfil" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="profile" src="assets/icons/perfil.webp"/></span></button>
 <button aria-label="Configurações" class="nav-tab settings-nav-tab" data-grid-navigation-key="settings" data-view="settingsView" title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" data-grid-navigation-icon="settings" src="assets/icons/configuracoes.webp"/></span></button>
@@ -166,8 +165,7 @@
 </section></div>
 </section>
 <section class="view" data-view-panel="profileView" id="profileView">
-<div class="profile-workspace panel-card office-workspace"><section aria-labelledby="profileNavTab" class="office-panel profile-panel profile-account-panel active" data-profile-panel="account" id="profileAccountPanel" role="tabpanel"><article class="panel-card settings-card account-settings-card">
-<div class="account-card-heading"><p class="eyebrow">sua conta</p><h2>Perfil</h2><p>Sua identidade e acesso à Fazenda Serena.</p></div>
+<div class="profile-workspace panel-card office-workspace"><section aria-labelledby="profileNavTab" class="office-panel profile-panel profile-account-panel active" data-profile-panel="account" id="profileAccountPanel" role="tabpanel"><div class="section-heading compact-heading office-panel-heading profile-panel-heading profile-account-heading"><div><p class="eyebrow">sua conta</p><h2>Perfil do jogador</h2></div></div><article class="panel-card settings-card account-settings-card">
 <div class="account-settings-head">
 <div class="account-avatar-shell">
 <img alt="" id="accountAvatar" src="assets/logo.webp">
@@ -187,7 +185,7 @@
 <span class="ranking-profile-launch-actions"><button class="button primary" id="openRankingProfileButton" type="button">Perfil do ranking</button><button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair da conta</button></span>
 </section>
 </div>
-</article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
+</article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="profile-inline-missions-section" aria-labelledby="profileInlineMissionsTitle"><div class="section-heading compact-heading office-panel-heading profile-inline-missions-heading"><div><p class="eyebrow">metas da jornada</p><h2 id="profileInlineMissionsTitle">Missões</h2></div><div class="profile-inline-missions-actions"><button aria-expanded="false" class="button secondary mission-history-header-button" id="toggleCompletedMissions" type="button">Mostrar missões concluídas</button><span class="mission-section-counter" id="missionSectionCounter" aria-label="Progresso das missões">0/0</span></div></div><div class="mission-grid" id="missionList"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
 <div class="stats-grid" id="lifetimeStats"></div>
 </section><section class="stats-section stats-section-plain">
 <div class="stats-grid" id="recordStats"></div>
@@ -214,19 +212,7 @@
 <div class="prestige-leaderboard" id="prestigeLeaderboard">
 <div class="empty-state">Carregando as cinco melhores fazendas da nuvem.</div>
 </div>
-</section></section><section aria-labelledby="missionsProfileTab" class="office-panel profile-panel" data-profile-panel="missions" hidden="" id="profileMissionsPanel" role="tabpanel">
-<div class="section-heading compact-heading office-panel-heading profile-panel-heading">
-<div>
-<p class="eyebrow">metas da jornada</p>
-<h2>Missões</h2>
-</div>
-</div>
-<div class="mission-grid" id="missionList"></div>
-<div class="mission-history-toggle">
-<button aria-expanded="false" class="button secondary" id="toggleCompletedMissions" type="button">Mostrar missões concluídas</button>
-<small id="completedMissionCount">Nenhuma missão concluída ainda.</small>
-</div>
-</section></div>
+</section></section></div>
 </section><section class="view" data-view-panel="settingsView" id="settingsView">
 <div class="settings-page-container">
 <div class="section-heading settings-page-heading"><div><p class="eyebrow">seu jeito de jogar</p><h1>Configurações</h1></div></div>
@@ -260,16 +246,17 @@
 </div>
 <section aria-label="Publicidade" class="ad-region" data-adsense-placement="footer" hidden=""></section>
 <footer class="app-footer">
+<div class="footer-navigation-block">
 <nav aria-label="Informações e privacidade" class="footer-links">
 <a href="index.html">Início</a>
 <a href="noticias.html">Notícias</a>
 <a href="tutorial.html">Tutorial</a>
 <a href="terms.html">Termos de Uso</a>
 <a href="privacy.html">Política de Privacidade</a>
-<button class="footer-link-button" data-open-cookie-preferences="" type="button">Preferências de
-                    cookies</button>
+<button class="footer-link-button" data-open-cookie-preferences="" type="button">Preferências de cookies</button>
 </nav>
-<p class="footer-credit"><span>Desenvolvido por</span><a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version=""></b></a></p>
+</div>
+<div class="footer-credit"><span class="footer-developer">Desenvolvido por <a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a></span><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version=""></b></a></div>
 </footer>
 </div>
 <section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
