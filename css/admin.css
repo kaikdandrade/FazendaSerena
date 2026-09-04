@@ -1,9 +1,7 @@
 /* Fazenda Serena — estilos locais de admin.html. */
 
 
-/* ==========================================================================
-   Base histórica do Admin
-   ========================================================================== */
+/* Base histórica do Admin */
 :root {
   color-scheme: light;
   --green: #4f824d;
@@ -242,9 +240,9 @@ code { background: #edf2ea; border-radius: 5px; color: var(--green-deep); font-f
   .admin-series-actions .admin-button { width: 100%; }
 }
 
-/* ========================================================================== */
-/* Missões — séries compactáveis e modal com rolagem segura                   */
-/* ========================================================================== */
+
+/* Missões — séries compactáveis e modal com rolagem segura */
+
 .admin-series-dialog {
   height: min(92dvh, 900px);
   max-height: min(92dvh, 900px);
@@ -333,9 +331,9 @@ code { background: #edf2ea; border-radius: 5px; color: var(--green-deep); font-f
 }
 
 
-/* ========================================================================== */
-/* 1.0.1 r15 — navegação administrativa                                      */
-/* ========================================================================== */
+
+/* navegação administrativa */
+
 .admin-workspace-picker {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -351,9 +349,9 @@ code { background: #edf2ea; border-radius: 5px; color: var(--green-deep); font-f
 }
 
 
-/* ========================================================================== */
-/* 1.0.1 r16 — séries de missão em sanfona                                   */
-/* ========================================================================== */
+
+/* séries de missão em sanfona */
+
 .admin-mission-catalog-item { display: grid !important; gap: 12px; padding: 0 !important; overflow: hidden; }
 .admin-mission-catalog-item > .admin-catalog-item-main { align-items: center; display: flex; gap: 14px; justify-content: space-between; padding: 14px 16px; }
 .admin-mission-series-accordion { border-top: 1px solid var(--line); background: rgba(248,250,247,.78); width: 100%; }
@@ -377,9 +375,9 @@ code { background: #edf2ea; border-radius: 5px; color: var(--green-deep); font-f
 }
 
 
-/* ========================================================================== */
-/* r22 — reestruturação visual administrativa                                 */
-/* ========================================================================== */
+
+/* reestruturação visual administrativa */
+
 * { box-sizing: border-box; }
 body { background: radial-gradient(circle at 12% 0%, rgba(87,135,82,.08), transparent 27rem), #f3f6f1; }
 .admin-shell { display:grid; gap:18px; margin:0 auto; max-width:1460px; padding:22px clamp(14px, 2.2vw, 32px) 40px; width:100%; }
@@ -482,9 +480,9 @@ body { background: radial-gradient(circle at 12% 0%, rgba(87,135,82,.08), transp
 .admin-brand strong { font-size:1.08rem; }
 .admin-brand small { font-size:.72rem; }
 
-/* ========================================================================== */
-/* r23 — painel administrativo: layout consistente + selects visuais          */
-/* ========================================================================== */
+
+/* painel administrativo: layout consistente + selects visuais */
+
 
 body { background: #f1f5ef !important; }
 .admin-shell { max-width: 1500px !important; padding-bottom: 64px !important; }
@@ -733,7 +731,7 @@ body { background: #f1f5ef !important; }
 }
 
 
-/* r23 final — seletor visual robusto e formulários sem recorte */
+/* seletor visual robusto e formulários sem recorte */
 .admin-image-select-popover {
   position: fixed !important;
   inset: auto !important;
@@ -754,9 +752,9 @@ body { background: #f1f5ef !important; }
 }
 
 
-/* ========================================================================== */
-/* r24 — seletor em portal, testes e séries sem rolagem interna               */
-/* ========================================================================== */
+
+/* seletor em portal, testes e séries sem rolagem interna */
+
 body > .admin-image-select-popover {
   position: fixed !important;
   inset: auto !important;
@@ -826,9 +824,9 @@ body > .admin-image-select-popover {
 @media (max-width:520px){ .admin-test-form-grid,.admin-test-offline-grid{grid-template-columns:1fr;} }
 
 
-/* ========================================================================== */
-/* r25 — select visual em Top Layer                                            */
-/* ========================================================================== */
+
+/* select visual em Top Layer */
+
 .admin-image-select-popover[popover] { background:#fff !important; border:1px solid rgba(62,88,64,.14) !important; border-radius:14px !important; box-shadow:0 22px 60px rgba(29,50,32,.22) !important; color:var(--ink); inset:auto !important; margin:0 !important; overflow:hidden !important; padding:0 !important; position:fixed !important; }
 .admin-image-select-popover[popover]::backdrop { background:transparent; }
 .admin-image-select-popover[popover]:popover-open { display:block !important; }
@@ -836,9 +834,9 @@ body > .admin-image-select-popover {
 .admin-image-select-options { overscroll-behavior:contain; }
 
 
-/* ========================================================================== */
-/* r26 — sanfona plena e seletor ancorado                                     */
-/* ========================================================================== */
+
+/* sanfona plena e seletor ancorado */
+
 .admin-mission-catalog-item,
 .admin-mission-series-accordion,
 .admin-mission-series-body,
@@ -856,9 +854,9 @@ body > .admin-image-select-popover[popover] {
 }
 
 
-/* ========================================================================== */
-/* r27 — seletor visual ancorado sem deslocamento cumulativo                  */
-/* ========================================================================== */
+
+/* seletor visual ancorado sem deslocamento cumulativo */
+
 .admin-image-select { position:relative !important; width:100% !important; }
 .admin-image-select-popover[popover] {
   background:#fff !important;
@@ -881,9 +879,7 @@ body > .admin-image-select-popover[popover] {
 }
 
 
-/* ==========================================================================
-   r27 final — seletor visual em dialog centralizado (sem cálculo de posição)
-   ========================================================================== */
+/* seletor visual em dialog centralizado (sem cálculo de posição) */
 .admin-image-select-native { position:absolute !important; inline-size:1px !important; block-size:1px !important; opacity:0 !important; pointer-events:none !important; }
 .admin-image-select { min-width:0 !important; position:relative !important; width:100% !important; }
 .admin-image-picker-dialog { background:transparent; border:0; inset:0; margin:auto; max-height:min(86dvh,760px); max-width:none; padding:0; width:min(760px,calc(100vw - 24px)); }
@@ -907,9 +903,9 @@ body > .admin-image-select-popover[popover] {
 @media (max-width:440px) { .admin-image-picker-dialog { max-height:92dvh; width:calc(100vw - 12px); } .admin-image-picker-shell { max-height:92dvh; } .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)); padding:10px 12px 14px; } }
 
 
-/* ========================================================================== */
-/* r29 — galeria de imagens sem posicionamento flutuante e ícones responsivos */
-/* ========================================================================== */
+
+/* galeria de imagens sem posicionamento flutuante e ícones responsivos */
+
 .admin-navigation-icon-group { background:#f8faf7; border:1px solid rgba(61,88,63,.10); border-radius:16px; display:grid; gap:12px; padding:14px; }
 .admin-navigation-icon-group + .admin-navigation-icon-group { margin-top:12px; }
 .admin-navigation-icon-group > header { display:grid; gap:2px; }
@@ -957,8 +953,8 @@ body > .admin-image-select-popover[popover] {
 }
 
 
-/* r29 final — seletor de imagem como modal da Top Layer, sem coordenadas manuais */
-.admin-image-picker-dialog-r29 {
+/* seletor de imagem como modal da Top Layer, sem coordenadas manuais */
+.admin-image-picker-dialog-portal {
   background: transparent !important;
   border: 0 !important;
   inset: 0 !important;
@@ -969,12 +965,12 @@ body > .admin-image-select-popover[popover] {
   padding: 0 !important;
   width: min(800px, calc(100vw - 24px)) !important;
 }
-.admin-image-picker-dialog-r29::backdrop { background: rgba(20,31,22,.58); backdrop-filter: blur(3px); }
-.admin-image-picker-dialog-r29 .admin-image-picker-shell {
+.admin-image-picker-dialog-portal::backdrop { background: rgba(20,31,22,.58); backdrop-filter: blur(3px); }
+.admin-image-picker-dialog-portal .admin-image-picker-shell {
   max-height: min(88dvh, 790px) !important;
   width: 100% !important;
 }
-.admin-image-picker-dialog-r29 .admin-image-picker-options {
+.admin-image-picker-dialog-portal .admin-image-picker-options {
   display: grid !important;
   grid-template-columns: repeat(5, minmax(0,1fr)) !important;
   min-height: 0 !important;
@@ -982,14 +978,14 @@ body > .admin-image-select-popover[popover] {
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
 }
-@media (max-width:720px) { .admin-image-picker-dialog-r29 .admin-image-picker-options { grid-template-columns:repeat(3,minmax(0,1fr)) !important; } }
+@media (max-width:720px) { .admin-image-picker-dialog-portal .admin-image-picker-options { grid-template-columns:repeat(3,minmax(0,1fr)) !important; } }
 @media (max-width:440px) {
-  .admin-image-picker-dialog-r29 { width:calc(100vw - 10px) !important; }
-  .admin-image-picker-dialog-r29 .admin-image-picker-shell { max-height:calc(100dvh - 14px) !important; }
-  .admin-image-picker-dialog-r29 .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
+  .admin-image-picker-dialog-portal { width:calc(100vw - 10px) !important; }
+  .admin-image-picker-dialog-portal .admin-image-picker-shell { max-height:calc(100dvh - 14px) !important; }
+  .admin-image-picker-dialog-portal .admin-image-picker-options { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }
 }
 
-/* r30 — ícones e ordem das duas modalidades de navegação */
+/* ícones e ordem das duas modalidades de navegação */
 .admin-navigation-icon-field { gap:9px !important; }
 .admin-navigation-icon-field-title { align-items:center; display:flex; gap:8px; justify-content:space-between; }
 .admin-navigation-icon-field-title > span { font-weight:850; }
@@ -997,7 +993,7 @@ body > .admin-image-select-popover[popover] {
 .admin-icon-order-button { align-items:center; background:rgba(65,103,65,.07); border:1px solid rgba(65,103,65,.13); border-radius:8px; color:#436b43; cursor:pointer; display:flex; font-size:.8rem; font-weight:950; height:29px; justify-content:center; width:31px; }
 .admin-icon-order-button:hover { background:rgba(65,103,65,.13); }
 
-/* r31 — filtros de feedback e Testes fiéis aos modais reais */
+/* filtros de feedback e Testes fiéis aos modais reais */
 .admin-feedback-filters { align-items:end; background:rgba(247,250,246,.9); border:1px solid rgba(63,94,66,.09); border-radius:14px; display:grid; gap:10px; grid-template-columns:minmax(170px,1fr) minmax(190px,1fr) auto; margin:0 0 14px; padding:12px; }
 .admin-feedback-filters label { display:grid; gap:5px; }
 .admin-feedback-filters label > span { color:var(--muted); font-size:.64rem; font-weight:850; }
@@ -1046,7 +1042,7 @@ body > .admin-image-select-popover[popover] {
 .admin-test-preview-dialog .milestone-preview-actions { border-top:1px solid rgba(62,91,64,.08); padding:12px 18px 16px; }
 .admin-test-preview-dialog .milestone-preview-actions .admin-button { width:100%; }
 
-/* r32 — painel administrativo sem descrições decorativas. */
+/* painel administrativo sem descrições decorativas. */
 .admin-section-heading p,
 .admin-navigation-icon-group > header small,
 .admin-test-card p,
@@ -1133,14 +1129,12 @@ body > .admin-image-select-popover[popover] {
 .admin-catalog-editor[data-catalog-editor="prestigeUpgrades"] .admin-catalog-item { flex-direction:column !important; }
 
 
-/* ==========================================================================
-   Componentes do Admin
-   ========================================================================== */
-/* ========================================================================== 
-   Fazenda Serena Admin — camada visual r35
-   A base histórica do Admin foi incorporada a este arquivo local. Esta seção concentra
-   o layout atual, sem revisões empilhadas por versão.
-   ========================================================================== */
+/* Componentes do Admin */
+/*
+ * Fazenda Serena Admin — camada visual
+ * * * A base histórica do Admin foi incorporada a este arquivo local. Esta seção concentra
+ * * * o layout atual, sem revisões empilhadas por versão.
+ */
 :root{
   --a-bg:#f2f5ef;--a-surface:#fff;--a-soft:#f7faf5;--a-text:#1f2b20;--a-muted:#687267;
   --a-border:rgba(45,73,46,.14);--a-border-strong:rgba(45,73,46,.24);
@@ -1192,7 +1186,7 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
 @media(max-width:760px){.admin-image-picker-options{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:480px){.admin-image-picker-options{grid-template-columns:repeat(2,minmax(0,1fr));padding-inline:12px}.admin-image-picker-head,.admin-image-picker-search{padding-inline:12px}}
 
-/* R36 — áreas agrupadas do Admin em formato sanfona. */
+/* áreas agrupadas do Admin em formato sanfona. */
 .admin-accordion-section { overflow: hidden; }
 .admin-accordion-section > .admin-section-heading {
   display: grid;
@@ -1226,11 +1220,11 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
   .admin-accordion-section > .admin-section-heading .admin-accordion-toggle { width: 100%; }
 }
 
-/* R36 — eventos, checkboxes e grupos de ícones. */
+/* eventos, checkboxes e grupos de ícones. */
 .admin-dialog-checkbox{display:flex!important;align-items:center;gap:9px;grid-column:1/-1}.admin-dialog-checkbox input{width:18px!important;height:18px!important;min-height:18px!important;padding:0!important}.admin-subsection-heading{margin:20px 0 8px}.admin-subsection-heading h3{margin:0 0 4px}.admin-subsection-heading p{margin:0;color:var(--a-muted);font-size:.82rem}.admin-dialog-field textarea{min-height:112px;resize:vertical}.admin-dialog-field input[type="time"]{font-variant-numeric:tabular-nums}
 
 
-/* R37b — editor de títulos de jogador */
+/* editor de títulos de jogador */
 .admin-section-description { margin: .28rem 0 0; max-width: 70ch; color: var(--admin-muted, #64716c); font-size: .86rem; }
 .admin-title-rarity-guide { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0 1rem; }
 .admin-title-rarity-guide span { border: 1px solid currentColor; border-radius: 999px; padding: .25rem .58rem; font-size: .72rem; font-weight: 850; background: rgba(255,255,255,.72); }
@@ -1251,12 +1245,12 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
 .admin-series-title-reward small { display: block; margin-top: .25rem; color: var(--admin-muted, #6e7874); font-size: .72rem; }
 
 
-/* R37c — marco de desbloqueio de planta nas séries de missões */
+/* marco de desbloqueio de planta nas séries de missões */
 .admin-series-fields .admin-series-crop-milestone { grid-column: 1 / -1; }
 .admin-series-crop-milestone small { display:block; margin-top:.3rem; color:var(--muted,#68766f); line-height:1.4; }
 .admin-series-crop-milestone select { width:100%; }
 
-/* R39.8 — logotipo horizontal maior no Admin. */
+/* logotipo horizontal maior no Admin. */
 .admin-brand img {
   width: 126px !important;
   height: auto !important;
@@ -1268,13 +1262,11 @@ dialog{max-width:min(94vw,900px);max-height:min(90vh,920px);border:0;border-radi
 }
 
 
-/* ==========================================================================
-   Revisões do Admin
-   ========================================================================== */
-/* ========================================================================== */
-/* Fazenda Serena — Admin Rework R40.3                                       */
-/* Camada final. Prioridade deliberada sobre admin-legacy.css/admin.css.      */
-/* ========================================================================== */
+/* Revisões do Admin */
+
+/* Fazenda Serena — Admin */
+/* Camada. Prioridade deliberada sobre admin-legacy.css/admin.css. */
+
 
 :root {
   --adm-bg: #eef3ed;
@@ -1345,7 +1337,7 @@ summary:focus-visible {
   outline-offset: 2px !important;
 }
 
-/* Shell / header ---------------------------------------------------------- */
+/* Shell / header */
 .admin-shell {
   width: min(var(--adm-content), calc(100% - 32px)) !important;
   max-width: var(--adm-content) !important;
@@ -1412,7 +1404,7 @@ summary:focus-visible {
   font-weight: 700 !important;
 }
 
-/* Gate ------------------------------------------------------------------- */
+/* Gate */
 .admin-gate {
   min-height: min(72vh, 650px) !important;
   display: grid !important;
@@ -1448,7 +1440,7 @@ summary:focus-visible {
 }
 @keyframes admin-rework-spin { to { transform: rotate(360deg); } }
 
-/* App / heading ----------------------------------------------------------- */
+/* App / heading */
 .admin-app {
   min-width: 0 !important;
   display: grid !important;
@@ -1492,7 +1484,7 @@ summary:focus-visible {
   box-shadow: 0 0 0 4px rgba(98, 164, 111, .10);
 }
 
-/* Workspace selector ------------------------------------------------------ */
+/* Workspace selector */
 .admin-workspace-picker {
   position: sticky !important;
   top: 86px !important;
@@ -1532,7 +1524,7 @@ summary:focus-visible {
   font-weight: 760 !important;
 }
 
-/* Generic panels ---------------------------------------------------------- */
+/* Generic panels */
 .admin-panel {
   width: 100% !important;
   min-width: 0 !important;
@@ -1577,7 +1569,7 @@ summary:focus-visible {
 .admin-subsection-heading h3 { margin: 0 0 4px !important; font-size: .98rem !important; }
 .admin-subsection-heading p { margin: 0 !important; color: var(--adm-muted) !important; font-size: .77rem !important; line-height: 1.45 !important; }
 
-/* Controls ---------------------------------------------------------------- */
+/* Controls */
 .admin-button {
   min-width: 0 !important;
   min-height: 42px !important;
@@ -1645,7 +1637,7 @@ input:focus, select:focus, textarea:focus {
 input::placeholder, textarea::placeholder { color: #99a49c !important; }
 label small, .admin-dialog-field small { display: block !important; margin-top: 5px !important; color: var(--adm-muted) !important; font-size: .69rem !important; line-height: 1.4 !important; }
 
-/* Form grids -------------------------------------------------------------- */
+/* Form grids */
 .admin-balance-grid,
 .admin-test-form-grid,
 .admin-player-editor-grid {
@@ -1671,7 +1663,7 @@ label small, .admin-dialog-field small { display: block !important; margin-top: 
   border-top: 1px solid var(--adm-line) !important;
 }
 
-/* Administrators ---------------------------------------------------------- */
+/* Administrators */
 .admin-administrator-list { min-width: 0 !important; display: grid !important; gap: 9px !important; margin-top: 15px !important; }
 .admin-administrator-item {
   min-width: 0 !important;
@@ -1688,7 +1680,7 @@ label small, .admin-dialog-field small { display: block !important; margin-top: 
 .admin-administrator-item strong { overflow-wrap: anywhere !important; font-size: .88rem !important; }
 .admin-administrator-item small { color: var(--adm-muted) !important; overflow-wrap: anywhere !important; font-size: .72rem !important; }
 
-/* Navigation icons -------------------------------------------------------- */
+/* Navigation icons */
 .admin-navigation-icon-group {
   min-width: 0 !important;
   padding: 15px !important;
@@ -1734,7 +1726,7 @@ label small, .admin-dialog-field small { display: block !important; margin-top: 
   cursor: pointer !important;
 }
 
-/* Feedback inbox ---------------------------------------------------------- */
+/* Feedback inbox */
 .admin-feedback-filters {
   min-width: 0 !important;
   display: grid !important;
@@ -1790,7 +1782,7 @@ label small, .admin-dialog-field small { display: block !important; margin-top: 
 .admin-feedback-message > footer > div { display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 6px !important; flex-wrap: wrap !important; }
 .admin-feedback-read { color: var(--adm-green) !important; font-size: .72rem !important; font-weight: 830 !important; }
 
-/* Global control ---------------------------------------------------------- */
+/* Global control */
 .admin-control-groups { min-width: 0 !important; display: grid !important; gap: 14px !important; }
 .admin-control-group {
   min-width: 0 !important;
@@ -1861,7 +1853,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-player-editor-grid { margin-top: 12px !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
 .admin-player-primary-actions { display: flex !important; gap: 8px !important; flex-wrap: wrap !important; margin-top: 14px !important; }
 
-/* Catalogs --------------------------------------------------------------- */
+/* Catalogs */
 .admin-catalog-meta {
   width: fit-content !important;
   margin: -6px 0 12px !important;
@@ -1928,7 +1920,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   font-weight: 820 !important;
 }
 
-/* Evolution cost preview -------------------------------------------------- */
+/* Evolution cost preview */
 .admin-evolution-cost-preview {
   min-width: 0 !important;
   margin-top: 11px !important;
@@ -1953,7 +1945,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-evolution-cost-cell b { color: var(--adm-muted) !important; font-size: .64rem !important; }
 .admin-evolution-cost-cell strong { font-size: .76rem !important; }
 
-/* Missions / series ------------------------------------------------------- */
+/* Missions / series */
 .admin-mission-series-accordion {
   width: 100% !important;
   min-width: 0 !important;
@@ -2006,7 +1998,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-series-fields > .admin-series-crop-milestone { grid-column: 1 / -1 !important; }
 .admin-series-inline-actions { display: flex !important; justify-content: flex-end !important; gap: 7px !important; flex-wrap: wrap !important; margin-top: 10px !important; }
 
-/* Title rarities ---------------------------------------------------------- */
+/* Title rarities */
 .admin-title-rarity-guide { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; margin: 0 0 13px !important; }
 .admin-title-rarity-guide span {
   padding: 5px 9px !important;
@@ -2017,7 +2009,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   font-weight: 850 !important;
 }
 
-/* Effects editor ---------------------------------------------------------- */
+/* Effects editor */
 .admin-effects-editor { min-width: 0 !important; }
 .admin-effect-list { min-width: 0 !important; display: grid !important; gap: 8px !important; margin-bottom: 8px !important; }
 .admin-effect-row {
@@ -2033,7 +2025,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   background: var(--adm-surface-soft) !important;
 }
 
-/* Check option groups ----------------------------------------------------- */
+/* Check option groups */
 .admin-check-options {
   min-width: 0 !important;
   margin: 0 !important;
@@ -2057,7 +2049,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-check-options label > span,
 .admin-dialog-checkbox > span { margin: 0 !important; font-size: .73rem !important; line-height: 1.4 !important; }
 
-/* Contract color editor --------------------------------------------------- */
+/* Contract color editor */
 .admin-contract-color-controls {
   min-width: 0 !important;
   display: grid !important;
@@ -2080,7 +2072,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 }
 .admin-contract-color-preview strong { overflow-wrap: anywhere !important; }
 
-/* Public texts ------------------------------------------------------------ */
+/* Public texts */
 .admin-editor textarea#adminTextsEditor {
   min-height: min(54vh, 600px) !important;
   padding: 15px !important;
@@ -2092,7 +2084,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   tab-size: 2 !important;
 }
 
-/* Feedback/status strips -------------------------------------------------- */
+/* Feedback/status strips */
 .admin-global-feedback,
 .admin-feedback,
 .admin-test-feedback {
@@ -2114,7 +2106,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 [data-type="error"] { color: var(--adm-red) !important; }
 [data-type="success"] { color: var(--adm-green) !important; }
 
-/* Accordion sections ------------------------------------------------------ */
+/* Accordion sections */
 .admin-accordion-section { min-width: 0 !important; overflow: clip !important; }
 .admin-accordion-section > .admin-section-heading {
   display: grid !important;
@@ -2140,7 +2132,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 }
 .admin-accordion-section.is-collapsed > :not(.admin-section-heading) { display: none !important; }
 
-/* Image select ------------------------------------------------------------ */
+/* Image select */
 .admin-image-select-native { position: absolute !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; }
 .admin-image-select { width: 100% !important; min-width: 0 !important; }
 .admin-image-select-trigger {
@@ -2174,7 +2166,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-image-select-trigger small { color: var(--adm-muted) !important; font-size: .68rem !important; }
 .admin-image-select-trigger i { color: var(--adm-muted) !important; font-style: normal !important; font-size: 1.2rem !important; }
 
-/* Main item dialog -------------------------------------------------------- */
+/* Main item dialog */
 .admin-item-dialog {
   width: min(900px, calc(100vw - 28px)) !important;
   max-width: 900px !important;
@@ -2229,7 +2221,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   background: rgba(247, 250, 246, .98) !important;
 }
 
-/* Image picker dialog ----------------------------------------------------- */
+/* Image picker dialog */
 .admin-image-picker-dialog {
   width: min(940px, calc(100vw - 28px)) !important;
   max-width: 940px !important;
@@ -2296,12 +2288,12 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-image-picker-options b { position: absolute !important; top: 12px !important; right: 12px !important; padding: 3px 6px !important; border-radius: 999px !important; color: #fff !important; background: var(--adm-green) !important; font-size: .58rem !important; }
 .admin-image-select-empty { grid-column: 1 / -1 !important; padding: 22px !important; color: var(--adm-muted) !important; text-align: center !important; }
 
-/* Scrollbars -------------------------------------------------------------- */
+/* Scrollbars */
 .admin-shell *, .admin-item-dialog *, .admin-image-picker-dialog * { scrollbar-width: thin; scrollbar-color: rgba(81, 111, 86, .30) transparent; }
 .admin-shell *::-webkit-scrollbar, .admin-item-dialog *::-webkit-scrollbar, .admin-image-picker-dialog *::-webkit-scrollbar { width: 8px; height: 8px; }
 .admin-shell *::-webkit-scrollbar-thumb, .admin-item-dialog *::-webkit-scrollbar-thumb, .admin-image-picker-dialog *::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 999px; background: rgba(81, 111, 86, .28); background-clip: padding-box; }
 
-/* Responsive: desktop intermediário -------------------------------------- */
+/* Responsive: desktop intermediário */
 @media (max-width: 1180px) {
   .admin-balance-grid,
   .admin-test-form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
@@ -2310,7 +2302,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   .admin-series-fields { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
 }
 
-/* Responsive: tablet ------------------------------------------------------ */
+/* Responsive: tablet */
 @media (max-width: 820px) {
   .admin-shell { width: min(100% - 18px, var(--adm-content)) !important; }
   .admin-header {
@@ -2340,7 +2332,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   .admin-image-picker-options { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 }
 
-/* Responsive: mobile ------------------------------------------------------ */
+/* Responsive: mobile */
 @media (max-width: 600px) {
   body::before { display: none; }
   .admin-shell { width: calc(100% - 12px) !important; padding-bottom: 28px !important; }
@@ -2456,9 +2448,9 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   .admin-dialog-actions { grid-template-columns: 1fr !important; }
 }
 
-/* ========================================================================== */
-/* R40.4 — Missões ocultas, plantas-alvo e títulos padrão                    */
-/* ========================================================================== */
+
+/* Missões ocultas, plantas-alvo e títulos padrão */
+
 .admin-mission-catalog-item.admin-mission-hidden {
   border-color: rgba(118, 92, 142, .18) !important;
   background: linear-gradient(180deg, rgba(249,246,252,.96), rgba(246,243,249,.88)) !important;
@@ -2495,14 +2487,14 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
   .admin-mission-visibility-badge { margin-left: 5px !important; }
 }
 
-/* ========================================================================== */
-/* R40.5 — estados de autenticação do Admin                                    */
-/* ========================================================================== */
+
+/* estados de autenticação do Admin */
+
 /*
- * A camada R40.3 usa display !important em vários componentes. Sem estes
- * seletores específicos, algumas regras visuais podiam vencer o atributo
- * HTML `hidden`, deixando o loader e até o painel administrativo visíveis ao
- * mesmo tempo. O estado de acesso volta a ser estritamente exclusivo.
+ * A interface usa display !important em vários componentes. Sem estes
+ * * * * seletores específicos, algumas regras visuais podiam vencer o atributo
+ * * * * HTML `hidden`, deixando o loader e até o painel administrativo visíveis ao
+ * * * * mesmo tempo. O estado de acesso volta a ser estritamente exclusivo.
  */
 #adminGate[hidden],
 #adminApp[hidden],
@@ -2517,7 +2509,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 }
 
 
-/* Revisão V4 — manutenção e raridade mística */
+/* manutenção e raridade mística */
 .admin-player-titles-editor .title-rarity-mystic { color:#23767d; background:linear-gradient(90deg,rgba(60,190,194,.15),rgba(121,86,186,.08),rgba(255,255,255,0) 55%); }
 .admin-title-rarity-guide [data-title-rarity="mystic"] { color:#23767d; border-color:rgba(35,141,145,.28); background:rgba(35,141,145,.08); }
 .admin-maintenance-control { border-color: rgba(210, 164, 35, .35); }
@@ -2529,7 +2521,7 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 @media (max-width:720px) { .admin-maintenance-row { grid-template-columns:1fr; } .admin-maintenance-row .admin-button { width:100%; } }
 
 
-/* R65 — superfícies dos tipos de pontos no modo escuro. */
+/* superfícies dos tipos de pontos no modo escuro. */
 html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-meta {
   color: #9eaca2 !important;
   background: #202824 !important;

@@ -86,9 +86,7 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
 .native-download-note{max-width:900px;margin:16px auto 0;padding:14px 17px;border:1px solid rgba(60,101,68,.12);border-radius:16px;background:rgba(255,255,252,.62);display:flex;gap:8px 12px;justify-content:center;align-items:center;flex-wrap:wrap;color:#607267;font-size:.75rem;text-align:center}
 .native-download-note strong{color:#355f3e}
 
-/* ========================================================================== 
-   Firebase Hosting — página 404
-   ========================================================================== */
+/* Firebase Hosting — página 404 */
 .error-page {
   min-height: 100vh;
   display: flex;
@@ -246,7 +244,7 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
 .ios-install-action,.android-install-action{color:#fff!important;background:linear-gradient(135deg,#4c9157,#357342)!important;border-color:transparent!important;box-shadow:0 10px 22px rgba(55,119,68,.18)}
 @media(min-width:1025px){.home-resource-row article{min-height:64px}}
 
-/* R36 reparo final — Index público */
+/* Index público */
 .home-resource-row article,.home-resource-row article span{min-width:0}
 .home-resource-row strong{display:block!important;overflow:visible!important;text-overflow:clip!important;white-space:normal!important;line-height:1.25!important}
 .home-install-card.is-current-platform{border-color:var(--line)!important;box-shadow:0 12px 34px rgba(49,77,55,.05)!important}
@@ -265,12 +263,12 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
 @media(max-width:680px){.home-faq-grid{grid-template-columns:1fr!important}.home-install-card{min-height:0!important}}
 
 
-/* R36 — respiro entre a opção ARM64 e o botão principal do Windows */
+/* respiro entre a opção ARM64 e o botão principal do Windows */
 .native-download-card[data-native-card="windows"] .native-card-note-compact {
   margin-bottom: 16px !important;
 }
 
-/* R37f — arte oficial da página 404 */
+/* arte oficial da página 404 */
 .error-art.error-art-image {
   min-height: 0;
   aspect-ratio: 1672 / 941;
@@ -290,9 +288,9 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
   .error-art.error-art-image { border-radius: 18px; }
 }
 
-/* ========================================================================== */
-/* R39.8 — 404: arte integral com texto em vidro + logos horizontais         */
-/* ========================================================================== */
+
+/* 404: arte integral com texto em vidro + logos horizontais */
+
 .error-page .home-brand img {
   width: 118px !important;
   height: auto !important;
@@ -370,9 +368,9 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
   .error-page .error-copy { padding: 18px !important; border-radius: 18px !important; }
 }
 
-/* ========================================================================== */
-/* R39.9 — cabeçalho público e 404 integrado à arte                           */
-/* ========================================================================== */
+
+/* cabeçalho público e 404 integrado à arte */
+
 .home-header-inner {
   grid-template-columns: auto 1fr !important;
 }
@@ -459,7 +457,7 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
 }
 
 
-/* R64 — botões verdes usam texto branco para contraste consistente. */
+/* botões verdes usam texto branco para contraste consistente. */
 .home-play-button,
 .home-install-action.home-play-button,
 .ios-install-action,

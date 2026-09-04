@@ -1,6 +1,6 @@
-/* ========================================================================== */
-/* RODAPÉ, ADSENSE E PREFERÊNCIAS DE COOKIES                                  */
-/* ========================================================================== */
+
+/* RODAPÉ, ADSENSE E PREFERÊNCIAS DE COOKIES */
+
 
 .ad-region {
   margin: 28px auto 0;
@@ -330,7 +330,7 @@
   width: 1px;
 }
 
-/* r33 — arte dedicada para o aviso de cookies. */
+/* arte dedicada para o aviso de cookies. */
 .cookie-banner-icon { overflow: visible; }
 .cookie-banner-icon img {
   display: block;
@@ -348,7 +348,7 @@
 }
 
 
-/* R36 — consentimento opcional de publicidade e alinhamento do aviso */
+/* consentimento opcional de publicidade e alinhamento do aviso */
 .cookie-banner-copy {
   align-items: center !important;
   grid-template-columns: 58px minmax(0, 1fr) !important;
@@ -387,7 +387,7 @@
 }
 
 
-/* R66 — banner compacto: ícone livre e botões inline com altura natural. */
+/* banner compacto: ícone livre e botões inline com altura natural. */
 #cookieBanner .cookie-banner-icon {
   background: transparent !important;
   border: 0 !important;

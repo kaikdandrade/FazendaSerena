@@ -1,9 +1,9 @@
-/* ========================================================================== 
-   Fazenda Serena — Stylish global
-   Camada global única: normalização, tipografia, botões, formulários,
-   counters, superfícies e comportamento acessível compartilhado pelo site.
-   Regras exclusivas de páginas pertencem aos respectivos arquivos locais.
-   ========================================================================== */
+/*
+ * Fazenda Serena — Stylish global
+ * * * Camada global única: normalização, tipografia, botões, formulários,
+ * * * counters, superfícies e comportamento acessível compartilhado pelo site.
+ * * * Regras exclusivas de páginas pertencem aos respectivos arquivos locais.
+ */
 
 :root {
   --ui-bg: #f3f7ef;
@@ -70,8 +70,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline-offset: 2px;
 }
 
-/* Três níveis tipográficos canônicos para o site. Todas as páginas partem
-   destes valores e só especializam quando o layout local realmente exige. */
+/*
+ * Três níveis tipográficos canônicos para o site. Todas as páginas partem
+ * * * destes valores e só especializam quando o layout local realmente exige.
+ */
 h1 {
   font-size: var(--font-title-size);
   font-weight: var(--font-title-weight);
@@ -235,11 +237,11 @@ dialog::backdrop {
 }
 
 
-/* ==========================================================================
-   Modais globais compartilhados
-   ========================================================================== */
-/* Revisão 36 — camada final dos modais reais do jogo.
-   Este arquivo é carregado depois do CSS legado e vence regras conflitantes. */
+/* Modais globais compartilhados */
+/*
+ * 36 — camada dos modais reais do jogo.
+ * * * Este arquivo é carregado depois do CSS legado e vence regras conflitantes.
+ */
 html.modal-open,
 body.modal-open {
   overflow: hidden !important;
@@ -256,7 +258,7 @@ dialog::backdrop {
   backdrop-filter: blur(3px) !important;
 }
 
-/* Marco — réplica exata do preview aprovado no Admin. */
+/* Marco — réplica do preview aprovado no Admin. */
 .confirmation-dialog-milestone {
   background: #fff !important;
   border: 0 !important;
@@ -382,7 +384,7 @@ dialog::backdrop {
   width: 100% !important;
 }
 
-/* Offline — réplica exata do preview aprovado no Admin. */
+/* Offline — réplica do preview aprovado no Admin. */
 .offline-progress-dialog {
   background: transparent !important;
   border: 0 !important;
@@ -570,9 +572,11 @@ dialog::backdrop {
   }
 }
 
-/* R36 hotfix — blindagem de layout dos modais reais do jogo.
-   As revisões antigas deixaram regras de grid/flex concorrentes; estas regras
-   intencionalmente vencem a cascata e mantêm o conteúdo principal em coluna. */
+/*
+ * blindagem de layout dos modais reais do jogo.
+ * * * As revisões antigas deixaram regras de grid/flex concorrentes; estas regras
+ * * * intencionalmente vencem a cascata e mantêm o conteúdo principal em coluna.
+ */
 .confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog) > form,
 .ranking-profile-dialog > form {
   box-sizing: border-box !important;
@@ -592,14 +596,18 @@ dialog::backdrop {
   width: 100% !important;
 }
 
-/* Os desbloqueios do marco nunca podem virar colunas lado a lado por herança
-   de CSS legado. Cada desbloqueio ocupa uma linha própria. */
+/*
+ * Os desbloqueios do marco nunca podem virar colunas lado a lado por herança
+ * * * de CSS legado. Cada desbloqueio ocupa uma linha própria.
+ */
 .confirmation-dialog-milestone .milestone-preview-body {
   grid-template-columns: minmax(0, 1fr) !important;
 }
 
-/* O resumo offline também fica em fluxo vertical. Além de ser mais legível,
-   elimina o estouro horizontal quando um valor formatado fica grande. */
+/*
+ * O resumo offline também fica em fluxo vertical. Além de ser mais legível,
+ * * * elimina o estouro horizontal quando um valor formatado fica grande.
+ */
 .offline-progress-dialog .offline-progress-summary {
   grid-template-columns: minmax(0, 1fr) !important;
 }

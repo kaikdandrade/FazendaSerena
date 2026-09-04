@@ -1,12 +1,10 @@
 /* Fazenda Serena — estilos locais de privacy.html. */
 
 
-/* ==========================================================================
-   Base de páginas legais
-   ========================================================================== */
-/* ========================================================================== */
-/* FAZENDA SERENA — POLÍTICA DE PRIVACIDADE                                  */
-/* ========================================================================== */
+/* Base de páginas legais */
+
+/* FAZENDA SERENA — POLÍTICA DE PRIVACIDADE */
+
 
 :root {
   --green: #68a45a;
@@ -178,14 +176,14 @@ a:focus-visible, button:focus-visible { outline: 3px solid rgba(108, 168, 92, .3
   .privacy-footer { align-items: flex-start; flex-direction: column; }
 }
 
-/* Legibilidade alinhada ao jogo 1.0.1 */
+/* Legibilidade alinhada ao jogo */
 html { font-size: 17.5px; }
 .privacy-brand small, .privacy-eyebrow, .privacy-updated, .privacy-index a,
 .privacy-section p, .privacy-section li, .privacy-callout, .privacy-action, .privacy-footer,
 .back-to-game { font-size: max(.78rem, 13px); }
 .privacy-section h3 { font-size: max(.92rem, 15px); }
 
-/* R39.8 — logotipo horizontal maior em Privacidade e Termos. */
+/* logotipo horizontal maior em Privacidade e Termos. */
 .privacy-brand img {
   width: 122px !important;
   height: auto !important;
@@ -197,10 +195,8 @@ html { font-size: 17.5px; }
 }
 
 
-/* ==========================================================================
-   Complementos institucionais
-   ========================================================================== */
-/* Páginas públicas — camada visual compartilhada r35 */
+/* Complementos institucionais */
+/* Páginas públicas — camada visual compartilhada */
 :root {
   --page-text:#203020; --page-muted:#687467; --page-green:#397849;
   --page-border:rgba(52,82,50,.14); --page-surface:rgba(255,255,255,.9);
@@ -220,9 +216,9 @@ a:focus-visible,button:focus-visible{outline:3px solid rgba(57,120,73,.22);outli
 .back-to-game,.news-back,.tutorial-back{border-radius:12px!important;font-weight:700}
 @media(max-width:600px){.privacy-shell,.news-shell,.tutorial-shell{width:min(100% - 14px,1180px)}.privacy-header,.news-header,.tutorial-header{border-radius:16px}.privacy-hero,.news-hero,.tutorial-hero{border-radius:18px;padding:24px 18px}}
 
-/* ========================================================================== */
-/* R39.9 — header/footer público igual ao 404                                 */
-/* ========================================================================== */
+
+/* header/footer público igual ao 404 */
+
 .privacy-shell,
 .news-shell {
   width: 100% !important;
