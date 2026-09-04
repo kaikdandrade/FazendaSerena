@@ -12,6 +12,7 @@
       "CHANGELOG.md",
       "ADSENSE_SETUP.md",
       "ADMIN_SETUP.md",
+      "admin-preview-temp.html",
       "**/node_modules/**",
       "SECURITY_SETUP.md",
       "desktop-windows/**",
