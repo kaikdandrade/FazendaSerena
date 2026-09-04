@@ -2515,3 +2515,15 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 #adminGate:not([hidden]) ~ #adminApp {
   display: none !important;
 }
+
+
+/* Revisão V4 — manutenção e raridade mística */
+.admin-player-titles-editor .title-rarity-mystic { color:#23767d; background:linear-gradient(90deg,rgba(60,190,194,.15),rgba(121,86,186,.08),rgba(255,255,255,0) 55%); }
+.admin-title-rarity-guide [data-title-rarity="mystic"] { color:#23767d; border-color:rgba(35,141,145,.28); background:rgba(35,141,145,.08); }
+.admin-maintenance-control { border-color: rgba(210, 164, 35, .35); }
+.admin-maintenance-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center; }
+.admin-maintenance-toggle { display:flex; justify-content:space-between; gap:18px; align-items:center; }
+.admin-maintenance-toggle span { display:grid; gap:4px; }
+.admin-maintenance-toggle small { color:var(--admin-muted); line-height:1.45; }
+.admin-maintenance-toggle input { width:22px; height:22px; accent-color:#c69217; flex:0 0 auto; }
+@media (max-width:720px) { .admin-maintenance-row { grid-template-columns:1fr; } .admin-maintenance-row .admin-button { width:100%; } }
