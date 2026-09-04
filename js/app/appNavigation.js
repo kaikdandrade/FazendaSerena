@@ -1,11 +1,21 @@
 "use strict";
-  const CATALOG_FILTER_STORAGE_KEY = "fazenda-serena-catalog-filters-v1";
+  const CATALOG_FILTER_STORAGE_KEY = "fazenda-serena-catalog-filters";
   const defaultCatalogFilterState = () => ({ categories: new Set(), hideMastered: false, hideLocked: false });
 
   function loadCatalogFilters() {
     const result = { farm: defaultCatalogFilterState() };
     try {
-      const raw = JSON.parse(localStorage.getItem(CATALOG_FILTER_STORAGE_KEY) || "null");
+      let stored = localStorage.getItem(CATALOG_FILTER_STORAGE_KEY);
+      if (!stored) {
+        for (let index = 0; index < localStorage.length; index += 1) {
+          const key = localStorage.key(index);
+          if (key?.startsWith(`${CATALOG_FILTER_STORAGE_KEY}-`)) {
+            stored = localStorage.getItem(key);
+            if (stored) break;
+          }
+        }
+      }
+      const raw = JSON.parse(stored || "null");
       ["farm"].forEach(context => {
         if (!raw?.[context]) return;
         result[context].categories = new Set(Array.isArray(raw[context].categories) ? raw[context].categories.map(String) : []);
@@ -363,9 +373,9 @@
 
   function syncFarmXPBorderGeometry(counter) {
     if (!counter) return;
-    const svg = counter.querySelector(".farm-xp-border-v67");
-    const track = svg?.querySelector(".farm-xp-track-stroke-v67");
-    const progressPath = svg?.querySelector(".farm-xp-progress-stroke-v67");
+    const svg = counter.querySelector(".farm-xp-border");
+    const track = svg?.querySelector(".farm-xp-track-stroke");
+    const progressPath = svg?.querySelector(".farm-xp-progress-stroke");
     if (!svg || !track || !progressPath) return;
     if (!farmXPBorderObservers.has(counter) && typeof ResizeObserver === "function") {
       const observer = new ResizeObserver(() => syncFarmXPBorderGeometry(counter));

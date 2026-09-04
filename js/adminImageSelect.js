@@ -9,7 +9,7 @@
   let active = null;
 
   const picker = document.createElement("dialog");
-  picker.className = "admin-image-picker-dialog admin-image-picker-dialog-r29";
+  picker.className = "admin-image-picker-dialog admin-image-picker-dialog-portal";
   picker.setAttribute("aria-labelledby", "adminImagePickerTitle");
   picker.innerHTML = `<div class="admin-image-picker-shell">
     <header class="admin-image-picker-head">

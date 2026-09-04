@@ -2,7 +2,7 @@
   function render(force = false) {
     const now = performance.now();
 
-    // Revisão 39: render() é estrutural. O loop principal nunca deve remontar
+ // 39: render() é estrutural. O loop principal nunca deve remontar
     // grids/cards inteiros. Sem force, apenas os campos vivos são atualizados.
     if (!force) {
       updateLiveGameUI?.(now);

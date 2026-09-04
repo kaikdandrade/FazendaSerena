@@ -27,7 +27,7 @@
     ["contractRecentCropLimit", dom.contractRecentCropLimit, false, true],
     ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
-  const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
+  const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
 
   const navigationIconFields = Object.freeze([
@@ -102,7 +102,7 @@
       const typeLabel = item.type === "idea" ? "Ideia" : item.type === "problem" ? "Problema" : "Feedback";
       const unread = item.status !== "read";
       const date = new Date(Number(item.createdAtClient) || Date.now()).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-      return `<article class="admin-feedback-message ${unread ? "is-new" : ""}" data-feedback-id="${escapeHtml(item.id)}"><header><div><span>${typeLabel}</span><strong>${escapeHtml(item.subject)}</strong></div><time>${escapeHtml(date)}</time></header><p>${escapeHtml(item.message)}</p><footer><small>${escapeHtml(item.displayName || "Jogador")} · ${escapeHtml(item.email || "")}${item.gameVersion ? ` · v${escapeHtml(item.gameVersion)}` : ""}</small><div>${unread ? `<button class="admin-button compact secondary" data-feedback-action="read" data-feedback-id="${escapeHtml(item.id)}" type="button">Marcar como lido</button>` : '<span class="admin-feedback-read">Lido</span>'}<button class="admin-button compact danger" data-feedback-action="delete" data-feedback-id="${escapeHtml(item.id)}" type="button">Excluir</button></div></footer></article>`;
+      return `<article class="admin-feedback-message ${unread ? "is-new" : ""}" data-feedback-id="${escapeHtml(item.id)}"><header><div><span>${typeLabel}</span><strong>${escapeHtml(item.subject)}</strong></div><time>${escapeHtml(date)}</time></header><p>${escapeHtml(item.message)}</p><footer><small>${escapeHtml(item.displayName || "Jogador")} · ${escapeHtml(item.email || "")}</small><div>${unread ? `<button class="admin-button compact secondary" data-feedback-action="read" data-feedback-id="${escapeHtml(item.id)}" type="button">Marcar como lido</button>` : '<span class="admin-feedback-read">Lido</span>'}<button class="admin-button compact danger" data-feedback-action="delete" data-feedback-id="${escapeHtml(item.id)}" type="button">Excluir</button></div></footer></article>`;
     }).join("") : '<div class="admin-catalog-empty">Nenhuma mensagem corresponde aos filtros selecionados.</div>';
   }
 
@@ -246,14 +246,9 @@
     if (name === "categories") { next.crops = editors.get("crops"); next.missions = editors.get("missions"); }
     if (name === "playerTitles") next.missions = editors.get("missions");
     if (name === "prestigeUpgrades") next.missions = editors.get("missions");
-    if (name === "updateNotes") {
-      const newest = next.updateNotes.slice().sort((a, b) => Number(b.publishedAt || 0) - Number(a.publishedAt || 0))[0];
-      if (newest?.version) next.gameVersion = newest.version;
-    }
-    const published = await publishConfig(next, name === "updateNotes" ? "Nota publicada e versão do jogo atualizada." : "Alteração publicada.");
+    const published = await publishConfig(next, "Alteração publicada.");
     if (name === "playerTitles") editors.set("missions", published.missions);
     window.FazendaSerenaPublicCloud?.clearCache?.();
-    window.FazendaSerenaConfig?.applyCloudVersion?.(published.gameVersion);
     return published;
   }); }
 

@@ -379,7 +379,7 @@
       }
       if (Array.isArray(event.milestones) && event.milestones.length) showMilestoneDialog(event);
 
-      // Revisão 39: subir de nível não remonta a tela inteira. A estrutura só
+ // 39: subir de nível não remonta a tela inteira. A estrutura só
       // é refeita quando o intervalo atravessa um desbloqueio real.
       window.setTimeout(() => {
         const endLevel = Math.max(1, Math.floor(Number(event.level) || engine.state.farmLevel || 1));

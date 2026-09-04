@@ -88,11 +88,6 @@ async function boot() {
     }, error => console.warn("Atualização do modo manutenção indisponível:", error));
     return;
   }
-  if (publicGameConfig) {
-    window.FazendaSerenaConfig?.applyCloudVersion?.(
-      window.FazendaSerenaConfig.versionFromConfig(publicGameConfig)
-    );
-  }
   engine = new GameEngine(handleEngineEvent, initialState);
   window.FazendaSerenaEngineSecurity?.hardenInstance(engine);
   setupCategoryFilter();

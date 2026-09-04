@@ -2,10 +2,10 @@
 
 /*
  * Cole aqui o objeto firebaseConfig exibido em:
- * Firebase Console > Configurações do projeto > Seus apps > App da Web.
- *
- * Esta configuração identifica o projeto Firebase no navegador. A proteção dos
- * dados deve ser feita pelas regras do Firestore incluídas em firestore.rules.
+ * * * * Firebase Console > Configurações do projeto > Seus apps > App da Web.
+ * * * *
+ * * * * Esta configuração identifica o projeto Firebase no navegador. A proteção dos
+ * * * * dados deve ser feita pelas regras do Firestore incluídas em firestore.rules.
  */
 window.FIREBASE_CONFIG = Object.freeze({
   apiKey: "AIzaSyAFD0xwpeUawcyWvAfKs8EjNvrqxEesPt0",
@@ -19,7 +19,7 @@ window.FIREBASE_CONFIG = Object.freeze({
 
 /*
  * Segurança opcional recomendada: Firebase App Check (reCAPTCHA Enterprise).
- * Informe aqui a SITE KEY pública gerada no Console Firebase e depois ative o
- * enforcement para Cloud Firestore. Deixe vazio enquanto ainda não configurar.
+ * * * * Informe aqui a SITE KEY pública gerada no Console Firebase e depois ative o
+ * * * * enforcement para Cloud Firestore. Deixe vazio enquanto ainda não configurar.
  */
 window.FIREBASE_APP_CHECK_SITE_KEY = window.FIREBASE_APP_CHECK_SITE_KEY || "";

@@ -1,13 +1,13 @@
 "use strict";
 
 window.GameData = (() => {
-  // Catálogos de conteúdo administráveis. Desde esta revisão, categorias e
+ // Catálogos de conteúdo administráveis. Desde esta, categorias e
   // culturas não possuem fallback local: são preenchidas exclusivamente pela
   // configuração pública publicada no Firestore pelo painel administrativo.
   const categories = {};
   const crops = [];
 
-  // A partir da versão 1.0.1, as evoluções da jornada são exclusivamente pesquisas.
+  // As evoluções da jornada são exclusivamente pesquisas.
   const upgrades = [];
 
   const research = [

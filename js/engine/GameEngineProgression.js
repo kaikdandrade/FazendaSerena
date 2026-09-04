@@ -24,7 +24,7 @@ Object.assign(GameEngine.prototype, {
           if (stageValues.length && stageValues.some(value => value > 0)) {
             total += stageValues.slice(0, level).reduce((value, rate) => value + rate, 0);
           } else {
-            // Compatibilidade com configurações gravadas pela r27 ou anteriores:
+ // Compatibilidade com configurações antigas:
             // um campo de estágios vazio podia virar [0], anulando qualquer bônus.
             total += level * amountPerLevel;
           }

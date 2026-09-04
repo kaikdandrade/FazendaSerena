@@ -2,8 +2,8 @@
 
 /*
  * Firebase Authentication + Cloud Firestore para contas conectadas.
- * Visitantes usam um save local no navegador; no primeiro login, esse save é
- * enviado para a nuvem apenas quando a conta ainda não possui progresso.
+ * * * * Visitantes usam um save local no navegador; no primeiro login, esse save é
+ * * * * enviado para a nuvem apenas quando a conta ainda não possui progresso.
  */
 class FirebaseManager {
   static SDK_VERSION = "12.17.0";
@@ -16,7 +16,7 @@ class FirebaseManager {
   static ADMIN_COLLECTION = "administrators";
   static FEEDBACK_COLLECTION = "playerFeedback";
   static MODERATION_COLLECTION = "playerModeration";
-  static GUEST_SAVE_KEY = "fazenda-serena-guest-save-v1";
+  static GUEST_SAVE_KEY = "fazenda-serena-guest-save";
   static cloudWritesLocked = false;
 
   constructor() {
@@ -27,7 +27,7 @@ class FirebaseManager {
     this.saveQueue = Promise.resolve();
     this.adminAccessCache = new Map();
     this.moderationCache = new Map();
-    this.saveAdminRevisionByUid = new Map();
+    this.saveAdminMutationByUid = new Map();
     this.initialization = this.initialize();
   }
 
@@ -185,7 +185,16 @@ class FirebaseManager {
 
   loadGuestGame() {
     try {
-      const raw = window.localStorage?.getItem(FirebaseManager.GUEST_SAVE_KEY);
+      let raw = window.localStorage?.getItem(FirebaseManager.GUEST_SAVE_KEY);
+      if (!raw && window.localStorage) {
+        for (let index = 0; index < window.localStorage.length; index += 1) {
+          const key = window.localStorage.key(index);
+          if (key?.startsWith(`${FirebaseManager.GUEST_SAVE_KEY}-`)) {
+            raw = window.localStorage.getItem(key);
+            if (raw) break;
+          }
+        }
+      }
       if (!raw) return null;
       const parsed = JSON.parse(raw);
       return parsed?.state && typeof parsed.state === "object" ? parsed.state : null;
@@ -201,7 +210,7 @@ class FirebaseManager {
       window.localStorage?.setItem(FirebaseManager.GUEST_SAVE_KEY, JSON.stringify({
         state: snapshot,
         savedAt: Date.now(),
-        saveVersion: String(snapshot.version || window.FazendaSerenaConfig?.appVersion || "1.0.0")
+        saveVersion: String(snapshot.version || 1)
       }));
       this.emitSaveStatus("local", { savedAt: new Date() });
       return { ok: true, local: true, savedAt: new Date() };
@@ -566,7 +575,7 @@ class FirebaseManager {
       }
 
       const data = snapshot.data();
-      this.saveAdminRevisionByUid.set(user.uid, String(data?.adminRevision || ""));
+      this.saveAdminMutationByUid.set(user.uid, String(data?.adminMutationId || ""));
       const state = data?.state && typeof data.state === "object" ? data.state : null;
       this.emitSaveStatus(state ? "loaded" : "empty", {
         savedAt: data?.updatedAt?.toDate?.() || null
@@ -589,13 +598,13 @@ class FirebaseManager {
       unsubscribe = this.sdk.onSnapshot(reference, snapshot => {
         if (!snapshot.exists() || snapshot.metadata?.hasPendingWrites) return;
         const data = snapshot.data() || {};
-        const adminRevision = String(data.adminRevision || "");
-        this.saveAdminRevisionByUid.set(user.uid, adminRevision);
+        const adminMutationId = String(data.adminMutationId || "");
+        this.saveAdminMutationByUid.set(user.uid, adminMutationId);
         const state = data.state && typeof data.state === "object" ? data.state : null;
         if (state) listener(state, {
           updatedAtClient: Number(data.updatedAtClient) || 0,
           savedAt: data.updatedAt?.toDate?.() || null,
-          adminRevision
+          adminMutationId
         });
       }, error => {
         if (typeof errorListener === "function") errorListener(error);
@@ -626,9 +635,11 @@ class FirebaseManager {
       state.lastUpdate = now;
       state.__adminMutation = { id: mutationId, type: String(mutationType || "admin-test").slice(0, 48), at: now };
       resultingState = state;
-      transaction.update(reference, {
+      transaction.set(reference, {
         state,
-        adminRevision: mutationId,
+        saveVersion: String(payload.saveVersion || state.version || 1),
+        ...(payload.ownerEmail ? { ownerEmail: String(payload.ownerEmail) } : {}),
+        adminMutationId: mutationId,
         updatedAt: this.sdk.serverTimestamp(),
         updatedAtClient: now
       });
@@ -739,9 +750,9 @@ class FirebaseManager {
         // O save do jogo é independente do ranking. O estado principal é soberano.
         await this.sdk.setDoc(reference, {
           state: snapshot,
-          saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
+          saveVersion: String(snapshot.version || 1),
           ownerEmail: String(user.email || "").trim(),
-          adminRevision: String(this.saveAdminRevisionByUid.get(user.uid) || ""),
+          adminMutationId: String(this.saveAdminMutationByUid.get(user.uid) || ""),
           updatedAt: this.sdk.serverTimestamp(),
           updatedAtClient: savedAt.getTime()
         }, { merge: false });
@@ -767,20 +778,20 @@ class FirebaseManager {
 
         return { ok: true, savedAt };
       } catch (error) {
-        // Se o Admin alterou a conta enquanto ela estava aberta, a revisão do
+ // Se o Admin alterou a conta enquanto ela estava aberta, a do
         // servidor muda e um cliente antigo não pode sobrescrever a mudança.
         if (String(error?.code || "") === "permission-denied") {
           try {
             const latest = await this.sdk.getDoc(reference);
             if (latest.exists()) {
               const payload = latest.data() || {};
-              const serverRevision = String(payload.adminRevision || "");
-              const localRevision = String(this.saveAdminRevisionByUid.get(user.uid) || "");
+              const serverMutationId = String(payload.adminMutationId || "");
+              const localMutationId = String(this.saveAdminMutationByUid.get(user.uid) || "");
               const remoteState = payload.state && typeof payload.state === "object" ? payload.state : null;
-              if (serverRevision !== localRevision && remoteState) {
-                this.saveAdminRevisionByUid.set(user.uid, serverRevision);
+              if (serverMutationId !== localMutationId && remoteState) {
+                this.saveAdminMutationByUid.set(user.uid, serverMutationId);
                 window.dispatchEvent(new CustomEvent("firebase-admin-state-conflict", {
-                  detail: { state: remoteState, adminRevision: serverRevision }
+                  detail: { state: remoteState, adminMutationId: serverMutationId }
                 }));
                 return { ok: false, reason: "admin-state-changed", state: remoteState };
               }
@@ -841,7 +852,6 @@ class FirebaseManager {
       subject: safeSubject,
       message: safeMessage,
       status: "new",
-      gameVersion: String(window.FazendaSerenaConfig?.appVersion || "1.0.0").slice(0, 30),
       createdAt: this.sdk.serverTimestamp(),
       createdAtClient: Date.now()
     };
@@ -942,7 +952,14 @@ class FirebaseManager {
       state.lastUpdate = now;
       state.__adminMutation = { id: mutationId, type: String(mutationType || "single-player-admin").slice(0, 48), at: now };
       resultingState = state;
-      transaction.update(reference, { state, adminRevision: mutationId, updatedAt: this.sdk.serverTimestamp(), updatedAtClient: now });
+      transaction.set(reference, {
+        state,
+        saveVersion: String(payload.saveVersion || state.version || 1),
+        ...(payload.ownerEmail ? { ownerEmail: String(payload.ownerEmail) } : {}),
+        adminMutationId: mutationId,
+        updatedAt: this.sdk.serverTimestamp(),
+        updatedAtClient: now
+      });
     });
     return { ok: true, state: resultingState, mutationId };
   }
@@ -962,7 +979,7 @@ class FirebaseManager {
     const result = await this.mutatePlayerSaveForAdmin(uid, state => {
       const preservedSettings = { ...(state.settings || {}) };
       const preservedCreatedAt = Math.max(1, Number(state.createdAt) || Date.now());
-      state.version = window.FazendaSerenaConfig?.appVersion || state.version || "1.0.0";
+      state.version = 1;
       state.coins = startingCoins;
       state.research = 0;
       state.prestigePoints = 0;
@@ -1028,9 +1045,11 @@ class FirebaseManager {
         const now = Date.now();
         state.lastUpdate = now;
         state.__adminMutation = { id: mutationId, type: String(mutationType || "global-admin").slice(0, 48), at: now };
-        batch.update(document.ref, {
+        batch.set(document.ref, {
           state,
-          adminRevision: mutationId,
+          saveVersion: String(payload.saveVersion || state.version || 1),
+          ...(payload.ownerEmail ? { ownerEmail: String(payload.ownerEmail) } : {}),
+          adminMutationId: mutationId,
           updatedAt: this.sdk.serverTimestamp(),
           updatedAtClient: now
         });

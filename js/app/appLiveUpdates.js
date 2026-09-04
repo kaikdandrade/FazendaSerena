@@ -1,6 +1,6 @@
 "use strict";
 
-// Revisão 39 — camada de atualização incremental.
+ // 39 — camada de atualização incremental.
 // Nada aqui recria imagens, cards ou grids durante o loop normal. A montagem
 // estrutural continua nas funções render* e só é acionada quando a estrutura
 // realmente muda (ex.: contrato termina, propostas são atualizadas ou ação do jogador).
@@ -157,7 +157,7 @@ function updateLiveContractsUI() {
     });
   });
 
-  const capacity = dom.contractCapacitySummary?.querySelector?.(".contract-capacity-compact-v67 strong");
+  const capacity = dom.contractCapacitySummary?.querySelector?.(".contract-capacity-compact strong");
   if (capacity) setLiveText(capacity, `${(engine.state.activeContracts || []).length}/${engine.getActiveContractSlotLimit()}`);
 
   const refreshButton = document.getElementById("refreshContractsButton");

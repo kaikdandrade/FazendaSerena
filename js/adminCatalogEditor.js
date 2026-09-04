@@ -139,12 +139,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       { key: "startTime", label: "Horário", type: "time", required: true, defaultValue: "12:00" },
       numberField("durationMinutes", "Duração (minutos)", { min: 1, integer: true, required: true }),
       { key: "repeatWeekly", label: "Repetir toda semana", type: "checkbox" }
-    ]},
-    updateNotes: { label: "nota de atualização", idSource: "title", title: item => item.title || "Nova nota", subtitle: item => `${item.version || ""} · ${new Date(Number(item.publishedAt) || Date.now()).toLocaleString("pt-BR")}`, fields: [
-      { key: "title", label: "Título", type: "text", required: true }, { key: "version", label: "Versão do jogo", type: "text", required: true, help: "A nota mais recente define automaticamente a versão pública exibida em todo o site." },
-      { key: "publishedAt", label: "Data e hora da publicação", type: "datetime", transform: "datetimeMs", required: true }, { key: "body", label: "Notas da atualização", type: "textarea", required: true }
-    ]}
-  };
+    ]},  };
 
   function normalizeOptions(field, currentValue) {
     const raw = typeof field.options === "function" ? field.options() : (field.options || []);

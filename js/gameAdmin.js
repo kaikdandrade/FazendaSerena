@@ -262,7 +262,6 @@
 
   const defaults = Object.freeze({
     schemaVersion: 25,
-    gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.0",
     globalSettings: { maintenanceMode: false },
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -276,7 +275,6 @@
     research: clone(window.GameData.research),
     prestigeUpgrades: clone(window.GameData.prestigeUpgrades),
     events: [],
-    updateNotes: [],
     navigationIcons: clone(defaultNavigationIcons),
     gridNavigationIcons: clone(defaultGridNavigationIcons),
     prestigeIcons: clone(defaultPrestigeIcons),
@@ -332,7 +330,7 @@
       cropMasteryXPPercent: actionXPPercent,
       passiveXPPercentPerSecond: clamp(raw.passiveXPPercentPerSecond, 0, 100, defaultBalance.passiveXPPercentPerSecond),
       // Migra a antiga configuração de pesquisa passiva caso exista, mas a partir
-      // desta revisão ela representa a taxa base de geração de pesquisa do jogo.
+ // desta ela representa a taxa base de geração de pesquisa do jogo.
       passiveResearchPercentPerSecond: clamp(
         raw.passiveResearchPercentPerSecond ?? raw.researchPassiveXPPercentPerLevel,
         0, 100, defaultBalance.passiveResearchPercentPerSecond
@@ -591,7 +589,7 @@
           const originalStageCount = stageValues.length;
           while (stageValues.length > 1 && stageValues[0] <= 0 && stageValues.slice(1).some(value => value > 0)) stageValues.shift();
           while (stageValues.length < originalStageCount && stageValues.length) stageValues.push(stageValues.at(-1));
-          // r28: o editor antigo convertia o campo vazio em [0]. Isso fazia o
+ // : o editor antigo convertia o campo vazio em [0]. Isso fazia o
           // nível ser comprado normalmente, mas o bônus configurado em `amount`
           // nunca era aplicado. Um vetor sem nenhum valor positivo é tratado
           // como ausente quando existe quantidade por nível.
@@ -679,17 +677,6 @@
     })).sort((a, b) => a.weekday - b.weekday || a.startTime.localeCompare(b.startTime));
   }
 
-  function normalizeUpdateNotes(raw) {
-    if (!Array.isArray(raw)) return [];
-    return uniqueById(raw.slice(0, 200).map((item, index) => ({
-      id: id(item?.id, `note_${index + 1}`),
-      title: text(item?.title, 120, `Atualização ${index + 1}`),
-      version: text(item?.version, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
-      publishedAt: Math.max(0, Math.floor(Number(item?.publishedAt) || Date.now())),
-      body: text(item?.body, 2000, "Novidades da Fazenda Serena.")
-    }))).sort((a, b) => b.publishedAt - a.publishedAt);
-  }
-
   function normalizeTexts(raw = {}) {
     return Object.fromEntries(Object.entries(defaultTexts).map(([key, fallback]) => [
       key,
@@ -704,11 +691,8 @@
     const migratePrimaryNavigationOrder = sourceSchemaVersion < 23;
     const balance = normalizeBalance(source?.balance);
     const categories = acceptsRemoteCatalogs ? normalizeCategories(source?.categories) : [];
-    const updateNotes = normalizeUpdateNotes(source?.updateNotes);
-    const newestVersion = updateNotes[0]?.version;
     return {
       schemaVersion: 25,
-      gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
       globalSettings: { maintenanceMode: source?.globalSettings?.maintenanceMode === true },
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -722,7 +706,6 @@
       research: normalizeEvolution(source?.research, defaults.research, false),
       prestigeUpgrades: normalizeEvolution(source?.prestigeUpgrades, defaults.prestigeUpgrades, true),
       events: normalizeEvents(source?.events),
-      updateNotes,
       navigationIcons: normalizeNavigationIcons(source?.navigationIcons),
       gridNavigationIcons: normalizeGridNavigationIcons(source?.gridNavigationIcons || source?.mobileNavigationIcons, normalizeNavigationIcons(source?.navigationIcons)),
       prestigeIcons: normalizePrestigeIcons(source?.prestigeIcons),
@@ -852,12 +835,8 @@
     replaceArray(window.GameData.missions, flattenMissions(config.missions));
     replaceArray(window.GameData.research, config.research);
     replaceArray(window.GameData.prestigeUpgrades, config.prestigeUpgrades);
-    // Notas de atualização são consumidas somente por noticias.html. Não as
-    // mantemos duplicadas na memória do jogo principal.
     const runtimeConfig = clone(config);
-    delete runtimeConfig.updateNotes;
     window.FazendaSerenaRuntimeConfig = runtimeConfig;
-    window.FazendaSerenaConfig?.applyCloudVersion?.(config.gameVersion);
     applyTexts(config.texts, config.pointTypes);
     applyNavigationIcons(config.navigationIcons, config.gridNavigationIcons);
     applyPrestigeIcons(config.prestigeIcons);
@@ -872,9 +851,7 @@
     current.globalSettings = clone(normalized.globalSettings);
     current.events = clone(normalized.events);
     current.pointTypes = clone(normalized.pointTypes);
-    current.gameVersion = normalized.gameVersion;
     current.texts = { ...(current.texts || {}), ...clone(normalized.texts) };
-    window.FazendaSerenaConfig?.applyCloudVersion?.(normalized.gameVersion);
     window.FazendaSerenaRuntimeConfig = current;
     applyTexts(current.texts, current.pointTypes || []);
     current.navigationIcons = clone(normalized.navigationIcons);
@@ -892,7 +869,7 @@
   function validateForSave(raw) {
     if (!raw || typeof raw !== "object") throw new Error("A configuração precisa ser um objeto JSON.");
     const requiredArrays = [
-      "pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"
+      "pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events"
     ];
     requiredArrays.forEach(key => {
       if (!Array.isArray(raw[key])) throw new Error(`A seção “${key}” precisa ser uma lista.`);
@@ -901,7 +878,7 @@
     const sourceIds = [
       ["tipos de pontos", normalized.pointTypes], ["categorias", normalized.categories], ["plantas", normalized.crops], ["indústrias", normalized.companies],
       ["tipos de contrato", normalized.contractTypes], ["slots de contrato", normalized.contractSlots],
-      ["títulos de jogador", normalized.playerTitles], ["missões", normalized.missions], ["pesquisas", normalized.research], ["legados", normalized.prestigeUpgrades], ["eventos", normalized.events], ["notas", normalized.updateNotes]
+      ["títulos de jogador", normalized.playerTitles], ["missões", normalized.missions], ["pesquisas", normalized.research], ["legados", normalized.prestigeUpgrades], ["eventos", normalized.events]
     ];
     sourceIds.forEach(([label, items]) => {
       if (new Set(items.map(item => item.id)).size !== items.length) throw new Error(`Existem IDs duplicados em ${label}.`);

@@ -3,7 +3,7 @@
 (() => {
   const PROJECT_ID = "fazenda-serena";
   const DOCUMENT_PATH = "gameConfig/public";
-  const CACHE_KEY = "fazenda-serena-public-config-v1";
+  const CACHE_KEY = "fazenda-serena-public-config";
   const CACHE_TTL = 60 * 1000;
   let memory = null;
   let inflight = null;
@@ -27,7 +27,17 @@
 
   function readSessionCache() {
     try {
-      const cached = JSON.parse(sessionStorage.getItem(CACHE_KEY) || "null");
+      let raw = sessionStorage.getItem(CACHE_KEY);
+      if (!raw) {
+        for (let index = 0; index < sessionStorage.length; index += 1) {
+          const key = sessionStorage.key(index);
+          if (key?.startsWith(`${CACHE_KEY}-`)) {
+            raw = sessionStorage.getItem(key);
+            if (raw) break;
+          }
+        }
+      }
+      const cached = JSON.parse(raw || "null");
       if (cached?.at && Date.now() - cached.at < CACHE_TTL && cached.config && typeof cached.config === "object") return cached.config;
     } catch {}
     return null;

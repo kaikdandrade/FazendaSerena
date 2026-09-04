@@ -1,7 +1,7 @@
 "use strict";
 
 const GameEngine = class GameEngine {
-  static APP_VERSION = window.FazendaSerenaConfig.appVersion;
+  static SAVE_FORMAT_VERSION = 1;
   static EXPERIENCE_DEFAULTS = window.FazendaSerenaConfig.experienceDefaults;
   static AUDIO_DEFAULTS = window.FazendaSerenaConfig.audioDefaults;
   static BASE_MAX_OFFLINE_SECONDS = 15 * 60;
@@ -98,7 +98,7 @@ const GameEngine = class GameEngine {
       });
   
       return {
-        version: GameEngine.APP_VERSION,
+        version: GameEngine.SAVE_FORMAT_VERSION,
         coins: GameEngine.BASE_STARTING_COINS + startingCoinsBonus,
         research: startingResearchBonus,
         prestigePoints,
@@ -357,7 +357,7 @@ const GameEngine = class GameEngine {
       }
   
   
-      // A versão 1.0.1 aposentou os aprimoramentos comprados com moedas. Saves
+      // Aprimoramentos comprados com moedas foram aposentados. Saves
       // anteriores preservam o progresso convertendo cada melhoria na pesquisa
       // equivalente, respeitando o nível máximo de cada tecnologia.
       const retiredUpgradeResearchMap = {
@@ -568,7 +568,7 @@ const GameEngine = class GameEngine {
       } else {
         merged.farmXP = loadedFarmXP;
       }
-      merged.version = GameEngine.APP_VERSION;
+      merged.version = GameEngine.SAVE_FORMAT_VERSION;
       merged.coins = Number.isFinite(Number(merged.coins)) ? Number(merged.coins) : 0;
       merged.research = Math.max(0, Number(merged.research) || 0);
       merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0);

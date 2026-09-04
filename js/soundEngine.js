@@ -1,14 +1,14 @@
 "use strict";
 
-/**
+/*
  * Motor global de áudio de baixa latência.
- *
- * Os efeitos são carregados e decodificados antecipadamente com Web Audio API.
- * Assim, o clique apenas inicia um buffer que já está na memória, sem trocar o
- * arquivo de um elemento <audio> no momento da interação. Navegação e clique
- * também são agendados com um intervalo curto, em vez de esperar um som inteiro
- * terminar. HTMLAudio permanece como compatibilidade para navegadores sem Web
- * Audio ou em caso de falha no carregamento de algum efeito.
+ * * * *
+ * * * * Os efeitos são carregados e decodificados antecipadamente com Web Audio API.
+ * * * * Assim, o clique apenas inicia um buffer que já está na memória, sem trocar o
+ * * * * arquivo de um elemento <audio> no momento da interação. Navegação e clique
+ * * * * também são agendados com um intervalo curto, em vez de esperar um som inteiro
+ * * * * terminar. HTMLAudio permanece como compatibilidade para navegadores sem Web
+ * * * * Audio ou em caso de falha no carregamento de algum efeito.
  */
 class SoundEngine {
   static FIXED_MAPPINGS = Object.freeze({
@@ -95,7 +95,7 @@ class SoundEngine {
     document.addEventListener("touchstart", this.musicActivationHandler, { passive: true, capture: true });
     document.addEventListener("keydown", this.musicActivationHandler, { capture: true });
 
-    // R39.3: acorda o AudioContext ainda no pointerdown, antes do click que
+ // : acorda o AudioContext ainda no pointerdown, antes do click que
     // executa ações de contrato. Isso remove o atraso causado por resume() no
     // mesmo instante em que o efeito precisa começar.
     this.effectActivationHandler = () => {
