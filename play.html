@@ -18,7 +18,7 @@
 <link href="https://fazenda-serena.web.app/play.html" rel="canonical"/>
 <script src="js/themeBootstrap.js"></script>
 <link href="css/stylish.css" rel="stylesheet"/>
-<link href="css/play.css?v=47" rel="stylesheet"/>
+<link href="css/play.css?v=62" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
@@ -148,6 +148,7 @@
 <div class="active-contract-grid" id="activeContractList"></div>
 <div aria-hidden="true" class="contract-section-divider"><span></span></div>
 <div class="contract-offer-toolbar">
+<div class="contract-toolbar-capacity" id="contractCapacitySummary"></div>
 <button class="button secondary contract-refresh-button" data-action="refresh-contracts" id="refreshContractsButton" type="button"><img alt="" src="assets/icons/renovar-contrato.webp"/><span data-contract-refresh-label>Atualizar contratos</span></button>
 </div>
 <div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
@@ -166,13 +167,15 @@
 </section>
 <section class="view" data-view-panel="profileView" id="profileView">
 <div class="profile-workspace panel-card office-workspace"><section aria-labelledby="profileNavTab" class="office-panel profile-panel profile-account-panel active" data-profile-panel="account" id="profileAccountPanel" role="tabpanel"><article class="panel-card settings-card account-settings-card">
+<div class="account-card-heading"><p class="eyebrow">sua conta</p><h2>Perfil</h2><p>Sua identidade e acesso à Fazenda Serena.</p></div>
 <div class="account-settings-head">
 <div class="account-avatar-shell">
 <img alt="" id="accountAvatar" src="assets/logo.webp">
 </img></div>
 <div class="account-identity">
-<p class="account-provider-label text-title">Conta Google</p>
-<div class="account-name-title-line"><h2 id="accountName">Visitante</h2><span aria-hidden="true" class="social-title-dot account-title-dot" data-title-rarity="common" hidden="" id="accountTitleDot"></span><div aria-label="Título equipado" class="account-player-title" hidden="" id="accountPlayerTitle"></div></div>
+<p class="account-provider-label text-title" id="accountProviderLabel">Conta visitante</p>
+<div class="account-name-title-line"><h2 aria-hidden="true" hidden="" id="accountName"></h2><span aria-hidden="true" class="social-title-dot account-title-dot" data-title-rarity="common" hidden="" id="accountTitleDot"></span><div aria-label="Título equipado" class="account-player-title" hidden="" id="accountPlayerTitle"></div></div>
+<button class="button google-sign-in-button account-inline-google-sign-in" id="googleSignIn" type="button"><img alt="" aria-hidden="true" src="assets/icons/logo-google.webp"> Entrar com o Google</img></button>
 </div>
 </div>
 <div class="button-row account-actions">
@@ -183,8 +186,6 @@
 </div>
 <span class="ranking-profile-launch-actions"><button class="button primary" id="openRankingProfileButton" type="button">Perfil do ranking</button><button class="button sign-out-button" hidden="" id="googleSignOut" type="button">Sair da conta</button></span>
 </section>
-<button class="button google-sign-in-button" id="googleSignIn" type="button"><img alt="" aria-hidden="true" src="assets/icons/logo-google.webp"> Entrar com o
-                                    Google</img></button>
 </div>
 </article><div class="account-insights"><section class="account-prestige-section stats-section"><div class="prestige-hero" id="prestigeDashboard"></div></section><section class="account-statistics-section"><div class="section-heading compact-heading account-statistics-heading"><div><p class="eyebrow">histórico da conta</p><h2>Estatísticas do jogador</h2></div></div><div class="stats-content account-stats-content"><div class="stats-hero" id="statsHero"></div><section class="stats-section stats-section-plain">
 <div class="stats-grid" id="lifetimeStats"></div>
@@ -202,12 +203,12 @@
 </div>
 
 <details class="social-events-accordion" id="socialEventsAccordion">
-<summary><span class="social-events-accordion-icon"><img alt="" src="assets/icons/calendario-eventos.webp"/></span><span class="social-events-accordion-copy"><small>agenda da comunidade</small><strong>Próximos eventos</strong><em id="socialEventsSummary">Confira os eventos programados.</em></span><span aria-hidden="true" class="social-events-chevron"><img alt="" src="assets/icons/seta-cima.webp"/></span></summary>
+<summary><span class="social-events-accordion-icon"><img alt="" src="assets/icons/calendario-eventos.webp"/></span><span class="social-events-accordion-copy"><small>agenda da comunidade</small><strong>Próximos eventos</strong></span><span aria-hidden="true" class="social-events-chevron"><img alt="" src="assets/icons/seta-cima.webp"/></span></summary>
 <div class="social-events-accordion-body social-live-list" id="socialEventsList"></div>
 </details>
 <section class="stats-section global-prestige-section social-ranking-section">
 <div class="compact-section-title social-ranking-heading">
-<div class="social-ranking-title"><img alt="" aria-hidden="true" src="assets/icons/ranking.webp"/><div><p class="eyebrow">competição entre fazendas</p><h2>Rank global de prestígio</h2></div></div>
+<div class="social-ranking-title"><img alt="" aria-hidden="true" src="assets/icons/ranking.webp"/><div><p class="eyebrow">competição entre fazendas</p><h2>Ranking global</h2></div></div>
 <button class="button secondary leaderboard-refresh-button" data-action="refresh-leaderboard" type="button">Atualizar rank</button>
 </div>
 <div class="prestige-leaderboard" id="prestigeLeaderboard">
@@ -227,6 +228,7 @@
 </div>
 </section></div>
 </section><section class="view" data-view-panel="settingsView" id="settingsView">
+<div class="settings-page-container">
 <div class="section-heading settings-page-heading"><div><p class="eyebrow">seu jeito de jogar</p><h1>Configurações</h1></div></div>
 <div class="settings-grid settings-grid-reworked">
 <article class="settings-card experience-settings-card">
@@ -252,14 +254,12 @@
 <div class="setting-row feedback-setting-row"><span><strong>Ajude a melhorar a Fazenda Serena</strong><small id="playerFeedbackHint">Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor.</small></span><button class="button feedback-launch-button" id="openPlayerFeedback" type="button">Enviar feedback</button></div>
 </div>
 </article>
+</div>
 </section>
 </main>
 </div>
 <section aria-label="Publicidade" class="ad-region" data-adsense-placement="footer" hidden=""></section>
 <footer class="app-footer">
-<div class="footer-brand">
-<img alt="Folha da Fazenda Serena" src="assets/logo.webp">
-</img></div>
 <nav aria-label="Informações e privacidade" class="footer-links">
 <a href="index.html">Início</a>
 <a href="noticias.html">Notícias</a>
@@ -290,7 +290,7 @@
 </div></section>
 <section class="catalog-filter-section"><strong class="catalog-filter-section-title">Categorias</strong><div class="catalog-filter-category-grid" id="catalogFilterCategoryGrid"></div></section>
 </div>
-<footer class="catalog-filter-footer"><button class="button secondary" id="catalogFilterReset" type="button">Limpar filtros</button><button class="button primary" id="catalogFilterApply" type="button">Aplicar filtros</button></footer>
+<footer class="catalog-filter-footer"><button class="button secondary" id="catalogFilterReset" type="button">Limpar filtro</button><button class="button primary" id="catalogFilterApply" type="button">Aplicar filtros</button></footer>
 </form>
 </dialog>
 <dialog aria-labelledby="rankingProfileDialogTitle" class="ranking-profile-dialog" id="rankingProfileDialog"><form class="player-profile-form ranking-profile-modal-form" id="playerProfileForm" novalidate="">
@@ -315,7 +315,12 @@
 <button aria-controls="avatarPickerPanel" aria-expanded="false" class="button secondary avatar-picker-toggle" id="toggleAvatarPicker" type="button">Selecionar avatar</button>
 </div>
 <input id="playerAvatarSetting" required="" type="hidden">
-</input></div>
+</input>
+<div class="avatar-picker-panel" hidden="" id="avatarPickerPanel">
+<div class="avatar-picker-heading"><div><strong>Escolha seu avatar</strong><small id="playerAvatarUnlockCount">0 de 0 desbloqueados</small></div></div>
+<div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
+</div>
+</div>
 <div class="profile-player-title-field">
 <span class="profile-field-copy"><strong>Título de jogador</strong></span>
 <div class="profile-title-control">
@@ -323,17 +328,11 @@
 <button aria-controls="playerTitlePickerPanel" aria-expanded="false" class="button secondary title-picker-toggle" id="togglePlayerTitlePicker" type="button">Selecionar título</button>
 </div>
 <input id="playerTitleSetting" type="hidden" value="fazendeiro"/>
-</div>
-</div>
-<div class="avatar-picker-panel" hidden="" id="avatarPickerPanel">
-<fieldset class="avatar-picker-fieldset">
-<legend>Escolha seu avatar</legend>
-<div aria-label="Escolha de avatar" class="avatar-picker" id="playerAvatarPicker" role="radiogroup"></div>
-</fieldset>
-</div>
 <div class="player-title-picker-panel" hidden="" id="playerTitlePickerPanel">
 <div class="player-title-picker-heading"><div><strong>Escolha seu título</strong><small id="playerTitleUnlockCount">1 de 1 desbloqueado</small></div></div>
 <div aria-label="Títulos desbloqueados" class="player-title-picker-grid" id="playerTitlePickerGrid" role="radiogroup"></div>
+</div>
+</div>
 </div>
 </div>
 <div class="player-profile-actions"><button class="button secondary" id="cancelRankingProfile" type="button">Cancelar</button>
@@ -389,12 +388,12 @@
 
 
 <dialog aria-labelledby="playerFeedbackTitle" class="confirmation-dialog player-feedback-dialog" id="playerFeedbackDialog">
-<form id="playerFeedbackForm" method="dialog">
+<form id="playerFeedbackForm">
 <header class="player-feedback-heading"><span class="player-feedback-heading-icon"><img alt="" aria-hidden="true" src="assets/icons/ideia-verde.webp"/></span><div><p class="eyebrow">Sua opinião importa</p><h2 id="playerFeedbackTitle">Feedback e ideias</h2><p>Conte uma ideia, sugestão ou problema de forma simples. Sua mensagem vai direto para a administração do jogo.</p></div></header>
 <div class="player-feedback-fields">
 <label class="player-feedback-type"><span>Tipo da mensagem</span><select id="playerFeedbackType" required=""><option value="idea">Ideia</option><option value="feedback">Feedback</option><option value="problem">Problema</option></select></label>
-<label><span>Assunto</span><input autocomplete="off" id="playerFeedbackSubject" maxlength="100" placeholder="Ex.: melhoria nos contratos" required="" type="text"/></label>
-<label class="full player-feedback-message-field"><span>Mensagem</span><textarea id="playerFeedbackMessage" maxlength="1200" placeholder="Explique sua ideia ou o que aconteceu..." required=""></textarea><small>Até 1.200 caracteres.</small></label>
+<label><span>Assunto</span><input autocomplete="off" id="playerFeedbackSubject" maxlength="100" minlength="3" placeholder="Ex.: melhoria nos contratos" required="" type="text"/></label>
+<label class="full player-feedback-message-field"><span>Mensagem</span><textarea id="playerFeedbackMessage" maxlength="1200" minlength="8" placeholder="Explique sua ideia ou o que aconteceu..." required=""></textarea><small>Até 1.200 caracteres.</small></label>
 <p aria-live="polite" class="player-feedback-status" id="playerFeedbackStatus" role="status"></p>
 </div>
 <footer class="confirmation-dialog-actions player-feedback-actions"><button class="button secondary" id="cancelPlayerFeedback" type="button">Cancelar</button><button class="button feedback-submit-button" id="submitPlayerFeedback" type="submit">Enviar mensagem</button></footer>

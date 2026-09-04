@@ -76,19 +76,16 @@
 <section class="admin-panel admin-balance-section" data-admin-section="balance">
 <div class="admin-section-heading"><h2>Parâmetros principais</h2></div>
 <div class="admin-balance-grid">
+<label><span>Nível máximo da fazenda</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminMaxFarmLevel" inputmode="numeric" type="text"/></label>
 <label><span>XP de aprimoramentos (%)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminActionXP" inputmode="decimal" type="text"/></label>
-<label><span>XP ao platinar planta (%)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminCropMasteryXPPercent" inputmode="decimal" type="text"/></label>
 <label><span>XP passivo base (%/s)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminPassiveXP" inputmode="decimal" type="text"/></label>
 <label><span>Pesquisa passiva base (%/s)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminPassiveResearch" inputmode="decimal" type="text"/></label>
 
-<label><span>Nível para liberar Evoluções</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminEvolutionsUnlockLevel" inputmode="numeric" type="text"/></label>
 <label><span>Nível de liberação do prestígio</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminPrestigeUnlockLevel" inputmode="numeric" type="text"/></label>
-<label><span>Bônus de prestígio</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminPrestigeBonus" inputmode="numeric" type="text"/><small>Soma fixa de pontos ao ganho calculado de cada prestígio.</small></label>
+<label><span>Bônus de prestígio</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminPrestigeBonus" inputmode="numeric" type="text"/></label>
 <label><span>Moedas iniciais</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminStartingCoins" inputmode="numeric" type="text"/></label>
-<label><span>Mínimo base de safra por produção</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminBaseProductionMin" inputmode="numeric" type="text"/></label>
-<label><span>Máximo base de safra por produção</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminBaseProductionCap" inputmode="numeric" type="text"/></label>
-<label><span>Atualizar contratos · mínimo (segundos)</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminContractRefreshCooldownMin" inputmode="numeric" type="text"/><small>Menor cooldown possível após atualizar as propostas.</small></label>
-<label><span>Atualizar contratos · máximo (segundos)</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminContractRefreshCooldownMax" inputmode="numeric" type="text"/><small>Maior cooldown possível. A cada atualização o jogo sorteia um valor entre mínimo e máximo.</small></label>
+<label><span>Safra por produção · mínimo, máximo</span><input autocomplete="off" data-admin-range="" id="adminBaseProductionRange" inputmode="decimal" placeholder="1, 10" type="text"/></label>
+<label><span>Atualizar contratos · mínimo, máximo (segundos)</span><input autocomplete="off" data-admin-range="" id="adminContractRefreshCooldownRange" inputmode="decimal" placeholder="5, 15" type="text"/></label>
 <label><span>Quantidade de contratos livres para assinatura</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminContractOfferCount" inputmode="numeric" type="text"/></label>
 <label><span>Tempo máximo de geração offline (minutos)</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminMaxOfflineMinutes" inputmode="numeric" type="text"/></label>
 </div>
@@ -106,7 +103,7 @@
 <section class="admin-panel admin-navigation-icons-section" data-admin-section="navigationIcons" hidden="">
 <div class="admin-section-heading"><h2>Ícones da navegação</h2></div>
 <section class="admin-navigation-icon-group"><header><strong>Tabulação em linha</strong></header><div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div></section>
-<section class="admin-navigation-icon-group"><header><strong>Tabulação em grade</strong></header><div class="admin-navigation-icon-grid" id="adminGridNavigationIconGrid"></div><div class="admin-subsection-heading"><h3>Ícones de prestígio</h3><p>Troque e reordene os ícones usados nos elementos de prestígio.</p></div><div class="admin-navigation-icon-grid" id="adminPrestigeIconGrid"></div></section>
+<section class="admin-navigation-icon-group"><header><strong>Tabulação em grade</strong></header><div class="admin-navigation-icon-grid" id="adminGridNavigationIconGrid"></div></section>
 <div class="admin-section-save"><button class="admin-button primary" id="adminSaveNavigationIcons" type="button">Salvar ícones e ordem</button></div>
 </section>
 <section class="admin-panel admin-player-feedback-section" data-admin-section="playerFeedback" hidden="">
