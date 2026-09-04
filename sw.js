@@ -1,15 +1,15 @@
 "use strict";
 
-const CACHE_NAME = "fazenda-serena-pwa-r62-missions-contracts-profile";
+const CACHE_NAME = "fazenda-serena-pwa-r66-avatar-loading-search";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/play.html",
   "/css/stylish.css",
-  "/css/play.css?v=62",
+  "/css/play.css?v=66",
   "/css/tutorial.css",
-  "/css/admin.css",
-  "/css/index.css",
+  "/css/admin.css?v=66",
+  "/css/index.css?v=64",
   "/css/404.css",
   "/css/privacy.css",
   "/css/terms.css",
@@ -22,6 +22,7 @@ const APP_SHELL = [
   "/tutorial.html",
   "/js/appConfig.js",
   "/js/data.js",
+  "/js/avatars.js",
   "/js/gameAdmin.js",
   "/js/engine/GameEngineCore.js",
   "/js/engine/GameEngineProduction.js",
