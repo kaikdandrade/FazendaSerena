@@ -1020,130 +1020,43 @@ body.compact-cards .crop-art-progress { padding: 4px; }
   grid-template-columns: .72fr 1.28fr;
 }
 
-.contract-dock {
-  backdrop-filter: blur(16px);
-  background: rgba(249,251,244,.92);
-  border: 1px solid rgba(255,255,255,.82);
-  border-radius: 20px;
-  bottom: 18px;
-  box-shadow: 0 18px 48px rgba(43,72,47,.22);
-  display: none;
-  padding: 8px;
-  position: fixed;
-  right: 18px;
-  width: min(276px,calc(100vw - 28px));
-  z-index: 90;
-}
 
-.contract-dock.visible { animation: view-in .22s ease both; display: block; }
 
-.contract-dock-title {
-  align-items: center;
-  background: transparent;
-  border: 0;
-  color: var(--ink);
-  cursor: pointer;
-  display: flex;
-  font: inherit;
-  gap: 8px;
-  padding: 6px 8px 9px;
-  width: 100%;
-}
 
-.contract-dock-title strong { font-size: .74rem; }
 
-.contract-dock-title small {
-  color: var(--ink-soft);
-  font-size: .64rem;
-  font-weight: 900;
-  margin-left: auto;
-}
 
-.contract-dock-list { display: grid; gap: 6px; }
 
-.contract-dock-item {
-  align-items: center;
-  background: rgba(255,255,255,.74);
-  border: 1px solid rgba(81,123,79,.1);
-  border-radius: 14px;
-  color: var(--ink);
-  cursor: pointer;
-  display: grid;
-  gap: 8px;
-  padding: 8px;
-  text-align: left;
-  width: 100%;
-}
 
-.contract-dock-item img {
-  background: var(--surface-soft);
-  border-radius: 11px;
-  height: 34px;
-  object-fit: contain;
-  padding: 3px;
-  width: 34px;
-}
 
-.contract-dock-item > span { display: grid; min-width: 0; }
 
-.contract-dock-item small {
-  color: var(--ink-soft);
-  font-size: .55rem;
-  font-weight: 750;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.contract-dock-item strong {
-  font-size: .7rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 
-.contract-dock-item i {
-  background: rgba(76,118,73,.12);
-  border-radius: 999px;
-  height: 5px;
-  margin-top: 4px;
-  overflow: hidden;
-  position: relative;
-}
 
-.contract-dock-item i b {
-  border-radius: inherit;
-  display: block;
-  height: 100%;
-  inset: 0 auto 0 0;
-  position: absolute;
-}
 
-.contract-dock-item i b.available { background: rgba(142,194,116,.42); z-index: 1; }
 
-.contract-dock-item i b.delivered { background: linear-gradient(90deg,#8cc477,#5b9454); z-index: 2; }
 
-.contract-dock-item em {
-  color: var(--green-deep);
-  display: grid;
-  font-size: .67rem;
-  font-style: normal;
-  font-weight: 950;
-  line-height: 1;
-  text-align: right;
-}
 
-.contract-dock-item em small {
-  color: var(--ink-soft);
-  font-size: .45rem;
-  font-weight: 800;
-  margin-top: 3px;
-  text-transform: uppercase;
-}
 
-.contract-dock-item em.ready { color: #2f7139; }
 
-.contract-dock-item em.ready small { color: #4c8d52; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .crop-art-progress.instant {
   --growth-progress: 100% !important;
@@ -1221,14 +1134,9 @@ body.compact-cards .crop-art-progress { padding: 4px; }
 
 .contract-deadline-warning { border-color: rgba(179, 91, 69, .3); }
 
-.contract-dock-item > span u {
-  color: var(--ink-soft);
-  font-style: normal;
-  font-weight: 850;
-  text-decoration: none;
-}
 
-.contract-dock-item.deadline-warning { background: rgba(255, 240, 233, .88); border-color: rgba(177, 86, 66, .3); }
+
+
 
 :root {
   --green: #68a45a;
@@ -1674,7 +1582,7 @@ html { overflow: hidden; }
   box-shadow: 0 13px 30px rgba(151, 113, 35, .12);
 }
 
-.contract-dock-item.reward-ready { background: linear-gradient(135deg, #fff9db, #f8e6a8); border-color: rgba(205, 157, 48, .38); }
+
 
 .reward-particle {
   filter: drop-shadow(0 4px 5px rgba(57, 70, 46, .24));
@@ -3713,34 +3621,17 @@ body.reduce-motion .floating-resource-strip { transition: none !important; }
 
 #officeView .contract-offer-grid { margin: 0 !important; }
 
-.contract-dock-item { grid-template-columns: 34px minmax(0,1fr) 42px !important; }
 
-.contract-dock-copy { display: grid !important; min-width: 0; }
 
-.contract-dock-rewards {
-  align-items: center;
-  display: flex !important;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 5px;
-}
 
-.contract-dock-rewards .resource-amount {
-  border-radius: 8px !important;
-  font-size: .54rem !important;
-  min-height: 20px !important;
-  padding: 2px 5px !important;
-}
 
-.contract-dock-rewards .resource-amount img {
-  background: transparent !important;
-  border-radius: 0 !important;
-  height: 12px !important;
-  padding: 0 !important;
-  width: 12px !important;
-}
 
-.contract-dock-item.reward-ready { cursor: pointer; }
+
+
+
+
+
+
 
 .back-to-top {
   left: max(16px, calc((100vw - 1660px) / 2 + 16px)) !important;
@@ -3899,19 +3790,11 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
   color: inherit !important;
 }
 
-.contract-dock-collapse-toggle {
-  font: inherit;
-  font-size: .65rem;
-  font-weight: 900;
-}
 
-.contract-dock-panel { display: grid; }
 
-.contract-dock-item > span u {
-  font-size: .57rem !important;
-  line-height: 1.18;
-  margin-top: 4px !important;
-}
+
+
+
 
 
 
@@ -3952,68 +3835,21 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 #activeContractList:empty + .contract-section-divider { display: none; }
 
-.contract-dock { overflow: visible !important; transition: width .2s ease, height .2s ease, padding .2s ease, background .2s ease; }
 
-.contract-dock-collapse-toggle {
-  backdrop-filter: blur(14px);
-  background: rgba(248,251,244,.98) !important;
-  border: 1px solid rgba(255,255,255,.92) !important;
-  border-radius: 999px !important;
-  box-shadow: 0 8px 22px rgba(43,72,47,.18) !important;
-  color: #4e7650 !important;
-  cursor: pointer;
-  display: grid;
-  height: 29px;
-  left: 50% !important;
-  min-height: 0 !important;
-  padding: 0 !important;
-  place-items: center;
-  position: absolute !important;
-  top: -15px !important;
-  transform: translateX(-50%) !important;
-  width: 54px;
-  z-index: 3;
-}
 
-.contract-dock-collapse-toggle span {
-  font-size: 1rem;
-  font-weight: 950;
-  line-height: 1;
-}
 
-.contract-dock-collapse-toggle:hover {
-  background: #f1f7eb !important;
-  color: #315b38 !important;
-  transform: translateX(-50%) translateY(-1px) !important;
-}
 
-.contract-dock.collapsed {
-  backdrop-filter: blur(14px) !important;
-  background: rgba(249,251,244,.96) !important;
-  border: 1px solid rgba(255,255,255,.88) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 13px 34px rgba(43,72,47,.22) !important;
-  display: grid !important;
-  height: 46px !important;
-  padding: 0 !important;
-  place-items: center;
-  width: 46px !important;
-}
 
-.contract-dock.collapsed .contract-dock-collapse-toggle {
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: inherit !important;
-  box-shadow: none !important;
-  height: 100%;
-  position: static !important;
-  transform: none !important;
-  width: 100%;
-}
 
-.contract-dock.collapsed .contract-dock-collapse-toggle:hover { transform: none !important; }
 
-.contract-dock.collapsed .contract-dock-panel { display: none !important; }
+
+
+
+
+
+
+
+
 
 .treasury-description { display: grid !important; gap: .28rem !important; }
 
@@ -5085,28 +4921,15 @@ button:disabled .resource-amount img { filter: grayscale(1) opacity(.58) !import
 
 #categoryFilter option[value="locked"] { font-style: normal !important; font-weight: 400 !important; }
 
-.contract-dock-collapse-toggle span {
-  display: grid !important;
-  height: 100% !important;
-  place-items: center !important;
-  transform: none !important;
-  width: 100% !important;
-}
 
-.contract-dock-collapse-toggle img {
-  filter: opacity(.72) !important;
-  height: 22px !important;
-  object-fit: contain !important;
-  transform: rotate(180deg) !important;
-  transition: transform .2s ease, filter .2s ease !important;
-  width: 22px !important;
-}
 
-.contract-dock-collapse-toggle:hover img { filter: opacity(.92) !important; }
 
-.contract-dock.collapsed .contract-dock-collapse-toggle span { transform: none !important; }
 
-.contract-dock.collapsed .contract-dock-collapse-toggle img { transform: rotate(0deg) !important; }
+
+
+
+
+
 
 .main-nav { -ms-overflow-style: none !important; scrollbar-width: none !important; }
 
@@ -5372,20 +5195,13 @@ body {
   border-color: rgba(120, 46, 41, .24) !important;
 }
 
-.contract-dock-item.contract-defaulted {
-  background: linear-gradient(135deg, #fff4f1, #f7dfda) !important;
-  border-color: rgba(172, 75, 67, .34) !important;
-}
 
-.contract-dock-item.contract-defaulted .delivered {
-  background: linear-gradient(90deg, #c7746c, #a94f49) !important;
-}
 
-.contract-dock-item.contract-defaulted u { color: #91443e !important; }
 
-.contract-dock-item.penalty-ready {
-  box-shadow: 0 0 0 2px rgba(178, 77, 68, .13), 0 9px 22px rgba(116, 54, 48, .12) !important;
-}
+
+
+
+
 
 
 /* Controles consistentes e responsivos */
@@ -5512,16 +5328,10 @@ body {
   min-height: 42px !important;
 }
 
-.contract-dock-panel {
-  max-height: min(62vh, 520px);
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-}
 
-.contract-dock-panel::-webkit-scrollbar { width: 6px; }
-.contract-dock-panel::-webkit-scrollbar-thumb { background: rgba(75, 116, 73, .24); border-radius: 999px; }
+
+
+
 
 
 /* Desbloqueios, contratos, conta e ranking global */
@@ -6670,11 +6480,7 @@ body {
 
   .contract-offer-actions { grid-template-columns: 1fr; }
 
-  .contract-dock {
-    bottom: 10px;
-    right: 10px;
-    width: calc(100vw - 20px);
-  }
+  
 
   .resource-strip { grid-column: auto; }
 
@@ -6940,24 +6746,15 @@ body {
 
   :is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .prestige-grid .redesigned-evolution-card { min-height: 0 !important; }
 
-  .contract-dock-collapse-toggle { font-size: .6rem; }
+  
 
-  .contract-dock:not(.collapsed) {
-    bottom: 10px !important;
-    right: 10px !important;
-    width: calc(100vw - 20px) !important;
-  }
+  
 
   .contract-section-divider { margin: 23px 2px 20px; }
 
-  .contract-dock-collapse-toggle { top: -14px !important; }
+  
 
-  .contract-dock.collapsed {
-    bottom: 10px !important;
-    height: 44px !important;
-    right: 10px !important;
-    width: 44px !important;
-  }
+  
 
   .app-header { border-radius: 0 0 20px 20px !important; }
 
@@ -7217,22 +7014,13 @@ body {
     width: 100% !important;
   }
 
-  .contract-dock:not(.collapsed) {
-    bottom: 12px !important;
-    max-width: 420px !important;
-    right: 12px !important;
-    width: calc(100vw - 24px) !important;
-  }
+  
 
-  .contract-dock-panel { max-height: min(54vh, 410px) !important; }
+  
 
-  .contract-dock-item {
-    gap: 7px !important;
-    grid-template-columns: 32px minmax(0, 1fr) 40px !important;
-    padding: 7px !important;
-  }
+  
 
-  .contract-dock-item img { height: 32px !important; width: 32px !important; }
+  
 
   .confirmation-dialog form { grid-template-columns: 1fr; padding: 21px; }
   .confirmation-dialog-icon { height: 45px; width: 45px; }
@@ -7452,31 +7240,19 @@ body {
 
   #stockView .stock-toolbar { max-width: none !important; }
 
-  .contract-dock:not(.collapsed) {
-    bottom: 8px !important;
-    border-radius: 17px !important;
-    padding: 7px !important;
-    right: 8px !important;
-    width: calc(100vw - 16px) !important;
-  }
+  
 
-  .contract-dock-panel { max-height: min(56vh, 360px) !important; }
+  
 
-  .contract-dock-title { padding-inline: 6px !important; }
+  
 
-  .contract-dock-item {
-    grid-template-columns: 30px minmax(0, 1fr) 36px !important;
-    padding: 6px !important;
-  }
+  
 
-  .contract-dock-item img { height: 30px !important; width: 30px !important; }
-  .contract-dock-rewards { gap: 3px !important; }
-  .contract-dock-rewards .resource-amount { padding-right: 4px !important; }
+  
+  
+  
 
-  .contract-dock.collapsed {
-    bottom: 8px !important;
-    right: 8px !important;
-  }
+  
 
   .confirmation-dialog { max-width: calc(100vw - 20px); }
   .confirmation-dialog form { border-radius: 20px; gap: 14px; padding: 17px; }
@@ -7777,19 +7553,7 @@ body {
     contain-intrinsic-size: auto 330px;
   }
 
-  .app-header,
-.main-nav,
-.context-nav-column,
-.crop-card,
-.stock-card,
-.upgrade-card,
-.contract-card,
-.mission-card,
-.summary-card,
-.contract-dock {
-    -webkit-backdrop-filter: none !important;
-    backdrop-filter: none !important;
-  }
+  
 
   .ambient-orb {
     filter: blur(18px) !important;
@@ -10988,65 +10752,32 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
 .contract-capacity-preview > b { background: #e8f3e5; border-radius: 999px; color: var(--green-deep); font-size: .68rem; padding: 6px 9px; }
 .contract-capacity-preview > b.full { background: #f3efea; color: #80695c; }
 
-/* Atalho flutuante dos contratos */
-.contract-dock-list {
-  background: rgba(255, 255, 255, .97) !important;
-  border: 1px solid rgba(59, 89, 62, .12) !important;
-  border-radius: 17px !important;
-  box-shadow: 0 14px 36px rgba(27, 47, 31, .14) !important;
-  overflow: hidden;
-  width: min(330px, calc(100vw - 24px));
-}
-.contract-dock-header { align-items: center; background: #f8faf7; border-bottom: 1px solid rgba(62, 90, 64, .08); display: flex; justify-content: space-between; min-height: 54px; padding: 7px 8px 7px 10px; }
-.contract-dock-header > button:first-child { align-items: center; background: transparent; border: 0; color: inherit; cursor: pointer; display: flex; gap: 8px; min-width: 0; padding: 0; text-align: left; }
-.contract-dock-header > button:first-child > img { height: 34px; object-fit: contain; width: 34px; }
-.contract-dock-header > button:first-child > span { display: grid; gap: 0; }
-.contract-dock-header strong { font-size: .78rem !important; line-height: 1.15; }
-.contract-dock-header small { color: var(--ink-soft); font-size: .61rem !important; }
-.contract-dock-header .contract-dock-collapse-toggle { background: transparent !important; border: 0 !important; border-radius: 9px; height: 36px; margin: 0 !important; padding: 7px !important; position: static !important; width: 36px; }
-.contract-dock-header .contract-dock-collapse-toggle img { height: 18px !important; width: 18px !important; }
-.contract-dock-list .contract-dock-list { display: grid; gap: 0 !important; max-height: min(48vh, 390px); overflow: auto; padding: 0 !important; }
-.contract-dock-item {
-  align-items: center !important;
-  background: #fff !important;
-  border: 0 !important;
-  border-bottom: 1px solid rgba(63, 91, 65, .07) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  display: grid !important;
-  gap: 9px !important;
-  grid-template-columns: 42px minmax(0, 1fr) !important;
-  min-height: 74px !important;
-  padding: 9px 10px !important;
-  text-align: left;
-  width: 100% !important;
-}
-.contract-dock-item:last-child { border-bottom: 0 !important; }
-.contract-dock-item:hover { background: #f9fbf8 !important; }
-.contract-dock-crop { background: #f6f9f4; border-radius: 10px; height: 42px !important; object-fit: contain; padding: 3px; width: 42px !important; }
-.contract-dock-copy { display: grid !important; gap: 3px !important; min-width: 0; }
-.contract-dock-title-line { align-items: center; display: flex; gap: 8px; justify-content: space-between; }
-.contract-dock-title-line > strong { color: var(--ink); font-size: .76rem !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.contract-dock-title-line > small { color: var(--ink-soft); flex: 0 0 auto; font-size: .61rem !important; }
-.contract-dock-copy > em { color: var(--ink-soft); font-size: .6rem !important; font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.contract-dock-copy > i { background: #e6ece4 !important; border-radius: 999px; height: 5px !important; overflow: hidden; }
-.contract-dock-copy > i > b { background: #6d9d69 !important; height: 100%; }
-.contract-dock-copy > u { color: var(--ink-soft); font-size: .6rem !important; text-decoration: none; }
-.contract-dock-compact-button {
-  align-items: center;
-  background: #fff;
-  border: 1px solid rgba(59, 89, 62, .12);
-  border-radius: 14px;
-  box-shadow: 0 10px 26px rgba(27, 47, 31, .13);
-  cursor: pointer;
-  display: flex;
-  height: 54px;
-  justify-content: center;
-  position: relative;
-  width: 54px;
-}
-.contract-dock-compact-button > img { height: 37px; object-fit: contain; width: 37px; }
-.contract-dock-compact-button > b { align-items: center; background: var(--green-deep); border: 2px solid #fff; border-radius: 999px; color: #fff; display: flex; font-size: .58rem; height: 20px; justify-content: center; position: absolute; right: -5px; top: -5px; width: 20px; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @media (max-width: 600px) {
   .confirmation-dialog-milestone .milestone-main-icon { height: 58px !important; left: 14px !important; top: 16px !important; width: 58px !important; }
@@ -11076,36 +10807,17 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
 .contract-card-footer-preview { margin: 10px 12px 12px !important; }
 }
 
-/* Atalho de contratos: o contêiner externo acompanha o painel novo. */
-.contract-dock.visible:not(.collapsed) {
-  backdrop-filter: none !important;
-  background: transparent !important;
-  border: 0 !important;
-  border-radius: 17px !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  width: min(330px, calc(100vw - 24px)) !important;
-}
-.contract-dock.visible:not(.collapsed) .contract-dock-list { width: 100% !important; }
-.contract-dock.collapsed {
-  backdrop-filter: none !important;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  height: 54px !important;
-  padding: 0 !important;
-  width: 54px !important;
-}
-@media (max-width: 480px) {
-  .contract-dock.visible:not(.collapsed) { bottom: 10px !important; right: 10px !important; width: calc(100vw - 20px) !important; }
-  .contract-dock-list { width: 100% !important; }
-}
-.contract-dock-header strong { font-size: .82rem !important; }
-.contract-dock-header small { font-size: .65rem !important; }
-.contract-dock-title-line > strong { font-size: .79rem !important; }
-.contract-dock-title-line > small { font-size: .65rem !important; }
-.contract-dock-copy > em { display: block !important; font-size: .64rem !important; font-weight: 700 !important; line-height: 1.25 !important; text-align: left !important; }
-.contract-dock-copy > u { font-size: .63rem !important; line-height: 1.2 !important; }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -11175,9 +10887,7 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
   background: color-mix(in srgb, var(--contract-type-color,#6b9870) 38%, white) !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--contract-type-color,#6b9870) 11%, transparent) !important;
 }
-.contract-capacity-preview img,
-.contract-dock-header > button:first-child > img,
-.contract-dock-compact-button > img { filter: none !important; }
+
 
 @media (max-width: 1024px) {
   #profileAccountPanel .stats-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -11244,8 +10954,8 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
 #officeView .contract-card-foundation.contract-defaulted-card { background:linear-gradient(145deg,#fff5f2,#f7ddd7 115%) !important; border-color:rgba(178,77,68,.31) !important; box-shadow:0 12px 30px rgba(116,54,48,.1) !important; }
 #officeView .contract-card-foundation.contract-defaulted-card .contract-time-preview { background:#fde5e0 !important; border-color:rgba(171,72,63,.16) !important; color:#8e453e !important; }
 #officeView .contract-card-foundation.contract-defaulted-card .contract-progress-preview .progress-track > span { background:linear-gradient(90deg,#cc776d,#ad5048) !important; }
-.contract-dock-item.reward-ready { background:linear-gradient(135deg,#fff9dc,#f5e3a0) !important; border-color:rgba(202,157,45,.34) !important; box-shadow:0 5px 14px rgba(163,122,31,.09) !important; }
-.contract-dock-item.contract-defaulted { background:linear-gradient(135deg,#fff3f0,#f4d8d2) !important; border-color:rgba(174,77,68,.32) !important; box-shadow:0 5px 14px rgba(126,54,48,.08) !important; }
+
+
 .contract-focus-pulse { animation:contractFocusPulse 1.3s ease both; }
 @keyframes contractFocusPulse { 0%,
 100%{box-shadow:0 10px 28px rgba(31,54,35,.055)} 35%{box-shadow:0 0 0 5px rgba(92,145,87,.15),0 18px 38px rgba(31,54,35,.11);transform:translateY(-2px)} }
@@ -11431,26 +11141,11 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
   }
 }
 
-.contract-dock-item .contract-dock-rewards {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px 7px;
-  margin: 3px 0 2px;
-  min-width: 0;
-}
-.contract-dock-item .contract-dock-rewards .resource-amount {
-  font-size: .58rem !important;
-  gap: 3px !important;
-  line-height: 1 !important;
-  white-space: nowrap;
-}
-.contract-dock-item .contract-dock-rewards .resource-amount img {
-  height: 13px !important;
-  width: 13px !important;
-}
-.contract-dock-item.reward-ready { cursor: pointer; }
-.contract-dock-item.reward-ready::after { content: none !important; display: none !important; }
+
+
+
+
+
 
 .contract-break-dialog {
   background: transparent !important;
@@ -11578,15 +11273,9 @@ body[data-navigation-mode="sidebar"] .navigation-stack::-webkit-scrollbar { disp
 }
 
 /* recompensas do atalho continuam compactas, porém legíveis */
-.contract-dock-item .contract-dock-rewards .resource-amount {
-  font-size: .64rem !important;
-  font-weight: 850 !important;
-}
-.contract-dock-item .contract-dock-rewards .resource-amount img {
-  height: 15px !important;
-  width: 15px !important;
-}
-.contract-dock-item.reward-ready::after { font-size: .55rem !important; }
+
+
+
 
 
 
@@ -11730,8 +11419,8 @@ body[data-navigation-mode="grid"] .mobile-direct-nav .nav-tab-icon img { height:
 
 
 
-@media(max-width:700px) {  }
-@media(max-width:480px) {     }
+
+
 
 
 
@@ -12076,27 +11765,8 @@ body[data-navigation-mode="line"] .desktop-main-nav .nav-tab { flex-shrink:0; }
   box-shadow: inset 5px 0 0 rgba(68,137,73,.92), 0 0 0 2px rgba(78,144,82,.09), 0 8px 18px rgba(48,94,52,.07) !important;
 }
 
-@media (max-width: 700px) {
-  
-  
-  
-  
-}
-@media (max-width: 480px) {
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-}
+
+
 
 
 /* Camada visual anterior do Play */
@@ -12301,8 +11971,8 @@ button.button,
 }
 .contract-break-button > * { margin: 0 !important; }
 .contract-break-amount { margin-left: auto !important; text-align: right; white-space: nowrap; }
-.contract-dock-panel { border-radius: 18px; box-shadow: var(--ui-shadow); }
-.contract-dock-item { border-radius: 14px; }
+
+
 
 /* Social e ranking */
 .social-ranking-section,
@@ -12583,14 +12253,14 @@ dialog::backdrop { background: rgba(18,28,19,.42); backdrop-filter: blur(4px); }
 .contract-claim-action { border: 0 !important; }
 .contract-penalty-action { color: var(--danger, #963e3e) !important; }
 
-/* Atalho de contratos robusto para muitos slots. */
-.contract-dock { max-width: min(94vw, 560px) !important; }
-.contract-dock-panel { max-height: min(72vh, 620px); overflow: hidden; display: flex; flex-direction: column; }
-.contract-dock-header { flex: 0 0 auto; }
-.contract-dock-collapse-toggle { margin-left: auto !important; margin-right: 5px !important; }
-.contract-dock-list { overflow-y: auto !important; overscroll-behavior: contain; scrollbar-gutter: stable; display: grid !important; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px !important; padding: 8px !important; }
-.contract-dock-item { min-width: 0; }
-@media (max-width: 620px) { .contract-dock-list { grid-template-columns: 1fr !important; } }
+
+
+
+
+
+
+
+
 
 /* Conta */
 .account-settings-card { position: relative; }
@@ -12728,34 +12398,14 @@ dialog::backdrop { background: rgba(18,28,19,.42); backdrop-filter: blur(4px); }
   opacity: 1 !important;
 }
 
-/* Atalho de contratos: 1 item ocupa tudo; múltiplos itens se adaptam e rolam. */
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list {
-  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)) !important;
-  gap: 8px !important;
-  padding: 8px !important;
-  align-items: start !important;
-}
-.contract-dock-list > :only-child { grid-column: 1 / -1 !important; width: 100% !important; }
-.contract-dock-item { width: 100% !important; min-width: 0 !important; }
-.contract-dock:not(.collapsed) .contract-dock-collapse-toggle,
-.contract-dock-list:not(.collapsed) .contract-dock-collapse-toggle {
-  position: absolute !important;
-  top: 6px !important;
-  right: 6px !important;
-  left: auto !important;
-  margin: 0 !important;
-  transform: none !important;
-  width: 34px !important;
-  height: 34px !important;
-}
-.contract-dock:not(.collapsed) .contract-dock-collapse-toggle:hover,
-.contract-dock-list:not(.collapsed) .contract-dock-collapse-toggle:hover { transform: translateY(-1px) !important; }
-.contract-dock-header { padding-right: 45px !important; position: relative !important; }
-@media (max-width: 620px) {
-  .contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list { grid-template-columns: 1fr !important; }
-}
+
+
+
+
+
+
+
+
 
 
 
@@ -12914,12 +12564,7 @@ dialog::backdrop { background: rgba(18,28,19,.42); backdrop-filter: blur(4px); }
 
 
 
-@media (max-width: 520px) {
-  
-  
-  
-  
-}
+
 
 /* Ranking: devolve o espaçamento; o fundo do espaço é o próprio painel. */
 .social-ranking-section,
@@ -13020,121 +12665,24 @@ html[data-theme="dark"] .resource-pill.farm-xp-resource small b { color: #8ac793
 }
 
 
-/* 1. Atalho de contratos */
 
-.contract-dock.visible:not(.collapsed) {
-  width: min(360px, calc(100vw - 24px)) !important;
-  max-width: calc(100vw - 24px) !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
-  width: min(700px, calc(100vw - 24px)) !important;
-}
-.contract-dock-panel.contract-dock-list {
-  width: 100% !important;
-  max-width: none !important;
-  max-height: min(72dvh, 620px) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  overflow: hidden !important;
-  border: 1px solid var(--release-border) !important;
-  border-radius: 18px !important;
-  background: rgba(252, 253, 251, .985) !important;
-  box-shadow: 0 16px 44px rgba(31, 51, 34, .17) !important;
-}
-.contract-dock-header {
-  position: relative !important;
-  min-height: 58px !important;
-  padding: 8px 52px 8px 11px !important;
-  display: flex !important;
-  align-items: center !important;
-  background: linear-gradient(180deg, #fbfdf9, #f5f9f3) !important;
-  border-bottom: 1px solid rgba(60, 92, 62, .09) !important;
-}
-.contract-dock-header > button:first-child {
-  width: 100% !important;
-  min-width: 0 !important;
-}
-.contract-dock-header .contract-dock-collapse-toggle,
-.contract-dock:not(.collapsed) .contract-dock-collapse-toggle,
-.contract-dock-list:not(.collapsed) .contract-dock-collapse-toggle {
-  position: absolute !important;
-  top: 8px !important;
-  right: 8px !important;
-  left: auto !important;
-  width: 36px !important;
-  height: 36px !important;
-  min-width: 36px !important;
-  min-height: 36px !important;
-  margin: 0 !important;
-  padding: 8px !important;
-  transform: none !important;
-  border: 1px solid rgba(60, 92, 62, .09) !important;
-  border-radius: 12px !important;
-  background: #fff !important;
-  box-shadow: 0 5px 14px rgba(44, 72, 47, .07) !important;
-}
-.contract-dock-header .contract-dock-collapse-toggle:hover {
-  transform: translateY(-1px) !important;
-  background: #f0f7ed !important;
-}
-.contract-dock-header .contract-dock-collapse-toggle img {
-  width: 18px !important;
-  height: 18px !important;
-}
-.contract-dock .contract-dock-list,
-.contract-dock-list .contract-dock-list {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) !important;
-  align-items: start !important;
-  gap: 8px !important;
-  padding: 8px !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(76, 116, 76, .28) transparent;
-}
-.contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-.contract-dock-list > *,
-.contract-dock-list > :only-child,
-.contract-dock-item {
-  grid-column: auto !important;
-  width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-.contract-dock-item {
-  min-height: 86px !important;
-  border: 1px solid rgba(60, 92, 62, .09) !important;
-  border-radius: 13px !important;
-  background: #fff !important;
-}
-.contract-dock-item:last-child { border-bottom: 1px solid rgba(60, 92, 62, .09) !important; }
-.contract-dock-item.contract-defaulted {
-  background: linear-gradient(135deg, #fff5f2, #f8ddd7) !important;
-}
-.contract-dock-item.reward-ready {
-  background: linear-gradient(135deg, #fffbed, #f8e9b8) !important;
-}
-@media (max-width: 760px) {
-  .contract-dock.visible:not(.collapsed),
-.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
-    width: min(390px, calc(100vw - 20px)) !important;
-    right: 10px !important;
-    bottom: 10px !important;
-  }
-  .contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-    grid-template-columns: 1fr !important;
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* 2. Configurações / Feedback */
@@ -13351,14 +12899,7 @@ html[data-theme="dark"] .resource-pill.farm-xp-resource small b { color: #8ac793
 
 
 
-@media (max-width: 520px) {
-  
-  
-  
-  
-  
-  
-}
+
 
 
 /* 6. Progresso offline — vertical, limpo e sem borda/scroll nativo feio */
@@ -15886,7 +15427,7 @@ html[data-theme="dark"] .resource-pill.farm-xp-resource small b { color: #8ac793
 }
 
 
-/* Minha Conta + responsivo do atalho de contratos */
+
 /* Em desktop os botões da conta ficam na mesma linha: não há necessidade da divisória. */
 @media (min-width: 769px) {
   #profileAccountPanel .account-actions {
@@ -15895,442 +15436,83 @@ html[data-theme="dark"] .resource-pill.farm-xp-resource small b { color: #8ac793
   }
 }
 
-/* Atalho de contratos: estrutura única, independente da quantidade de contratos. */
-.contract-dock.visible:not(.collapsed) {
-  width: clamp(360px, 31vw, 430px) !important;
-  max-width: calc(100vw - 24px) !important;
-}
-.contract-dock-list {
-  width: 100% !important;
-  overflow: hidden !important;
-  border-radius: 20px !important;
-  border: 1px solid rgba(57, 91, 61, .14) !important;
-  background: rgba(251,253,250,.985) !important;
-  box-shadow: 0 18px 44px rgba(24, 45, 29, .18) !important;
-}
-.contract-dock-list .contract-dock-header {
-  min-height: 62px !important;
-  padding: 9px 10px 9px 12px !important;
-  border-bottom: 1px solid rgba(59,91,63,.08) !important;
-  background: linear-gradient(180deg, #fbfdf9, #f5f9f3) !important;
-}
-.contract-dock-list .contract-dock-header > button:first-child {
-  gap: 10px !important;
-}
-.contract-dock-list .contract-dock-header > button:first-child > img {
-  width: 40px !important;
-  height: 40px !important;
-}
-.contract-dock-list .contract-dock-header strong {
-  font-size: .88rem !important;
-  line-height: 1.15 !important;
-}
-.contract-dock-list .contract-dock-header small {
-  margin-top: 2px !important;
-  color: #708078 !important;
-  font-size: .64rem !important;
-}
-.contract-dock-list .contract-dock-collapse-toggle {
-  width: 38px !important;
-  height: 38px !important;
-  border-radius: 11px !important;
-}
-.contract-dock-summary {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
-  gap: 6px !important;
-  padding: 8px 10px !important;
-  border-bottom: 1px solid rgba(59,91,63,.07) !important;
-  background: #f8fbf7 !important;
-}
-.contract-dock-summary > span {
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: baseline !important;
-  justify-content: center !important;
-  gap: 4px !important;
-  padding: 6px 7px !important;
-  border: 1px solid rgba(58,91,61,.08) !important;
-  border-radius: 10px !important;
-  background: rgba(255,255,255,.82) !important;
-  color: #718078 !important;
-  font-size: .58rem !important;
-  font-weight: 750 !important;
-  white-space: nowrap !important;
-}
-.contract-dock-summary > span > b {
-  color: #395b3f !important;
-  font-size: .78rem !important;
-  font-weight: 900 !important;
-}
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  display: grid !important;
-  grid-template-columns: minmax(0,1fr) !important;
-  align-content: start !important;
-  gap: 7px !important;
-  max-height: min(54vh, 470px) !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  padding: 8px !important;
-  background: #f4f8f2 !important;
-  scrollbar-gutter: stable !important;
-}
-.contract-dock-item,
-.contract-dock-list > :only-child {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  min-height: 102px !important;
-  display: grid !important;
-  grid-template-columns: 52px minmax(0,1fr) !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 10px !important;
-  border: 1px solid rgba(59,91,63,.10) !important;
-  border-radius: 15px !important;
-  background: #fff !important;
-  box-shadow: 0 3px 10px rgba(34,59,38,.035) !important;
-  text-align: left !important;
-  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease !important;
-}
-.contract-dock-item:hover {
-  border-color: rgba(68,113,70,.20) !important;
-  background: #fcfefb !important;
-  box-shadow: 0 7px 17px rgba(34,59,38,.07) !important;
-  transform: translateY(-1px) !important;
-}
-.contract-dock-crop-shell {
-  width: 52px !important;
-  height: 52px !important;
-  display: grid !important;
-  place-items: center !important;
-  align-self: start !important;
-  border-radius: 14px !important;
-  background: linear-gradient(145deg,#f7faf5,#edf4e9) !important;
-  border: 1px solid rgba(59,91,63,.08) !important;
-}
-.contract-dock-item .contract-dock-crop {
-  width: 46px !important;
-  height: 46px !important;
-  padding: 3px !important;
-  border: 0 !important;
-  border-radius: 11px !important;
-  background: transparent !important;
-  object-fit: contain !important;
-}
-.contract-dock-item .contract-dock-copy {
-  min-width: 0 !important;
-  display: grid !important;
-  grid-template-columns: minmax(0,1fr) !important;
-  gap: 5px !important;
-}
-.contract-dock-item .contract-dock-title-line {
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 8px !important;
-}
-.contract-dock-item .contract-dock-title-line > strong {
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  color: #314e37 !important;
-  font-size: .82rem !important;
-  font-weight: 900 !important;
-}
-.contract-dock-item .contract-dock-title-line > small {
-  flex: 0 0 auto !important;
-  padding: 3px 7px !important;
-  border-radius: 999px !important;
-  background: #eef5ec !important;
-  color: #55705a !important;
-  font-size: .62rem !important;
-  font-weight: 900 !important;
-}
-.contract-dock-meta-line {
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 7px !important;
-}
-.contract-dock-meta-line > em {
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  color: #7a8780 !important;
-  font-size: .61rem !important;
-  font-style: normal !important;
-  font-weight: 700 !important;
-}
-.contract-dock-state {
-  flex: 0 0 auto !important;
-  max-width: 48% !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  padding: 3px 7px !important;
-  border-radius: 999px !important;
-  text-decoration: none !important;
-  background: #f0f4ee !important;
-  color: #64746b !important;
-  font-size: .58rem !important;
-  font-weight: 850 !important;
-}
-.contract-dock-state.is-urgent { background: #fff0eb !important; color: #a84e3d !important; }
-.contract-dock-state.is-completed { background: #fff7d9 !important; color: #8a681d !important; }
-.contract-dock-state.is-defaulted { background: #fae7e4 !important; color: #93463e !important; }
-.contract-dock-progress {
-  width: 100% !important;
-  height: 6px !important;
-  overflow: hidden !important;
-  border-radius: 999px !important;
-  background: #e4ebe1 !important;
-}
-.contract-dock-progress > .delivered {
-  display: block !important;
-  height: 100% !important;
-  border-radius: inherit !important;
-  background: linear-gradient(90deg,#87bc78,#4f8d58) !important;
-}
-.contract-dock-item .contract-dock-rewards {
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  flex-wrap: nowrap !important;
-  gap: 4px !important;
-  overflow: hidden !important;
-}
-.contract-dock-item .contract-dock-rewards .resource-amount {
-  min-width: 0 !important;
-  flex: 0 1 auto !important;
-  padding: 2px 5px !important;
-  border-radius: 7px !important;
-  font-size: .57rem !important;
-}
-.contract-dock-item .contract-dock-rewards .resource-amount img {
-  width: 14px !important;
-  height: 14px !important;
-}
-.contract-dock-item.reward-ready {
-  border-color: rgba(202,157,45,.27) !important;
-  background: linear-gradient(135deg,#fffdf5,#fff7d9) !important;
-}
-.contract-dock-item.contract-defaulted {
-  border-color: rgba(174,77,68,.25) !important;
-  background: linear-gradient(135deg,#fff9f7,#fbe8e4) !important;
-}
-.contract-dock-item.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
-  border-color: rgba(190,91,66,.22) !important;
-  background: linear-gradient(135deg,#fffaf8,#fff0eb) !important;
-}
-
-@media (max-width: 760px) {
-  .contract-dock.visible:not(.collapsed) {
-    width: min(430px, calc(100vw - 20px)) !important;
-    right: 10px !important;
-    bottom: 10px !important;
-  }
-  .contract-dock-list .contract-dock-list {
-    max-height: min(52vh, 420px) !important;
-  }
-}
-@media (max-width: 480px) {
-  .contract-dock.visible:not(.collapsed) {
-    width: calc(100vw - 16px) !important;
-    right: 8px !important;
-    bottom: 8px !important;
-  }
-  .contract-dock-list { border-radius: 17px !important; }
-  .contract-dock-list .contract-dock-header { min-height: 58px !important; padding: 8px 9px 8px 10px !important; }
-  .contract-dock-list .contract-dock-header > button:first-child > img { width: 36px !important; height: 36px !important; }
-  .contract-dock-summary { padding: 7px 8px !important; gap: 5px !important; }
-  .contract-dock-summary > span { padding: 5px 4px !important; font-size: .54rem !important; }
-  .contract-dock-summary > span > b { font-size: .72rem !important; }
-  .contract-dock-list .contract-dock-list { max-height: min(50vh, 365px) !important; padding: 7px !important; gap: 6px !important; }
-  .contract-dock-item,
-.contract-dock-list > :only-child {
-    min-height: 94px !important;
-    grid-template-columns: 46px minmax(0,1fr) !important;
-    gap: 9px !important;
-    padding: 9px !important;
-    border-radius: 13px !important;
-  }
-  .contract-dock-crop-shell { width: 46px !important; height: 46px !important; border-radius: 12px !important; }
-  .contract-dock-item .contract-dock-crop { width: 41px !important; height: 41px !important; }
-  .contract-dock-item .contract-dock-title-line > strong { font-size: .77rem !important; }
-  .contract-dock-item .contract-dock-rewards .resource-amount { font-size: .53rem !important; padding-inline: 4px !important; }
-  .contract-dock-item .contract-dock-rewards .resource-amount img { width: 13px !important; height: 13px !important; }
-}
 
 
-/* finos no atalho de contratos */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Resumo Ativos/Vagas/Slots removido; caso cache antigo ainda injete o bloco, ele não aparece. */
-.contract-dock-summary { display: none !important; }
+
 
 /* Imagem da cultura centralizada verticalmente dentro de qualquer altura de card. */
-.contract-dock-crop-shell {
-  align-self: center !important;
-  justify-self: center !important;
-}
+
 
 /* Margens laterais visualmente simétricas; sem gutter reservado à direita. */
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list,
-.contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  scrollbar-gutter: auto !important;
-}
-@media (max-width: 480px) {
-  .contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list {
-    padding-left: 7px !important;
-    padding-right: 7px !important;
-  }
-}
 
 
-/* scroll estável do atalho de contratos */
-.contract-dock.visible:not(.collapsed) {
-  inline-size: clamp(360px, 31vw, 430px) !important;
-  width: clamp(360px, 31vw, 430px) !important;
-  max-inline-size: calc(100vw - 24px) !important;
-  max-width: calc(100vw - 24px) !important;
-  contain: inline-size !important;
-}
-.contract-dock-list,
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list,
-.contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  scrollbar-gutter: stable both-edges !important;
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: rgba(75,116,73,.26) transparent !important;
-}
-.contract-dock-list .contract-dock-list::-webkit-scrollbar,
-.contract-dock .contract-dock-list::-webkit-scrollbar { width: 6px !important; }
-.contract-dock-list .contract-dock-list::-webkit-scrollbar-track,
-.contract-dock .contract-dock-list::-webkit-scrollbar-track { background: transparent !important; }
-.contract-dock-list .contract-dock-list::-webkit-scrollbar-thumb,
-.contract-dock .contract-dock-list::-webkit-scrollbar-thumb {
-  background: rgba(75,116,73,.24) !important;
-  border-radius: 999px !important;
-}
-@media (max-width: 760px) {
-  .contract-dock.visible:not(.collapsed) {
-    inline-size: min(430px, calc(100vw - 20px)) !important;
-    width: min(430px, calc(100vw - 20px)) !important;
-  }
-}
-@media (max-width: 480px) {
-  .contract-dock.visible:not(.collapsed) {
-    inline-size: calc(100vw - 16px) !important;
-    width: calc(100vw - 16px) !important;
-  }
-  .contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list {
-    padding-left: 7px !important;
-    padding-right: 7px !important;
-  }
-}
 
-/* largura invariável e atualização imediata do atalho de contratos */
-/* A quantidade de contratos nunca altera a largura externa do atalho. */
-.contract-dock.visible:not(.collapsed),
-.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
-  inline-size: min(430px, calc(100vw - 24px)) !important;
-  width: min(430px, calc(100vw - 24px)) !important;
-  min-inline-size: 0 !important;
-  min-width: 0 !important;
-  max-inline-size: min(430px, calc(100vw - 24px)) !important;
-  max-width: min(430px, calc(100vw - 24px)) !important;
-  box-sizing: border-box !important;
-  contain: none !important;
-}
-.contract-dock-panel.contract-dock-list,
-.contract-dock.visible:not(.collapsed) .contract-dock-list {
-  inline-size: 100% !important;
-  width: 100% !important;
-  min-inline-size: 0 !important;
-  min-width: 0 !important;
-  max-inline-size: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Mesmo com 4+ contratos, a lista continua em uma única coluna. */
-.contract-dock .contract-dock-list,
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  grid-template-columns: minmax(0, 1fr) !important;
-  inline-size: 100% !important;
-  width: 100% !important;
-  min-inline-size: 0 !important;
-  min-width: 0 !important;
-  max-inline-size: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  scrollbar-gutter: stable both-edges !important;
-}
-.contract-dock-list > *,
-.contract-dock-list > :only-child,
-.contract-dock-item {
-  min-width: 0 !important;
-  max-width: 100% !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-}
-@media (max-width: 760px) {
-  .contract-dock.visible:not(.collapsed),
-.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
-    inline-size: min(430px, calc(100vw - 20px)) !important;
-    width: min(430px, calc(100vw - 20px)) !important;
-    max-inline-size: min(430px, calc(100vw - 20px)) !important;
-    max-width: min(430px, calc(100vw - 20px)) !important;
-  }
-}
-@media (max-width: 480px) {
-  .contract-dock.visible:not(.collapsed),
-.contract-dock.visible:not(.collapsed):has(.contract-dock-list > :nth-child(4)) {
-    inline-size: calc(100vw - 16px) !important;
-    width: calc(100vw - 16px) !important;
-    max-inline-size: calc(100vw - 16px) !important;
-    max-width: calc(100vw - 16px) !important;
-  }
-}
 
 
-/* normalização do atalho de contratos + tema Claro/Escuro */
+
+
+
+
+
 /* Atalho: a área útil usa respiro proporcional, sem laterais visualmente maiores. */
-.contract-dock-list .contract-dock-list,
-.contract-dock .contract-dock-list,
-.contract-dock .contract-dock-list:has(> :nth-child(4)),
-.contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  padding: 7px 3px 7px 7px !important;
-  gap: 7px !important;
-  scrollbar-gutter: stable !important;
-  overflow-y: auto !important;
-}
-.contract-dock-list .contract-dock-list::-webkit-scrollbar,
-.contract-dock .contract-dock-list::-webkit-scrollbar { width: 4px !important; }
+
+
 
 /* Aparência: o modo escuro preserva os acentos verdes, azuis, roxos e dourados do jogo. */
 html[data-theme="dark"] {
@@ -16414,26 +15596,12 @@ html[data-theme="dark"] #rankingProfileDialog :is(.profile-nickname-field,.profi
 }
 
 
-html[data-theme="dark"] .contract-dock-panel.contract-dock-list {
-  background: rgba(20,29,23,.985) !important;
-  border-color: rgba(191,218,194,.12) !important;
-  box-shadow: 0 16px 44px rgba(0,0,0,.32) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-header {
-  background: linear-gradient(180deg,#1d2921,#172019) !important;
-  border-color: rgba(191,218,194,.09) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-collapse-toggle {
-  background: #26332b !important;
-  border-color: rgba(191,218,194,.10) !important;
-}
-html[data-theme="dark"] .contract-dock-item {
-  background: #1d2821 !important;
-  color: var(--ui-text) !important;
-  border-color: rgba(191,218,194,.09) !important;
-}
-html[data-theme="dark"] .contract-dock-item.reward-ready { background: linear-gradient(135deg,#3a3521,#2e2b1e) !important; }
-html[data-theme="dark"] .contract-dock-item.contract-defaulted { background: linear-gradient(135deg,#3b2523,#2b1d1b) !important; }
+
+
+
+
+
+
 
 html[data-theme="dark"] #settingsView .feedback-settings-card {
   background: rgba(24,32,27,.94) !important;
@@ -16678,31 +15846,17 @@ html[data-theme="dark"] #rankingProfileDialog :is(.profile-nickname-field,.profi
 }
 
 
-/* Atalho de contratos coerente com o novo dark. */
-html[data-theme="dark"] .contract-dock-panel.contract-dock-list {
-  background: #151c18 !important;
-  border-color: rgba(222,235,225,.10) !important;
-  box-shadow: 0 18px 50px rgba(0,0,0,.40) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-header {
-  background: linear-gradient(180deg,#1d2721,#18201c) !important;
-  border-color: rgba(222,235,225,.07) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-collapse-toggle {
-  background: #252f29 !important;
-  border-color: rgba(222,235,225,.09) !important;
-}
-html[data-theme="dark"] .contract-dock-item {
-  background: linear-gradient(180deg,#202924,#1b231f) !important;
-  color: #edf3ee !important;
-  border-color: rgba(222,235,225,.075) !important;
-}
-html[data-theme="dark"] .contract-dock-item:hover { background: linear-gradient(180deg,#253029,#1f2923) !important; }
-html[data-theme="dark"] .contract-dock-item.reward-ready { background: linear-gradient(135deg,#39331f,#292619) !important; border-color: rgba(211,173,70,.15) !important; }
-html[data-theme="dark"] .contract-dock-item.contract-defaulted { background: linear-gradient(135deg,#382321,#291b1a) !important; border-color: rgba(220,116,107,.15) !important; }
-html[data-theme="dark"] .contract-dock-state.is-urgent { background: #3b2820 !important; color: #f0a180 !important; }
-html[data-theme="dark"] .contract-dock-state.is-completed { background: #38331f !important; color: #e2c66d !important; }
-html[data-theme="dark"] .contract-dock-state.is-defaulted { background: #3b2322 !important; color: #ee9b94 !important; }
+
+
+
+
+
+
+
+
+
+
+
 
 /* Configurações e feedback seguem a mesma superfície. */
 html[data-theme="dark"] #settingsView .feedback-settings-card {
@@ -16894,11 +16048,7 @@ html[data-theme="dark"] #officeView .contract-penalty {
   color: #efa09a !important;
   border-color: rgba(223,117,107,.14) !important;
 }
-html[data-theme="dark"] .contract-dock-compact-button,
-html[data-theme="dark"] .contract-dock-crop-shell {
-  background: var(--dark-surface-2) !important;
-  border-color: var(--dark-border) !important;
-}
+
 
 /* Modal de quebra/multa de contrato. */
 html[data-theme="dark"] .contract-break-dialog,
@@ -17265,24 +16415,10 @@ html[data-theme="dark"] #offlineProgressDialog .offline-progress-heading strong 
 html[data-theme="dark"] #settingsView .feedback-settings-body {
   background: transparent !important;
 }
-html[data-theme="dark"] .contract-dock-summary,
-html[data-theme="dark"] .contract-dock-list .contract-dock-list,
-html[data-theme="dark"] .contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  background: #151c18 !important;
-  border-color: rgba(225,237,228,.07) !important;
-}
-html[data-theme="dark"] .contract-dock-summary > span {
-  color: #d9e4db !important;
-  background: #202824 !important;
-  border-color: rgba(225,237,228,.08) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > small {
-  color: #a9b8ad !important;
-  background: #18211c !important;
-}
-html[data-theme="dark"] .contract-dock-progress {
-  background: #101611 !important;
-}
+
+
+
+
 
 html[data-theme="dark"] .compact-auto-toggle,
 html[data-theme="dark"] .compact-auto-toggle.active,
@@ -17542,43 +16678,6 @@ html[data-theme="dark"] #officeContractsPanel .contract-progress-preview .progre
   background: #101611 !important;
 }
 
-/* Atalho de contratos. */
-html[data-theme="dark"] .contract-dock-panel.contract-dock-list,
-html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-list {
-  color: #ebf2ec !important;
-  background: linear-gradient(180deg, #171e1a 0%, #131915 100%) !important;
-  border-color: rgba(226,237,228,.10) !important;
-  box-shadow: var(--dark-shadow-deep) !important;
-}
-html[data-theme="dark"] .contract-dock-summary,
-html[data-theme="dark"] .contract-dock-list .contract-dock-header,
-html[data-theme="dark"] .contract-dock-list .contract-dock-list,
-html[data-theme="dark"] .contract-dock-list .contract-dock-list:has(> :nth-child(4)) {
-  background: #151c18 !important;
-  border-color: rgba(226,237,228,.08) !important;
-}
-html[data-theme="dark"] .contract-dock-summary > span,
-html[data-theme="dark"] .contract-dock-item,
-html[data-theme="dark"] .contract-dock-crop-shell,
-html[data-theme="dark"] .contract-dock-collapse-toggle,
-html[data-theme="dark"] .contract-dock-compact-button {
-  color: #e7efe8 !important;
-  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
-  border-color: rgba(226,237,228,.08) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > strong,
-html[data-theme="dark"] .contract-dock-item .contract-dock-rewards .resource-amount,
-html[data-theme="dark"] .contract-dock-summary > span > b {
-  color: #f2f7f3 !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > small,
-html[data-theme="dark"] .contract-dock-meta-line,
-html[data-theme="dark"] .contract-dock-meta-line > em {
-  color: #a5b4a9 !important;
-}
-html[data-theme="dark"] .contract-dock-progress {
-  background: #0f1411 !important;
-}
 
 
 
@@ -17589,12 +16688,15 @@ html[data-theme="dark"] .contract-dock-progress {
 
 
 
-@media (max-width: 1120px) {
-  
-}
-@media (max-width: 680px) {
-  
-}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -18407,58 +17509,24 @@ html[data-theme="dark"] #profileSocialPanel .social-event-time.is-running {
 #catalogFilterDialog .catalog-filter-header .eyebrow,
 #catalogFilterDialog .catalog-filter-header p { display: none !important; }
 
-/* Atalho de contratos: porcentagem no meta, tempo abaixo do progresso. */
-.contract-dock-time {
-  min-height: 18px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 4px !important;
-  color: #66766c !important;
-  font-size: .58rem !important;
-  font-weight: 850 !important;
-  line-height: 1 !important;
-}
-.contract-dock-time[hidden] { display: none !important; }
-.contract-dock-time > img {
-  width: 13px !important;
-  height: 13px !important;
-  object-fit: contain !important;
-}
-.contract-dock-time > b {
-  color: inherit !important;
-  font: inherit !important;
-}
-.contract-dock-time.is-urgent { color: #a84e3d !important; }
-.contract-dock-meta-line > [data-contract-dock-percent] {
-  max-width: 52% !important;
-}
 
 
-/* Atalho de contratos: posições */
 
-.contract-dock-item .contract-dock-title-line > [data-contract-dock-percent] {
-  flex: 0 0 auto !important;
-  max-width: 48% !important;
-  margin-left: auto !important;
-}
-.contract-dock-item .contract-dock-meta-line {
-  justify-content: flex-start !important;
-}
-.contract-dock-item .contract-dock-meta-line > em {
-  max-width: 100% !important;
-}
-.contract-dock-item .contract-dock-progress { order: 3 !important; }
-.contract-dock-item .contract-dock-time {
-  order: 4 !important;
-  width: 100% !important;
-  min-height: 16px !important;
-  justify-content: flex-start !important;
-  margin-top: -1px !important;
-}
-.contract-dock-item .contract-dock-rewards { order: 5 !important; }
-.contract-dock-item.reward-ready .contract-dock-time,
-.contract-dock-item.contract-defaulted .contract-dock-time { display: none !important; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Busca expansível, filtro por ícone e pausa de produção por ícone */
@@ -19066,11 +18134,7 @@ html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-
 
 
 
-@media (max-width: 980px) {
-  
-  
-  
-}
+
 
 @media (max-width: 700px) {
   #settingsView .settings-grid-reworked {
@@ -19083,10 +18147,7 @@ html:not([data-theme="dark"]) body .floating-resource-strip .resource-pill[data-
   
 }
 
-@media (max-width: 390px) {
-  
-  
-}
+
 
 
 /* Missões com títulos + eventos com ícones */
@@ -19973,115 +19034,31 @@ html[data-theme="dark"] #officeContractsPanel .contract-deadline-warning:not(.co
 }
 
 
-/* ATALHO DE CONTRATOS — noturno */
 
-html[data-theme="dark"] .contract-dock-panel.contract-dock-list,
-html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-list {
-  background:
-    radial-gradient(30rem 15rem at 100% -10%, rgba(102,166,115,.10), transparent 65%),
-    linear-gradient(180deg, rgba(20,28,23,.985), rgba(13,19,16,.99)) !important;
-  border: 1px solid rgba(225,238,228,.10) !important;
-  box-shadow: 0 26px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.025) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-header {
-  background: linear-gradient(180deg, rgba(31,42,35,.96), rgba(22,31,26,.96)) !important;
-  border-bottom-color: rgba(225,238,228,.075) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-header strong { color: #f0f5f1 !important; }
-html[data-theme="dark"] .contract-dock-list .contract-dock-header small { color: #8e9f94 !important; }
-html[data-theme="dark"] .contract-dock-list .contract-dock-header > button:first-child:hover {
-  background: rgba(255,255,255,.025) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-collapse-toggle,
-html[data-theme="dark"] .contract-dock-compact-button {
-  color: #dce6de !important;
-  background: linear-gradient(180deg,#27322c,#202923) !important;
-  border-color: rgba(225,238,228,.09) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-list,
-html[data-theme="dark"] .contract-dock .contract-dock-list,
-html[data-theme="dark"] .contract-dock-list .contract-dock-list:has(> :nth-child(4)),
-html[data-theme="dark"] .contract-dock .contract-dock-list:has(> :nth-child(4)) {
-  background: #0f1512 !important;
-  border-color: transparent !important;
-}
-html[data-theme="dark"] .contract-dock-item {
-  color: #e8f0ea !important;
-  background:
-    radial-gradient(16rem 8rem at 0% 0%, rgba(105,174,119,.055), transparent 72%),
-    linear-gradient(180deg,#1d2721,#18201c) !important;
-  border-color: rgba(225,238,228,.075) !important;
-  box-shadow: 0 7px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.018) !important;
-}
-html[data-theme="dark"] .contract-dock-item:hover {
-  background:
-    radial-gradient(16rem 8rem at 0% 0%, rgba(105,174,119,.09), transparent 72%),
-    linear-gradient(180deg,#222e26,#1b241f) !important;
-  border-color: rgba(121,190,135,.15) !important;
-  box-shadow: 0 10px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.025) !important;
-}
-html[data-theme="dark"] .contract-dock-crop-shell {
-  background:
-    radial-gradient(circle at 50% 30%, rgba(116,184,128,.08), transparent 70%),
-    linear-gradient(180deg,#253129,#1b251f) !important;
-  border-color: rgba(225,238,228,.08) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > strong { color: #f1f6f2 !important; }
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > small {
-  color: #b9c9bd !important;
-  background: #111813 !important;
-  border: 1px solid rgba(225,238,228,.065) !important;
-}
-html[data-theme="dark"] .contract-dock-meta-line > em { color: #8f9f94 !important; }
-html[data-theme="dark"] .contract-dock-state {
-  color: #aebdb2 !important;
-  background: #111713 !important;
-  border: 1px solid rgba(225,238,228,.06) !important;
-}
-html[data-theme="dark"] .contract-dock-state.is-urgent {
-  color: #efaa80 !important;
-  background: #35241d !important;
-  border-color: rgba(233,157,108,.14) !important;
-}
-html[data-theme="dark"] .contract-dock-state.is-completed {
-  color: #e6c96d !important;
-  background: #302b1b !important;
-  border-color: rgba(225,189,97,.14) !important;
-}
-html[data-theme="dark"] .contract-dock-state.is-defaulted {
-  color: #eda099 !important;
-  background: #36201f !important;
-  border-color: rgba(232,137,127,.14) !important;
-}
-html[data-theme="dark"] .contract-dock-progress { background: #0a0f0c !important; }
-html[data-theme="dark"] .contract-dock-progress > .delivered {
-  background: linear-gradient(90deg,#5b9d69,#87c991) !important;
-  box-shadow: 0 0 10px rgba(114,184,127,.13) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-rewards .resource-amount {
-  color: #dce6de !important;
-  background: rgba(255,255,255,.025) !important;
-  border-color: rgba(225,238,228,.055) !important;
-}
-html[data-theme="dark"] .contract-dock-item.reward-ready {
-  background:
-    radial-gradient(18rem 9rem at 0% 0%, rgba(225,189,97,.10), transparent 72%),
-    linear-gradient(180deg,#28271d,#1d1d17) !important;
-  border-color: rgba(225,189,97,.15) !important;
-}
-html[data-theme="dark"] .contract-dock-item.contract-defaulted {
-  background:
-    radial-gradient(18rem 9rem at 0% 0%, rgba(232,137,127,.09), transparent 72%),
-    linear-gradient(180deg,#2a201e,#1f1817) !important;
-  border-color: rgba(232,137,127,.15) !important;
-}
-html[data-theme="dark"] .contract-dock-item.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
-  background:
-    radial-gradient(18rem 9rem at 0% 0%, rgba(233,157,108,.08), transparent 72%),
-    linear-gradient(180deg,#27211c,#1d1916) !important;
-  border-color: rgba(233,157,108,.14) !important;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* EVOLUÇÕES / PESQUISA */
@@ -20496,98 +19473,26 @@ html[data-theme="dark"] #officeContractsPanel .contract-card-foundation.contract
 }
 
 
-/* Atalho de contratos — mais limpo e com acento por contrato */
 
-html[data-theme="dark"] .contract-dock-panel.contract-dock-list,
-html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-list {
-  background: linear-gradient(165deg,#151b18 0%,#0e1311 100%) !important;
-  border: 1px solid rgba(225,237,228,.09) !important;
-  box-shadow: 0 24px 64px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.018) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-header {
-  background: linear-gradient(180deg,#1b231f,#151c18) !important;
-  border-bottom: 1px solid rgba(225,237,228,.06) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-header > button:first-child > img,
-html[data-theme="dark"] .contract-dock-list .contract-dock-collapse-toggle,
-html[data-theme="dark"] .contract-dock-compact-button {
-  background: #202824 !important;
-  border-color: rgba(225,237,228,.075) !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-list,
-html[data-theme="dark"] .contract-dock .contract-dock-list,
-html[data-theme="dark"] .contract-dock-list .contract-dock-list:has(> :nth-child(4)),
-html[data-theme="dark"] .contract-dock .contract-dock-list:has(> :nth-child(4)) {
-  background: #0d1210 !important;
-}
-html[data-theme="dark"] .contract-dock-item {
-  color: #e8efe9 !important;
-  background:
-    radial-gradient(15rem 7rem at 0% 0%, color-mix(in srgb, var(--contract-type-color,#70a978) 7%, transparent), transparent 68%),
-    linear-gradient(160deg,#1b231f,#151b18 70%) !important;
-  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.065)) !important;
-  box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.016) !important;
-}
-html[data-theme="dark"] .contract-dock-item:hover {
-  background:
-    radial-gradient(15rem 7rem at 0% 0%, color-mix(in srgb, var(--contract-type-color,#70a978) 11%, transparent), transparent 68%),
-    linear-gradient(160deg,#202923,#18201c 70%) !important;
-  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 23%, rgba(225,237,228,.08)) !important;
-}
-html[data-theme="dark"] .contract-dock-crop-shell {
-  background:
-    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 68%),
-    #1d2621 !important;
-  border-color: rgba(225,237,228,.07) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > small {
-  color: #c7d3ca !important;
-  background: #101613 !important;
-  border-color: rgba(225,237,228,.055) !important;
-}
-html[data-theme="dark"] .contract-dock-state {
-  color: #9eada2 !important;
-  background: transparent !important;
-  border: 0 !important;
-  padding-inline: 0 !important;
-}
-html[data-theme="dark"] .contract-dock-state.is-urgent { color: #f2ae7e !important; }
-html[data-theme="dark"] .contract-dock-state.is-completed { color: #dfc56e !important; }
-html[data-theme="dark"] .contract-dock-state.is-defaulted { color: #e99a93 !important; }
-html[data-theme="dark"] .contract-dock-progress {
-  background: #080d0a !important;
-  border: 1px solid rgba(225,237,228,.035) !important;
-}
-html[data-theme="dark"] .contract-dock-progress > .delivered {
-  background: linear-gradient(90deg,
-    color-mix(in srgb, var(--contract-type-color,#70a978) 78%, #457650),
-    color-mix(in srgb, var(--contract-type-color,#70a978) 65%, #83ba8c)) !important;
-  box-shadow: none !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-rewards .resource-amount {
-  color: #dce6de !important;
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-html[data-theme="dark"] .contract-dock-item.reward-ready {
-  background:
-    radial-gradient(15rem 7rem at 0% 0%, rgba(225,189,97,.08), transparent 68%),
-    linear-gradient(160deg,#211f18,#171713 70%) !important;
-  border-color: rgba(225,189,97,.13) !important;
-}
-html[data-theme="dark"] .contract-dock-item.contract-defaulted {
-  background:
-    radial-gradient(15rem 7rem at 0% 0%, rgba(225,118,108,.07), transparent 68%),
-    linear-gradient(160deg,#231918,#191312 70%) !important;
-  border-color: rgba(225,118,108,.13) !important;
-}
-html[data-theme="dark"] .contract-dock-item.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
-  background:
-    radial-gradient(15rem 7rem at 0% 0%, rgba(235,158,101,.07), transparent 68%),
-    linear-gradient(160deg,#211b17,#171411 70%) !important;
-  border-color: rgba(235,158,101,.12) !important;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -21059,15 +19964,9 @@ html[data-theme="dark"] #officeContractsPanel .contract-full-action-footer {
 }
 
 /* Atalho: novo posicionamento do tempo e ícones de controle brancos. */
-html[data-theme="dark"] .contract-dock-time {
-  color: #9eaea3 !important;
-}
-html[data-theme="dark"] .contract-dock-time.is-urgent {
-  color: #ef9a83 !important;
-}
-html[data-theme="dark"] .contract-dock-list .contract-dock-collapse-toggle > img {
-  filter: brightness(0) invert(1) opacity(.92) !important;
-}
+
+
+
 
 /* Cookies — banner e preferências totalmente integrados ao modo noturno. */
 html[data-theme="dark"] .cookie-banner {
@@ -21195,44 +20094,15 @@ html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-fo
 }
 
 /* Atalho: porcentagem/conclusão no canto superior direito e tempo abaixo da barra. */
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > [data-contract-dock-percent] {
-  color: #aebdb2 !important;
-  background: rgba(255,255,255,.035) !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > [data-contract-dock-percent].is-completed {
-  color: #e4c76e !important;
-  background: rgba(183,148,54,.12) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > [data-contract-dock-percent].is-defaulted {
-  color: #ef9a92 !important;
-  background: rgba(184,74,67,.11) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-title-line > [data-contract-dock-percent].is-urgent {
-  color: #efa086 !important;
-  background: rgba(180,83,58,.11) !important;
-}
-html[data-theme="dark"] .contract-dock-item .contract-dock-time {
-  color: #9caca1 !important;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
+
+
+
+
+
 
 /* Ícones brancos, sem a antiga plaquinha branca/cinza. */
-html[data-theme="dark"] body .contract-dock-list .contract-dock-collapse-toggle,
-html[data-theme="dark"] body .contract-dock-list .contract-dock-collapse-toggle:hover {
-  border-color: rgba(226,238,229,.08) !important;
-}
-html[data-theme="dark"] body .contract-dock-list .contract-dock-collapse-toggle > img {
-  background: transparent !important;
-  border: 0 !important;
-  outline: 0 !important;
-  box-shadow: none !important;
-  filter: brightness(0) invert(1) !important;
-  opacity: 1 !important;
-}
+
+
 
 /* Cookies: banner e modal completos, incluindo áreas que ainda herdavam o tema claro. */
 html[data-theme="dark"] body #cookieBanner.cookie-banner {
@@ -25564,15 +24434,8 @@ html[data-theme="dark"] #profileSocialPanel .social-agenda-card.active .social-e
 
 
 
-@media (max-width: 980px) {
-  
-  
-  
-}
-@media (max-width: 700px) {
-  
-  
-}
+
+
 
 /* Botão de cultura bloqueada: a exigência pode quebrar linha naturalmente. */
 #farmView .crop-card.locked .crop-buy-button:disabled,
@@ -26073,16 +24936,8 @@ html[data-theme="dark"] #profileAccountPanel .account-settings-card:has(#googleS
 
 
 
-@media (max-width: 760px) {
-  
-  
-  
-}
-@media (max-width: 520px) {
-  
-  
-  
-}
+
+
 
 
 
@@ -26189,8 +25044,7 @@ html[data-theme="dark"] #officeContractsPanel .contract-toolbar-capacity .contra
 }
 
 /* Tempo: sem relógio e com leitura mais forte. */
-#officeContractsPanel .contract-time-badge img,
-.contract-dock-time img { display: none !important; }
+
 #officeContractsPanel .contract-time-badge {
   min-height: 34px !important;
   padding: 6px 10px !important;
@@ -26201,23 +25055,11 @@ html[data-theme="dark"] #officeContractsPanel .contract-toolbar-capacity .contra
   font-weight: 950 !important;
   letter-spacing: .01em !important;
 }
-.contract-dock-time b {
-  font-size: .82rem !important;
-  line-height: 1 !important;
-  font-weight: 900 !important;
-}
+
 
 /* Ícones das plantas: imagem livre, sem caixa/borda/fundo. */
-#officeContractsPanel .contract-card-live .contract-crop-art,
-.contract-dock-crop-shell {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  outline: 0 !important;
-  padding: 0 !important;
-}
-#officeContractsPanel .contract-card-live .contract-crop-art img,
-.contract-dock-crop-shell img { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+
+
 
 @media (max-width: 680px) {
   #officeContractsPanel .contract-offer-toolbar {
@@ -26517,16 +25359,8 @@ html[data-theme="dark"] #profileAccountPanel .profile-inline-missions-section {
 
 
 
-@media (max-width: 760px) {
-  
-  
-  
-}
-@media (max-width: 480px) {
-  
-  
-  
-}
+
+
 
 /* Perfil do ranking: preview, botão e galeria de títulos compartilham o mesmo eixo. */
 #rankingProfileDialog .profile-player-title-field {
@@ -28295,4 +27129,146 @@ html[data-theme="dark"] body:not([data-navigation-mode="grid"]) aside.navigation
   background: linear-gradient(180deg, rgba(29, 38, 32, .96), rgba(22, 30, 25, .96)) !important;
   border-color: rgba(226, 237, 228, .08) !important;
   box-shadow: 0 11px 27px rgba(0, 0, 0, .18) !important;
+}
+
+
+/* Ajustes de manutenção, navegação e conta autenticada. */
+.maintenance-card .maintenance-logo {
+  width: clamp(148px, 24vw, 190px) !important;
+  height: auto !important;
+  max-height: 190px !important;
+  object-fit: contain !important;
+  margin: 0 auto 20px !important;
+}
+
+/* O hover não cria uma linha clara no topo dos tabs. */
+.navigation-stack .nav-tab:hover:not(.active),
+.navigation-responsive-stack .nav-tab:hover:not(.active),
+.main-nav .nav-tab:hover:not(.active),
+.mobile-direct-nav .nav-tab:hover:not(.active) {
+  box-shadow: none !important;
+}
+
+/* Conta autenticada: remove linhas vazias herdadas do layout antigo. */
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) {
+  grid-template-areas:
+    "identity"
+    "actions" !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  gap: 12px !important;
+  padding-block: 16px !important;
+}
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-settings-head {
+  grid-area: identity !important;
+  margin: 0 !important;
+}
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-actions {
+  grid-area: actions !important;
+  margin: 0 !important;
+  padding-top: 12px !important;
+}
+
+
+/* XP máximo, galerias sem rolagem interna e conta autenticada compacta. */
+.resource-pill.farm-xp-resource.max-level {
+  --farm-xp-ring: #d7ad42 !important;
+  --farm-xp-track: rgba(215,173,66,.22) !important;
+  background: linear-gradient(180deg, rgba(255,248,221,.94), rgba(255,252,240,.98)) !important;
+}
+.resource-pill.farm-xp-resource.max-level .farm-xp-progress-stroke {
+  stroke: #d7ad42 !important;
+  stroke-dashoffset: 0 !important;
+}
+.resource-pill.farm-xp-resource.max-level .farm-xp-track-stroke { stroke: rgba(215,173,66,.22) !important; }
+.resource-pill.farm-xp-resource.max-level strong,
+.resource-pill.farm-xp-resource.max-level small,
+.resource-pill.farm-xp-resource.max-level small b { color: #7b5d12 !important; }
+html[data-theme="dark"] .resource-pill.farm-xp-resource.max-level {
+  --farm-xp-ring: #d7ad42 !important;
+  --farm-xp-track: rgba(215,173,66,.20) !important;
+  background: linear-gradient(180deg, rgba(74,58,22,.76), rgba(42,35,20,.94)) !important;
+}
+html[data-theme="dark"] .resource-pill.farm-xp-resource.max-level strong,
+html[data-theme="dark"] .resource-pill.farm-xp-resource.max-level small,
+html[data-theme="dark"] .resource-pill.farm-xp-resource.max-level small b { color: #f3d982 !important; }
+
+#rankingProfileDialog .avatar-picker,
+#rankingProfileDialog .player-title-picker-grid {
+  max-height: none !important;
+  height: auto !important;
+  overflow-y: visible !important;
+  overflow-x: visible !important;
+}
+#rankingProfileDialog .avatar-picker-panel,
+#rankingProfileDialog .player-title-picker-panel {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) {
+  padding: 16px !important;
+  padding-block: 16px !important;
+  gap: 10px !important;
+}
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-settings-head,
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-actions {
+  margin: 0 !important;
+}
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-actions {
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+
+/* Ajustes pontuais de Prestígio e Conta. */
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount,
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b {
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount {
+  max-width: calc(100% - 24px) !important;
+}
+#profileAccountPanel .account-prestige-section .prestige-rework-gain > strong .resource-amount b {
+  max-width: none !important;
+  min-height: 1.12em !important;
+  line-height: 1.12 !important;
+  white-space: nowrap !important;
+  padding-block: .03em !important;
+}
+
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) {
+  box-sizing: border-box !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 14px !important;
+  padding-block: 14px !important;
+  row-gap: 8px !important;
+}
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-settings-head,
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-actions,
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .ranking-profile-launch,
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .ranking-profile-launch-actions {
+  margin-block: 0 !important;
+}
+#profileAccountPanel .account-settings-card:not(:has(#googleSignIn:not([hidden]))) .account-actions {
+  padding-block: 0 !important;
+}
+
+
+/* Navegação no modo claro: a borda do hover usa a mesma cor nos quatro lados. */
+html:not([data-theme="dark"]) .navigation-stack .nav-tab:hover:not(.active),
+html:not([data-theme="dark"]) .navigation-responsive-stack .nav-tab:hover:not(.active),
+html:not([data-theme="dark"]) .main-nav .nav-tab:hover:not(.active),
+html:not([data-theme="dark"]) .mobile-direct-nav .nav-tab:hover:not(.active) {
+  border: 1px solid rgba(80, 123, 77, .15) !important;
+  border-top-color: rgba(80, 123, 77, .15) !important;
+  border-right-color: rgba(80, 123, 77, .15) !important;
+  border-bottom-color: rgba(80, 123, 77, .15) !important;
+  border-left-color: rgba(80, 123, 77, .15) !important;
+  outline: 0 !important;
+  box-shadow: none !important;
 }
