@@ -1,12 +1,12 @@
 "use strict";
 
-const CACHE_NAME = "fazenda-serena-pwa-r47-nav-counter-contract-colors";
+const CACHE_NAME = "fazenda-serena-pwa-r62-missions-contracts-profile";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/play.html",
   "/css/stylish.css",
-  "/css/play.css?v=47",
+  "/css/play.css?v=62",
   "/css/tutorial.css",
   "/css/admin.css",
   "/css/index.css",
