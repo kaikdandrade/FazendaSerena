@@ -107,6 +107,12 @@
     }
   }
 
+  function formatAccountNickname(value) {
+    return sanitizeNickname(value)
+      .toLocaleLowerCase("pt-BR")
+      .replace(/(^|[\s-])([a-zà-ÿ])/g, (_, prefix, letter) => `${prefix}${letter.toLocaleUpperCase("pt-BR")}`);
+  }
+
   function updateAccountUI(user = window.FirebaseManager.getUser()) {
     const signedIn = Boolean(user);
     const firebaseAvailable = window.FirebaseManager.isAvailable();
@@ -120,10 +126,13 @@
       dom.playerProfileForm.setAttribute("aria-hidden", String(!signedIn));
     }
 
+    if (dom.accountProviderLabel) dom.accountProviderLabel.textContent = signedIn ? "Conta Google" : "Conta visitante";
+
     if (dom.accountName) {
-      dom.accountName.textContent = signedIn
-        ? (storedNickname || user.displayName || user.email || "Jogador")
-        : "Visitante";
+      const accountDisplayName = storedNickname || user?.displayName || user?.email || "Jogador";
+      dom.accountName.textContent = signedIn ? formatAccountNickname(accountDisplayName) : "";
+      dom.accountName.hidden = !signedIn;
+      dom.accountName.setAttribute("aria-hidden", String(!signedIn));
     }
 
     renderPlayerTitleControl();
@@ -141,7 +150,9 @@
 
     if (dom.googleSignIn) {
       dom.googleSignIn.hidden = signedIn;
-      dom.googleSignIn.disabled = !firebaseAvailable;
+      dom.googleSignIn.toggleAttribute("hidden", signedIn);
+      dom.googleSignIn.setAttribute("aria-hidden", String(signedIn));
+      dom.googleSignIn.disabled = signedIn || !firebaseAvailable;
     }
     if (dom.googleSignOut) {
       dom.googleSignOut.hidden = !signedIn;

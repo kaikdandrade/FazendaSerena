@@ -14,6 +14,8 @@ Object.assign(GameEngine.prototype, {
         farmLevel: this.state.stats.maxFarmLevel,
         coinsEarned: this.state.stats.lifetimeCoins,
         prestiges: this.state.stats.prestiges,
+        onlineMinutes: this.getCurrentSessionSeconds() / 60,
+        playHours: Math.max(0, Number(this.state.stats.totalPlaySeconds) || 0) / 3600,
         categorySold: mission?.category ? Number(this.state.stats.lifetimeSoldByCategory[mission.category] || 0) : 0,
         cropPurchased: (() => {
           const cropId = String(mission?.cropId || "");

@@ -96,7 +96,7 @@ function updateLiveContractDockUI() {
     const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
     setLiveRewardValues(card.querySelector(".contract-dock-rewards"), {
       ...effectiveReward,
-      xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
     });
 
   });
@@ -125,7 +125,7 @@ function updateLiveContractsUI() {
     const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
     setLiveRewardValues(card.querySelector(".contract-reward-strip"), {
       ...effectiveReward,
-      xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
     });
 
     const penaltyRoot = card.querySelector("[data-contract-live-penalty]");
@@ -147,7 +147,7 @@ function updateLiveContractsUI() {
     const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
     setLiveRewardValues(card.querySelector(".contract-reward-strip"), {
       ...effectiveReward,
-      xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
     });
   });
 
@@ -174,15 +174,16 @@ function updateLiveMissionsUI() {
     } else if (cropGoal) {
       setLiveText(card.querySelector("[data-mission-live-value]"), completed ? "Concluído" : `Nível ${Math.max(1, Number(cropGoal.unlockLevel) || 1)}`);
     } else {
-      setLiveText(card.querySelector("[data-mission-live-value]"), `${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}`);
+      setLiveText(card.querySelector("[data-mission-live-value]"), formatMissionMetricProgress(mission, value));
     }
     setLiveWidth(card.querySelector("[data-mission-live-progress]"), progress);
-    const action = card.querySelector("[data-mission-live-action]");
-    if (action) {
-      action.disabled = !completed;
-      action.classList.toggle("primary", completed);
-      action.classList.toggle("secondary", !completed);
+    const slot = card.querySelector("[data-mission-claim-slot]");
+    let action = card.querySelector("[data-mission-live-action]");
+    if (completed && !action && slot) {
+      slot.innerHTML = `<button class="button primary full" type="button" data-action="claim-mission" data-id="${mission.id}" data-mission-live-action>Receber recompensa</button>`;
+      action = slot.querySelector("[data-mission-live-action]");
     }
+    if (!completed && action) action.remove();
   });
 }
 
@@ -215,13 +216,16 @@ function updateLiveStatsUI() {
     prestiges: stats.prestiges,
     maxFarmLevel: stats.maxFarmLevel,
     lifetimeCropPrestiges: stats.lifetimeCropPrestiges || 0,
-    maxCoinsHeld: stats.maxCoinsHeld
+    maxCoinsHeld: stats.maxCoinsHeld,
+    totalPlaySeconds: stats.totalPlaySeconds || 0,
+    maxOnlineSessionSeconds: stats.maxOnlineSessionSeconds || 0
   };
   Object.entries(values).forEach(([key, value]) => {
     const card = dom.lifetimeStats?.querySelector?.(`[data-stat-live="${key}"]`) || dom.recordStats?.querySelector?.(`[data-stat-live="${key}"]`);
     const target = card?.querySelector?.("[data-stat-live-value]");
     if (!target) return;
     if (key === "lifetimeCoins" || key === "maxCoinsHeld") setLiveResourceValue(target, value);
+    else if (key === "totalPlaySeconds" || key === "maxOnlineSessionSeconds") setLiveText(target, formatGameplayDuration(value));
     else if (key === "lifetimeCropPrestiges") {
       const mastered = engine.data.crops.filter(crop => Number(engine.state.crops?.[crop.id]?.level || 0) >= GameEngine.MAX_CROP_LEVEL).length;
       setLiveText(target, `${engine.formatNumber(mastered)} / ${engine.formatNumber(engine.data.crops.length)}`);

@@ -5,11 +5,11 @@
   const dom = {
     gate: $("#adminGate"), gateMessage: $("#adminGateMessage"), loader: $("#adminLoader"), signIn: $("#adminSignIn"), app: $("#adminApp"),
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
-    actionXP: $("#adminActionXP"), cropMasteryXPPercent: $("#adminCropMasteryXPPercent"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
-evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), prestigeBonus: $("#adminPrestigeBonus"), startingCoins: $("#adminStartingCoins"), baseProductionMin: $("#adminBaseProductionMin"), baseProductionCap: $("#adminBaseProductionCap"),
-    contractRefreshCooldownMin: $("#adminContractRefreshCooldownMin"), contractRefreshCooldownMax: $("#adminContractRefreshCooldownMax"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
+    maxFarmLevel: $("#adminMaxFarmLevel"), actionXP: $("#adminActionXP"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
+    prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), prestigeBonus: $("#adminPrestigeBonus"), startingCoins: $("#adminStartingCoins"), baseProductionRange: $("#adminBaseProductionRange"),
+    contractRefreshCooldownRange: $("#adminContractRefreshCooldownRange"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
-    navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), prestigeIconGrid: $("#adminPrestigeIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
+    navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
     playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"), feedbackTypeFilter: $("#adminFeedbackTypeFilter"), feedbackStatusFilter: $("#adminFeedbackStatusFilter"), feedbackFilterCount: $("#adminFeedbackFilterCount"),
     textsEditor: $("#adminTextsEditor"), saveBalance: $("#adminSaveBalance"), saveTexts: $("#adminSaveTexts"),
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
@@ -17,12 +17,15 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
     globalResetCoins: $("#adminGlobalResetCoins"), globalResetResearchPoints: $("#adminGlobalResetResearchPoints"), globalResetPrestigePoints: $("#adminGlobalResetPrestigePoints"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalResolveResearch: $("#adminGlobalResolveResearch"), globalRefundResearch: $("#adminGlobalRefundResearch"), globalResetEvolutions: $("#adminGlobalResetEvolutions"), globalRefundEvolutions: $("#adminGlobalRefundEvolutions"), globalRefreshPlayers: $("#adminGlobalRefreshPlayers"), globalPlayerSelect: $("#adminGlobalPlayerSelect"), globalPlayerStatus: $("#adminGlobalPlayerStatus"), globalPlayerCoins: $("#adminGlobalPlayerCoins"), globalPlayerResearch: $("#adminGlobalPlayerResearch"), globalPlayerPrestigePoints: $("#adminGlobalPlayerPrestigePoints"), globalPlayerPrestigeCount: $("#adminGlobalPlayerPrestigeCount"), globalPlayerFarmLevel: $("#adminGlobalPlayerFarmLevel"), globalPlayerApply: $("#adminGlobalPlayerApply"), globalPlayerRanking: $("#adminGlobalPlayerRanking"), globalPlayerReset: $("#adminGlobalPlayerReset"), globalPlayerBan: $("#adminGlobalPlayerBan"), globalFeedback: $("#adminGlobalFeedback")
   };
   const balanceFields = [
+    ["maxFarmLevel", dom.maxFarmLevel, false, true],
     ["actionXPPercent", dom.actionXP, true, false],
-    ["cropMasteryXPPercent", dom.cropMasteryXPPercent, true, false],
     ["passiveXPPercentPerSecond", dom.passiveXP, true, false],
     ["passiveResearchPercentPerSecond", dom.passiveResearch, true, false],
-["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["prestigeBonus", dom.prestigeBonus, false, true], ["startingCoins", dom.startingCoins, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
-    ["contractRefreshCooldownMinSeconds", dom.contractRefreshCooldownMin, false, true], ["contractRefreshCooldownMaxSeconds", dom.contractRefreshCooldownMax, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
+    ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true],
+    ["prestigeBonus", dom.prestigeBonus, false, true],
+    ["startingCoins", dom.startingCoins, false, true],
+    ["contractOfferCount", dom.contractOfferCount, false, true],
+    ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
   const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
@@ -34,7 +37,6 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
     ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"],
     ["missions", "Missões"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
   ]);
-  const prestigeIconFields = Object.freeze([["resource", "Contador de prestígio"], ["account", "Painel de prestígio"], ["legacy", "Legado nas estatísticas"]]);
   let playerFeedbackLoaded = false;
   let globalPlayersLoaded = false;
   let globalPlayers = [];
@@ -53,7 +55,7 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
       return `<section class="admin-navigation-icon-field" data-navigation-row="${escapeHtml(key)}"><div class="admin-navigation-icon-field-title"><span>${escapeHtml(label)}</span><div class="admin-navigation-order-actions"><button class="admin-icon-order-button" data-nav-move="up" type="button" aria-label="Mover ${escapeHtml(label)} para cima">↑</button><button class="admin-icon-order-button" data-nav-move="down" type="button" aria-label="Mover ${escapeHtml(label)} para baixo">↓</button></div></div><select autocomplete="off" data-image-select ${attribute}="${key}">${options.map(item => `<option value="${escapeHtml(item.value)}" ${item.value === current ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></section>`;
     }).join("");
   }
-  function buildNavigationIconFields(values = {}, gridValues = {}, lineOrder = [], gridOrder = [], prestigeValues = {}, prestigeOrder = []) {
+  function buildNavigationIconFields(values = {}, gridValues = {}, lineOrder = [], gridOrder = []) {
     if (dom.navigationIconGrid) {
       dom.navigationIconGrid.innerHTML = navigationIconFieldMarkup(navigationIconFields, values, "data-navigation-icon-field", lineOrder);
       window.AdminImageSelect?.enhance?.(dom.navigationIconGrid);
@@ -62,19 +64,12 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
       dom.gridNavigationIconGrid.innerHTML = navigationIconFieldMarkup(gridNavigationIconFields, gridValues, "data-grid-navigation-icon-field", gridOrder);
       window.AdminImageSelect?.enhance?.(dom.gridNavigationIconGrid);
     }
-    if (dom.prestigeIconGrid) {
-      dom.prestigeIconGrid.innerHTML = navigationIconFieldMarkup(prestigeIconFields, prestigeValues, "data-prestige-icon-field", prestigeOrder);
-      window.AdminImageSelect?.enhance?.(dom.prestigeIconGrid);
-    }
   }
   function navigationIconsFromForm() {
     return Object.fromEntries(navigationIconFields.map(([key]) => [key, dom.navigationIconGrid?.querySelector(`[data-navigation-icon-field="${key}"]`)?.value || ""]));
   }
   function gridNavigationIconsFromForm() {
     return Object.fromEntries(gridNavigationIconFields.map(([key]) => [key, dom.gridNavigationIconGrid?.querySelector(`[data-grid-navigation-icon-field="${key}"]`)?.value || ""]));
-  }
-  function prestigeIconsFromForm() {
-    return Object.fromEntries(prestigeIconFields.map(([key]) => [key, dom.prestigeIconGrid?.querySelector(`[data-prestige-icon-field="${key}"]`)?.value || ""]));
   }
   function navigationOrderFromGrid(grid) {
     return [...(grid?.querySelectorAll('[data-navigation-row]') || [])].map(row => row.dataset.navigationRow).filter(Boolean);
@@ -152,8 +147,16 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
   }
 
   function bindPositiveInputs() {
-    document.querySelectorAll("[data-admin-number]").forEach(input => {
+    document.querySelectorAll("[data-admin-number], [data-admin-range]").forEach(input => {
+      const rangeInput = input.hasAttribute("data-admin-range");
       input.addEventListener("input", () => {
+        if (rangeInput) {
+          let value = String(input.value || "").replace(/[^0-9,\s]/g, "");
+          const comma = value.indexOf(",");
+          if (comma >= 0) value = value.slice(0, comma + 1) + value.slice(comma + 1).replaceAll(",", "");
+          input.value = value;
+          return;
+        }
         const integer = input.hasAttribute("data-admin-integer");
         const sanitized = sanitize(input.value, integer);
         input.value = input.hasAttribute("data-admin-percent") && sanitized !== "" ? percent(sanitized) : sanitized;
@@ -161,35 +164,54 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
         try { input.setSelectionRange(caret, caret); } catch {}
       });
       input.addEventListener("focus", () => {
-        if (!input.hasAttribute("data-admin-percent") || !input.value) return;
+        if (rangeInput || !input.hasAttribute("data-admin-percent") || !input.value) return;
         const caret = Math.max(0, input.value.length - 1);
         try { input.setSelectionRange(caret, caret); } catch {}
       });
-      input.addEventListener("blur", () => { if (input.hasAttribute("data-admin-percent") && input.value !== "") input.value = percent(input.value); });
+      input.addEventListener("blur", () => {
+        if (rangeInput) {
+          const [min, max] = parseAdminRange(input.value, 1, 1);
+          input.value = `${min}, ${max}`;
+          return;
+        }
+        if (input.hasAttribute("data-admin-percent") && input.value !== "") input.value = percent(input.value);
+      });
       input.addEventListener("keydown", event => {
         if (["e", "E", "-", "+"].includes(event.key)) event.preventDefault();
-        if (input.hasAttribute("data-admin-integer") && [".", ","].includes(event.key)) event.preventDefault();
+        if (!rangeInput && input.hasAttribute("data-admin-integer") && [".", ","].includes(event.key)) event.preventDefault();
       });
     });
   }
 
-  function balanceFromForm() { return Object.fromEntries(balanceFields.map(([key, element,, integer, range]) => { if (!range) return [key, parsePositive(element.value, integer)]; const parts = String(element.value || "").split(",").map(part => part.trim()).filter(Boolean).slice(0, 2).map(part => Math.max(1, parsePositive(part, true))); return [key, parts.length ? parts : [1, 1]]; })); }
-  function getCatalogEditors() {
-    const editors = window.AdminCatalogEditors;
-    if (!editors || typeof editors.set !== "function" || typeof editors.get !== "function") {
-      throw new Error("O editor administrativo não foi inicializado corretamente. Recarregue o painel e tente novamente.");
-    }
-    return editors;
+  function parseAdminRange(value, fallbackMin = 1, fallbackMax = fallbackMin) {
+    const parts = String(value || "").split(",").map(part => part.trim()).filter(Boolean).slice(0, 2);
+    const first = Math.max(1, parsePositive(parts[0] ?? fallbackMin, true));
+    const second = Math.max(1, parsePositive(parts[1] ?? parts[0] ?? fallbackMax, true));
+    return [Math.min(first, second), Math.max(first, second)];
+  }
+  function balanceFromForm() {
+    const result = Object.fromEntries(balanceFields.map(([key, element,, integer]) => [key, parsePositive(element.value, integer)]));
+    const [baseProductionMin, baseProductionCap] = parseAdminRange(dom.baseProductionRange?.value, 1, 10);
+    const [contractRefreshCooldownMinSeconds, contractRefreshCooldownMaxSeconds] = parseAdminRange(dom.contractRefreshCooldownRange?.value, 5, 15);
+    result.baseProductionMin = baseProductionMin;
+    result.baseProductionCap = baseProductionCap;
+    result.contractRefreshCooldownMinSeconds = contractRefreshCooldownMinSeconds;
+    result.contractRefreshCooldownMaxSeconds = contractRefreshCooldownMaxSeconds;
+    result.cropMasteryXPPercent = result.actionXPPercent;
+    result.evolutionsUnlockLevel = 1;
+    return result;
   }
   function fillEditors(input, { source = "editor" } = {}) {
     const config = window.GameAdminConfig.normalize(input); currentConfig = clone(config);
     if (dom.maintenanceMode) dom.maintenanceMode.checked = config.globalSettings?.maintenanceMode === true;
-    balanceFields.forEach(([key, element, isPercent,, range]) => { const raw = config.balance[key]; const value = range && Array.isArray(raw) ? raw.join(",") : String(raw); element.value = isPercent ? `${value}%` : value; });
+    balanceFields.forEach(([key, element, isPercent]) => { const value = String(config.balance[key]); element.value = isPercent ? `${value}%` : value; });
+    if (dom.baseProductionRange) dom.baseProductionRange.value = `${config.balance.baseProductionMin}, ${config.balance.baseProductionCap}`;
+    if (dom.contractRefreshCooldownRange) dom.contractRefreshCooldownRange.value = `${config.balance.contractRefreshCooldownMinSeconds}, ${config.balance.contractRefreshCooldownMaxSeconds}`;
     const editors = getCatalogEditors();
-    catalogNames.forEach(name => editors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.gridNavigationIcons, config.lineNavigationOrder, config.gridNavigationOrder, config.prestigeIcons, config.prestigeIconOrder); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
+    catalogNames.forEach(name => editors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.gridNavigationIcons, config.lineNavigationOrder, config.gridNavigationOrder); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
-  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.saveMaintenanceMode, dom.globalResetCoins, dom.globalResetResearchPoints, dom.globalResetPrestigePoints, dom.globalResolveResearch, dom.globalResetEvolutions, dom.globalResolveCrops, dom.globalRefreshPlayers, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
+  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.saveMaintenanceMode, dom.globalResetCoins, dom.globalResetResearchPoints, dom.globalResetPrestigePoints, dom.globalResolveResearch, dom.globalResetEvolutions, dom.globalResolveCrops, dom.globalRefreshPlayers, dom.textsEditor, ...balanceFields.map(([, element]) => element), dom.baseProductionRange, dom.contractRefreshCooldownRange].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
   function showGate(message, { login = false, loading = false } = {}) {
     authorized = false;
     dom.app.hidden = true;
@@ -429,10 +451,8 @@ expressPacking: "logisticsSimulation"
     const next = clone(currentConfig);
     next.navigationIcons = navigationIconsFromForm();
     next.gridNavigationIcons = gridNavigationIconsFromForm();
-    next.prestigeIcons = prestigeIconsFromForm();
     next.lineNavigationOrder = navigationOrderFromGrid(dom.navigationIconGrid);
     next.gridNavigationOrder = navigationOrderFromGrid(dom.gridNavigationIconGrid);
-    next.prestigeIconOrder = navigationOrderFromGrid(dom.prestigeIconGrid);
     delete next.mobileNavigationIcons;
     return publishConfig(next, "Ícones e ordem da navegação atualizados.");
   }).catch(() => {}));
@@ -527,7 +547,7 @@ expressPacking: "logisticsSimulation"
         state.coins = parsePositive(dom.globalPlayerCoins?.value ?? state.coins, true);
         state.research = parsePositive(dom.globalPlayerResearch?.value ?? state.research, true);
         state.prestigePoints = parsePositive(dom.globalPlayerPrestigePoints?.value ?? state.prestigePoints, true);
-        state.farmLevel = Math.max(1, parsePositive(dom.globalPlayerFarmLevel?.value ?? state.farmLevel, true) || 1);
+        state.farmLevel = Math.max(1, Math.min(Number(currentConfig?.balance?.maxFarmLevel) || 1000, parsePositive(dom.globalPlayerFarmLevel?.value ?? state.farmLevel, true) || 1));
         state.farmXP = 0;
         state.stats = state.stats || {};
         state.stats.prestiges = parsePositive(dom.globalPlayerPrestigeCount?.value ?? state.stats.prestiges, true);
@@ -605,7 +625,6 @@ expressPacking: "logisticsSimulation"
   setupGroupedCatalogAccordions();
   bindNavigationOrderControls(dom.navigationIconGrid);
   bindNavigationOrderControls(dom.gridNavigationIconGrid);
-  bindNavigationOrderControls(dom.prestigeIconGrid);
   bindPositiveInputs();
   dom.workspaceSelect?.addEventListener("change", () => selectWorkspace(dom.workspaceSelect.value));
   selectWorkspace("balance");

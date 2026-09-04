@@ -833,8 +833,7 @@ class FirebaseManager {
     const safeSubject = String(subject || "").replace(/[<>]/g, "").trim().slice(0, 100);
     const safeMessage = String(message || "").replace(/[<>]/g, "").trim().slice(0, 1200);
     if (safeSubject.length < 3 || safeMessage.length < 8) throw new Error("Preencha o assunto e escreva uma mensagem um pouco mais detalhada.");
-    const reference = this.sdk.doc(this.sdk.collection(this.db, FirebaseManager.FEEDBACK_COLLECTION));
-    await this.sdk.setDoc(reference, {
+    const payload = {
       userId: user.uid,
       email: String(user.email || "").slice(0, 160),
       displayName: String(user.displayName || "Jogador").replace(/[<>]/g, "").slice(0, 80),
@@ -845,7 +844,8 @@ class FirebaseManager {
       gameVersion: String(window.FazendaSerenaConfig?.appVersion || "1.0.0").slice(0, 30),
       createdAt: this.sdk.serverTimestamp(),
       createdAtClient: Date.now()
-    });
+    };
+    const reference = await this.sdk.addDoc(this.sdk.collection(this.db, FirebaseManager.FEEDBACK_COLLECTION), payload);
     return { ok: true, id: reference.id };
   }
 

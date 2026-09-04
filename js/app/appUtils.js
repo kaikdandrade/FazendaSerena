@@ -48,6 +48,30 @@
       .trim();
   }
 
+  function formatGameplayDuration(secondsValue) {
+    const total = Math.max(0, Math.floor(Number(secondsValue) || 0));
+    const days = Math.floor(total / 86400);
+    const hours = Math.floor((total % 86400) / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = total % 60;
+    if (days > 0) return `${days}d ${hours}h ${minutes}min`;
+    if (hours > 0) return `${hours}h ${minutes}min`;
+    if (minutes > 0) return `${minutes}min ${seconds}s`;
+    return `${seconds}s`;
+  }
+
+  function formatMissionMetricProgress(mission, value) {
+    const metric = String(mission?.metric || "");
+    const target = Math.max(0, Number(mission?.target) || 0);
+    if (metric === "onlineMinutes") {
+      return `${formatGameplayDuration(Math.min(Math.max(0, Number(value) || 0), target) * 60)} / ${formatGameplayDuration(target * 60)}`;
+    }
+    if (metric === "playHours") {
+      return `${formatGameplayDuration(Math.min(Math.max(0, Number(value) || 0), target) * 3600)} / ${formatGameplayDuration(target * 3600)}`;
+    }
+    return `${engine.formatNumber(Math.min(value, target))} / ${engine.formatNumber(target)}`;
+  }
+
   function sanitizeNickname(value) {
     return String(value || "")
       .replace(/[<>]/g, "")
@@ -134,6 +158,11 @@
   function renderAvatarPicker(selectedId = "", disabled = false) {
     if (!dom.playerAvatarPicker) return;
     const avatars = window.AvatarData || [];
+    const unlockedAvatars = avatars.filter(avatar => avatar?.locked !== true);
+    if (dom.playerAvatarUnlockCount) {
+      const unlockedCount = unlockedAvatars.length;
+      dom.playerAvatarUnlockCount.textContent = `${unlockedCount} de ${avatars.length} desbloqueados`;
+    }
     if (dom.playerAvatarPicker.childElementCount !== avatars.length) {
       dom.playerAvatarPicker.innerHTML = avatars.map(avatar => `
         <button aria-checked="false" aria-label="${escapeHtml(avatar.label)}" class="avatar-option" data-avatar-id="${escapeHtml(avatar.id)}" role="radio" title="${escapeHtml(avatar.label)}" type="button">
@@ -145,7 +174,7 @@
       const selected = button.dataset.avatarId === selectedId;
       button.classList.toggle("selected", selected);
       button.setAttribute("aria-checked", String(selected));
-      button.disabled = disabled;
+      button.disabled = disabled || avatars.find(avatar => avatar.id === button.dataset.avatarId)?.locked === true;
     });
 
     const selectedAvatar = getAvatarEntry(selectedId);

@@ -132,17 +132,22 @@
     if (dom.statsHero) { dom.statsHero.innerHTML = ""; dom.statsHero.hidden = true; }
 
     dom.lifetimeStats.innerHTML = [
-      statCard("assets/icons/moeda.webp", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "", "featured", "lifetimeCoins"),
-      statCard("assets/icons/caixa-colheita.webp", "Produção total", engine.formatNumber(stats.lifetimeHarvested), "", "featured", "lifetimeHarvested"),
-      statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "", "featured", "lifetimeSold"),
+      statCard("assets/icons/moeda.webp", "Moedas recebidas", resourceAmount("coins", stats.lifetimeCoins), "", "", "lifetimeCoins"),
+      statCard("assets/icons/moeda.webp", "Maior saldo", resourceAmount("coins", stats.maxCoinsHeld), "", "", "maxCoinsHeld"),
+      statCard("assets/icons/caixa-colheita.webp", "Produção total", engine.formatNumber(stats.lifetimeHarvested), "", "", "lifetimeHarvested"),
+      statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "", "", "lifetimeSold"),
       statCard("assets/icons/contrato-comercial.webp", "Contratos entregues", engine.formatNumber(stats.lifetimeContractsCompleted), "", "", "lifetimeContractsCompleted"),
-      statCard("assets/icons/prestigio-conta.webp", "Prestígio de conta", engine.formatNumber(stats.prestiges), "", "", "prestiges")
+      statCard("assets/icons/relogio.webp", "Horas jogadas", formatGameplayDuration(stats.totalPlaySeconds), "", "", "totalPlaySeconds"),
+      statCard("assets/icons/relogio-azul.webp", "Maior tempo online", formatGameplayDuration(stats.maxOnlineSessionSeconds), "", "", "maxOnlineSessionSeconds"),
+      statCard("assets/icons/fazenda-celeiro.webp", "Maior nível", engine.formatNumber(stats.maxFarmLevel), "", "", "maxFarmLevel"),
+      statCard("assets/icons/prestigio-conta.webp", "Prestígio de conta", engine.formatNumber(stats.prestiges), "", "", "prestiges"),
+      statCard("assets/icons/estrela-dominio-cultura.webp", "Plantas platinadas", `${engine.formatNumber(masteredCropCount)} / ${engine.formatNumber(totalCropCount)}`, "", "", "lifetimeCropPrestiges")
     ].join("");
-    dom.recordStats.innerHTML = [
-      statCard("assets/icons/fazenda-celeiro.webp", "Maior nível", engine.formatNumber(stats.maxFarmLevel), "", "record", "maxFarmLevel"),
-      statCard("assets/icons/estrela-dominio-cultura.webp", "Plantas platinadas", `${engine.formatNumber(masteredCropCount)} / ${engine.formatNumber(totalCropCount)}`, "", "record", "lifetimeCropPrestiges"),
-      statCard("assets/icons/moeda.webp", "Maior saldo", resourceAmount("coins", stats.maxCoinsHeld), "", "record", "maxCoinsHeld")
-    ].join("");
+    if (dom.recordStats) {
+      dom.recordStats.innerHTML = "";
+      const recordSection = dom.recordStats.closest(".stats-section");
+      if (recordSection) recordSection.hidden = true;
+    }
     dom.achievementSummary.innerHTML = `
       <article><span>${statIcon("assets/icons/livros.webp", "Pesquisa")}</span><div><small>Pesquisas adquiridas</small><strong data-achievement-live="researchLevels">${engine.formatNumber(researchLevels)} / ${engine.formatNumber(totalResearchLevels)} níveis</strong></div></article>
       <article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Legados permanentes</small><strong data-achievement-live="legacyLevels">${engine.formatNumber(legacyLevels)} / ${engine.formatNumber(totalLegacyLevels)} níveis</strong></div></article>

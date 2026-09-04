@@ -79,8 +79,8 @@
 
     if (!data.owned) {
       const purchaseLabel = !unlocked
-        ? `Necessário: Fazenda nível ${crop.unlockLevel}`
-        : `Comprar ${resourceAmount("coins", -buyCost, { compact: true })}`;
+        ? `<span class="crop-required-label"><span>Necessário:</span><span>Fazenda nível ${crop.unlockLevel}</span></span>`
+        : `<span class="crop-buy-button-label">Comprar</span><span class="crop-buy-button-cost">${resourceAmount("coins", -buyCost, { compact: true })}</span>`;
       return `
         <article class="crop-card locked ${!unlocked ? "level-locked" : ""} ${unlocked && !canAffordPurchase ? "insufficient" : ""}" data-live-render-key="${renderKey}" data-live-render-signature="locked|${unlocked ? 1 : 0}|${numberFormat}" data-locked-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
           <div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span></div>
@@ -102,7 +102,6 @@
     const speedMaxed = data.level >= engine.getInstantGrowthLevel();
     const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;
     const masteryXpPercent = Math.max(0, Number(GameEngine.CROP_MASTERY_XP_RATE) || 0) * 100;
-    const cycleLabel = instant ? "Contínua" : formatLiveTime((1 - data.progress) * growthTime);
     const selection = getCropUpgradeSelection(crop.id);
 
     return `
@@ -112,16 +111,17 @@
           ${mastered ? `<span class="crop-mastery-badge" aria-label="Cultura no nível máximo"><img alt="" src="assets/icons/estrela-dominio-cultura.webp"></span>` : ""}
         </div>
         <div class="crop-head">
-          <div class="crop-art-progress ${optimizedRing ? "instant optimized-ring" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
-            <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            ${optimizedRing ? "" : `<span class="crop-progress-percent " data-crop-percent><span data-crop-percent-text>${Math.floor(growthPct)}%</span></span>`}
+          <div class="crop-loader ${optimizedRing ? "is-static" : ""}" data-crop-loader data-last-progress="${growthPct}" title="Progresso da produção">
+            <svg class="crop-loader-svg" viewBox="0 0 60 60" aria-hidden="true" focusable="false">
+              <circle class="crop-loader-track" cx="30" cy="30" r="26.5"></circle>
+              <circle class="crop-loader-progress" cx="30" cy="30" r="26.5" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - growthPct}" data-crop-progress-circle></circle>
+            </svg>
+            <img class="crop-loader-image" src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy">
+            ${optimizedRing ? "" : `<span class="crop-loader-percent" data-crop-percent><span data-crop-percent-text>${Math.floor(growthPct)}%</span></span>`}
           </div>
           <div class="crop-info">
             <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
             <div class="crop-meta-row"><span class="crop-category-list">${escapeHtml(category)}</span></div>
-            <div class="crop-quick-stats">
-              <span title="Tempo restante"><i class="crop-time-icon"><img src="assets/icons/relogio.webp" alt=""></i><b data-crop-cycle>${cycleLabel}</b></span>
-            </div>
           </div>
         </div>
         ${mastered ? "" : `<div class="crop-upgrade-panel crop-upgrade-redesign">
@@ -130,7 +130,7 @@
             <button class="upgrade-mode-option ${selection.mode === "max" ? "active" : ""}" type="button" data-action="select-upgrade-mode" data-upgrade-mode="max" data-crop="${crop.id}" aria-pressed="${selection.mode === "max"}">Max</button>
           </div>
           <div class="crop-upgrade-summary" data-crop-upgrade-summary><strong data-crop-upgrade-levels>+${selection.mode === "max" ? selection.levels : 1}</strong></div>
-          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${!selection.affordable ? "disabled" : ""}><span data-crop-upgrade-label>Aprimorar</span> ${resourceAmount("coins", -selection.cost, { compact: true })}</button>
+          <button class="button primary full crop-upgrade-cta" type="button" data-action="upgrade-crop-selected" data-crop="${crop.id}" data-crop-upgrade-action ${!selection.affordable ? "disabled" : ""}><span class="crop-upgrade-button-label" data-crop-upgrade-label>Aprimorar</span><span class="crop-upgrade-button-cost">${resourceAmount("coins", -selection.cost, { compact: true })}</span></button>
         </div>`}
       </article>`;
   }

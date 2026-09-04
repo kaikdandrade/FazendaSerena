@@ -49,8 +49,8 @@ Object.assign(GameEngine.prototype, {
       return this.data.crops.filter(crop => this.state.crops[crop.id]?.owned);
     },
 
-  getGlobalGrowthSpeed() {
-      return (1 + Math.max(0, this.getEvolutionBonus("growthSpeedPercent")) / 100) * this.getEventMultiplier("growthSpeed");
+  getGlobalGrowthSpeed(includeEventBonuses = true) {
+      return (1 + Math.max(0, this.getEvolutionBonus("growthSpeedPercent")) / 100) * (includeEventBonuses ? this.getEventMultiplier("growthSpeed") : 1);
     },
 
   getInstantGrowthLevel() {
@@ -61,7 +61,7 @@ Object.assign(GameEngine.prototype, {
       return Math.max(GameEngine.MIN_INSTANT_GROWTH_LEVEL, GameEngine.INSTANT_GROWTH_LEVEL - reduction);
     },
 
-  getGrowthTime(cropId) {
+  getGrowthTime(cropId, includeEventBonuses = true) {
       const crop = this.getCrop(cropId);
       const cropState = this.state.crops[cropId];
       if (!crop || !cropState) return Infinity;
@@ -72,27 +72,27 @@ Object.assign(GameEngine.prototype, {
       const levelProgress = Math.max(0, Math.min(1, (level - 1) / (instantLevel - 1)));
       const remainingFactor = 1 - Math.sqrt(levelProgress);
       const levelAdjustedTime = crop.baseGrowth * remainingFactor;
-      return Math.max(0.01, levelAdjustedTime / this.getGlobalGrowthSpeed());
+      return Math.max(0.01, levelAdjustedTime / this.getGlobalGrowthSpeed(includeEventBonuses));
     },
 
-  getInstantCyclesPerSecond(cropId) {
+  getInstantCyclesPerSecond(cropId, includeEventBonuses = true) {
       const crop = this.getCrop(cropId);
       if (!crop) return 0;
       const instantLevel = this.getInstantGrowthLevel();
       const previousProgress = Math.max(0, (instantLevel - 2) / (instantLevel - 1));
       const previousFactor = Math.max(0.0001, 1 - Math.sqrt(previousProgress));
-      const previousTime = Math.max(0.01, (crop.baseGrowth * previousFactor) / this.getGlobalGrowthSpeed());
+      const previousTime = Math.max(0.01, (crop.baseGrowth * previousFactor) / this.getGlobalGrowthSpeed(includeEventBonuses));
       return Math.max(1, 1 / previousTime);
     },
 
-  getYieldRange(cropId) {
+  getYieldRange(cropId, includeEventBonuses = true) {
       const crop = this.getCrop(cropId);
       if (!crop) return { min: 0, max: 0 };
       const cropLevel = Math.max(1, Number(this.state.crops?.[cropId]?.level) || 1);
       const levelMultiplier = window.FazendaSerenaCropEconomy?.levelYieldMultiplier?.(cropLevel) ?? 1;
       const configuredMin = Math.max(1, Number(GameEngine.BASE_PRODUCTION_MIN) || 1);
       const configuredMax = Math.max(configuredMin, Number(GameEngine.BASE_PRODUCTION_CAP) || 10);
-      const rawYield = Math.max(0, crop.baseYield * levelMultiplier * this.getEventMultiplier("harvest"));
+      const rawYield = Math.max(0, crop.baseYield * levelMultiplier * (includeEventBonuses ? this.getEventMultiplier("harvest") : 1));
       const currentBaseMax = Math.max(configuredMin, Math.min(configuredMax, rawYield));
       // O mínimo é o piso global configurado. Pesquisa/Legados aumentam apenas
       // o teto da faixa, permitindo produzir acima do máximo base sem tornar
@@ -102,16 +102,16 @@ Object.assign(GameEngine.prototype, {
       return { min: configuredMin, max: boostedMax };
     },
 
-  getExpectedYield(cropId) {
-      const range = this.getYieldRange(cropId);
+  getExpectedYield(cropId, includeEventBonuses = true) {
+      const range = this.getYieldRange(cropId, includeEventBonuses);
       if (range.max <= 0) return 0;
       return (range.min + range.max) / 2;
     },
 
-  getYield(cropId) {
+  getYield(cropId, includeEventBonuses = true) {
       // Mantém compatibilidade com cálculos de contratos/UI: aqui retornamos
       // a média esperada. A aleatoriedade real acontece somente ao produzir.
-      return this.getExpectedYield(cropId);
+      return this.getExpectedYield(cropId, includeEventBonuses);
     },
 
   rollProductionYield(cropId, cycles = 1) {
@@ -139,9 +139,9 @@ Object.assign(GameEngine.prototype, {
       return Math.max(count * min, Math.min(count * max, mean + normal * deviation));
     },
 
-  getProductionRate(cropId) {
-      const growthTime = this.getGrowthTime(cropId);
-      const cyclesPerSecond = growthTime <= 0 ? this.getInstantCyclesPerSecond(cropId) : 1 / growthTime;
-      return Math.max(0, this.getExpectedYield(cropId) * cyclesPerSecond);
+  getProductionRate(cropId, includeEventBonuses = true) {
+      const growthTime = this.getGrowthTime(cropId, includeEventBonuses);
+      const cyclesPerSecond = growthTime <= 0 ? this.getInstantCyclesPerSecond(cropId, includeEventBonuses) : 1 / growthTime;
+      return Math.max(0, this.getExpectedYield(cropId, includeEventBonuses) * cyclesPerSecond);
     }
 });

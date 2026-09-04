@@ -45,12 +45,33 @@ Object.assign(GameEngine.prototype, {
     return contract;
   },
 
+  lockContractParameters(contract, force = false) {
+    if (!contract) return contract;
+    const alreadyLocked = Number(contract.rewardSnapshotVersion || 0) >= 1;
+    if (alreadyLocked && !force) return contract;
+    const contractRewardMultiplier = this.getEventMultiplier("contractRewards");
+    const coinEventMultiplier = this.getEventMultiplier("coins");
+    const researchEventMultiplier = this.getEventMultiplier("research");
+    contract.lockedRewardCoins = Math.max(0, Math.floor((Number(contract.rewardCoins) || 0) * contractRewardMultiplier * coinEventMultiplier));
+    contract.lockedRewardResearch = Math.max(0, Math.floor((Number(contract.rewardResearch) || 0) * contractRewardMultiplier * researchEventMultiplier));
+    contract.lockedRewardPrestige = Math.max(0, Math.floor((Number(contract.rewardPrestige) || 0) * contractRewardMultiplier));
+    contract.lockedRewardXP = Math.max(0, Math.round(this.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE)));
+    contract.penaltyUnitPrices = Object.fromEntries(this.getContractItems(contract).map(item => [item.cropId, Math.max(1, Number(this.getSalePrice(item.cropId)) || 1)]));
+    contract.rewardSnapshotVersion = 1;
+    return contract;
+  },
+
+  getContractFrozenXPReward(contract) {
+    if (Number(contract?.rewardSnapshotVersion || 0) < 1) this.lockContractParameters(contract, false);
+    return Math.max(0, Number(contract?.lockedRewardXP) || 0);
+  },
+
   calculateContractPenalty(contract) {
     const type = this.getContractDifficulty(contract?.difficulty || contract?.typeId);
     const penaltyPercent = Math.max(0, Number(contract?.penaltyPercent ?? type?.penaltyPercent ?? 20) || 0);
     const basePenalty = this.getContractItems(contract).reduce((sum, item) => {
       const missing = Math.max(0, item.amount - item.delivered);
-      const unitPrice = Math.max(1, Number(this.getSalePrice(item.cropId)) || 1);
+      const unitPrice = Math.max(1, Number(contract?.penaltyUnitPrices?.[item.cropId]) || Number(this.getSalePrice(item.cropId)) || 1);
       return sum + unitPrice * missing;
     }, 0);
     if (basePenalty <= 0) return 0;
@@ -131,7 +152,7 @@ Object.assign(GameEngine.prototype, {
     const legacyDeadline = Number(contract.deadlineAt || 0);
     const legacyRemaining = active && legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : deliveryDurationSeconds;
     const completedAt = active && (Number(contract.completedAt || 0) > 0 || delivered >= amount) ? Number(contract.completedAt || Date.now()) : 0;
-    return {
+    const normalized = {
       id: String(contract.id || `contract-${Date.now()}-${this.state?.contractSerial || 1}`),
       companyId: company.id,
       items,
@@ -154,8 +175,15 @@ Object.assign(GameEngine.prototype, {
       createdAt: Number(contract.createdAt || Date.now()),
       acceptedAt: active ? Number(contract.acceptedAt || Date.now()) : 0,
       completedAt,
-      penaltyCoins: 0
+      penaltyCoins: 0,
+      rewardSnapshotVersion: Math.max(0, Math.floor(Number(contract.rewardSnapshotVersion) || 0)),
+      lockedRewardCoins: Math.max(0, Math.floor(Number(contract.lockedRewardCoins) || 0)),
+      lockedRewardResearch: Math.max(0, Math.floor(Number(contract.lockedRewardResearch) || 0)),
+      lockedRewardPrestige: Math.max(0, Math.floor(Number(contract.lockedRewardPrestige) || 0)),
+      lockedRewardXP: Math.max(0, Number(contract.lockedRewardXP) || 0),
+      penaltyUnitPrices: contract.penaltyUnitPrices && typeof contract.penaltyUnitPrices === "object" ? { ...contract.penaltyUnitPrices } : {}
     };
+    return this.state ? this.lockContractParameters(normalized, false) : normalized;
   },
 
   getContractDifficulty(id) {
@@ -287,9 +315,9 @@ Object.assign(GameEngine.prototype, {
       const workloadShare = 0.36 + Math.random() * 0.18;
       const difficultyLoad = Math.max(0.01, Number(type.quantityMultiplier) || 1);
       const items = selectedCrops.map(crop => {
-        const rate = Math.max(0.01, this.getProductionRate(crop.id));
+        const rate = Math.max(0.01, this.getProductionRate(crop.id, false));
         const expectedProduction = Math.max(1, rate * deliveryDurationSeconds);
-        const minimumByCycle = Math.max(1, Math.min(this.getYield(crop.id) * 2, expectedProduction * 0.75));
+        const minimumByCycle = Math.max(1, Math.min(this.getYield(crop.id, false) * 2, expectedProduction * 0.75));
         const splitLoad = difficultyLoad / Math.max(1, selectedCrops.length);
         const amount = this.roundContractAmount(Math.max(minimumByCycle, expectedProduction * workloadShare * splitLoad));
         return { cropId: crop.id, amount, delivered: 0 };
@@ -307,7 +335,7 @@ Object.assign(GameEngine.prototype, {
       const prestigeBase = Math.max(0, Number(type.prestigeMultiplierPercent) || 0) / 100;
       const rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(Math.max(1, Math.log10(contractValue + 10)) * prestigeBase * prestigeBonus * missionRewardMultiplier)) : 0;
 
-      result.push({
+      const generatedContract = {
         id: `contract-${Date.now()}-${this.state.contractSerial++}-${index}`,
         companyId: company.id,
         items,
@@ -328,7 +356,8 @@ Object.assign(GameEngine.prototype, {
         durationSeconds: deliveryDurationSeconds,
         createdAt: Date.now(),
         acceptedAt: 0
-      });
+      };
+      result.push(this.lockContractParameters(generatedContract, true));
     }
     return result;
   },
@@ -465,11 +494,11 @@ Object.assign(GameEngine.prototype, {
   },
 
   getEffectiveContractRewards(contract) {
-    const multiplier = this.getEventMultiplier("contractRewards");
+    if (Number(contract?.rewardSnapshotVersion || 0) < 1) this.lockContractParameters(contract, false);
     return {
-      coins: Math.max(0, Math.floor((Number(contract?.rewardCoins) || 0) * multiplier)),
-      research: Math.max(0, Math.floor((Number(contract?.rewardResearch) || 0) * multiplier)),
-      prestige: Math.max(0, Math.floor((Number(contract?.rewardPrestige) || 0) * multiplier))
+      coins: Math.max(0, Math.floor(Number(contract?.lockedRewardCoins) || 0)),
+      research: Math.max(0, Math.floor(Number(contract?.lockedRewardResearch) || 0)),
+      prestige: Math.max(0, Math.floor(Number(contract?.lockedRewardPrestige) || 0))
     };
   },
 
@@ -480,11 +509,11 @@ Object.assign(GameEngine.prototype, {
     if (!contract.completedAt || !this.getContractProgress(contract).completed) return { ok: false, message: "Este contrato ainda não foi concluído." };
     this.state.activeContracts.splice(index, 1);
     const rewards = this.getEffectiveContractRewards(contract);
-    if (rewards.coins) this.addCoins(rewards.coins);
-    if (rewards.research) this.addResearch(rewards.research);
+    if (rewards.coins) this.addCoins(rewards.coins, false);
+    if (rewards.research) this.addResearch(rewards.research, false);
     if (rewards.prestige) this.addPrestigePoints(rewards.prestige);
-    const xpAward = this.getFarmXPAwardForRate(contract.xpRate);
-    this.addFarmXPPercent(contract.xpRate);
+    const xpAward = this.getContractFrozenXPReward(contract);
+    if (xpAward > 0) this.addFarmXP(xpAward, false, false);
     this.ensureContractOffers();
     return { ok: true, contract, rewards, xpRate: contract.xpRate, xpAward };
   },

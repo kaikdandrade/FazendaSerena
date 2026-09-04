@@ -82,9 +82,15 @@
   }
 
   function resetCatalogFilterDraft() {
+    const key = "farm";
+    catalogFilters[key] = defaultCatalogFilterState();
+    saveCatalogFilters();
+    syncCatalogFilterButtons();
     if (dom.catalogFilterHideMastered) dom.catalogFilterHideMastered.checked = false;
     if (dom.catalogFilterHideLocked) dom.catalogFilterHideLocked.checked = false;
     $$("#catalogFilterCategoryGrid input[type=checkbox]").forEach(input => { input.checked = false; });
+    dom.catalogFilterDialog?.close("cleared");
+    renderCrops();
   }
 
   function clearCatalogFilters(context) {
@@ -373,7 +379,18 @@
 
     [dom.farmXPResource, dom.floatingFarmXPResource].forEach(counter => {
       if (!counter) return;
-      counter.style.setProperty("--farm-xp-progress", progressText);
+      const nextLevel = Number(levelText) || 1;
+      const previousLevel = Number(counter.dataset.farmXpLevel || nextLevel) || nextLevel;
+      if (previousLevel !== nextLevel) {
+        counter.classList.add("xp-ring-resetting");
+        counter.style.setProperty("--farm-xp-progress", progressText);
+        counter.dataset.farmXpLevel = String(nextLevel);
+        void counter.offsetWidth;
+        window.requestAnimationFrame(() => counter.classList.remove("xp-ring-resetting"));
+      } else {
+        counter.dataset.farmXpLevel = String(nextLevel);
+        counter.style.setProperty("--farm-xp-progress", progressText);
+      }
       counter.classList.toggle("max-level", atMaximum);
       counter.setAttribute("aria-valuemin", "0");
       counter.setAttribute("aria-valuemax", atMaximum ? "100" : String(farmNeed));
@@ -433,10 +450,10 @@
     liveCropEntries = $$('[data-live-crop]', dom.cropGrid).map(card => ({
       card,
       cropId: card.dataset.liveCrop,
-      ring: $('[data-crop-ring]', card),
+      loader: $('[data-crop-loader]', card),
+      progressCircle: $('[data-crop-progress-circle]', card),
       progressLabel: $('[data-crop-percent]', card),
       progressText: $('[data-crop-percent-text]', card),
-      pausedIcon: $('[data-crop-paused-icon]', card),
       cycle: $('[data-crop-cycle]', card),
       visible: true
     }));
@@ -465,46 +482,48 @@
 
     liveCropEntries.forEach(entry => {
       if (!entry.visible) return;
-      const { card, cropId, ring, progressLabel, progressText, pausedIcon, cycle } = entry;
+      const { card, cropId, loader, progressCircle, progressLabel, progressText, cycle } = entry;
       const cropState = engine.state.crops[cropId];
       if (!cropState?.owned) return;
       const growthTime = engine.getGrowthTime(cropId);
       const instant = growthTime <= 0;
-      const optimizedRing = instant || growthTime <= 1.5;
-      const paused = false;
-      const progress = optimizedRing ? 100 : percent(cropState.progress * 100);
-      if (ring) {
-        const previous = Number(ring.dataset.lastProgress || 0);
+      const optimizedLoader = instant || growthTime <= 1.5;
+      const progress = optimizedLoader ? 100 : percent(cropState.progress * 100);
+
+      if (loader && progressCircle) {
+        const previous = Number(loader.dataset.lastProgress || 0);
         const progressValue = String(progress);
-        if (ring.dataset.lastProgress !== progressValue) {
-          const wrapped = !optimizedRing && previous > 88 && progress < 25;
-          if (wrapped) ring.classList.add("progress-resetting");
-          ring.style.setProperty("--growth-progress", `${progress}%`);
-          ring.dataset.lastProgress = progressValue;
-          if (wrapped) requestAnimationFrame(() => ring.classList.remove("progress-resetting"));
-        }
-        const ringState = `${optimizedRing ? 1 : 0}|${optimizedRing && !instant ? 1 : 0}|${paused ? 1 : 0}`;
-        if (ring.dataset.liveState !== ringState) {
-          ring.dataset.liveState = ringState;
-          ring.classList.toggle("instant", optimizedRing);
-          ring.classList.toggle("optimized-ring", optimizedRing && !instant);
-          ring.classList.toggle("paused", paused);
-        }
-      }
-      if (progressLabel) {
-        if (progressLabel.hidden !== optimizedRing) progressLabel.hidden = optimizedRing;
-        if (!optimizedRing) {
-          progressLabel.classList.toggle("is-paused", paused);
-          if (pausedIcon && pausedIcon.hidden === paused) pausedIcon.hidden = !paused;
-          if (progressText && progressText.hidden !== paused) progressText.hidden = paused;
-          if (!paused && progressText) {
-            const label = `${Math.floor(progress)}%`;
-            if (progressText.textContent !== label) progressText.textContent = label;
+        if (loader.dataset.lastProgress !== progressValue) {
+          const wrapped = !optimizedLoader && previous > 88 && progress < 25;
+          if (wrapped) {
+            loader.classList.add("is-resetting");
+            // Força o navegador a aplicar o estado sem transição antes de voltar
+            // o círculo ao início do próximo ciclo.
+            void progressCircle.getBoundingClientRect();
           }
+          progressCircle.style.strokeDashoffset = String(100 - progress);
+          loader.dataset.lastProgress = progressValue;
+          if (wrapped) requestAnimationFrame(() => loader.classList.remove("is-resetting"));
+        }
+
+        const loaderState = optimizedLoader ? "static" : "running";
+        if (loader.dataset.liveState !== loaderState) {
+          loader.dataset.liveState = loaderState;
+          loader.classList.toggle("is-static", optimizedLoader);
+          if (optimizedLoader) progressCircle.style.strokeDashoffset = "0";
         }
       }
+
+      if (progressLabel && progressText) {
+        if (progressLabel.hidden !== optimizedLoader) progressLabel.hidden = optimizedLoader;
+        if (!optimizedLoader) {
+          const label = `${Math.floor(progress)}%`;
+          if (progressText.textContent !== label) progressText.textContent = label;
+        }
+      }
+
       if (cycle) {
-        const cycleText = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
+        const cycleText = instant ? "Contínua" : formatLiveTime((1 - cropState.progress) * growthTime);
         if (cycle.textContent !== cycleText) cycle.textContent = cycleText;
       }
 

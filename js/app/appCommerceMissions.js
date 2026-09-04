@@ -48,7 +48,7 @@
         coins: reward.coins,
         research: reward.research,
         prestige: reward.prestige,
-        xp: Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+        xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
       });
     };
 
@@ -62,7 +62,7 @@
       const actionAttributes = `data-go-office-contracts data-focus-contract="${escapeHtml(contract.id)}" data-contract-dock-behavior="${canClaim ? "claim" : "navigate"}" title="${canClaim ? "Contrato concluído" : "Abrir este contrato"}"`;
       const statusText = progress.completed ? "Concluído" : `${Math.floor(progress.percent)}%`;
       const stateClass = progress.completed ? "is-completed" : "is-running";
-      const timeMarkup = progress.completed ? "" : `<span class="contract-dock-time" data-contract-dock-time><img src="assets/icons/relogio.webp" alt=""><b data-contract-dock-time-value>${engine.formatTime(contract.timeRemaining)}</b></span>`;
+      const timeMarkup = progress.completed ? "" : `<span class="contract-dock-time" data-contract-dock-time><b data-contract-dock-time-value>${engine.formatTime(contract.timeRemaining)}</b></span>`;
       const type = engine.getContractDifficulty(contract.difficulty);
       const contractColor = contract.typeColor || type?.color || "#6b9870";
       const renderState = `${progress.completed ? "completed" : "running"}|${engine.state.settings.numberFormat || "brazilian"}`;
@@ -79,6 +79,7 @@
   }
 
   function renderContracts() {
+    if (dom.contractCapacitySummary) dom.contractCapacitySummary.replaceChildren();
     const hasCrops = Array.isArray(engine.data.crops) && engine.data.crops.length > 0;
     const hasCompanies = Array.isArray(engine.data.companies) && engine.data.companies.length > 0;
     const hasContractTypes = Array.isArray(engine.data.contractTypes) && engine.data.contractTypes.length > 0;
@@ -102,7 +103,7 @@
     const slotLimit = engine.getActiveContractSlotLimit();
     const openSlots = Math.max(0, slotLimit - active.length);
     const contractFormatMode = engine.state.settings.numberFormat || "brazilian";
-    const contractXPReward = contract => Math.round(engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE));
+    const contractXPReward = contract => Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE));
     const contractStyle = contract => {
       const type = engine.getContractDifficulty(contract.difficulty);
       const color = contract.typeColor || type?.color || "#6b9870";
@@ -126,9 +127,12 @@
     };
     const progressBlock = progress => `<section class="contract-progress-v5"><div class="contract-progress-v5-head"><span>Progresso</span><strong data-contract-live-fill>${Math.floor(progress.percent)}%</strong></div><div class="progress-track"><span data-contract-live-progress style="width:${percent(progress.percent)}%"></span></div><small><b data-contract-live-delivered>${engine.formatNumber(progress.delivered)}</b> / ${engine.formatNumber(progress.amount)} unidades</small></section>`;
     const cardHeader = (contract, company, activeContract, progress = null) => {
-      const time = activeContract ? (progress?.completed ? "Concluído" : engine.formatTime(contract.timeRemaining)) : engine.formatTime(contract.deliveryDurationSeconds || contract.durationSeconds);
-      const label = activeContract && !progress?.completed ? "Conclusão" : "Proposta";
-      return `<header class="contract-card-header-v5"><div class="contract-company-v5"><span class="contract-company-icon-v5">${companyIconMarkup(company)}</span><span><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></span></div><div class="contract-time-v5" ${activeContract ? "data-contract-live-time" : ""}><small>${label}</small><span><img src="assets/icons/relogio.webp" alt=""><b ${activeContract ? "data-contract-live-time-value" : ""}>${time}</b></span></div></header>`;
+      const completed = Boolean(activeContract && progress?.completed);
+      const time = activeContract ? engine.formatTime(contract.timeRemaining) : engine.formatTime(contract.deliveryDurationSeconds || contract.durationSeconds);
+      const status = completed
+        ? `<span class="contract-time-badge-v5 contract-time-completed-v5"><b>Concluído</b></span>`
+        : `<span class="contract-time-badge-v5"><b ${activeContract ? "data-contract-live-time-value" : ""}>${time}</b></span>`;
+      return `<header class="contract-card-header-v5"><div class="contract-company-v5"><span class="contract-company-icon-v5">${companyIconMarkup(company)}</span><span><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></span></div><div class="contract-time-v5" ${activeContract && !completed ? "data-contract-live-time" : ""}>${status}</div></header>`;
     };
 
     const slotSummary = `<article class="contract-capacity-v2 contract-capacity-v5" data-live-render-key="capacity" data-live-render-signature="${active.length}|${slotLimit}|${openSlots}"><div><img src="assets/icons/contrato-agricola.webp" alt=""><span><small>Contratos ativos</small><strong>${active.length} de ${slotLimit}</strong></span></div><b class="${openSlots ? "available" : "full"}">${openSlots ? `${openSlots} ${openSlots === 1 ? "vaga" : "vagas"}` : "Lotado"}</b></article>`;
@@ -144,7 +148,8 @@
       const fine = Math.max(1, engine.calculateContractPenalty(contract));
       return `<article class="contract-card contract-card-v2 contract-card-v5" data-live-render-key="active:${escapeHtml(contract.id)}" data-live-render-signature="running|${escapeHtml(contractFormatMode)}|${escapeHtml(itemsKey)}|${escapeHtml(contract.companyId)}" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${cardHeader(contract, company, true, progress)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5"><button class="button contract-break-button-v3" type="button" data-action="break-contract" data-id="${contract.id}" title="Quebrar contrato e pagar a multa estimada"><span>Quebrar contrato</span><strong data-contract-live-penalty>${resourceAmount("coins", -fine, { compact: true })}</strong></button></footer></article>`;
     });
-    reconcileLiveCards(dom.activeContractList, [slotSummary, ...activeCards].join(""));
+    if (dom.contractCapacitySummary) reconcileLiveCards(dom.contractCapacitySummary, slotSummary);
+    reconcileLiveCards(dom.activeContractList, activeCards.join(""));
 
     const offerCards = offers.map(contract => {
       const company = engine.getCompany(contract.companyId);
@@ -190,19 +195,27 @@
       const isPurchaseGoal = mission.metric === "cropPurchased";
       const isUnlockGoal = mission.metric === "cropUnlocked";
       const cropGoalBadge = isUnlockGoal && cropGoal ? `<div class="mission-crop-milestone ${cropGoalComplete ? "unlocked" : "locked"} unlock-goal"><img src="${cropGoalComplete ? escapeHtml(cropGoal.image) : "assets/icons/cadeado.webp"}" alt=""><span><small>Marco de desbloqueio</small><strong>${escapeHtml(cropGoal.name)}</strong><em>${cropGoalComplete ? "Desbloqueada pela fazenda" : `Libera no nível ${Math.max(1, Number(cropGoal.unlockLevel) || 1)}`}</em></span></div>` : "";
-      const progressLabel = isPurchaseGoal ? "Progresso" : cropGoal ? "Desbloqueio por nível" : "Progresso acumulado";
+      const progressLabel = isPurchaseGoal
+        ? "Progresso"
+        : cropGoal
+          ? "Desbloqueio por nível"
+          : mission.metric === "onlineMinutes"
+            ? "Tempo online nesta sessão"
+            : mission.metric === "playHours"
+              ? "Tempo total jogado"
+              : "Progresso acumulado";
       const progressValue = isPurchaseGoal
         ? `${engine.formatNumber(Math.min(value, 1))} / 1`
         : cropGoal
           ? (cropGoalComplete ? "Concluído" : `Nível ${Math.max(1, Number(cropGoal.unlockLevel) || 1)}`)
-          : `${engine.formatNumber(Math.min(value, mission.target))} / ${engine.formatNumber(mission.target)}`;
+          : formatMissionMetricProgress(mission, value);
       const stageLabel = seriesMissions.length > 1 ? `<span class="mission-stage-label">Série ${stage} de ${seriesMissions.length}</span>` : "";
       return `<article class="mission-card ${claimed ? "claimed" : ""} ${isUnlockGoal && cropGoal ? "mission-crop-unlock-card mission-crop-target-card" : ""}" data-live-render-key="mission:${escapeHtml(mission.id)}" data-live-render-signature="mission|${claimed ? 1 : 0}|${cropGoalComplete ? 1 : 0}|${engine.state.settings.numberFormat || "brazilian"}" data-mission-id="${escapeHtml(mission.id)}">
         <div class="mission-head"><div>${stageLabel}<h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></div>
         ${cropGoalBadge}
         <div class="mission-progress"><div class="progress-label"><span>${progressLabel}</span><strong data-mission-live-value>${progressValue}</strong></div><div class="progress-track growth"><span data-mission-live-progress style="width:${progress}%"></span></div></div>
         <div class="mission-reward"><span>Recompensa</span>${rewardHtml(mission.reward)}</div>
-        ${claimed ? `<div class="mission-claimed-mark">✓ Recompensa recebida</div>` : `<button class="button ${completed ? "primary" : "secondary"} full" type="button" data-action="claim-mission" data-id="${mission.id}" data-mission-live-action ${completed ? "" : "disabled"}>Receber recompensa</button>`}
+        ${claimed ? `<div class="mission-claimed-mark">✓ Recompensa recebida</div>` : `<div class="mission-claim-slot" data-mission-claim-slot>${completed ? `<button class="button primary full" type="button" data-action="claim-mission" data-id="${mission.id}" data-mission-live-action>Receber recompensa</button>` : ""}</div>`}
       </article>`;
     }).join("") || `<div class="empty-state" data-live-render-key="missions-complete" data-live-render-signature="empty">${runtimeTextHtml("emptyMissionsComplete", "Todas as séries de missões foram concluídas.")}</div>`;
     reconcileLiveCards(dom.missionList, missionMarkup);

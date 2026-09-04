@@ -48,9 +48,9 @@ Object.assign(GameEngine.prototype, {
       return 1 + this.getActiveEventBonus(type, at) / 100;
     },
 
-  addResearch(value) {
+  addResearch(value, applyEventMultiplier = true) {
       const base = Math.max(0, Number(value) || 0);
-      const amount = Math.max(0, Math.floor(base * this.getEventMultiplier("research")));
+      const amount = Math.max(0, Math.floor(base * (applyEventMultiplier ? this.getEventMultiplier("research") : 1)));
       this.state.research += amount;
       this.state.stats.lifetimeResearchEarned = Math.max(0, Number(this.state.stats.lifetimeResearchEarned) || 0) + amount;
       return amount;
@@ -64,7 +64,7 @@ Object.assign(GameEngine.prototype, {
       return amount;
     },
   isEvolutionUnlocked() {
-      return this.state.farmLevel >= GameEngine.EVOLUTION_UNLOCK_LEVEL;
+      return true;
     },
 
   isContractsUnlocked() {
@@ -123,8 +123,8 @@ Object.assign(GameEngine.prototype, {
       return this.addFarmXP(rate * elapsed, silent);
     },
 
-  addFarmXP(amount, silent = false) {
-      const multiplier = (1 + this.getEvolutionBonus("farmXPGainPercent") / 100) * this.getEventMultiplier("xp");
+  addFarmXP(amount, silent = false, applyMultipliers = true) {
+      const multiplier = applyMultipliers ? (1 + this.getEvolutionBonus("farmXPGainPercent") / 100) * this.getEventMultiplier("xp") : 1;
       const gainedXP = Math.max(0, Number(amount) || 0) * multiplier;
       this.state.farmXP += gainedXP;
       this.state.stats.lifetimeFarmXPEarned = Math.max(0, Number(this.state.stats.lifetimeFarmXPEarned) || 0) + gainedXP;
@@ -188,9 +188,6 @@ Object.assign(GameEngine.prototype, {
         .filter(crop => Number(crop.unlockLevel) === milestoneLevel)
         .sort((cropA, cropB) => cropA.index - cropB.index)
         .map(crop => ({ text: `Nova cultura disponível para compra: ${crop.name}.`, icon: crop.image, type: "crop" }));
-      if (milestoneLevel === GameEngine.EVOLUTION_UNLOCK_LEVEL) {
-        unlocks.push({ text: "Centro de pesquisa liberado em Evoluções.", icon: "assets/icons/livros.webp", type: "feature" });
-      }
       (this.data.contractSlots || []).filter(slot => Number(slot.unlockLevel) === milestoneLevel && milestoneLevel > 1).forEach(slot => {
         unlocks.push({ text: `${slot.name || "Novo slot"} de contrato liberado.`, icon: "assets/icons/contrato-comercial.webp", type: "feature" });
       });

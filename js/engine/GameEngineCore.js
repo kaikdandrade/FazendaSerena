@@ -7,7 +7,7 @@ const GameEngine = class GameEngine {
   static BASE_MAX_OFFLINE_SECONDS = 15 * 60;
   static MAX_OFFLINE_SECONDS = 15 * 60; // compatibilidade; o limite efetivo usa getMaxOfflineSeconds().
   static FEATURE_UNLOCK_LEVEL = 5; // compatibilidade com saves/integrações antigas
-  static EVOLUTION_UNLOCK_LEVEL = 5;
+  static EVOLUTION_UNLOCK_LEVEL = 1;
   static PRESTIGE_UNLOCK_LEVEL = 40;
   static PRESTIGE_BONUS = 0;
   static SECOND_CONTRACT_SLOT_LEVEL = 20;
@@ -53,6 +53,7 @@ const GameEngine = class GameEngine {
       this.cropById = new Map(this.data.crops.map(crop => [crop.id, crop]));
       this.onEvent = onEvent;
       this.lastOfflineReport = null;
+      this.sessionPlaySeconds = 0;
       this.state = this.load(initialState);
     }
   createState(permanent = {}) {
@@ -147,6 +148,8 @@ const GameEngine = class GameEngine {
           maxCropLevel: Math.max(0, Number(permanent.maxCropLevel || 0)),
           maxCropsOwned: Math.max(0, Number(permanent.maxCropsOwned || 0)),
           maxCoinsHeld: Math.max(GameEngine.BASE_STARTING_COINS + startingCoinsBonus, Number(permanent.maxCoinsHeld || GameEngine.BASE_STARTING_COINS + startingCoinsBonus)),
+          totalPlaySeconds: Math.max(0, Number(permanent.totalPlaySeconds || 0)),
+          maxOnlineSessionSeconds: Math.max(0, Number(permanent.maxOnlineSessionSeconds || 0)),
           prestiges
         },
         settings,
@@ -213,6 +216,8 @@ const GameEngine = class GameEngine {
         maxCropLevel: input?.stats?.maxCropLevel,
         maxCropsOwned: input?.stats?.maxCropsOwned,
         maxCoinsHeld: input?.stats?.maxCoinsHeld ?? input?.coins,
+        totalPlaySeconds: input?.stats?.totalPlaySeconds,
+        maxOnlineSessionSeconds: input?.stats?.maxOnlineSessionSeconds,
         accountCreatedAt: input?.createdAt,
         settings: input?.settings
       };
@@ -587,6 +592,8 @@ const GameEngine = class GameEngine {
       merged.stats.maxCropLevel = Math.max(0, Math.floor(Number(merged.stats.maxCropLevel) || 0), ...Object.values(merged.crops).map(item => item.level || 0));
       merged.stats.maxCropsOwned = Math.max(0, Math.floor(Number(merged.stats.maxCropsOwned) || 0), Object.values(merged.crops).filter(item => item.owned).length);
       merged.stats.maxCoinsHeld = Math.max(merged.coins || 0, Math.floor(Number(merged.stats.maxCoinsHeld) || 0));
+      merged.stats.totalPlaySeconds = Math.max(0, Number(merged.stats.totalPlaySeconds) || 0);
+      merged.stats.maxOnlineSessionSeconds = Math.max(0, Number(merged.stats.maxOnlineSessionSeconds) || 0);
       for (const crop of this.data.crops) if (merged.crops[crop.id]?.owned) merged.cropsDiscovered[crop.id] = true;
       merged.permanentBonuses.prestigeDouble = Boolean(merged.permanentBonuses.prestigeDouble);
       merged.permanentBonuses.passiveXPPercentPerSecond = Math.max(0, Number(merged.permanentBonuses.passiveXPPercentPerSecond) || 0);
@@ -597,6 +604,20 @@ const GameEngine = class GameEngine {
       Reflect.deleteProperty(merged, "seasonElapsed");
       Reflect.deleteProperty(merged.upgrades, "greenhouse");
       return merged;
+    }
+  recordPlaytime(seconds) {
+      const elapsed = Math.max(0, Math.min(5, Number(seconds) || 0));
+      if (!elapsed || !this.state?.stats) return 0;
+      this.sessionPlaySeconds = Math.max(0, Number(this.sessionPlaySeconds) || 0) + elapsed;
+      this.state.stats.totalPlaySeconds = Math.max(0, Number(this.state.stats.totalPlaySeconds) || 0) + elapsed;
+      this.state.stats.maxOnlineSessionSeconds = Math.max(
+        Math.max(0, Number(this.state.stats.maxOnlineSessionSeconds) || 0),
+        this.sessionPlaySeconds
+      );
+      return elapsed;
+    }
+  getCurrentSessionSeconds() {
+      return Math.max(0, Number(this.sessionPlaySeconds) || 0);
     }
   save() {
       this.state.lastUpdate = Date.now();

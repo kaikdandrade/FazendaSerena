@@ -122,11 +122,12 @@
   });
 
   const defaultBalance = Object.freeze({
+    maxFarmLevel: 1000,
     actionXPPercent: 1.7,
-    cropMasteryXPPercent: 10,
+    cropMasteryXPPercent: 1.7,
     passiveXPPercentPerSecond: 0.05,
     passiveResearchPercentPerSecond: 0,
-    evolutionsUnlockLevel: 5,
+    evolutionsUnlockLevel: 1,
     prestigeUnlockLevel: 40,
     prestigeBonus: 0,
     startingCoins: 120,
@@ -263,7 +264,7 @@
   }
 
   const defaults = Object.freeze({
-    schemaVersion: 24,
+    schemaVersion: 25,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.0",
     globalSettings: { maintenanceMode: false },
     balance: clone(defaultBalance),
@@ -309,6 +310,8 @@
   }
 
   function normalizeBalance(raw = {}) {
+    const maxFarmLevel = integer(raw.maxFarmLevel, 1, 1000000, defaultBalance.maxFarmLevel);
+    const actionXPPercent = clamp(raw.actionXPPercent, 0, 100, defaultBalance.actionXPPercent);
     const baseProductionMin = integer(raw.baseProductionMin, 1, 1000000, defaultBalance.baseProductionMin);
     const baseProductionCap = Math.max(
       baseProductionMin,
@@ -326,8 +329,10 @@
     const contractRefreshCooldownMinSeconds = Math.min(requestedRefreshMin, requestedRefreshMax);
     const contractRefreshCooldownMaxSeconds = Math.max(requestedRefreshMin, requestedRefreshMax);
     return {
-      actionXPPercent: clamp(raw.actionXPPercent, 0, 100, defaultBalance.actionXPPercent),
-      cropMasteryXPPercent: clamp(raw.cropMasteryXPPercent, 0, 100, defaultBalance.cropMasteryXPPercent),
+      maxFarmLevel,
+      actionXPPercent,
+      // Platinar uma cultura concede a mesma porcentagem configurada para aprimoramentos.
+      cropMasteryXPPercent: actionXPPercent,
       passiveXPPercentPerSecond: clamp(raw.passiveXPPercentPerSecond, 0, 100, defaultBalance.passiveXPPercentPerSecond),
       // Migra a antiga configuração de pesquisa passiva caso exista, mas a partir
       // desta revisão ela representa a taxa base de geração de pesquisa do jogo.
@@ -335,8 +340,8 @@
         raw.passiveResearchPercentPerSecond ?? raw.researchPassiveXPPercentPerLevel,
         0, 100, defaultBalance.passiveResearchPercentPerSecond
       ),
-      evolutionsUnlockLevel: integer(raw.evolutionsUnlockLevel ?? raw.featureUnlockLevel, 1, 1000, defaultBalance.evolutionsUnlockLevel),
-      prestigeUnlockLevel: integer(raw.prestigeUnlockLevel, 1, 1000, defaultBalance.prestigeUnlockLevel),
+      evolutionsUnlockLevel: 1,
+      prestigeUnlockLevel: integer(raw.prestigeUnlockLevel, 1, maxFarmLevel, Math.min(defaultBalance.prestigeUnlockLevel, maxFarmLevel)),
       prestigeBonus: integer(raw.prestigeBonus, 0, Number.MAX_SAFE_INTEGER, defaultBalance.prestigeBonus),
       startingCoins: integer(raw.startingCoins, 0, Number.MAX_SAFE_INTEGER, defaultBalance.startingCoins),
       baseProductionMin,
@@ -357,7 +362,7 @@
     })));
   }
 
-  function normalizeCrops(raw, categories) {
+  function normalizeCrops(raw, categories, maxFarmLevel = defaultBalance.maxFarmLevel) {
     if (!Array.isArray(raw)) return [];
     const categoryIds = new Set(categories.map(item => item.id));
     return uniqueById(raw.slice(0, 500).map((item, index) => {
@@ -373,7 +378,7 @@
         categoryIndex,
         image: assetPath(item?.image, "assets/logo.webp"),
         index,
-        unlockLevel: integer(item?.unlockLevel, 1, 1000, Math.max(1, index * 5 || 1)),
+        unlockLevel: integer(item?.unlockLevel, 1, maxFarmLevel, Math.min(maxFarmLevel, Math.max(1, index * 5 || 1))),
         cost: economy?.purchaseCost(index, categoryIndex) ?? 100,
         basePrice: economy?.basePrice(index, categoryIndex) ?? 5,
         baseGrowth: clamp(categoryEntry?.baseGrowth ?? item?.baseGrowth, 0.01, 86400, 8),
@@ -438,12 +443,12 @@
     }));
   }
 
-  function normalizeContractSlots(raw) {
+  function normalizeContractSlots(raw, maxFarmLevel = defaultBalance.maxFarmLevel) {
     if (!Array.isArray(raw)) return clone(defaultContractSlots);
     return uniqueById(raw.slice(0, 50).map((item, index) => ({
       id: id(item?.id, `slot_${index + 1}`),
       name: text(item?.name, 80, `Slot ${index + 1}`),
-      unlockLevel: integer(item?.unlockLevel, 1, 1000, index === 0 ? 1 : 5 + index * 5)
+      unlockLevel: integer(item?.unlockLevel, 1, maxFarmLevel, Math.min(maxFarmLevel, index === 0 ? 1 : 5 + index * 5))
     })));
   }
 
@@ -459,7 +464,7 @@
   const missionMetrics = new Set([
     "harvested", "owned", "cropPurchases", "sold", "cropLevels", "cropUpgrades",
     "contracts", "maxCropLevel", "farmLevel", "coinsEarned",
-    "prestiges", "categorySold", "cropPurchased", "cropUnlocked"
+    "prestiges", "onlineMinutes", "playHours", "categorySold", "cropPurchased", "cropUnlocked"
   ]);
 
   function normalizeReward(raw = {}) {
@@ -703,16 +708,16 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 24,
+      schemaVersion: 25,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
       globalSettings: { maintenanceMode: source?.globalSettings?.maintenanceMode === true },
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
       categories,
-      crops: acceptsRemoteCatalogs ? normalizeCrops(source?.crops, categories) : [],
+      crops: acceptsRemoteCatalogs ? normalizeCrops(source?.crops, categories, balance.maxFarmLevel) : [],
       companies: acceptsRemoteCatalogs ? normalizeCompanies(source?.companies) : [],
       contractTypes: acceptsRemoteCatalogs ? normalizeContractTypes(source?.contractTypes, balance) : [],
-      contractSlots: normalizeContractSlots(source?.contractSlots),
+      contractSlots: normalizeContractSlots(source?.contractSlots, balance.maxFarmLevel),
       playerTitles: normalizePlayerTitles(source?.playerTitles),
       missions: acceptsRemoteCatalogs ? normalizeMissions(source?.missions) : [],
       research: normalizeEvolution(source?.research, defaults.research, false),
@@ -817,8 +822,9 @@
   function apply(raw = {}) {
     const config = normalizeConfig(raw);
     const balance = config.balance;
+    GameEngine.MAX_FARM_LEVEL = Math.max(1, Math.min(1000000, Math.floor(Number(balance.maxFarmLevel) || 1000)));
     GameEngine.ACTION_XP_RATE = balance.actionXPPercent / 100;
-    GameEngine.CROP_MASTERY_XP_RATE = balance.cropMasteryXPPercent / 100;
+    GameEngine.CROP_MASTERY_XP_RATE = balance.actionXPPercent / 100;
     GameEngine.BASE_PASSIVE_XP_RATE = balance.passiveXPPercentPerSecond / 100;
     GameEngine.BASE_PASSIVE_RESEARCH_RATE = balance.passiveResearchPercentPerSecond / 100;
     GameEngine.EVOLUTION_UNLOCK_LEVEL = balance.evolutionsUnlockLevel;

@@ -102,6 +102,8 @@ Object.assign(GameEngine.prototype, {
         maxCropLevel: this.state.stats.maxCropLevel,
         maxCropsOwned: this.state.stats.maxCropsOwned,
         maxCoinsHeld: this.state.stats.maxCoinsHeld,
+        totalPlaySeconds: this.state.stats.totalPlaySeconds,
+        maxOnlineSessionSeconds: this.state.stats.maxOnlineSessionSeconds,
         cropsDiscovered: { ...this.state.cropsDiscovered },
         accountCreatedAt: this.state.createdAt,
         settings: { ...this.state.settings }

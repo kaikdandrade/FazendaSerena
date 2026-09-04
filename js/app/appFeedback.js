@@ -40,6 +40,7 @@ function setupFeedback() {
       setStatus("Entre com o Google para enviar.", "error");
       return;
     }
+    if (!dom.playerFeedbackForm.reportValidity()) return;
     const payload = {
       type: dom.playerFeedbackType?.value || "feedback",
       subject: dom.playerFeedbackSubject?.value || "",

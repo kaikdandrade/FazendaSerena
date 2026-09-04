@@ -13,6 +13,7 @@
   const automaticCropPurchaseCost = (index, categoryId = "") => { const categories = window.AdminCatalogEditors?.get?.("categories") || []; const categoryIndex = Math.max(0, categories.findIndex(item => item.id === categoryId)); return window.FazendaSerenaCropEconomy?.purchaseCost(index, categoryIndex) ?? 100; };
 
   const numberField = (key, label, extra = {}) => ({ key, label, type: "number", ...extra });
+  const configuredMaxFarmLevel = () => Math.max(1, Math.min(1000000, Math.floor(Number(document.querySelector("#adminMaxFarmLevel")?.value) || Number(window.GameAdminConfig?.getCurrent?.()?.balance?.maxFarmLevel) || 1000)));
   const percentField = (key, label, extra = {}) => numberField(key, label, { suffix: "%", ...extra });
   const imageField = (key, label, kind) => ({ key, label, type: "select", required: true, options: () => assetOptions(kind), preview: "image", emptyLabel: "Nenhuma imagem local disponível" });
 
@@ -20,7 +21,8 @@
     ["harvested", "Quantidade colhida"], ["owned", "Quantidade possuída"], ["cropPurchases", "Compras de plantas"], ["sold", "Itens vendidos"],
     ["cropLevels", "Níveis de plantas"], ["cropUpgrades", "Melhorias de plantas"], ["contracts", "Contratos concluídos"],
     ["maxCropLevel", "Maior nível de planta"], ["farmLevel", "Nível da fazenda"], ["coinsEarned", "Moedas obtidas"],
-    ["prestiges", "Prestígios realizados"], ["categorySold", "Itens vendidos por categoria"], ["cropPurchased", "Comprar planta específica"], ["cropUnlocked", "Desbloqueio de planta por nível"]
+    ["prestiges", "Prestígios realizados"], ["onlineMinutes", "Tempo online contínuo (minutos)"], ["playHours", "Horas jogadas (total)"],
+    ["categorySold", "Itens vendidos por categoria"], ["cropPurchased", "Comprar planta específica"], ["cropUnlocked", "Desbloqueio de planta por nível"]
   ]);
   const rewardOptions = fixedOptions([["coins", "Moedas"], ["research", "Pesquisa"], ["prestige", "Prestígio"]]);
   const playerTitleRarityOptions = fixedOptions([["common", "Comum"], ["uncommon", "Incomum"], ["rare", "Raro"], ["epic", "Épico"], ["legendary", "Lendário"], ["mystic", "Místico"]]);
@@ -91,7 +93,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       { key: "name", label: "Nome da planta", type: "text", required: true },
       { key: "category", label: "Categoria", type: "select", required: true, options: () => catalogOptions("categories"), emptyLabel: "Cadastre uma categoria primeiro" },
       imageField("image", "Imagem da planta", "planta"),
-      numberField("unlockLevel", "Nível para desbloquear", { min: 1, integer: true, required: true })
+      numberField("unlockLevel", "Nível para desbloquear", { min: 1, max: configuredMaxFarmLevel, integer: true, required: true })
     ]},
     companies: { label: "indústria", idSource: "name", title: item => item.name || "Nova indústria", subtitle: item => item.category ? `Categoria: ${catalogOptions("categories").find(option => option.value === item.category)?.label || item.category}` : (item.specialty || "Todas as categorias"), fields: [
       { key: "name", label: "Nome da indústria", type: "text", required: true },
@@ -115,7 +117,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       { key: "color", alphaKey: "colorAlpha", label: "Cor de destaque", type: "contractColor", required: true, defaultValue: "#e6c35f", alphaDefault: 18 }
     ]},
     contractSlots: { label: "slot de contrato", idSource: "name", title: item => item.name || "Novo slot", subtitle: item => `Libera no nível ${item.unlockLevel || 1}`, fields: [
-      { key: "name", label: "Nome do slot", type: "text", required: true }, numberField("unlockLevel", "Nível da fazenda para desbloquear", { min: 1, integer: true, required: true })
+      { key: "name", label: "Nome do slot", type: "text", required: true }, numberField("unlockLevel", "Nível da fazenda para desbloquear", { min: 1, max: configuredMaxFarmLevel, integer: true, required: true })
     ]},
     missions: { label: "missão", idSource: "title", title: item => item.title || "Nova missão", subtitle: item => `${item.hidden === true ? "Oculta · " : ""}${Array.isArray(item.series) ? item.series.length : 0} ${Array.isArray(item.series) && item.series.length === 1 ? "série" : "séries"}`, fields: [
       { key: "title", label: "Título da missão", type: "text", required: true }, { key: "desc", label: "Descrição", type: "textarea", required: true },
@@ -160,7 +162,8 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
     const sanitized = sanitizePositive(value, field.integer);
     const number = Number(sanitized || 0);
     if (!Number.isFinite(number)) return 0;
-    return Math.max(field.min ?? 0, field.max != null ? Math.min(field.max, number) : number);
+    const maximum = typeof field.max === "function" ? field.max() : field.max;
+    return Math.max(field.min ?? 0, maximum != null ? Math.min(maximum, number) : number);
   };
   const percentDisplay = value => value === "" || value == null ? "" : `${sanitizePositive(value)}%`;
   const isPercentEffect = type => (window.GameAdminConfig?.getEvolutionEffectOptions?.() || []).some(option => option.value === type && /\(%\)/.test(option.label));
@@ -206,9 +209,15 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       const cropTargetHelp = metric === "cropPurchased"
         ? "Ao comprar esta planta, o progresso da série passa de 0/1 para 1/1 e a recompensa fica disponível."
         : "A série fica concluída quando o nível da fazenda já tiver liberado esta planta. Não é necessário comprá-la.";
+      const targetLabel = metric === "onlineMinutes" ? "Meta da série (minutos)" : metric === "playHours" ? "Meta da série (horas)" : "Meta da série";
+      const targetHelp = metric === "onlineMinutes"
+        ? "Tempo contínuo desta sessão com o jogo aberto. O progresso reinicia quando uma nova sessão começa."
+        : metric === "playHours"
+          ? "Tempo total jogado acumulado pela conta, sem contar a produção offline."
+          : "";
       const goalField = cropTargetMetric
         ? `<label class="admin-series-crop-milestone"><span>${cropTargetLabel}</span><select data-series-field="cropId">${cropTargetOptions(serie.cropId).map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(serie.cropId || "") ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select><small>${cropTargetHelp}</small></label>`
-        : `<label><span>Meta da série</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="target" value="${escapeHtml(numeric(serie.target || 1))}"></label>`;
+        : `<label><span>${targetLabel}</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="target" value="${escapeHtml(numeric(serie.target || 1))}">${targetHelp ? `<small>${targetHelp}</small>` : ""}</label>`;
       return `<article class="admin-series-card admin-series-inline-card" data-series-index="${index}">
         <header><strong>Série ${index + 1}</strong><div class="admin-series-card-actions">
           <button class="admin-button compact secondary" data-series-action="up" data-mission-index="${missionIndex}" data-series-index="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button>

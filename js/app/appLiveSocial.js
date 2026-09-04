@@ -5,6 +5,28 @@
   let liveSocialStructureSignature = null;
 
   const weekdayNames = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+  const monthFormatter = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" });
+
+  function formatEventDateLabel(date) {
+    return monthFormatter.format(date);
+  }
+
+  function escapeAttribute(value) {
+    return escapeHtml(value ?? "");
+  }
+  function eventTypeLabel(type) {
+    const labels = {
+      harvest: "Produção",
+      growthSpeed: "Velocidade",
+      salePrice: "Venda",
+      xp: "XP",
+      research: "Pesquisa",
+      coins: "Moedas",
+      contractRewards: "Contratos"
+    };
+    return labels[String(type || "")] || "Bônus";
+  }
+
 
   function formatEventDuration(minutesValue) {
     const minutes = Math.max(1, Math.round(Number(minutesValue) || 60));
@@ -24,36 +46,57 @@
 
   function weeklyEvents(now = Date.now()) {
     const runtime = window.FazendaSerenaRuntimeConfig || {};
-    const weekStart = window.GameAdminConfig?.getWeekStart?.(now) || now;
-    const weekEnd = weekStart + 7 * 86400000;
+    const horizonStart = Number(now) || Date.now();
+    const horizonEnd = horizonStart + 7 * 86400000;
     return (runtime.events || []).map(event => {
-      const occurrence = window.GameAdminConfig?.getEventOccurrence?.(event, now);
-      return occurrence ? { event, ...occurrence } : null;
-    }).filter(entry => entry && entry.start >= weekStart && entry.start < weekEnd && (entry.event.repeatWeekly !== false || entry.weekStart === Number(entry.event.weekAnchor)))
-      .sort((a, b) => a.start - b.start);
+      const occurrence = window.GameAdminConfig?.getEventOccurrence?.(event, horizonStart);
+      if (!occurrence) return null;
+      let start = occurrence.start;
+      let end = occurrence.end;
+      let weekStart = occurrence.weekStart;
+      const recurring = event.repeatWeekly !== false;
+      if (recurring) {
+        while (end <= horizonStart) {
+          start += 7 * 86400000;
+          end += 7 * 86400000;
+          weekStart += 7 * 86400000;
+        }
+      }
+      const active = horizonStart >= start && horizonStart < end;
+      const upcoming = horizonStart < start;
+      if (!active && !upcoming) return null;
+      if (!active && start > horizonEnd) return null;
+      return { event, start, end, weekStart, active, upcoming };
+    }).filter(Boolean).sort((a, b) => {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      return a.start - b.start;
+    });
   }
 
   function updateEventCountdowns() {
     const now = Date.now();
-    document.querySelectorAll("[data-event-countdown]").forEach(node => {
-      const end = Number(node.dataset.eventEnd) || now;
-      node.textContent = formatEventCountdown(end - now);
+    let needsRerender = false;
+    document.querySelectorAll("[data-event-live-shell]").forEach(node => {
+      const start = Number(node.dataset.eventStart) || now;
+      const end = Number(node.dataset.eventEnd) || start;
+      const active = now >= start && now < end;
+      const ended = now >= end;
+      const timerValue = node.querySelector("[data-event-countdown]");
+      if (timerValue) timerValue.textContent = formatEventCountdown(end - now);
+      const previousState = node.dataset.eventLiveState || "";
+      const nextState = ended ? "ended" : active ? "running" : "scheduled";
+      if (previousState && previousState !== nextState) needsRerender = true;
+      node.dataset.eventLiveState = nextState;
     });
+    if (needsRerender) renderLiveSocialContent();
   }
 
   function renderLiveSocialContent() {
     const now = Date.now();
     const entries = weeklyEvents(now);
-    const activeCount = entries.filter(entry => entry.active).length;
-    if (dom.socialEventsSummary) {
-      const summary = entries.length
-        ? `${entries.length} ${entries.length === 1 ? "evento nesta semana" : "eventos nesta semana"}${activeCount ? ` · ${activeCount} agora` : ""}.`
-        : runtimeText("socialEventsEmpty", "Nenhum evento programado para esta semana.");
-      if (dom.socialEventsSummary.textContent !== summary) dom.socialEventsSummary.textContent = summary;
-    }
 
     if (!dom.socialEventsList) return;
-    const signature = entries.map(({ event, start, end, active }) => `${event.id}:${event.name}:${event.icon || ""}:${event.description || ""}:${event.durationMinutes}:${start}:${end}:${active ? 1 : 0}`).join("|");
+    const signature = entries.map(({ event, start, end, active }) => `${event.id}:${event.name}:${event.icon || ""}:${event.description || ""}:${start}:${end}:${active ? 1 : 0}`).join("|");
     if (signature === liveSocialStructureSignature) {
       updateEventCountdowns();
       return;
@@ -61,15 +104,30 @@
     liveSocialStructureSignature = signature;
     dom.socialEventsList.innerHTML = entries.length ? entries.map(({ event, start, end, active }) => {
       const date = new Date(start);
-      const weekday = weekdayNames[(event.weekday || 1) - 1] || "Dia";
-      const time = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+      const weekday = weekdayNames[(date.getDay() || 7) - 1] || "Dia";
+      const startTime = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+      const dateLabel = formatEventDateLabel(date);
+      const durationLabel = formatEventDuration(event.durationMinutes);
       const eventIcon = String(event.icon || "assets/icons/calendario-eventos.webp");
-      return `<article class="social-live-card ${active ? "active" : ""}" data-event-id="${escapeHtml(event.id)}">
-        <div class="social-event-icon" aria-hidden="true"><img src="${escapeHtml(eventIcon)}" alt=""></div>
-        <div class="social-event-copy"><small>${active ? "Acontecendo agora" : `${weekday} · ${time}`}</small><h3>${enrichResourceText(event.name)}</h3><p>${enrichResourceText(event.description || "Evento especial da comunidade.")}</p></div>
-        <div class="social-event-time ${active ? "is-running" : ""}"><img src="assets/icons/relogio.webp" alt=""><span>${active ? `<b data-event-countdown data-event-end="${end}">${formatEventCountdown(end - now)}</b>` : formatEventDuration(event.durationMinutes)}</span></div>
+      const description = String(event.description || "").trim();
+      return `<article class="social-live-card social-agenda-card ${active ? "active" : ""}" data-event-id="${escapeAttribute(event.id)}">
+        <div class="social-event-main-block">
+          <div class="social-event-icon" aria-hidden="true"><img src="${escapeAttribute(eventIcon)}" alt=""></div>
+          <div class="social-event-copy social-event-simple-copy">
+            <h3>${enrichResourceText(event.name)}</h3>
+            ${description ? `<p>${enrichResourceText(description)}</p>` : ""}
+          </div>
+        </div>
+        <div class="social-event-status-panel social-event-schedule-panel ${active ? "is-running" : ""}" data-event-live-shell data-event-start="${start}" data-event-end="${end}" data-event-live-state="${active ? "running" : "scheduled"}">
+          <div class="social-event-info-row social-event-day-row"><small>Dia</small><strong>${escapeHtml(weekday)} <span>${escapeHtml(dateLabel)}</span></strong></div>
+          <div class="social-event-info-row"><small>Início</small><strong>${escapeHtml(startTime)}</strong></div>
+          <div class="social-event-info-row"><small>Duração</small><strong>${escapeHtml(durationLabel)}</strong></div>
+          <div class="social-event-info-row social-event-status-row ${active ? "is-live" : ""}"><small>Status</small><strong>${active ? "Em andamento" : "Programado"}</strong></div>
+          ${active ? `<div class="social-event-info-row social-event-time-left"><small>Restante</small><strong data-event-countdown>${formatEventCountdown(end - now)}</strong></div>` : ""}
+        </div>
       </article>`;
-    }).join("") : `<div class="empty-state social-live-empty">${runtimeTextHtml("socialEventsEmpty", "Nenhum evento programado para esta semana.")}</div>`;
+    }).join("") : `<div class="empty-state social-live-empty">${runtimeTextHtml("socialEventsEmpty", "Nenhum evento programado para os próximos dias.")}</div>`;
+    updateEventCountdowns();
   }
 
   async function refreshLiveSocialContent() {

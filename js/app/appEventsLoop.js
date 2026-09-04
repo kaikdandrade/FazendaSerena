@@ -197,13 +197,11 @@
       renderPlayerTitleControl();
       closePlayerTitlePicker();
       dom.togglePlayerTitlePicker?.focus?.({ preventScroll: true });
-      setProfileFeedback("Título selecionado. Salve o perfil para publicar a alteração.", "pending");
     });
 
     dom.playerNicknameSetting?.addEventListener("input", () => {
       if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
       dom.playerNicknameSetting.setCustomValidity("");
-      setProfileFeedback("Alterações ainda não salvas.", "pending");
     });
 
     dom.toggleAvatarPicker?.addEventListener("click", () => {
@@ -234,7 +232,6 @@
         dom.toggleAvatarPicker.setAttribute("aria-expanded", "false");
         dom.toggleAvatarPicker.focus({ preventScroll: true });
       }
-      setProfileFeedback("Avatar selecionado. Salve o perfil para confirmar.", "pending");
     });
 
     dom.playerProfileForm?.addEventListener("submit", async event => {
@@ -272,7 +269,6 @@
       }
 
       setAuthBusy(true);
-      setProfileFeedback("Salvando perfil na nuvem...", "pending");
       try {
         engine.setSetting("playerNickname", nickname);
         engine.setSetting("playerAvatar", avatar.id);
@@ -285,7 +281,6 @@
         if (dom.avatarPickerPanel) dom.avatarPickerPanel.hidden = true;
         if (dom.toggleAvatarPicker) dom.toggleAvatarPicker.setAttribute("aria-expanded", "false");
         closePlayerTitlePicker();
-        setProfileFeedback("Perfil salvo na nuvem e atualizado no ranking global.", "success");
         dom.rankingProfileDialog?.close("saved");
         if (activeView === "profileView" && activeProfileTab === "social") await refreshPrestigeLeaderboard(false);
       } catch (error) {
@@ -513,6 +508,7 @@
     lastFrame = now;
 
     if (!document.hidden) {
+      engine.recordPlaytime?.(dt);
       engine.tick(dt);
       updateLiveHeader(now);
       updateLiveFarmUI(now);

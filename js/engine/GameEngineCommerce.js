@@ -31,9 +31,9 @@ Object.assign(GameEngine.prototype, {
       return this.addCoins(coins);
     },
 
-  addCoins(value) {
+  addCoins(value, applyEventMultiplier = true) {
       const base = Math.max(0, Number(value) || 0);
-      const amount = Math.max(0, Math.floor(base * this.getEventMultiplier("coins")));
+      const amount = Math.max(0, Math.floor(base * (applyEventMultiplier ? this.getEventMultiplier("coins") : 1)));
       this.state.coins += amount;
       this.state.stats.runCoinsEarned += amount;
       this.state.stats.lifetimeCoins += amount;
