@@ -34,91 +34,33 @@
 
 .ad-region.is-ready::before { display: block; }
 
-.app-footer {
-  align-items: center !important;
-  background: rgba(255, 255, 250, .82) !important;
-  display: grid !important;
-  gap: 18px !important;
-  grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr) !important;
-  padding: 20px 22px !important;
-}
 
-.footer-brand {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  min-width: 0;
-}
 
-.app-footer .footer-brand img {
-  flex: 0 0 auto;
-  height: 64px;
-  width: 46px;
-}
 
-.footer-brand-copy { display: grid; gap: 1px; }
 
-.footer-brand-copy strong {
-  color: var(--ink);
-  font-size: 1rem;
-  line-height: 1.15;
-}
 
-.footer-brand-copy small {
-  color: var(--ink-soft);
-  font-size: .72rem;
-  font-weight: 750;
-}
 
-.footer-links {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  justify-content: center;
-}
 
-.footer-links a,
-.footer-link-button {
-  background: none;
-  border: 0;
-  color: var(--green-deep);
-  cursor: pointer;
-  font-size: .72rem;
-  font-weight: 900;
-  padding: 4px 0;
-  text-decoration: none;
-}
 
-.footer-links a:hover,
-.footer-link-button:hover { text-decoration: underline; }
 
-.footer-credit {
-  display: grid;
-  gap: 3px;
-  justify-items: end;
-  margin: 0 !important;
-  text-align: right !important;
-}
 
-.footer-credit span {
-  color: var(--ink-soft);
-  font-size: .69rem;
-}
 
-.footer-credit a {
-  color: var(--green-deep);
-  font-size: .74rem;
-  font-weight: 900;
-  text-decoration: none;
-}
 
-.footer-credit a:hover { text-decoration: underline; }
 
-.footer-credit small {
-  color: var(--ink-soft);
-  font-size: .64rem;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .cookie-banner {
   background: rgba(255, 255, 252, .96);
@@ -343,14 +285,10 @@
 }
 
 @media (max-width: 768px) {
-  .app-footer {
-    grid-template-columns: 1fr !important;
-    justify-items: center !important;
-    text-align: center !important;
-  }
+  
 
-  .footer-brand { justify-content: center; }
-  .footer-credit { justify-items: center; text-align: center !important; }
+  
+  
 
   .cookie-banner { grid-template-columns: 1fr; }
   .cookie-banner-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -360,8 +298,8 @@
 @media (max-width: 480px) {
   .ad-region { padding-inline: 8px; }
 
-  .app-footer { padding: 18px 14px !important; }
-  .footer-links { flex-direction: column; gap: 4px; }
+  
+  
 
   .cookie-banner {
     bottom: 8px;
