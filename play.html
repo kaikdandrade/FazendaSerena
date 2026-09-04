@@ -18,7 +18,7 @@
 <link href="https://fazenda-serena.web.app/play.html" rel="canonical"/>
 <script src="js/themeBootstrap.js"></script>
 <link href="css/stylish.css" rel="stylesheet"/>
-<link href="css/play.css" rel="stylesheet"/>
+<link href="css/play.css?v=47" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
@@ -62,6 +62,15 @@
 <div aria-busy="true" aria-live="polite" class="game-loading-screen" id="gameLoadingScreen" role="status">
 <div class="game-loading-card"><img alt="Fazenda Serena" class="game-loading-logo" src="assets/logo.webp"/><div class="game-loading-copy"><small>Fazenda Serena</small><h1>Agricultura Industrial</h1><p id="gameLoadingStatus">Preparando sua fazenda...</p></div><div aria-hidden="true" class="game-loading-spinner"></div><div aria-hidden="true" class="game-loading-progress"><span id="gameLoadingProgress"></span></div><button class="game-loading-retry" hidden="" id="gameLoadingRetry" type="button">Recarregar jogo</button></div>
 </div>
+<section class="maintenance-screen" hidden id="maintenanceScreen" role="status" aria-live="polite">
+  <div class="maintenance-card">
+    <img src="assets/logo.webp" alt="Fazenda Serena" class="maintenance-logo">
+    <p class="eyebrow">Fazenda Serena</p>
+    <h1>Modo manutenção</h1>
+    <p>O jogo está temporariamente indisponível enquanto a administração realiza ajustes e atualizações. Volte em breve.</p>
+    <a class="button secondary" href="index.html">Voltar ao início</a>
+  </div>
+</section>
 <div aria-hidden="true" class="ambient-layer" id="ambientLayer"></div>
 <div class="app-shell">
 <header class="app-header">
@@ -70,7 +79,7 @@
 </img></a>
 
 <section aria-label="Recursos do jogo" class="resource-strip">
-<article aria-label="Experiência da fazenda" aria-valuemax="232" aria-valuemin="0" aria-valuenow="0" class="resource-pill farm-xp-resource" id="farmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><img alt="" src="assets/icons/xp.webp"/><span><small>XP · Nível <b id="farmLevelLabel">1</b></small><strong id="farmXPText"><span data-farm-xp-value="">0 / 232</span></strong></span></article>
+<article aria-label="Experiência da fazenda" aria-valuemax="232" aria-valuemin="0" aria-valuenow="0" class="resource-pill farm-xp-resource" id="farmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><img alt="" src="assets/icons/xp.webp"/><span><small>Nível da fazenda</small><strong id="farmXPText"><span data-farm-level-value="">1</span></strong></span></article>
 <article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda">
 <img alt="" src="assets/icons/moeda.webp">
 <span><small>Moedas</small><strong id="coinsCounter">0</strong></span>
@@ -89,9 +98,9 @@
 <aside aria-label="Navegação do jogo" class="navigation-stack navigation-responsive-stack">
 <nav aria-label="Áreas do jogo" class="main-nav desktop-main-nav">
 <button class="nav-tab active" data-navigation-key="farm" data-view="farmView" title="Fazenda" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="farm" src="assets/icons/muda-vaso.webp"/></span><span class="nav-tab-label">Fazenda</span></button>
-<button class="nav-tab direct-child-tab" data-navigation-key="contracts" data-office-tab="contracts" id="contractsOfficeTab" data-view="officeView" title="Contratos" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp"/></span><span class="nav-tab-label">Contratos</span><b hidden="" id="contractTabCount">0</b></button>
+<button class="nav-tab direct-child-tab" data-navigation-key="contracts" data-office-tab="contracts" id="contractsOfficeTab" data-view="officeView" title="Contratos" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="contracts" src="assets/icons/contrato-comercial.webp"/></span><span class="nav-tab-label">Contratos</span></button>
 <button class="nav-tab direct-child-tab" data-navigation-key="evolutions" data-office-tab="evolutions" id="evolutionsOfficeTab" data-view="officeView" title="Evoluções" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="evolutions" src="assets/icons/livros.webp"/></span><span class="nav-tab-label">Evoluções</span></button>
-<button class="nav-tab direct-child-tab" data-navigation-key="missions" data-profile-tab="missions" data-view="profileView" id="missionsProfileTab" title="Missões" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp"/></span><span class="nav-tab-label">Missões</span><b hidden="" id="missionTabCount">0</b></button>
+<button class="nav-tab direct-child-tab" data-navigation-key="missions" data-profile-tab="missions" data-view="profileView" id="missionsProfileTab" title="Missões" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="missions" src="assets/icons/chapeu-formatura.webp"/></span><span class="nav-tab-label">Missões</span></button>
 <button class="nav-tab direct-child-tab" data-navigation-key="social" data-profile-tab="social" data-view="profileView" id="socialProfileTab" title="Social" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="social" src="assets/icons/social.webp"/></span><span class="nav-tab-label">Social</span></button>
 <button class="nav-tab direct-child-tab profile-nav-tab" data-navigation-key="profile" data-profile-tab="account" data-view="profileView" id="profileNavTab" title="Perfil" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="profile" src="assets/icons/perfil.webp"/></span><span class="nav-tab-label">Perfil</span></button>
 <button class="nav-tab settings-nav-tab" data-navigation-key="settings" data-view="settingsView" title="Configurações" type="button"><span class="nav-tab-icon"><img alt="" data-navigation-icon="settings" src="assets/icons/configuracoes.webp"/></span><span class="nav-tab-label">Configurações</span></button>
@@ -162,12 +171,8 @@
 <img alt="" id="accountAvatar" src="assets/logo.webp">
 </img></div>
 <div class="account-identity">
-<div class="account-google-status-row"><p class="eyebrow">Conta Google</p><span class="account-connection-status is-disconnected" id="accountConnectionStatus">Conta não conectada</span></div>
+<p class="account-provider-label text-title">Conta Google</p>
 <div class="account-name-title-line"><h2 id="accountName">Visitante</h2><span aria-hidden="true" class="social-title-dot account-title-dot" data-title-rarity="common" hidden="" id="accountTitleDot"></span><div aria-label="Título equipado" class="account-player-title" hidden="" id="accountPlayerTitle"></div></div>
-<div class="account-detail-lines">
-<p class="account-email" hidden="" id="accountEmail"></p>
-<p class="account-privacy" hidden="" id="accountDescription"></p>
-</div>
 </div>
 </div>
 <div class="button-row account-actions">
@@ -268,7 +273,7 @@
 </footer>
 </div>
 <section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
-<article aria-label="Experiência da fazenda" class="resource-pill farm-xp-resource" id="floatingFarmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><img alt="" src="assets/icons/xp.webp"/><span><small>XP · Nível <b data-floating-farm-level="">1</b></small><strong id="floatingFarmXPText"><span data-farm-xp-value="">0 / 232</span></strong></span></article>
+<article aria-label="Experiência da fazenda" class="resource-pill farm-xp-resource" id="floatingFarmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><img alt="" src="assets/icons/xp.webp"/><span><small>Nível da fazenda</small><strong id="floatingFarmXPText"><span data-farm-level-value="">1</span></strong></span></article>
 <article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda"><img alt="" src="assets/icons/moeda.webp"><span><small>Moedas</small><strong id="floatingCoinsCounter">0</strong></span></img></article>
 <article class="resource-pill resource-shortcut" data-resource-shortcut="research" role="button" tabindex="0" title="Abrir Pesquisas"><img alt="" src="assets/icons/pocao-pesquisa.webp"><span><small>Pesquisa</small><strong id="floatingResearchCounter">0</strong></span></img></article>
 <article class="resource-pill prestige-resource resource-shortcut" data-resource-shortcut="prestige" role="button" tabindex="0" title="Abrir Evoluções de prestígio"><img alt="" data-prestige-icon="resource" src="assets/icons/prestigio.webp"><span><small>Prestígio</small><strong id="floatingPrestigeCounter">0</strong></span></img></article>
@@ -281,7 +286,7 @@
 <div class="catalog-filter-body">
 <section class="catalog-filter-section"><strong class="catalog-filter-section-title">Visibilidade</strong><div class="catalog-filter-toggle-list">
 <label class="catalog-filter-toggle"><span><strong>Ocultar plantas prestigiadas</strong></span><input id="catalogFilterHideMastered" type="checkbox"/><i aria-hidden="true"></i></label>
-<label class="catalog-filter-toggle" id="catalogFilterLockedRow"><span><strong>Ocultar plantas ainda não desbloqueadas</strong></span><input id="catalogFilterHideLocked" type="checkbox"/><i aria-hidden="true"></i></label>
+<label class="catalog-filter-toggle" id="catalogFilterLockedRow"><span><strong>Ocultar plantas bloqueadas</strong></span><input id="catalogFilterHideLocked" type="checkbox"/><i aria-hidden="true"></i></label>
 </div></section>
 <section class="catalog-filter-section"><strong class="catalog-filter-section-title">Categorias</strong><div class="catalog-filter-category-grid" id="catalogFilterCategoryGrid"></div></section>
 </div>
