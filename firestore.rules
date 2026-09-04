@@ -64,7 +64,7 @@ service cloud.firestore {
              && state.prestigePoints >= 0
              && state.farmLevel is int
              && state.farmLevel >= 1
-             && state.farmLevel <= 1000
+             && state.farmLevel <= 1000000
              && isNumber(state.farmXP)
              && state.farmXP >= 0
              && state.crops is map
@@ -287,9 +287,7 @@ service cloud.firestore {
                       'status', 'gameVersion', 'createdAt', 'createdAtClient'
                     ])
                     && request.resource.data.userId == request.auth.uid
-                    && request.auth.token.email is string
                     && request.resource.data.email is string
-                    && request.resource.data.email == request.auth.token.email
                     && request.resource.data.email.size() <= 160
                     && request.resource.data.displayName is string
                     && request.resource.data.displayName.size() <= 80
@@ -304,7 +302,6 @@ service cloud.firestore {
                     && request.resource.data.gameVersion is string
                     && request.resource.data.gameVersion.size() <= 30
                     && request.resource.data.createdAt is timestamp
-             && request.resource.data.createdAt == request.time
              && request.resource.data.createdAtClient is int
              && request.resource.data.createdAtClient > 0;
       allow read: if isAdministrator();
@@ -433,8 +430,8 @@ service cloud.firestore {
                             && request.resource.data.farmLevel >= 1
                             && request.resource.data.maxFarmLevel is int
                             && request.resource.data.maxFarmLevel >= 1
-                            && request.resource.data.maxFarmLevel <= 1000
-                            && request.resource.data.farmLevel <= 1000
+                            && request.resource.data.maxFarmLevel <= 1000000
+                            && request.resource.data.farmLevel <= 1000000
                             && request.resource.data.updatedAt is timestamp
                             && request.resource.data.updatedAt == request.time
                             && request.resource.data.updatedAtClient is int
