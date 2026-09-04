@@ -159,7 +159,7 @@ service cloud.firestore {
              && request.auth.uid == userId
              && !isBannedUser(userId)
              && request.resource.data.keys().hasAll(['state', 'saveVersion', 'updatedAt', 'updatedAtClient'])
-             && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminRevision', 'updatedAt', 'updatedAtClient'])
+             && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminMutationId', 'updatedAt', 'updatedAtClient'])
              && request.resource.data.state is map
              && validClientPlayerState()
              && ((request.resource.data.saveVersion is string
@@ -170,9 +170,9 @@ service cloud.firestore {
                  || (request.resource.data.ownerEmail is string
                      && request.auth.token.email is string
                      && request.resource.data.ownerEmail == request.auth.token.email))
-             && (!request.resource.data.keys().hasAny(['adminRevision'])
-                 || (request.resource.data.adminRevision is string
-                     && request.resource.data.adminRevision.size() <= 80))
+             && (!request.resource.data.keys().hasAny(['adminMutationId'])
+                 || (request.resource.data.adminMutationId is string
+                     && request.resource.data.adminMutationId.size() <= 80))
              && request.resource.data.updatedAt is timestamp
              && request.resource.data.updatedAt == request.time
              && request.resource.data.updatedAtClient is int
@@ -284,7 +284,7 @@ service cloud.firestore {
                     && !isBannedUser(request.auth.uid)
                     && request.resource.data.keys().hasOnly([
                       'userId', 'email', 'displayName', 'type', 'subject', 'message',
-                      'status', 'gameVersion', 'createdAt', 'createdAtClient'
+                      'status', 'createdAt', 'createdAtClient'
                     ])
                     && request.resource.data.userId == request.auth.uid
                     && request.resource.data.email is string
@@ -299,27 +299,14 @@ service cloud.firestore {
                     && request.resource.data.message.size() >= 8
                     && request.resource.data.message.size() <= 1200
                     && request.resource.data.status == 'new'
-                    && request.resource.data.gameVersion is string
-                    && request.resource.data.gameVersion.size() <= 30
                     && request.resource.data.createdAt is timestamp
              && request.resource.data.createdAtClient is int
              && request.resource.data.createdAtClient > 0;
       allow read: if isAdministrator();
       allow update: if isAdministrator()
-                    && request.resource.data.keys().hasOnly([
-                      'userId', 'email', 'displayName', 'type', 'subject', 'message',
-                      'status', 'gameVersion', 'createdAt', 'createdAtClient',
-                      'reviewedAt', 'reviewedAtClient', 'reviewedBy'
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                      'status', 'reviewedAt', 'reviewedAtClient', 'reviewedBy'
                     ])
-                    && request.resource.data.userId == resource.data.userId
-                    && request.resource.data.email == resource.data.email
-                    && request.resource.data.displayName == resource.data.displayName
-                    && request.resource.data.type == resource.data.type
-                    && request.resource.data.subject == resource.data.subject
-                    && request.resource.data.message == resource.data.message
-                    && request.resource.data.gameVersion == resource.data.gameVersion
-                    && request.resource.data.createdAt == resource.data.createdAt
-                    && request.resource.data.createdAtClient == resource.data.createdAtClient
                     && request.resource.data.status in ['new', 'read']
                     && request.resource.data.reviewedAt is timestamp
                     && request.resource.data.reviewedAt == request.time
@@ -336,7 +323,7 @@ service cloud.firestore {
 
       allow create: if validClientSaveEnvelope(userId)
                     || (isAdministrator()
-                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminRevision', 'updatedAt', 'updatedAtClient'])
+                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminMutationId', 'updatedAt', 'updatedAtClient'])
                         && request.resource.data.state is map
                         && request.resource.data.updatedAt is timestamp
                         && request.resource.data.updatedAt == request.time
@@ -346,20 +333,20 @@ service cloud.firestore {
       allow update: if validProfileSettingsTransition(userId)
                     || (validClientSaveEnvelope(userId)
                         && validSensitivePrestigeTransition()
-                        // A trava de concorrência do save normal continua sendo a revisão
-                        // administrativa. A economia não é reimplementada nas Rules,
+                        // A trava de concorrência do save normal usa o identificador da última
+                        // mutação administrativa. A economia não é reimplementada nas Rules,
                         // evitando bloquear ações legítimas do GameEngine.
-                        && ((!resource.data.keys().hasAny(['adminRevision'])
-                             && (!request.resource.data.keys().hasAny(['adminRevision']) || request.resource.data.adminRevision == ''))
-                            || (resource.data.keys().hasAny(['adminRevision'])
-                                && request.resource.data.keys().hasAny(['adminRevision'])
-                                && resource.data.adminRevision is string
-                                && request.resource.data.adminRevision == resource.data.adminRevision))
+                        && ((!resource.data.keys().hasAny(['adminMutationId'])
+                             && (!request.resource.data.keys().hasAny(['adminMutationId']) || request.resource.data.adminMutationId == ''))
+                            || (resource.data.keys().hasAny(['adminMutationId'])
+                                && request.resource.data.keys().hasAny(['adminMutationId'])
+                                && resource.data.adminMutationId is string
+                                && request.resource.data.adminMutationId == resource.data.adminMutationId))
                         && (!resource.data.state.keys().hasAny(['createdAt'])
                             || !request.resource.data.state.keys().hasAny(['createdAt'])
                             || request.resource.data.state.createdAt == resource.data.state.createdAt))
                     || (isAdministrator()
-                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminRevision', 'updatedAt', 'updatedAtClient'])
+                        && request.resource.data.keys().hasOnly(['state', 'saveVersion', 'ownerEmail', 'adminMutationId', 'updatedAt', 'updatedAtClient'])
                         && request.resource.data.state is map
                         && request.resource.data.updatedAt is timestamp
                         && request.resource.data.updatedAt == request.time
@@ -377,7 +364,7 @@ service cloud.firestore {
                       'state',
                       'saveVersion',
                       'ownerEmail',
-                      'adminRevision',
+                      'adminMutationId',
                       'updatedAt',
                       'updatedAtClient'
                     ])
