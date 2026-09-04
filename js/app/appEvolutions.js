@@ -132,18 +132,10 @@
     const prestigeUnlocked = engine.isPrestigeUnlocked();
     const totalCrops = Math.max(0, Number(prestigeBreakdown.totalCrops) || engine.data.crops.length || 0);
     const currentFarmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(engine.state.farmLevel) || 1)));
-    const totalOrderSteps = Math.max(0, Number(engine.data.orderSteps?.length) || 0);
-    const completedOrders = totalOrderSteps > 0
-      ? engine.data.crops.reduce((count, crop) => {
-          const tier = Math.max(0, Math.floor(Number(engine.state.orders?.[crop.id]?.tier) || 0));
-          return count + (tier >= totalOrderSteps ? 1 : 0);
-        }, 0)
-      : 0;
     const drivers = [
       { key: "level", label: "Nível", value: `${currentFarmLevel} / ${GameEngine.MAX_FARM_LEVEL}` },
       { key: "owned", label: "Plantas compradas", value: `${engine.formatNumber(prestigeBreakdown.owned || 0)} / ${engine.formatNumber(totalCrops)}` },
       { key: "mastered", label: "Plantas prestigiadas", value: `${engine.formatNumber(prestigeBreakdown.mastered || 0)} / ${engine.formatNumber(totalCrops)}` },
-      { key: "orders", label: "Pedidos finalizados", value: `${engine.formatNumber(completedOrders)} / ${engine.formatNumber(totalCrops)}` }
     ];
     dom.prestigeDashboard.innerHTML = `
       <section class="prestige-rework ${!prestigeUnlocked ? "prestige-locked" : ""}">
@@ -162,7 +154,7 @@
   }
 
   function showOfficeTab(tabId, updateRoute = true) {
-    activeOfficeTab = ["contracts", "orders", "evolutions"].includes(tabId) ? tabId : "contracts";
+    activeOfficeTab = ["contracts", "evolutions"].includes(tabId) ? tabId : "contracts";
     dom.officeTabs.forEach(tab => {
       const active = activeView === "officeView" && tab.dataset.officeTab === activeOfficeTab;
       tab.classList.toggle("active", active);
@@ -195,6 +187,6 @@
     // O conteúdo de Social não é renderizado aqui. showProfileTab é chamado
     // também pelo ciclo de renderização do jogo; recriar o formulário a cada
     // ciclo fazia o campo de código perder o valor e o foco durante a digitação.
-    // Amigos e ranking são atualizados apenas por suas rotinas de estado.
+    // Ranking é atualizado apenas por sua rotina de estado.
   }
 

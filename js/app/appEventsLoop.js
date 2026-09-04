@@ -61,7 +61,7 @@
         if (focusContractId && behavior === "claim") {
           const contract = engine.state.activeContracts.find(item => item.id === focusContractId);
           const progress = contract ? engine.getContractProgress(contract) : null;
-          if (contract && progress?.completed && !progress?.defaulted) {
+          if (contract && progress?.completed) {
             const result = engine.claimContractReward(focusContractId);
             if (result.ok) {
               soundEngine.play("reward");
@@ -77,8 +77,7 @@
             }
           }
         }
-        // Contratos vencidos (ou qualquer estado sem recompensa coletável)
-        // apenas conduzem o jogador ao card correspondente.
+        // Contratos ainda em preenchimento apenas conduzem o jogador ao card correspondente.
         showView("officeView");
         showOfficeTab("contracts");
         render(true);
@@ -103,33 +102,10 @@
       navigateFromResourceCounter(shortcut.dataset.resourceShortcut);
     });
 
-    document.addEventListener("submit", async event => {
-      const form = event.target.closest?.("#friendRequestForm");
-      if (!form) return;
-      event.preventDefault();
-      const input = $("#friendCodeInput", form);
-      const submit = form.querySelector('button[type="submit"]');
-      const friendCode = String(input?.value || "").trim();
-      if (!friendCode) return;
-      if (submit) submit.disabled = true;
-      setFriendsFeedback("Enviando solicitação...", "pending");
-      try {
-        await window.FirebaseManager.sendFriendRequest(friendCode);
-        if (input) input.value = "";
-        if (!friendsRealtimeUnsubscribe) await refreshFriends(true);
-        setFriendsFeedback("Solicitação enviada.", "success");
-      } catch (error) {
-        setFriendsFeedback(window.FirebaseManager.getFriendlyError(error), "error");
-      } finally {
-        if (submit) submit.disabled = false;
-      }
-    });
 
     dom.searchCrop?.addEventListener("input", () => renderCrops());
-    dom.stockSearch?.addEventListener("input", () => renderStock());
 
     dom.farmFilterButton?.addEventListener("click", () => openCatalogFilterDialog("farm"));
-    dom.stockFilterButton?.addEventListener("click", () => openCatalogFilterDialog("stock"));
     dom.catalogFilterApply?.addEventListener("click", applyCatalogFilterDialog);
     dom.catalogFilterReset?.addEventListener("click", resetCatalogFilterDraft);
 
@@ -311,9 +287,7 @@
         closePlayerTitlePicker();
         setProfileFeedback("Perfil salvo na nuvem e atualizado no ranking global.", "success");
         dom.rankingProfileDialog?.close("saved");
-        resetFriendsState();
         if (activeView === "profileView" && activeProfileTab === "social") await refreshPrestigeLeaderboard(false);
-        if (activeView === "profileView" && activeProfileTab === "social") await refreshFriends(true);
       } catch (error) {
         if (dom.playerProfileForm) dom.playerProfileForm.dataset.dirty = "true";
         setProfileFeedback(window.FirebaseManager.getFriendlyError(error), "error");
@@ -350,7 +324,7 @@
       pendingContractBreakId = "";
       dom.contractBreakDialog?.close("confirm");
       if (!id) return;
-      soundEngine.playImmediate("contractRefusal");
+      soundEngine.playImmediate("contractBreak");
       const result = engine.breakContract(id);
       act(result);
     });

@@ -1,8 +1,153 @@
-/* Fazenda Serena — estilos locais de tutorial.html. */
+/* Fazenda Serena — estilos locais de play.html.
+   Esta folha não deve ser importada por outras páginas. */
 
 
 /* ==========================================================================
-   Base compatível dos cards do jogo
+   Carregamento local do jogo
+   ========================================================================== */
+/* Tela crítica de inicialização. Mantida isolada para continuar funcional mesmo
+   se algum stylesheet secundário da interface falhar. */
+.game-loading-screen {
+  align-items: center;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(248, 222, 143, .38), transparent 34rem),
+    radial-gradient(circle at 85% 16%, rgba(132, 194, 142, .28), transparent 32rem),
+    linear-gradient(145deg, #eef5e9 0%, #fbf7e9 54%, #e6f0e3 100%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px;
+  position: fixed;
+  transition: opacity .32s ease, visibility .32s ease;
+  z-index: 2147483000;
+}
+.game-loading-card {
+  align-items: center;
+  background: rgba(255,255,251,.88);
+  border: 1px solid rgba(255,255,255,.84);
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(50,78,58,.14);
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  max-width: 430px;
+  padding: 34px 30px 28px;
+  text-align: center;
+  width: min(100%, 430px);
+}
+.game-loading-logo { height: auto; max-height: 118px; object-fit: contain; width: min(255px, 82%); }
+.game-loading-copy { display: grid; gap: 4px; }
+.game-loading-copy small {
+  color: #4b7a48;
+  font: 900 .72rem/1.2 Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.game-loading-copy h1 {
+  color: #294536;
+  font: 900 clamp(1.32rem, 5vw, 1.72rem)/1.1 Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -.035em;
+  margin: 0;
+}
+.game-loading-copy p {
+  color: #6a7d70;
+  font: 700 .82rem/1.45 Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+  margin: 4px 0 0;
+  min-height: 1.2em;
+}
+.game-loading-spinner {
+  animation: game-loading-spin 1s linear infinite;
+  border: 4px solid rgba(92,143,82,.16);
+  border-radius: 50%;
+  border-top-color: #68a45a;
+  height: 42px;
+  margin-top: 2px;
+  width: 42px;
+}
+.game-loading-progress {
+  background: rgba(69,105,78,.11);
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+  width: min(250px, 86%);
+}
+.game-loading-progress > span {
+  background: linear-gradient(90deg, #78aa62, #d3a848);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transform-origin: left center;
+  transition: width .28s ease;
+  width: 8%;
+}
+.game-loading-retry {
+  background: #4f8249;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  font: 850 .82rem/1 Inter, ui-rounded, "Segoe UI", system-ui, sans-serif;
+  min-height: 42px;
+  padding: 0 18px;
+}
+.game-loading-retry[hidden] { display: none !important; }
+.game-loading-screen.is-error .game-loading-spinner { animation: none; border-color: rgba(184,93,89,.25); border-top-color: #b85d59; }
+.game-loading-screen.is-error .game-loading-progress > span { background: #b85d59; }
+body.is-loading { overflow: hidden; }
+/* A tela de carregamento cobre a aplicação. Não ocultamos a árvore do jogo com
+   visibility: hidden, evitando tela branca caso uma classe de boot fique presa. */
+body > .app-shell { visibility: visible !important; opacity: 1 !important; }
+body.game-ready > .app-shell { visibility: visible !important; opacity: 1 !important; }
+.game-loading-screen.is-finished { opacity: 0; pointer-events: none; visibility: hidden; }
+@keyframes game-loading-spin { to { transform: rotate(360deg); } }
+@media (max-width: 480px) {
+  .game-loading-screen { padding: 14px; }
+  .game-loading-card { border-radius: 22px; gap: 12px; padding: 27px 18px 23px; }
+  .game-loading-logo { max-height: 96px; width: min(225px, 84%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-loading-spinner { animation-duration: 1.8s; }
+  .game-loading-screen { transition: none; }
+}
+
+
+/* Tema escuro da tela crítica de inicialização. O atributo data-theme é definido
+   por themeBootstrap.js antes deste CSS ser carregado. */
+html[data-theme="dark"] .game-loading-screen {
+  background:
+    radial-gradient(circle at 16% 18%, rgba(112, 166, 103, .16), transparent 32rem),
+    radial-gradient(circle at 84% 14%, rgba(113, 83, 146, .14), transparent 30rem),
+    linear-gradient(145deg, #09100c 0%, #0f1712 48%, #0a100d 100%);
+}
+html[data-theme="dark"] .game-loading-card {
+  background: linear-gradient(180deg, rgba(27, 36, 31, .96), rgba(18, 25, 21, .98));
+  border-color: rgba(224, 238, 228, .09);
+  box-shadow: 0 28px 82px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.025);
+}
+html[data-theme="dark"] .game-loading-copy small { color: #80b78a; }
+html[data-theme="dark"] .game-loading-copy h1 { color: #eef5ef; }
+html[data-theme="dark"] .game-loading-copy p { color: #9daca2; }
+html[data-theme="dark"] .game-loading-spinner {
+  border-color: rgba(118, 181, 126, .13);
+  border-top-color: #73ad79;
+}
+html[data-theme="dark"] .game-loading-progress {
+  background: rgba(226, 239, 229, .08);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.24);
+}
+html[data-theme="dark"] .game-loading-progress > span {
+  background: linear-gradient(90deg, #5d9b69, #b7984a);
+}
+html[data-theme="dark"] .game-loading-retry {
+  background: linear-gradient(180deg, #4d925b, #3d7b49);
+  color: #f5fff6;
+  box-shadow: 0 8px 18px rgba(20,68,31,.25);
+}
+
+
+/* ==========================================================================
+   Base histórica do jogo
    ========================================================================== */
 /* ========================================================================== */
 /* FAZENDA SERENA — ESTILOS CONSOLIDADOS                                      */
@@ -8417,7 +8562,7 @@ body {
 
 
 /* ==========================================================================
-   Revisões compatíveis dos cards do jogo
+   Revisões históricas do jogo
    ========================================================================== */
 /* Fazenda Serena 1.0.1 — revisão Social, Evoluções e layout */
 
@@ -11990,7 +12135,7 @@ body[data-navigation-mode="line"] .desktop-main-nav .nav-tab { flex-shrink:0; }
 
 
 /* ==========================================================================
-   Componentes usados nas simulações do tutorial
+   Camada visual anterior do Play
    ========================================================================== */
 /* ========================================================================== 
    Fazenda Serena — camada visual r35
@@ -12899,7 +13044,7 @@ html[data-theme="dark"] .resource-pill.farm-xp-resource small b { color: #8ac793
 
 
 /* ==========================================================================
-   Acabamento dos componentes simulados
+   Acabamento anterior do Play
    ========================================================================== */
 /* ========================================================================== */
 /* Fazenda Serena — Release UI Rework                                         */
@@ -19475,557 +19620,2567 @@ body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-
 
 
 /* ==========================================================================
-   Estrutura de páginas institucionais
+   Tema escuro do Play
    ========================================================================== */
-/* Páginas públicas — camada visual compartilhada r35 */
-:root {
-  --page-text:#203020; --page-muted:#687467; --page-green:#397849;
-  --page-border:rgba(52,82,50,.14); --page-surface:rgba(255,255,255,.9);
-  --page-shadow:0 14px 38px rgba(34,55,33,.09);
-}
-*{box-sizing:border-box}
-body{color:var(--page-text);background:#f3f7ef;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
-a,
-button{transition:background .15s ease,border-color .15s ease,transform .15s ease,color .15s ease}
-a:focus-visible,
-button:focus-visible{outline:3px solid rgba(57,120,73,.22);outline-offset:2px}
-.privacy-shell,
-.news-shell,
-.tutorial-shell{width:min(1180px,calc(100% - 24px));margin:0 auto}
-.privacy-header,
-.news-header,
-.tutorial-header{margin-top:12px;border:1px solid var(--page-border);background:rgba(255,255,255,.82);backdrop-filter:blur(16px);box-shadow:var(--page-shadow);border-radius:20px;padding:12px 16px}
-.privacy-brand img,
-.news-brand img,
-.tutorial-brand img{object-fit:contain}
-.privacy-main,
-.news-main,
-.tutorial-main{padding-block:24px 40px}
-.privacy-hero,
-.news-hero,
-.tutorial-hero{border:1px solid var(--page-border);background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(240,248,238,.9));box-shadow:var(--page-shadow);border-radius:24px;padding:clamp(24px,5vw,54px)}
-.privacy-hero h1,
-.news-hero h1,
-.tutorial-hero h1{max-width:18ch;line-height:1.05;margin-bottom:12px}
-.privacy-card,
-.news-card,
-.tutorial-card,
-.privacy-section,
-.news-note,
-.tutorial-step{border:1px solid var(--page-border)!important;background:var(--page-surface)!important;box-shadow:0 7px 22px rgba(34,55,33,.06)!important;border-radius:18px!important}
-.back-to-game,
-.news-back,
-.tutorial-back{border-radius:12px!important;font-weight:700}
-@media(max-width:600px){.privacy-shell,
-.news-shell,
-.tutorial-shell{width:min(100% - 14px,1180px)}.privacy-header,
-.news-header,
-.tutorial-header{border-radius:16px}.privacy-hero,
-.news-hero,
-.tutorial-hero{border-radius:18px;padding:24px 18px}}
-
 /* ========================================================================== */
-/* R39.9 — header/footer público igual ao 404                                 */
+/* Fazenda Serena — tema escuro consolidado                                   */
+/* R38s: camada final do dark mode.                                           */
 /* ========================================================================== */
-.privacy-shell,
-.news-shell {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-}
-.privacy-main {
-  width: min(1180px, calc(100% - 24px)) !important;
-  margin: 0 auto !important;
-  padding-block: 24px 40px !important;
-}
-.news-hero,
-.news-feed {
-  width: min(980px, calc(100% - 32px)) !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-.news-hero { margin-top: 24px !important; }
-.news-feed { margin-top: 18px !important; margin-bottom: 54px !important; }
 
-.public-site-header.home-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid rgba(48,89,57,.09);
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-  background: rgba(249,251,245,.92);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: none;
-}
-.public-site-header .home-header-inner {
-  width: min(1180px, calc(100% - 40px));
-  min-height: 76px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 28px;
-}
-.public-site-header .home-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #22372b;
-  text-decoration: none;
-}
-.public-site-header .home-brand img {
-  width: 118px;
-  height: auto;
-  max-height: 62px;
-  object-fit: contain;
-}
-.public-site-header .home-brand span { display:grid; line-height:1.05; }
-.public-site-header .home-brand strong { font-size:1rem; }
-.public-site-header .home-brand small { margin-top:5px; color:#68796e; font-size:.7rem; font-weight:700; }
-.public-site-header .home-header-actions {
-  justify-self: end;
-  display:flex;
-  align-items:center;
-  gap:24px;
-}
-.public-site-header .home-nav { display:flex; align-items:center; gap:24px; }
-.public-site-header .home-nav a {
-  color:#52695a;
-  text-decoration:none;
-  font-size:.86rem;
-  font-weight:760;
-}
-.public-site-header .home-nav a:hover { color:#327040; }
-.public-site-header .home-play-button {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:42px;
-  padding:0 18px;
-  border-radius:15px;
-  color:#fff;
-  background:linear-gradient(135deg,#4d9258,#347441);
-  box-shadow:0 12px 25px rgba(55,119,68,.22);
-  font-size:.82rem;
-  font-weight:850;
-  text-decoration:none;
-}
-.public-site-footer.home-footer {
-  width:100%;
-  margin:0;
-  padding:32px max(24px,calc((100% - 1180px)/2));
-  display:grid;
-  grid-template-columns:auto 1fr auto;
-  gap:30px;
-  align-items:center;
-  border:0;
-  border-top:1px solid rgba(42,83,52,.13);
-  border-radius:0;
-  background:rgba(255,255,251,.82);
-  box-shadow:none;
-}
-.public-site-footer .home-footer-brand { display:flex;align-items:center;gap:11px; }
-.public-site-footer .home-footer-brand img { width:104px;height:auto;max-height:56px;object-fit:contain; }
-.public-site-footer .home-footer-brand span { display:grid;line-height:1.1; }
-.public-site-footer .home-footer-brand small { color:#68796e;font-size:.68rem;margin-top:4px; }
-.public-site-footer nav { display:flex;justify-content:center;flex-wrap:wrap;gap:10px 18px; }
-.public-site-footer nav a { color:#42604a;font-size:.75rem;font-weight:800;text-decoration:none; }
-.public-site-footer > p { margin:0;text-align:right;color:#68796e;font-size:.7rem; }
-@media(max-width:1024px) {
-  .public-site-header .home-nav { display:none; }
-  .public-site-header .home-header-actions { gap:0; }
-  .public-site-footer.home-footer { grid-template-columns:1fr;justify-items:center;text-align:center; }
-  .public-site-footer > p { text-align:center; }
-}
-@media(max-width:680px) {
-  .public-site-header .home-header-inner { width:min(100% - 24px,1180px);min-height:66px;gap:12px; }
-  .public-site-header .home-brand img { width:94px;max-height:50px; }
-  .public-site-header .home-brand small { display:none; }
-  .public-site-header .home-play-button { min-height:40px;padding:0 14px; }
-  .privacy-main { width:min(100% - 14px,1180px) !important; }
-  .news-hero,
-.news-feed { width:min(100% - 20px,980px) !important; }
-}
-.privacy-shell,
-.news-shell {
-  padding: 0 !important;
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Tokens atuais */
+  --ui-bg: #0b100d;
+  --ui-surface: #141b17;
+  --ui-surface-strong: #19221d;
+  --ui-surface-soft: #111713;
+  --ui-border: rgba(225, 238, 228, .085);
+  --ui-border-strong: rgba(225, 238, 228, .14);
+  --ui-text: #edf4ef;
+  --ui-muted: #97a79c;
+  --ui-green: #6cae79;
+  --ui-green-strong: #8ac594;
+  --ui-green-soft: #17231a;
+  --ui-gold-soft: #2b2619;
+  --ui-red: #e78e84;
+  --ui-red-soft: #2f1e1c;
+  --ui-shadow: 0 24px 60px rgba(0,0,0,.36);
+  --ui-shadow-soft: 0 12px 28px rgba(0,0,0,.25);
+
+  /* Tokens históricos ainda usados por componentes antigos */
+  --green: #72b87f;
+  --green-deep: #8cc697;
+  --green-soft: #1a291e;
+  --ink: #edf4ef;
+  --ink-soft: #9aaaa0;
+  --line: rgba(225, 238, 228, .085);
+  --page: #0b100d;
+  --page-deep: #070b09;
+  --surface: #151c18;
+  --surface-soft: #111713;
+  --surface-solid: #19211d;
+  --shadow-md: 0 20px 48px rgba(0,0,0,.30);
+  --shadow-sm: 0 9px 24px rgba(0,0,0,.22);
+
+  /* Paleta semântica do dark */
+  --dark-page: #0b100d;
+  --dark-page-deep: #070b09;
+  --dark-panel: #141b17;
+  --dark-panel-2: #18211c;
+  --dark-card: #1b241f;
+  --dark-card-2: #202a24;
+  --dark-recess: #0f1512;
+  --dark-line: rgba(224,238,227,.085);
+  --dark-line-strong: rgba(224,238,227,.14);
+  --dark-text: #edf4ef;
+  --dark-muted: #98a89d;
+  --dark-green: #72b87f;
+  --dark-green-bright: #8fd39c;
+  --dark-blue: #6faee8;
+  --dark-purple: #b17be1;
+  --dark-gold: #e1bd61;
+  --dark-red: #e8897f;
+  --dark-orange: #e99d6c;
 }
 
-
-/* ==========================================================================
-   Layout exclusivo do tutorial
-   ========================================================================== */
-:root{--tutorial-green:#67a35f;--tutorial-green-deep:#35683e;--tutorial-surface:rgba(255,255,252,.9);--tutorial-muted:#65766c;--tutorial-line:rgba(52,87,55,.12)}*{box-sizing:border-box}.tutorial-body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0%,rgba(235,219,131,.24),transparent 28rem),radial-gradient(circle at 90% 5%,rgba(144,198,139,.22),transparent 28rem),#f4f5ea;color:#243b2c;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.tutorial-page{width:min(1500px,calc(100% - 36px));margin:0 auto;padding:12px 0 34px}.tutorial-header{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 18px;border-radius:0 0 22px 22px;background:rgba(255,255,252,.88);box-shadow:0 12px 30px rgba(40,65,46,.05)}.tutorial-brand{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none}.tutorial-brand img{width:58px;height:44px;object-fit:contain}.tutorial-brand span{display:grid;line-height:1.12}.tutorial-brand small{color:var(--tutorial-green-deep);font-size:.74rem;font-weight:950;text-transform:uppercase;letter-spacing:.05em}.tutorial-brand strong{font-size:1rem}.tutorial-back{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:13px;background:#66a35d;color:#fff;font-size:.8rem;font-weight:900;text-decoration:none;box-shadow:0 8px 20px rgba(73,126,71,.17)}.tutorial-main{display:grid;gap:16px;margin-top:46px}.tutorial-hero{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(320px,.8fr);gap:32px;align-items:center;padding:30px;border:1px solid rgba(255,255,255,.86);border-radius:24px;background:var(--tutorial-surface);box-shadow:0 14px 34px rgba(47,72,48,.06)}.tutorial-eyebrow{margin:0;color:var(--tutorial-green-deep);font-size:.68rem;font-weight:950;letter-spacing:.1em;text-transform:uppercase}.tutorial-hero h1{margin:6px 0 8px;max-width:820px;font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.06;letter-spacing:-.045em}.tutorial-hero p{margin:0;max-width:900px;color:var(--tutorial-muted);line-height:1.6}.tutorial-safety{display:grid;gap:5px;padding:16px;border:1px solid rgba(89,139,82,.15);border-radius:16px;background:#edf5e9}.tutorial-safety strong{color:var(--tutorial-green-deep)}.tutorial-safety span{color:var(--tutorial-muted);font-size:.79rem;line-height:1.48}
-.tutorial-layout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:18px;align-items:start}.tutorial-steps{position:sticky;top:14px;display:grid;gap:8px;padding:12px;border:1px solid rgba(255,255,255,.8);border-radius:20px;background:var(--tutorial-surface);box-shadow:0 14px 36px rgba(47,72,48,.08)}.tutorial-step{appearance:none;width:100%;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;padding:10px;border:1px solid transparent;border-radius:13px;background:transparent;color:inherit;text-align:left;cursor:pointer;opacity:.65}.tutorial-step>span{width:34px;height:34px;display:grid;place-items:center;border-radius:11px;background:#edf3e9;color:var(--tutorial-green-deep);font-weight:950}.tutorial-step>div{display:grid;gap:2px}.tutorial-step strong{font-size:.8rem}.tutorial-step small{color:var(--tutorial-muted);font-size:.7rem}.tutorial-step.active{opacity:1;background:#f2f7ef;border-color:rgba(84,131,79,.16)}.tutorial-step.done{opacity:1}.tutorial-step.done>span{background:var(--tutorial-green);color:#fff}
-.tutorial-simulator{display:grid;gap:14px;min-width:0}.tutorial-simulator-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:18px;border:1px solid rgba(255,255,255,.8);border-radius:20px;background:var(--tutorial-surface);box-shadow:0 12px 30px rgba(47,72,48,.07)}.tutorial-simulator-head h2{margin:4px 0 6px;font-size:1.3rem}.tutorial-simulator-head p:last-child{max-width:900px;margin:0;color:var(--tutorial-muted);font-size:.82rem;line-height:1.5}.tutorial-game-shell{min-width:0;padding:14px;border:1px solid rgba(53,88,55,.12);border-radius:24px;background:rgba(238,245,233,.84);box-shadow:0 18px 48px rgba(47,72,48,.08)}
-.tutorial-game-header.app-header{position:relative!important;top:auto!important;width:100%!important;margin:0!important;padding:12px!important;display:grid!important;grid-template-columns:auto minmax(210px,.62fr) minmax(320px,1fr)!important;align-items:center!important;border-radius:18px!important;background:rgba(255,255,255,.9)!important}.tutorial-game-brand .brand-logo{width:90px!important}.tutorial-game-header .resource-strip{justify-content:end!important}.tutorial-game-header .resource-pill{min-width:0!important}.tutorial-game-header .farm-progress{min-width:0!important}.tutorial-game-nav.main-nav{position:static!important;width:100%!important;margin:10px 0 0!important;padding:6px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;border-radius:16px!important}.tutorial-game-nav .nav-tab{width:100%!important;min-width:0!important}.tutorial-game-nav .nav-tab-icon img{width:25px!important;height:25px!important;object-fit:contain}.tutorial-game-panels{margin-top:10px}.tutorial-game-panel{display:none;padding:16px;border:1px solid rgba(55,88,55,.1);border-radius:18px;background:rgba(255,255,255,.83)}.tutorial-game-panel.active{display:block}.tutorial-game-panel>.section-heading{margin-bottom:13px!important}.tutorial-game-panel>.section-heading p:not(.eyebrow){max-width:850px;margin-top:4px;color:var(--ink-soft);font-size:.78rem}.tutorial-office-scope{display:contents}
-.tutorial-crop-grid.crop-grid{grid-template-columns:repeat(2,minmax(250px,1fr))!important;max-width:760px}.tutorial-crop-grid .crop-card{min-height:214px}.tutorial-crop-grid .crop-card .crop-upgrade-panel{margin-top:2px!important}.tutorial-crop-grid .crop-card .crop-upgrade-summary{justify-content:center!important}.tutorial-crop-grid .crop-card .crop-upgrade-summary strong{font-size:.72rem}.tutorial-crop-grid .crop-card button{position:relative;z-index:2}.tutorial-crop-grid .crop-card.locked .crop-buy-button{margin-top:auto}.tutorial-stock-bar{margin-top:12px!important;padding:12px 14px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;border-radius:15px!important}.tutorial-stock-copy{display:flex;align-items:center;gap:10px}.tutorial-stock-copy>img{width:42px;height:42px;object-fit:contain}.tutorial-stock-copy>div{display:grid}.tutorial-stock-copy small{color:var(--ink-soft);font-size:.64rem;font-weight:800}.tutorial-stock-copy strong{font-size:.95rem}.tutorial-stock-copy span:last-child{color:var(--ink-soft);font-size:.69rem}.tutorial-stock-bar .button{min-width:150px}
-#tutorialContracts .contract-grid{grid-template-columns:minmax(0,520px)!important;align-items:start!important}.tutorial-office-scope .contract-card-v2{height:auto!important;align-self:start!important;--contract-type-color:#7aa668;background:#fff!important;border:1px solid rgba(61,88,64,.11)!important;border-radius:18px!important;box-shadow:0 10px 28px rgba(31,54,35,.055)!important;display:flex!important;flex-direction:column!important;gap:0!important;overflow:hidden!important;padding:0!important}.tutorial-office-scope .contract-type-label{align-items:center;background:transparent!important;border:0!important;box-shadow:none!important;color:var(--ink-soft)!important;display:inline-flex;font-size:.65rem!important;font-weight:850;gap:6px;justify-self:start;letter-spacing:.035em;padding:0!important;text-transform:uppercase}.tutorial-office-scope .contract-type-label>i{width:8px;height:8px;display:block;border-radius:50%;background:var(--contract-type-color)!important}.tutorial-office-scope .contract-card-v2 .contract-offer-actions-v2{display:grid!important}.tutorial-office-scope .contract-card-v2 .contract-progress-v2,
-.tutorial-office-scope .contract-card-v2 .contract-reward-strip{padding-inline:14px!important}#officeEvolutionsPanel .tutorial-upgrade-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.tutorial-legacy-section{margin-top:20px}.tutorial-legacy-section .prestige-grid{grid-template-columns:minmax(0,500px)!important}.tutorial-game-shell .upgrade-card-identity .upgrade-icon img{width:34px;height:34px;object-fit:contain}#tutorialPrestigePanel .prestige-rework{padding:0!important}.tutorial-game-shell .prestige-rework-gain{min-height:330px!important}.tutorial-game-shell .prestige-rework-gain>strong .resource-amount{min-height:46px;background:rgba(255,255,255,.55)}.tutorial-game-shell .prestige-rework-gain>strong .resource-amount img{width:31px;height:31px}.tutorial-game-shell .prestige-rework-gain>strong .resource-amount b{font-size:2.3rem}
-.tutorial-message{padding:12px 14px;border-radius:14px;background:#2f5f38;color:#fff;font-size:.82rem;font-weight:800;box-shadow:0 10px 24px rgba(45,85,49,.15)}.tutorial-message[data-type="success"]{background:#477c47}.tutorial-message[data-type="notice"]{background:#6e5580}.tutorial-footer{display:flex;justify-content:space-between;gap:16px;padding:22px 4px 0;color:var(--tutorial-muted);font-size:.73rem}.tutorial-footer a{color:var(--tutorial-green-deep);font-weight:850;text-decoration:none}
-@media(max-width:1180px){.tutorial-layout{grid-template-columns:1fr}.tutorial-steps{position:static;grid-template-columns:repeat(3,minmax(0,1fr))}.tutorial-game-header.app-header{grid-template-columns:auto 1fr!important}.tutorial-game-header .resource-strip{grid-column:1/-1!important;justify-content:stretch!important}.tutorial-game-header .resource-strip .resource-pill{flex:1!important}}@media(max-width:900px){.tutorial-game-nav.main-nav{grid-template-columns:repeat(3,minmax(0,1fr))!important}.tutorial-crop-grid.crop-grid{grid-template-columns:1fr!important;max-width:none}#officeEvolutionsPanel .tutorial-upgrade-grid{grid-template-columns:1fr!important}.tutorial-game-header.app-header{grid-template-columns:1fr!important}.tutorial-game-brand{justify-content:center}.tutorial-game-header .farm-progress{width:100%!important}.tutorial-game-header .resource-strip{grid-column:auto!important;display:grid!important;grid-template-columns:repeat(3,1fr)!important}.tutorial-game-header .resource-pill{width:100%!important}}@media(max-width:700px){.tutorial-page{padding:0 10px 26px}.tutorial-header{flex-direction:column;align-items:stretch;padding:10px}.tutorial-back{width:100%}.tutorial-hero{grid-template-columns:1fr;padding:18px}.tutorial-steps{display:flex;overflow-x:auto;scroll-snap-type:x proximity}.tutorial-step{flex:0 0 205px;scroll-snap-align:start}.tutorial-simulator-head{flex-direction:column}.tutorial-simulator-head .button{width:100%}.tutorial-game-shell{padding:8px;border-radius:18px}.tutorial-game-panel{padding:10px}.tutorial-game-nav.main-nav{grid-template-columns:repeat(2,minmax(0,1fr))!important}.tutorial-game-header .resource-strip{grid-template-columns:1fr!important}.tutorial-stock-bar{align-items:stretch!important;flex-direction:column!important}.tutorial-stock-bar .button{width:100%}.tutorial-footer{flex-direction:column}}@media(max-width:480px){html{font-size:16.5px}.tutorial-game-nav.main-nav{grid-template-columns:1fr 1fr!important}.tutorial-game-nav .nav-tab{min-height:44px!important}.tutorial-game-header .brand-logo{width:78px!important}.tutorial-office-scope .contract-main-v2{grid-template-columns:68px minmax(0,1fr)!important}.tutorial-office-scope .contract-main-v2>img{width:68px!important;height:68px!important}.tutorial-game-shell .prestige-rework-details{grid-template-columns:1fr 1fr!important}.tutorial-steps{padding:8px}}
-
-/* R36 reparo final — estabilidade visual do tutorial */
-.tutorial-game-shell{overflow:hidden}
-.tutorial-game-panels{min-width:0}
-.tutorial-game-panel{min-width:0}
-.tutorial-office-scope{min-width:0}
-.tutorial-crop-grid .crop-card,
-.tutorial-office-scope .contract-card-v2,
-#officeEvolutionsPanel .upgrade-card{min-width:0}
-#tutorialContracts .contract-grid,
-#officeEvolutionsPanel{min-width:0}
-.tutorial-game-nav .nav-tab{overflow:hidden}
-.tutorial-game-nav .nav-tab-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media(max-width:700px){.tutorial-game-nav .nav-tab-label{white-space:normal;text-overflow:clip}.tutorial-game-shell{overflow:visible}}
-
-
-/* R36 — tutorial progressivo, bloqueios e normalização do estoque */
-.tutorial-stock-copy strong,
-.tutorial-stock-copy strong > span {
-  font-family: inherit !important;
-  font-size: .95rem !important;
-  font-weight: 900 !important;
-  line-height: 1.2 !important;
-  letter-spacing: 0 !important;
-}
-.tutorial-level-lock img { width: 48px !important; height: 48px !important; object-fit: contain !important; }
-.tutorial-crop-grid .crop-card.tutorial-crop-level-locked { filter: saturate(.62); }
-.tutorial-crop-grid .crop-card.tutorial-crop-level-locked .crop-info { opacity: .72; }
-.tutorial-game-nav .nav-tab[data-feature-locked="true"] { opacity: .56 !important; cursor: not-allowed !important; }
-.tutorial-game-nav .nav-tab[data-feature-locked="true"] .nav-tab-icon img { width: 23px !important; height: 23px !important; }
-.tutorial-step.is-locked { opacity: .46 !important; cursor: not-allowed !important; }
-.tutorial-step.is-locked > span { background: #e7ebe6 !important; color: #829086 !important; }
-.tutorial-milestone-dialog { z-index: 2200 !important; }
-.tutorial-milestone-dialog::backdrop { background: rgba(30,46,36,.52) !important; backdrop-filter: blur(5px); }
-.tutorial-milestone-dialog .milestone-preview-card strong { font-variant-numeric: tabular-nums; }
-.tutorial-complete-card { background: linear-gradient(135deg,#f3f8ef,#fff9e9) !important; }
-
-
-/* R37 — tabs do tutorial não podem herdar a altura fixa da navegação do jogo. */
-.tutorial-game-nav.main-nav {
-  height: auto !important;
-  min-height: 54px !important;
-  max-height: none !important;
-  overflow: visible !important;
-  align-items: stretch !important;
-}
-.tutorial-game-nav.main-nav .nav-tab {
-  align-self: stretch !important;
-}
-
-/* Centralização óptica dos números das etapas. */
-.tutorial-step > span {
-  display: grid !important;
-  place-items: center !important;
-  padding: 0 !important;
-  line-height: 1 !important;
-  text-align: center !important;
-}
-
-/* R39.8 — logotipo horizontal maior no cabeçalho do Tutorial. */
-.tutorial-header .tutorial-brand > img {
-  width: 124px !important;
-  height: auto !important;
-  max-height: 66px !important;
-  object-fit: contain !important;
-}
-@media (max-width: 700px) {
-  .tutorial-header .tutorial-brand > img { width: 106px !important; max-height: 58px !important; }
-}
-
-/* R39.8 — a prévia do jogo no próprio tutorial usa a marca horizontal. */
-.tutorial-game-header .tutorial-game-brand .brand-logo {
-  width: 132px !important;
-  height: auto !important;
-  max-height: 72px !important;
-}
-@media (max-width: 700px) {
-  .tutorial-game-header .tutorial-game-brand .brand-logo { width: 112px !important; max-height: 62px !important; }
-}
-
-/* ========================================================================== */
-/* R40 — refinamento visual final do tutorial                                */
-/* ========================================================================== */
-.tutorial-body {
+/* -------------------------------------------------------------------------- */
+/* Base / background                                                          */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] body {
+  color: var(--dark-text) !important;
   background:
-    radial-gradient(circle at 10% 0%, rgba(235,219,131,.22), transparent 30rem),
-    radial-gradient(circle at 92% 4%, rgba(129,190,139,.22), transparent 32rem),
-    linear-gradient(180deg, #f5f7ed 0%, #eef3e9 48%, #f7f8f2 100%);
+    radial-gradient(70rem 38rem at 7% -10%, rgba(81, 139, 94, .15), transparent 64%),
+    radial-gradient(58rem 36rem at 96% 8%, rgba(80, 107, 137, .10), transparent 65%),
+    radial-gradient(50rem 34rem at 55% 100%, rgba(84, 65, 105, .08), transparent 68%),
+    linear-gradient(155deg, #0b100d 0%, #0d120f 46%, #080c0a 100%) !important;
 }
-.tutorial-public-header .home-nav a[aria-current="page"] {
-  color: #2f7040;
-  font-weight: 900;
+html[data-theme="dark"] body::before {
+  background-image:
+    linear-gradient(rgba(171, 205, 180, .018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(171, 205, 180, .018) 1px, transparent 1px) !important;
+  opacity: .42 !important;
 }
-.tutorial-page {
-  width: min(1420px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 30px 0 58px;
+html[data-theme="dark"] .ambient-layer {
+  opacity: .30 !important;
+  filter: saturate(.68) brightness(.55) !important;
 }
-.tutorial-main {
-  display: grid;
-  gap: 22px;
-  margin-top: 0;
+html[data-theme="dark"] :is(h1,h2,h3,h4,h5,strong,b) { color: var(--dark-text); }
+html[data-theme="dark"] :is(p,small,.eyebrow) { text-wrap: pretty; }
+html[data-theme="dark"] .eyebrow { color: #78b885 !important; }
+html[data-theme="dark"] ::selection { background: rgba(105, 174, 119, .28); color: #fff; }
+
+/* -------------------------------------------------------------------------- */
+/* Loading                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .game-loading-screen {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(84,143,98,.18), transparent 36%),
+    linear-gradient(160deg, #0a0f0c, #111813 54%, #080c0a) !important;
 }
-.tutorial-hero {
+html[data-theme="dark"] .game-loading-card {
+  background: linear-gradient(180deg, rgba(27,37,31,.96), rgba(17,24,20,.98)) !important;
+  border-color: rgba(225,238,228,.10) !important;
+  box-shadow: 0 30px 90px rgba(0,0,0,.46), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .game-loading-progress { background: #0d130f !important; }
+
+/* -------------------------------------------------------------------------- */
+/* Header / recursos                                                          */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .app-header {
+  background: linear-gradient(180deg, rgba(20,28,23,.94), rgba(15,22,18,.94)) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 18px 42px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] .brand-copy small { color: #91a299 !important; }
+html[data-theme="dark"] .brand-copy strong { color: #f2f6f3 !important; }
+html[data-theme="dark"] .farm-progress,
+html[data-theme="dark"] .resource-pill {
+  background: linear-gradient(180deg, #1b251f, #161e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .farm-progress {
+  background:
+    radial-gradient(circle at 16% 20%, rgba(104,177,118,.08), transparent 50%),
+    linear-gradient(180deg, #1b251f, #161e1a) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="coins"] {
+  background: linear-gradient(180deg, #292516, #201d14) !important;
+  border-color: rgba(225,188,91,.13) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="research"] {
+  background: linear-gradient(180deg, #172636, #13202b) !important;
+  border-color: rgba(103,170,224,.14) !important;
+}
+html[data-theme="dark"] .resource-pill[data-resource-shortcut="prestige"] {
+  background: linear-gradient(180deg, #291c37, #21162e) !important;
+  border-color: rgba(176,119,222,.16) !important;
+}
+html[data-theme="dark"] :is(.farm-progress,.resource-pill) small { color: #9aaaa0 !important; }
+html[data-theme="dark"] :is(.farm-progress,.resource-pill) strong { color: #f4f7f5 !important; }
+html[data-theme="dark"] .soft-progress,
+html[data-theme="dark"] .progress-track { background: #0c120e !important; }
+
+/* Counter flutuante */
+html[data-theme="dark"] .floating-resource-strip,
+html[data-theme="dark"] body.page-scrolled .floating-resource-strip {
+  background: rgba(12,17,14,.91) !important;
+  border: 1px solid rgba(225,238,228,.095) !important;
+  box-shadow: 0 18px 46px rgba(0,0,0,.44) !important;
+  backdrop-filter: blur(18px) saturate(1.05) !important;
+}
+html[data-theme="dark"] .floating-resource-strip .resource-pill {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Navegação                                                                  */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .main-nav,
+html[data-theme="dark"] .context-tabs {
+  background: linear-gradient(180deg, rgba(21,29,24,.96), rgba(16,23,19,.96)) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab,
+html[data-theme="dark"] .context-tabs .office-tab,
+html[data-theme="dark"] .context-tabs .profile-tab,
+html[data-theme="dark"] .context-tabs .evolution-tab {
+  color: #aebdb2 !important;
+  background: rgba(255,255,255,.018) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab:hover:not(.active),
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #dfe8e1 !important;
+  background: rgba(255,255,255,.045) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active,
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #eff8f1 !important;
+  background: linear-gradient(180deg, rgba(83,143,96,.25), rgba(53,103,65,.20)) !important;
+  border-color: rgba(121,190,135,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), 0 8px 18px rgba(0,0,0,.15) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active .nav-tab-icon,
+html[data-theme="dark"] .context-tabs .active i {
+  background: rgba(255,255,255,.035) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Painéis, cabeçalhos e estados vazios                                       */
+/* -------------------------------------------------------------------------- */
+
+html[data-theme="dark"] .section-heading,
+html[data-theme="dark"] .settings-card-head {
+  color: var(--dark-text) !important;
+  background: transparent !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] .office-empty,
+html[data-theme="dark"] .social-live-empty{
+  color: #cbd7ce !important;
+  background: linear-gradient(180deg, #19211c, #141a17) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Formulários / botões                                                       */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] :is(input,select,textarea) {
+  color: #edf4ef !important;
+  background: #0e1411 !important;
+  border-color: rgba(225,238,228,.13) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] :is(input,select,textarea):focus {
+  border-color: rgba(114,184,127,.48) !important;
+  box-shadow: 0 0 0 3px rgba(91,160,104,.12) !important;
+}
+html[data-theme="dark"] :is(input,textarea)::placeholder { color: #6f7d74 !important; }
+html[data-theme="dark"] select option { background: #111713; color: #edf4ef; }
+html[data-theme="dark"] .button.primary,
+html[data-theme="dark"] button.button.primary {
+  color: #f7fff8 !important;
+  background: linear-gradient(180deg, #559b65, #3f7e4e) !important;
+  border-color: rgba(129,203,144,.18) !important;
+  box-shadow: 0 8px 18px rgba(26,82,38,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+html[data-theme="dark"] .button.primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #64aa73, #4a8c59) !important;
+}
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button) {
+  color: #d6e0d8 !important;
+  background: linear-gradient(180deg, #252f29, #1e2722) !important;
+  border-color: rgba(225,238,228,.10) !important;
+}
+html[data-theme="dark"] :is(.button.secondary,button.secondary,.dialog-icon-button):hover:not(:disabled) {
+  color: #f1f6f2 !important;
+  background: linear-gradient(180deg, #303c34, #27322c) !important;
+}
+html[data-theme="dark"] .button.gold {
+  color: #f5dea0 !important;
+  background: linear-gradient(180deg, #4a3d20, #362d1b) !important;
+  border-color: rgba(225,188,91,.19) !important;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* FAZENDA — cards de plantas                                                 */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #farmView .crop-card {
+  color: var(--dark-text) !important;
+  background:
+    radial-gradient(24rem 12rem at 50% -10%, rgba(111,183,126,.12), transparent 66%),
+    linear-gradient(180deg, #1c261f 0%, #171e1a 100%) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.23), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #farmView .crop-card:hover {
+  border-color: rgba(121,190,135,.16) !important;
+  box-shadow: 0 18px 38px rgba(0,0,0,.29), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #farmView .crop-card :is(.crop-art,.crop-art-progress,.locked-art,.crop-preview-unlocked) {
+  background:
+    radial-gradient(circle at 50% 28%, rgba(112,177,123,.08), transparent 64%),
+    linear-gradient(180deg, #202a24, #1a221e) !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-strip {
+  color: #cbd7ce !important;
+  background: rgba(9,14,11,.50) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card :is(.crop-category-list,.crop-quick-stats>span,.crop-progress-percent) {
+  color: #b9c8bd !important;
+  background: #121914 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card h3 { color: #f2f7f3 !important; }
+html[data-theme="dark"] #farmView .crop-card :is(.crop-upgrade-panel,.crop-upgrade-redesign) {
+  background: linear-gradient(180deg, rgba(11,16,13,.54), rgba(13,18,15,.34)) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card :is(.crop-upgrade-summary,.upgrade-mode-selector) {
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option {
+  color: #b7c5ba !important;
+  background: #1c251f !important;
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option.active {
+  color: #f2fff4 !important;
+  background: linear-gradient(180deg, #4c8d5b, #377246) !important;
+  border-color: rgba(126,197,140,.16) !important;
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered {
+  background:
+    radial-gradient(25rem 12rem at 50% -8%, rgba(225,189,97,.10), transparent 64%),
+    linear-gradient(180deg, #24251d, #191c17) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* ESTOQUE                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #stockView :is(.summary-card,.normalized-summary-card,.stock-card,.normalized-stock-card) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #1c251f, #171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #stockView .summary-card-heading small,
+html[data-theme="dark"] #stockView .stock-ident small,
+html[data-theme="dark"] #stockView .stock-card small { color: #98a89d !important; }
+html[data-theme="dark"] #stockView :is(.summary-status,.stock-value-grid>div,.auto-sell-toggle,.compact-auto-toggle,.stock-favorite-button) {
+  color: #d5e0d8 !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #stockView .stock-ident > img {
+  background: linear-gradient(180deg,#222d26,#19211c) !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #stockView .favorite-stock-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(225,189,97,.08), transparent 36%),
+    linear-gradient(180deg, #20261f, #181e1a) !important;
+}
+html[data-theme="dark"] #stockView .auto-sell-card {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(114,184,127,.08), transparent 34%),
+    linear-gradient(180deg, #1d271f, #171e1a) !important;
+}
+html[data-theme="dark"] #stockView .stock-favorite-button.active {
+  color: #f1ca66 !important;
+  background: #312a19 !important;
+  border-color: rgba(225,189,97,.15) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+
+
+
+
+
+
+
+/* -------------------------------------------------------------------------- */
+/* MISSÕES                                                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #profileMissionsPanel :is(.mission-card,.mission-series-card,.achievement-card) {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg, #1c251f, #171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel :is(.mission-card,.mission-series-card,.achievement-card) :is(p,small) { color: #9eada2 !important; }
+html[data-theme="dark"] #profileMissionsPanel .mission-card.claimed {
+  opacity: .88 !important;
+  background: linear-gradient(180deg,#18201b,#141a17) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-crop-unlock-card {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.08), transparent 34%),
+    linear-gradient(180deg,#1c261f,#171e1a) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CONTRATOS — rework principal                                               */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 {
+  color: #dce6df !important;
+  background: linear-gradient(180deg, #19221c, #141b17) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2,
+html[data-theme="dark"] #officeContractsPanel .friendly-contract-card {
   position: relative;
-  overflow: hidden;
-  grid-template-columns: minmax(0, 1.55fr) minmax(300px, .72fr);
-  gap: clamp(24px, 4vw, 52px);
-  min-height: 250px;
-  padding: clamp(28px, 4vw, 48px);
-  border: 1px solid rgba(66,112,73,.10);
-  border-radius: 28px;
+  color: var(--dark-text) !important;
   background:
-    radial-gradient(circle at 92% 16%, rgba(111,171,116,.13), transparent 24rem),
-    linear-gradient(135deg, rgba(255,255,253,.97), rgba(243,249,239,.94));
-  box-shadow: 0 22px 60px rgba(42,73,48,.08);
+    radial-gradient(28rem 14rem at 100% -5%, color-mix(in srgb, var(--contract-type-color, #72b87f) 12%, transparent), transparent 64%),
+    linear-gradient(180deg, #1b241f 0%, #151c18 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #72b87f) 18%, rgba(225,238,228,.07)) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 38px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.02) !important;
+  overflow: hidden !important;
 }
-.tutorial-hero::after {
-  content: "";
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2::before {
+  content: "" !important;
+  display: block !important;
   position: absolute;
-  width: 230px;
-  height: 230px;
-  right: -86px;
-  bottom: -120px;
-  border-radius: 50%;
-  background: rgba(103,163,95,.075);
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--contract-type-color, #72b87f);
+  opacity: .75;
   pointer-events: none;
 }
-.tutorial-hero > div:first-child { align-self: center; position: relative; z-index: 1; }
-.tutorial-hero h1 {
-  max-width: 820px;
-  margin: 8px 0 14px;
-  font-size: clamp(2rem, 4vw, 3.05rem);
-  line-height: 1.01;
-  letter-spacing: -.055em;
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2:hover {
+  border-color: color-mix(in srgb, var(--contract-type-color, #72b87f) 28%, rgba(225,238,228,.08)) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.025) !important;
 }
-.tutorial-hero > div:first-child > p:last-child {
-  max-width: 760px;
-  font-size: .94rem;
-  line-height: 1.72;
+html[data-theme="dark"] #officeContractsPanel .contract-card-header-v2 {
+  background: rgba(10,15,12,.22) !important;
+  border-color: rgba(225,238,228,.065) !important;
 }
-.tutorial-safety {
-  position: relative;
-  z-index: 1;
-  align-self: center;
-  gap: 8px;
-  padding: 20px 21px;
-  border: 1px solid rgba(76,133,76,.14);
-  border-radius: 19px;
-  background: rgba(235,246,231,.84);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 > span,
+html[data-theme="dark"] #officeContractsPanel .contract-company-mark > span {
+  background: #202a24 !important;
+  border: 1px solid rgba(225,238,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
 }
-.tutorial-safety strong { font-size: .92rem; }
-.tutorial-safety span { font-size: .8rem; line-height: 1.58; }
-
-.tutorial-layout {
-  grid-template-columns: 258px minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-.tutorial-steps {
-  top: 92px;
-  gap: 7px;
-  padding: 10px;
-  border: 1px solid rgba(61,105,66,.10);
-  border-radius: 21px;
-  background: rgba(255,255,252,.87);
-  box-shadow: 0 16px 42px rgba(42,71,47,.075);
-  backdrop-filter: blur(16px);
-}
-.tutorial-step {
-  grid-template-columns: 36px minmax(0,1fr);
-  gap: 11px;
-  min-height: 62px;
-  padding: 9px 10px;
-  border-radius: 14px;
-  transition: background .18s ease, border-color .18s ease, opacity .18s ease, transform .18s ease;
-}
-.tutorial-step:not(.is-locked):hover { transform: translateX(2px); background: #f5f9f2; }
-.tutorial-step > span {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: #edf4e9;
-  box-shadow: inset 0 0 0 1px rgba(73,122,76,.07);
-}
-.tutorial-step strong { font-size: .79rem; line-height: 1.22; }
-.tutorial-step small { font-size: .67rem; line-height: 1.3; }
-.tutorial-step.active {
-  background: linear-gradient(135deg, #eef7eb, #f9fbf7);
-  border-color: rgba(79,139,83,.19);
-  box-shadow: inset 3px 0 0 #5c9b60;
-}
-.tutorial-step.active > span { background: #5f9d62; color: #fff; box-shadow: none; }
-.tutorial-step.done > span { box-shadow: 0 5px 12px rgba(69,129,71,.16); }
-
-.tutorial-simulator { gap: 12px; }
-.tutorial-simulator-head {
-  position: relative;
-  align-items: center;
-  min-height: 104px;
-  padding: 18px 20px;
-  border: 1px solid rgba(63,106,68,.10);
-  border-radius: 20px;
-  background: rgba(255,255,252,.90);
-  box-shadow: 0 14px 38px rgba(42,71,47,.065);
-}
-.tutorial-simulator-head > div { min-width: 0; }
-.tutorial-simulator-head h2 { margin: 5px 0 5px; font-size: clamp(1.15rem, 2vw, 1.38rem); }
-.tutorial-simulator-head p:last-child { max-width: 820px; font-size: .8rem; line-height: 1.55; }
-.tutorial-simulator-head .button { flex: 0 0 auto; min-width: 148px; }
-.tutorial-game-shell {
-  padding: 12px;
-  border: 1px solid rgba(57,101,62,.10);
-  border-radius: 24px;
-  background: rgba(233,242,228,.72);
-  box-shadow: 0 24px 60px rgba(39,69,45,.08);
-}
-.tutorial-game-header.app-header {
-  gap: 14px !important;
-  padding: 12px 14px !important;
-  border: 1px solid rgba(62,104,65,.08) !important;
-  background: rgba(255,255,253,.94) !important;
-  box-shadow: 0 8px 25px rgba(42,72,47,.05) !important;
-}
-.tutorial-game-header .tutorial-game-brand { min-width: 0; }
-.tutorial-game-header .tutorial-game-brand .brand-logo {
-  width: 118px !important;
-  max-height: 62px !important;
-}
-.tutorial-game-nav.main-nav {
-  margin: 9px 0 0 !important;
-  padding: 5px !important;
-  gap: 5px !important;
-  border: 1px solid rgba(61,103,65,.08) !important;
-  background: rgba(255,255,253,.74) !important;
-  box-shadow: 0 7px 22px rgba(42,71,47,.045) !important;
-}
-.tutorial-game-nav .nav-tab { min-height: 50px !important; border-radius: 12px !important; }
-.tutorial-game-panels { margin-top: 9px; }
-.tutorial-game-panel {
-  padding: clamp(12px, 2vw, 18px);
-  border: 1px solid rgba(58,99,62,.09);
-  border-radius: 18px;
-  background: rgba(255,255,253,.90);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.58);
-}
-.tutorial-stock-bar {
-  border: 1px solid rgba(60,104,65,.09) !important;
-  background: rgba(248,251,246,.92) !important;
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 small { color: #8f9f94 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 strong { color: #eaf1eb !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-proposal-time-v3 {
+  color: #c5d2c8 !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.08) !important;
   box-shadow: none !important;
 }
-.tutorial-message {
-  margin-top: 2px;
-  padding: 13px 16px;
-  border-radius: 15px;
-  box-shadow: 0 12px 28px rgba(45,85,49,.12);
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2.urgent {
+  color: #f0ad82 !important;
+  background: #35241d !important;
+  border-color: rgba(233,157,108,.18) !important;
 }
-.tutorial-public-footer.home-footer { margin-top: 0; }
-.tutorial-public-footer .home-footer-brand small { white-space: nowrap; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 {
+  background: transparent !important;
+  border-color: rgba(225,238,228,.06) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 > img {
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--contract-type-color,#72b87f) 12%, transparent), transparent 70%),
+    linear-gradient(180deg,#222d26,#19211c) !important;
+  border: 1px solid rgba(225,238,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-type-label {
+  color: color-mix(in srgb, var(--contract-type-color,#72b87f) 70%, #ffffff) !important;
+  background: color-mix(in srgb, var(--contract-type-color,#72b87f) 9%, #101611) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#72b87f) 18%, transparent) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 { color: #f3f7f4 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 span { color: #becbc1 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-meta > span { color: #8f9f94 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-stock-chip {
+  color: #dbe5dd !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip {
+  color: #d6e1d8 !important;
+  background: rgba(9,14,11,.34) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3 span,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 span,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip > span { color: #8f9f94 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track { background: #0b100d !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track > span {
+  background: linear-gradient(90deg, #66a974, #83c88f) !important;
+  box-shadow: 0 0 14px rgba(114,184,127,.12) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip .resource-amount {
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.06) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-footer-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 {
+  background: rgba(8,12,10,.22) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-footer-v3 {
+  border-top-color: rgba(229,126,117,.10) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3 {
+  color: #dca09a !important;
+  background: linear-gradient(180deg, rgba(78,42,39,.62), rgba(50,29,28,.72)) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(94,49,45,.74), rgba(62,34,32,.82)) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-completed-card {
+  background:
+    radial-gradient(28rem 14rem at 100% -5%, rgba(225,189,97,.12), transparent 64%),
+    linear-gradient(180deg, #24231b 0%, #191a15 100%) !important;
+  border-color: rgba(225,189,97,.16) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-completed-card::before { background: #d8b456; }
+html[data-theme="dark"] #officeContractsPanel .contract-defaulted-card {
+  background:
+    radial-gradient(28rem 14rem at 100% -5%, rgba(232,137,127,.10), transparent 64%),
+    linear-gradient(180deg, #281e1c 0%, #1d1716 100%) !important;
+  border-color: rgba(232,137,127,.15) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-defaulted-card::before { background: #d9786f; }
+html[data-theme="dark"] #officeContractsPanel .contract-deadline-warning:not(.contract-defaulted-card) {
+  border-color: rgba(233,157,108,.19) !important;
+}
 
-@media (max-width: 1180px) {
-  .tutorial-page { width: min(100% - 28px, 1420px); }
-  .tutorial-layout { grid-template-columns: 1fr; }
-  .tutorial-steps {
-    position: static;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 8px;
-  }
-  .tutorial-step:not(.is-locked):hover { transform: none; }
+/* -------------------------------------------------------------------------- */
+/* ATALHO DE CONTRATOS — rework noturno                                      */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2,
+html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-v2 {
+  background:
+    radial-gradient(30rem 15rem at 100% -10%, rgba(102,166,115,.10), transparent 65%),
+    linear-gradient(180deg, rgba(20,28,23,.985), rgba(13,19,16,.99)) !important;
+  border: 1px solid rgba(225,238,228,.10) !important;
+  box-shadow: 0 26px 70px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.025) !important;
 }
-@media (max-width: 900px) {
-  .tutorial-hero { grid-template-columns: 1fr; min-height: 0; }
-  .tutorial-safety { max-width: 620px; }
-  .tutorial-simulator-head { align-items: flex-start; }
-  .tutorial-game-header.app-header { gap: 10px !important; }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header {
+  background: linear-gradient(180deg, rgba(31,42,35,.96), rgba(22,31,26,.96)) !important;
+  border-bottom-color: rgba(225,238,228,.075) !important;
 }
-@media (max-width: 700px) {
-  .tutorial-page { width: min(100% - 16px, 1420px); padding: 18px 0 36px; }
-  .tutorial-main { gap: 14px; }
-  .tutorial-hero { padding: 22px 18px; border-radius: 21px; gap: 18px; }
-  .tutorial-hero h1 { font-size: clamp(1.75rem, 9vw, 2.3rem); }
-  .tutorial-steps {
-    display: flex;
-    padding: 8px;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    scrollbar-width: thin;
-  }
-  .tutorial-step { flex: 0 0 220px; scroll-snap-align: start; }
-  .tutorial-simulator-head { min-height: 0; padding: 16px; border-radius: 17px; }
-  .tutorial-simulator-head .button { width: 100%; min-width: 0; }
-  .tutorial-game-shell { padding: 7px; border-radius: 19px; }
-  .tutorial-game-panel { border-radius: 15px; }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header strong { color: #f0f5f1 !important; }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header small { color: #8e9f94 !important; }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header > button:first-child:hover {
+  background: rgba(255,255,255,.025) !important;
 }
-@media (max-width: 480px) {
-  .tutorial-page { width: min(100% - 12px, 1420px); }
-  .tutorial-hero { padding: 20px 16px; }
-  .tutorial-safety { padding: 16px; }
-  .tutorial-step { flex-basis: 205px; min-height: 58px; }
-  .tutorial-game-header .tutorial-game-brand .brand-logo {
-    width: 104px !important;
-    max-height: 56px !important;
-  }
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle,
+html[data-theme="dark"] .contract-dock-compact-button {
+  color: #dce6de !important;
+  background: linear-gradient(180deg,#27322c,#202923) !important;
+  border-color: rgba(225,238,228,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
 }
-.tutorial-main { padding: 0 !important; }
-/* Alguns estados institucionais compartilhados usam !important; estes estados do tutorial precisam prevalecer. */
-.tutorial-steps .tutorial-step {
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list,
+html[data-theme="dark"] .contract-dock .contract-dock-list,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)),
+html[data-theme="dark"] .contract-dock .contract-dock-list:has(> :nth-child(4)) {
+  background: #0f1512 !important;
+  border-color: transparent !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 {
+  color: #e8f0ea !important;
+  background:
+    radial-gradient(16rem 8rem at 0% 0%, rgba(105,174,119,.055), transparent 72%),
+    linear-gradient(180deg,#1d2721,#18201c) !important;
+  border-color: rgba(225,238,228,.075) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2:hover {
+  background:
+    radial-gradient(16rem 8rem at 0% 0%, rgba(105,174,119,.09), transparent 72%),
+    linear-gradient(180deg,#222e26,#1b241f) !important;
+  border-color: rgba(121,190,135,.15) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .contract-dock-crop-shell {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(116,184,128,.08), transparent 70%),
+    linear-gradient(180deg,#253129,#1b251f) !important;
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > strong { color: #f1f6f2 !important; }
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > small {
+  color: #b9c9bd !important;
+  background: #111813 !important;
+  border: 1px solid rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] .contract-dock-meta-line > em { color: #8f9f94 !important; }
+html[data-theme="dark"] .contract-dock-state {
+  color: #aebdb2 !important;
+  background: #111713 !important;
+  border: 1px solid rgba(225,238,228,.06) !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-urgent {
+  color: #efaa80 !important;
+  background: #35241d !important;
+  border-color: rgba(233,157,108,.14) !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-completed {
+  color: #e6c96d !important;
+  background: #302b1b !important;
+  border-color: rgba(225,189,97,.14) !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-defaulted {
+  color: #eda099 !important;
+  background: #36201f !important;
+  border-color: rgba(232,137,127,.14) !important;
+}
+html[data-theme="dark"] .contract-dock-progress { background: #0a0f0c !important; }
+html[data-theme="dark"] .contract-dock-progress > .delivered {
+  background: linear-gradient(90deg,#5b9d69,#87c991) !important;
+  box-shadow: 0 0 10px rgba(114,184,127,.13) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  color: #dce6de !important;
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.055) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.reward-ready {
+  background:
+    radial-gradient(18rem 9rem at 0% 0%, rgba(225,189,97,.10), transparent 72%),
+    linear-gradient(180deg,#28271d,#1d1d17) !important;
+  border-color: rgba(225,189,97,.15) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.contract-defaulted {
+  background:
+    radial-gradient(18rem 9rem at 0% 0%, rgba(232,137,127,.09), transparent 72%),
+    linear-gradient(180deg,#2a201e,#1f1817) !important;
+  border-color: rgba(232,137,127,.15) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
+  background:
+    radial-gradient(18rem 9rem at 0% 0%, rgba(233,157,108,.08), transparent 72%),
+    linear-gradient(180deg,#27211c,#1d1916) !important;
+  border-color: rgba(233,157,108,.14) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* EVOLUÇÕES / PESQUISA                                                       */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1b241f,#161d19) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"] {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(111,174,232,.10), transparent 40%),
+    linear-gradient(180deg,#1a2530,#151d24) !important;
+  border-color: rgba(111,174,232,.13) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"] {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(177,123,225,.11), transparent 40%),
+    linear-gradient(180deg,#251d2c,#1b161f) !important;
+  border-color: rgba(177,123,225,.14) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .upgrade-icon {
+  background: rgba(8,13,10,.34) !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .upgrade-description { color: #a0afa5 !important; }
+html[data-theme="dark"] #officeEvolutionsPanel .upgrade-level-badge {
+  background: #101611 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel [data-upgrade-kind="research"] .upgrade-level-badge { color: #9dc9ef !important; }
+html[data-theme="dark"] #officeEvolutionsPanel [data-upgrade-kind="prestige"] .upgrade-level-badge { color: #d0a5ee !important; }
+
+/* -------------------------------------------------------------------------- */
+/* MINHA CONTA / ESTATÍSTICAS / PRESTÍGIO                                    */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #profileAccountPanel .account-card,
+html[data-theme="dark"] #profileAccountPanel .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article,
+html[data-theme="dark"] #profileAccountPanel .achievement-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-icon,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article > span,
+html[data-theme="dark"] #profileAccountPanel .achievement-card > span {
+  background: linear-gradient(180deg,#263229,#1d2721) !important;
+  border-color: rgba(225,238,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card small,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary small { color: #98a89d !important; }
+html[data-theme="dark"] #profileAccountPanel .account-statistics-section {
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-section-plain {
+  background: transparent !important;
+}
+
+/* Prestígio mantém a identidade mística, mas integrado ao dark */
+html[data-theme="dark"] #profileAccountPanel .account-prestige-section {
+  box-shadow: 0 22px 50px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* SOCIAL / RANKING / AGENDA                                                  */
+/* -------------------------------------------------------------------------- */
+
+
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.current-player,
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.personal-rank-row {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.08), transparent 40%),
+    linear-gradient(180deg,#1e2922,#171f1b) !important;
+  border-color: rgba(114,184,127,.14) !important;
+}
+html[data-theme="dark"] .social-events-accordion {
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.20) !important;
+}
+html[data-theme="dark"] .social-events-accordion > summary {
+  color: #e8f0ea !important;
+  background: linear-gradient(180deg,#1b251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] .social-events-accordion-icon {
+  background: #202a24 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] .social-events-accordion-copy small,
+html[data-theme="dark"] .social-events-accordion-copy em { color: #91a196 !important; }
+html[data-theme="dark"] .social-live-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .social-live-card.active {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.10), transparent 40%),
+    linear-gradient(180deg,#1f2b23,#18211c) !important;
+  border-color: rgba(114,184,127,.16) !important;
+}
+html[data-theme="dark"] .social-event-copy small { color: #86bd91 !important; }
+html[data-theme="dark"] .social-event-copy p { color: #9dada2 !important; }
+html[data-theme="dark"] .social-event-time {
+  color: #c9d7cc !important;
+  background: #111713 !important;
+  border-color: rgba(225,238,228,.075) !important;
+}
+html[data-theme="dark"] .social-event-time.is-running {
+  color: #a5d8ae !important;
+  background: #17251b !important;
+  border-color: rgba(114,184,127,.14) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CONFIGURAÇÕES                                                              */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] #settingsView .settings-page-container,
+html[data-theme="dark"] #settingsView .settings-card,
+html[data-theme="dark"] #settingsView .feedback-settings-card {
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#151c18,#111713) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > :is(.setting-row,.range-setting),
+html[data-theme="dark"] #settingsView .feedback-setting-row {
+  color: #e7efe9 !important;
+  background: linear-gradient(180deg,#1c251f,#171e1a) !important;
+  border-color: var(--dark-line) !important;
+}
+html[data-theme="dark"] #settingsView .settings-card-body > :is(.setting-row,.range-setting):hover {
+  background: linear-gradient(180deg,#212c25,#1b241f) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* FOOTER                                                                     */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .app-footer {
+  color: #8f9f94 !important;
+  background: linear-gradient(180deg,rgba(15,21,17,.72),rgba(9,13,11,.92)) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] .app-footer::before { background: rgba(225,238,228,.06) !important; }
+html[data-theme="dark"] .app-footer .footer-brand-copy strong { color: #dce6de !important; }
+html[data-theme="dark"] .app-footer :is(a,.footer-link-button) { color: #a9b9ae !important; }
+html[data-theme="dark"] .app-footer :is(a,.footer-link-button):hover { color: #e8f0ea !important; }
+html[data-theme="dark"] .app-footer .footer-version-link {
+  color: #a5c7ac !important;
+  background: #17201a !important;
+  border-color: rgba(114,184,127,.10) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* MODAIS                                                                     */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] dialog,
+html[data-theme="dark"] dialog > form,
+html[data-theme="dark"] .confirmation-dialog,
+html[data-theme="dark"] .ranking-profile-dialog,
+html[data-theme="dark"] .contract-break-dialog{
+  color: var(--dark-text) !important;
+  background: linear-gradient(180deg,#171f1b,#111713) !important;
+  border-color: rgba(225,238,228,.10) !important;
+  box-shadow: 0 34px 100px rgba(0,0,0,.58) !important;
+}
+html[data-theme="dark"] dialog::backdrop {
+  background: rgba(2,5,3,.72) !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+
+
+/* -------------------------------------------------------------------------- */
+/* Recursos, gates e pequenos elementos internos                              */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .resource-amount {
+  color: inherit !important;
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] .feature-gate-card {
+  color: #dce6de !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(114,184,127,.07), transparent 38%),
+    linear-gradient(180deg,#1b241f,#151c18) !important;
+  border-color: rgba(225,238,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .feature-gate-level {
+  color: #b9d9c0 !important;
+  background: #16231a !important;
+  border-color: rgba(114,184,127,.12) !important;
+}
+html[data-theme="dark"] .contract-section-divider > span,
+html[data-theme="dark"] .mission-history-toggle::before {
+  background: linear-gradient(90deg,transparent,rgba(225,238,228,.08),transparent) !important;
+}
+html[data-theme="dark"] .back-to-top {
+  color: #e8f0ea !important;
+  background: linear-gradient(180deg,#26332b,#1e2922) !important;
+  border-color: rgba(225,238,228,.10) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.32) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Scrollbar                                                                  */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] * {
+  scrollbar-color: rgba(126,151,133,.40) transparent;
+}
+html[data-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgba(126,151,133,.32) !important;
+  border-radius: 999px;
+}
+html[data-theme="dark"] *::-webkit-scrollbar-thumb:hover { background: rgba(143,171,151,.46) !important; }
+html[data-theme="dark"] *::-webkit-scrollbar-track { background: transparent !important; }
+
+/* ========================================================================== */
+
+/* ========================================================================== */
+html[data-theme="dark"] #officeContractsPanel {
+  --contract-dark-card: #171d1b;
+  --contract-dark-card-2: #121816;
+  --contract-dark-panel: #0f1513;
+  --contract-dark-line: rgba(224,236,228,.075);
+  --contract-dark-muted: #91a097;
+}
+
+/* Capacidade: sem pílula branca e sem tons cinza lavados. */
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 {
+  color: #e8efe9 !important;
+  background: linear-gradient(145deg, #171e1b 0%, #121816 100%) !important;
+  border: 1px solid var(--contract-dark-line) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > div > img {
+  background: linear-gradient(180deg,#202a25,#18201c) !important;
+  border-color: rgba(224,236,228,.08) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 small { color: #92a198 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 strong { color: #f2f7f3 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > b,
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > b.available {
+  color: #9ed8aa !important;
+  background: #17251b !important;
+  border: 1px solid rgba(107,177,121,.14) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-capacity-v2 > b.full {
+  color: #e5a09a !important;
+  background: #2a1b1a !important;
+  border-color: rgba(219,116,107,.15) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-section-divider::before,
+html[data-theme="dark"] #officeContractsPanel .contract-section-divider::after,
+html[data-theme="dark"] #officeContractsPanel .contract-section-divider > span {
+  background: rgba(225,237,228,.075) !important;
+  border-color: rgba(225,237,228,.075) !important;
+}
+
+/* Card: neutro profundo; a cor do contrato entra só como luz/acento contextual. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2,
+html[data-theme="dark"] #officeContractsPanel .friendly-contract-card.contract-custom-color {
+  position: relative !important;
+  color: #eaf1eb !important;
+  background:
+    radial-gradient(26rem 12rem at 18% -12%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 62%),
+    linear-gradient(155deg, #1b2220 0%, #151b19 58%, #111614 100%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.075)) !important;
+  border-radius: 19px !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.02) !important;
+  overflow: hidden !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2::before,
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2::after {
+  display: none !important;
+  content: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2:hover {
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 23%, rgba(225,237,228,.09)) !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.31), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+/* Cabeçalho e empresa. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2 .contract-card-header-v2 {
+  background: rgba(8,12,10,.16) !important;
+  border-bottom: 1px solid rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 > span,
+html[data-theme="dark"] #officeContractsPanel .contract-company-mark > span {
+  background:
+    radial-gradient(circle at 35% 20%, color-mix(in srgb, var(--contract-type-color,#70a978) 9%, transparent), transparent 62%),
+    #1d2621 !important;
+  border: 1px solid rgba(225,237,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 small { color: #88978e !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-company-v2 strong { color: #f0f5f1 !important; }
+
+/* Tempo/proposta sem cápsula cinza. */
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-proposal-time-v3 {
+  color: #c9d5cc !important;
+  background: #101613 !important;
+  border: 1px solid rgba(225,237,228,.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.012) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2 img,
+html[data-theme="dark"] #officeContractsPanel .contract-proposal-time-v3 img { opacity: .88; }
+html[data-theme="dark"] #officeContractsPanel .contract-time-v2.urgent,
+html[data-theme="dark"] #officeContractsPanel .contract-deadline-warning .contract-time-v2 {
+  color: #ffc08d !important;
+  background: #2c2019 !important;
+  border-color: rgba(235,158,101,.16) !important;
+}
+
+/* Conteúdo principal: imagem e identidade do tipo conversam sem exagero. */
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 {
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 > img {
+  background:
+    radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--contract-type-color,#70a978) 10%, transparent), transparent 66%),
+    linear-gradient(180deg,#202924,#171f1b) !important;
+  border: 1px solid rgba(225,237,228,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018), 0 8px 18px rgba(0,0,0,.13) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-type-label {
+  color: color-mix(in srgb, var(--contract-type-color,#70a978) 72%, #f5fff7) !important;
+  background: color-mix(in srgb, var(--contract-type-color,#70a978) 7%, #101613) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 17%, transparent) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 { color: #f6faf7 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-v2 h3 span { color: #b7c5bb !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-main-meta > span { color: #8b9a90 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-stock-chip {
+  color: #e0e9e2 !important;
+  background: #101613 !important;
+  border: 1px solid rgba(225,237,228,.07) !important;
+}
+
+/* Blocos de tempo/progresso/recompensa: mesma família escura, sem faixas cinza. */
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip {
+  color: #d9e4dc !important;
+  background: linear-gradient(180deg, rgba(12,18,15,.80), rgba(9,14,11,.78)) !important;
+  border-color: rgba(225,237,228,.055) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.012) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3 span,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 span,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip > span { color: #87978c !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-delivery-time-v3 strong,
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 strong { color: #f0f5f1 !important; }
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track {
+  background: #080d0a !important;
+  border: 1px solid rgba(225,237,228,.045) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-progress-v2 .progress-track > span {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--contract-type-color,#70a978) 78%, #467851),
+    color-mix(in srgb, var(--contract-type-color,#70a978) 68%, #8bc495)) !important;
+  box-shadow: 0 0 13px color-mix(in srgb, var(--contract-type-color,#70a978) 14%, transparent) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip .resource-amount,
+html[data-theme="dark"] #officeContractsPanel .contract-reward-strip .resource-reward-group > * {
+  color: #e9f0ea !important;
+  background: #171e1a !important;
+  border-color: rgba(225,237,228,.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.014) !important;
+}
+
+/* Rodapé do card. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-footer-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 {
+  background: #0d1210 !important;
+  border-top: 1px solid rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 .button.primary {
+  color: #f4fff6 !important;
+  background: linear-gradient(180deg,#4da363,#3b8650) !important;
+  border-color: rgba(117,200,137,.19) !important;
+  box-shadow: 0 7px 18px rgba(35,103,54,.20) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2 .button.primary:hover:not(:disabled) {
+  background: linear-gradient(180deg,#59af6e,#45945a) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-penalty-action {
+  color: #efa8a2 !important;
+  background: linear-gradient(180deg,#342120,#2a1b1a) !important;
+  border-color: rgba(222,117,108,.15) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  color: #ffc0ba !important;
+  background: linear-gradient(180deg,#402625,#321f1e) !important;
+}
+
+/* Estados especiais. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-completed-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,189,97,.09), transparent 62%),
+    linear-gradient(155deg,#201f19,#171714 58%,#121311) !important;
+  border-color: rgba(225,189,97,.14) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v2.contract-defaulted-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,118,108,.08), transparent 62%),
+    linear-gradient(155deg,#241b1a,#1b1514 58%,#151110) !important;
+  border-color: rgba(225,118,108,.14) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Atalho de contratos — mais limpo e com acento por contrato                 */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .contract-dock-panel.contract-dock-v2,
+html[data-theme="dark"] .contract-dock.visible:not(.collapsed) .contract-dock-v2 {
+  background: linear-gradient(165deg,#151b18 0%,#0e1311 100%) !important;
+  border: 1px solid rgba(225,237,228,.09) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header {
+  background: linear-gradient(180deg,#1b231f,#151c18) !important;
+  border-bottom: 1px solid rgba(225,237,228,.06) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-header > button:first-child > img,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle,
+html[data-theme="dark"] .contract-dock-compact-button {
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.075) !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list,
+html[data-theme="dark"] .contract-dock .contract-dock-list,
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-list:has(> :nth-child(4)),
+html[data-theme="dark"] .contract-dock .contract-dock-list:has(> :nth-child(4)) {
+  background: #0d1210 !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 {
+  color: #e8efe9 !important;
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, color-mix(in srgb, var(--contract-type-color,#70a978) 7%, transparent), transparent 68%),
+    linear-gradient(160deg,#1b231f,#151b18 70%) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.065)) !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2:hover {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, color-mix(in srgb, var(--contract-type-color,#70a978) 11%, transparent), transparent 68%),
+    linear-gradient(160deg,#202923,#18201c 70%) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 23%, rgba(225,237,228,.08)) !important;
+}
+html[data-theme="dark"] .contract-dock-crop-shell {
+  background:
+    radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 68%),
+    #1d2621 !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > small {
+  color: #c7d3ca !important;
+  background: #101613 !important;
+  border-color: rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] .contract-dock-state {
+  color: #9eada2 !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding-inline: 0 !important;
+}
+html[data-theme="dark"] .contract-dock-state.is-urgent { color: #f2ae7e !important; }
+html[data-theme="dark"] .contract-dock-state.is-completed { color: #dfc56e !important; }
+html[data-theme="dark"] .contract-dock-state.is-defaulted { color: #e99a93 !important; }
+html[data-theme="dark"] .contract-dock-progress {
+  background: #080d0a !important;
+  border: 1px solid rgba(225,237,228,.035) !important;
+}
+html[data-theme="dark"] .contract-dock-progress > .delivered {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--contract-type-color,#70a978) 78%, #457650),
+    color-mix(in srgb, var(--contract-type-color,#70a978) 65%, #83ba8c)) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-rewards .resource-amount {
+  color: #dce6de !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.reward-ready {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, rgba(225,189,97,.08), transparent 68%),
+    linear-gradient(160deg,#211f18,#171713 70%) !important;
+  border-color: rgba(225,189,97,.13) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.contract-defaulted {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, rgba(225,118,108,.07), transparent 68%),
+    linear-gradient(160deg,#231918,#191312 70%) !important;
+  border-color: rgba(225,118,108,.13) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2.deadline-warning:not(.reward-ready):not(.contract-defaulted) {
+  background:
+    radial-gradient(15rem 7rem at 0% 0%, rgba(235,158,101,.07), transparent 68%),
+    linear-gradient(160deg,#211b17,#171411 70%) !important;
+  border-color: rgba(235,158,101,.12) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* -------------------------------------------------------------------------- */
+/* Modal de filtros no tema escuro                                            */
+/* -------------------------------------------------------------------------- */
+html[data-theme="dark"] .catalog-filter-dialog,
+html[data-theme="dark"] .catalog-filter-form {
+  color: #eaf1eb !important;
+  background: #151b18 !important;
+  border-color: rgba(225,237,228,.09) !important;
+}
+html[data-theme="dark"] .catalog-filter-header,
+html[data-theme="dark"] .catalog-filter-footer {
+  background: linear-gradient(180deg,#1b231f,#161c19) !important;
+  border-color: rgba(225,237,228,.065) !important;
+}
+html[data-theme="dark"] .catalog-filter-header h2,
+html[data-theme="dark"] .catalog-filter-section-heading strong,
+html[data-theme="dark"] .catalog-filter-toggle > span strong { color: #edf4ee !important; }
+html[data-theme="dark"] .catalog-filter-header p:not(.eyebrow),
+html[data-theme="dark"] .catalog-filter-section-heading small,
+html[data-theme="dark"] .catalog-filter-section-heading p,
+html[data-theme="dark"] .catalog-filter-toggle > span small { color: #92a198 !important; }
+html[data-theme="dark"] .catalog-filter-section,
+html[data-theme="dark"] .catalog-filter-toggle,
+html[data-theme="dark"] .catalog-filter-category {
+  color: #dce6de !important;
+  background: #1b231f !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .catalog-filter-category i,
+html[data-theme="dark"] .catalog-filter-toggle > i {
+  background: #28312c !important;
+  border-color: rgba(225,237,228,.07) !important;
+}
+html[data-theme="dark"] .catalog-filter-toggle input:checked + i { background: #4f965e !important; }
+html[data-theme="dark"] .catalog-filter-category:has(input:checked) {
+  color: #bce3c4 !important;
+  background: #1a2a1f !important;
+  border-color: rgba(91,166,108,.18) !important;
+}
+html[data-theme="dark"] .catalog-filter-category input:checked ~ i { color: #fff !important; background: #4b915a !important; }
+html[data-theme="dark"] .catalog-filter-button {
+  color: #dce6de !important;
+  background: #1b231f !important;
+  border-color: rgba(225,237,228,.08) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .catalog-filter-button:hover { background: #222b26 !important; }
+html[data-theme="dark"] .catalog-filter-button.has-active-filters {
+  color: #b9dfc1 !important;
+  background: #19291e !important;
+  border-color: rgba(88,163,105,.18) !important;
+}
+html[data-theme="dark"] .catalog-filter-clear { color: #9daca2 !important; }
+html[data-theme="dark"] .catalog-filter-clear:hover { color: #dce6de !important; background: rgba(255,255,255,.035) !important; }
+
+/* Alta especificidade para neutralizar regras históricas claras de contratos. */
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2:not(.contract-completed-card):not(.contract-defaulted-card) {
+  background:
+    radial-gradient(26rem 12rem at 18% -12%, color-mix(in srgb, var(--contract-type-color,#70a978) 8%, transparent), transparent 62%),
+    linear-gradient(155deg, #1b2220 0%, #151b19 58%, #111614 100%) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color,#70a978) 12%, rgba(225,237,228,.075)) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2:not(.contract-completed-card):not(.contract-defaulted-card) .contract-reward-strip {
+  background: linear-gradient(180deg, rgba(12,18,15,.80), rgba(9,14,11,.78)) !important;
+  border-color: rgba(225,237,228,.055) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-completed-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,189,97,.09), transparent 62%),
+    linear-gradient(155deg,#201f19,#171714 58%,#121311) !important;
+  border-color: rgba(225,189,97,.14) !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-completed-card .contract-reward-strip {
+  background: linear-gradient(180deg,#171713,#12120f) !important;
+  border-color: rgba(225,189,97,.08) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-completed-card .contract-time-v2 {
+  color: #dfc66f !important;
+  background: #211e12 !important;
+  border-color: rgba(225,189,97,.12) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-defaulted-card {
+  background:
+    radial-gradient(24rem 12rem at 18% -10%, rgba(225,118,108,.08), transparent 62%),
+    linear-gradient(155deg,#241b1a,#1b1514 58%,#151110) !important;
+  border-color: rgba(225,118,108,.14) !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2.contract-defaulted-card .contract-time-v2 {
+  color: #e99a93 !important;
+  background: #2a1b1a !important;
+  border-color: rgba(225,118,108,.12) !important;
+}
+
+/* ========================================================================== */
+/* R38u — lapidação dirigida do modo noturno                                  */
+/* ========================================================================== */
+
+/* Navegação principal e secundária: mais limpa, menos "caixas dentro de caixas". */
+html[data-theme="dark"] .main-nav {
+  background: linear-gradient(180deg, #151d19 0%, #111713 100%) !important;
+  border: 1px solid rgba(219,234,223,.075) !important;
+  box-shadow: 0 14px 30px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab {
+  color: #9dac9f !important;
+  background: transparent !important;
   border: 1px solid transparent !important;
-  border-radius: 14px !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab .nav-tab-icon {
+  background: rgba(255,255,255,.025) !important;
+  border: 1px solid rgba(225,238,228,.055) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab:hover:not(.active) {
+  color: #dce6de !important;
+  background: rgba(255,255,255,.028) !important;
+  border-color: rgba(225,238,228,.055) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active {
+  color: #eff8f1 !important;
+  background: linear-gradient(180deg, rgba(73,130,85,.19), rgba(43,86,54,.12)) !important;
+  border-color: rgba(112,177,125,.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03), 0 7px 18px rgba(0,0,0,.13) !important;
+}
+html[data-theme="dark"] .main-nav .nav-tab.active .nav-tab-icon {
+  background: rgba(91,155,104,.11) !important;
+  border-color: rgba(123,192,137,.12) !important;
+}
+html[data-theme="dark"] .context-tabs {
+  background: #121915 !important;
+  border: 1px solid rgba(219,234,223,.07) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.20) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) {
+  color: #98a79b !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i {
+  background: rgba(255,255,255,.024) !important;
+  border-color: rgba(225,238,228,.05) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #d9e4db !important;
+  background: rgba(255,255,255,.026) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #eef7f0 !important;
+  background: rgba(77,139,90,.12) !important;
+  border-color: rgba(112,177,125,.12) !important;
+  box-shadow: inset 0 -2px 0 rgba(101,178,117,.52) !important;
+}
+html[data-theme="dark"] .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  background: rgba(91,155,104,.10) !important;
+  border-color: transparent !important;
+}
+
+/* Fazenda: restaura o anel de produção e remove caixas desnecessárias. */
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #63ad72 var(--growth-progress, 0%),
+    rgba(99,173,114,.13) 0) !important;
+  border: 0 !important;
+  box-shadow: 0 8px 18px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress.paused:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #c5a450 var(--growth-progress, 0%),
+    rgba(197,164,80,.14) 0) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress .crop-art {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(103,160,113,.08), transparent 62%),
+    #17201b !important;
+  border-color: #202b24 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-progress-percent {
+  color: #eff8f1 !important;
+  background: rgba(12,18,14,.86) !important;
+  border-color: rgba(128,190,140,.12) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-category-list {
+  color: #91a599 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-inline: 0 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-selector {
+  background: rgba(9,14,11,.24) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Estoque: plantas em uma superfície mais orgânica e valores menos acinzentados. */
+html[data-theme="dark"] #stockView .stock-card,
+html[data-theme="dark"] #stockView .normalized-stock-card {
+  background:
+    radial-gradient(22rem 10rem at 0% 0%, rgba(85,151,99,.075), transparent 64%),
+    linear-gradient(155deg, #1b2620 0%, #151d19 68%, #131916 100%) !important;
+  border-color: rgba(215,232,219,.075) !important;
+  box-shadow: 0 14px 32px rgba(0,0,0,.23), inset 0 1px 0 rgba(255,255,255,.017) !important;
+}
+html[data-theme="dark"] #stockView .stock-card:hover {
+  border-color: rgba(112,177,125,.13) !important;
+  background:
+    radial-gradient(22rem 10rem at 0% 0%, rgba(91,160,106,.105), transparent 64%),
+    linear-gradient(155deg, #1e2923 0%, #171f1b 68%, #141b17 100%) !important;
+}
+html[data-theme="dark"] #stockView .stock-ident > img {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(112,181,125,.13), transparent 62%),
+    linear-gradient(180deg, #17251c, #111a15) !important;
+  border: 1px solid rgba(117,181,129,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 7px 16px rgba(0,0,0,.16) !important;
+}
+html[data-theme="dark"] #stockView .stock-value-grid > div {
+  color: #dce7de !important;
+  background: rgba(7,12,9,.22) !important;
+  border-color: rgba(215,232,219,.055) !important;
+}
+html[data-theme="dark"] #stockView .auto-sell-toggle,
+html[data-theme="dark"] #stockView .compact-auto-toggle {
+  background: rgba(10,16,12,.28) !important;
+  border-color: rgba(215,232,219,.06) !important;
+}
+html[data-theme="dark"] #stockView .auto-sell-toggle.active,
+html[data-theme="dark"] #stockView .compact-auto-toggle.active {
+  background: rgba(61,112,72,.15) !important;
+  border-color: rgba(100,173,115,.13) !important;
+}
+html[data-theme="dark"] #stockView .favorite-stock-card {
+  background:
+    radial-gradient(18rem 9rem at 100% 0%, rgba(225,189,97,.07), transparent 64%),
+    radial-gradient(20rem 10rem at 0% 0%, rgba(85,151,99,.06), transparent 64%),
+    linear-gradient(155deg, #20261f 0%, #181d19 68%, #151815 100%) !important;
+}
+
+/* Contratos: a categoria não precisa de cápsula/borda. */
+html[data-theme="dark"] #officeContractsPanel .contract-type-label,
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-type-label {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Evoluções concluídas: botão discreto e coerente com Pesquisa/Legado. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .button[data-action="buy-research"] {
+  opacity: 1 !important;
+  color: #a9cae7 !important;
+  background: linear-gradient(180deg, #1b2b39 0%, #17232e 100%) !important;
+  border-color: rgba(104,164,216,.15) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed .button[data-action="buy-prestige-upgrade"] {
+  opacity: 1 !important;
+  color: #d0ace7 !important;
+  background: linear-gradient(180deg, #2d2134 0%, #241a2a 100%) !important;
+  border-color: rgba(172,115,207,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+
+html[data-theme="dark"] #farmView .crop-card .upgrade-mode-option {
+  border: 0 !important;
+}
+
+
+/* ========================================================================== */
+/* R38v — dark mode: correções finais com seletores exatos                    */
+/* ========================================================================== */
+
+/* Navegação principal e contextual — contraste e hierarquia sem caixas claras. */
+html[data-theme="dark"] .navigation-stack .main-nav,
+html[data-theme="dark"] .navigation-stack .mobile-direct-nav,
+html[data-theme="dark"] .navigation-stack .context-tabs {
+  background: linear-gradient(180deg, #131a16 0%, #0f1512 100%) !important;
+  border: 1px solid rgba(214,231,219,.075) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) {
+  color: #99a99e !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i {
+  background: rgba(255,255,255,.018) !important;
+  border: 1px solid rgba(218,233,222,.045) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab:hover:not(.active),
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab):hover:not(.active) {
+  color: #dce7de !important;
+  background: rgba(255,255,255,.026) !important;
+  border-color: rgba(218,233,222,.05) !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab.active,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #f1f7f2 !important;
+  background: linear-gradient(180deg, rgba(77,139,90,.18), rgba(49,98,60,.11)) !important;
+  border-color: rgba(111,178,125,.14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 7px 18px rgba(0,0,0,.13) !important;
+}
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  box-shadow: inset 0 -2px 0 rgba(104,180,120,.56) !important;
+}
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab.active .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  background: rgba(90,158,104,.09) !important;
+  border-color: rgba(116,187,130,.10) !important;
+}
+
+/* Fazenda — anel de produção volta a ser visível. */
+html[data-theme="dark"] body.compact-cards #farmView .crop-card .crop-art-progress:not(.instant),
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #65b576 0 var(--growth-progress, 0%),
+    rgba(101,181,118,.13) var(--growth-progress, 0%) 100%) !important;
+  border: 0 !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.22), 0 0 0 1px rgba(111,188,126,.06) !important;
+}
+html[data-theme="dark"] body.compact-cards #farmView .crop-card .crop-art-progress.paused:not(.instant),
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress.paused:not(.instant) {
+  background: conic-gradient(from -90deg,
+    #d0ad55 0 var(--growth-progress, 0%),
+    rgba(208,173,85,.14) var(--growth-progress, 0%) 100%) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress:not(.instant) > .crop-art {
+  background: radial-gradient(circle at 50% 32%, rgba(104,161,115,.08), transparent 62%), #151d18 !important;
+  border-color: #202a23 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-meta-row .crop-category-list {
+  color: #91a39a !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel .upgrade-mode-selector,
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel .crop-upgrade-summary {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-upgrade-panel .upgrade-mode-option {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+/* Estoque — fundos mais naturais e menos cinza. */
+html[data-theme="dark"] #stockView .stock-card.normalized-stock-card {
+  background:
+    radial-gradient(20rem 11rem at -5% -5%, rgba(91,163,106,.11), transparent 64%),
+    radial-gradient(17rem 9rem at 105% 110%, rgba(55,105,66,.055), transparent 70%),
+    linear-gradient(150deg, #1b2720 0%, #151e19 62%, #121814 100%) !important;
+  border-color: rgba(207,227,212,.075) !important;
+  box-shadow: 0 15px 34px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] #stockView .stock-card.normalized-stock-card:hover {
+  background:
+    radial-gradient(20rem 11rem at -5% -5%, rgba(101,177,117,.145), transparent 64%),
+    radial-gradient(17rem 9rem at 105% 110%, rgba(62,117,74,.07), transparent 70%),
+    linear-gradient(150deg, #1e2b23 0%, #17211b 62%, #131a16 100%) !important;
+  border-color: rgba(116,183,129,.14) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .stock-ident > img {
+  background: radial-gradient(circle at 50% 35%, rgba(112,186,127,.12), transparent 58%), #131d17 !important;
+  border-color: rgba(112,181,126,.09) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .stock-value-grid > div {
+  background: rgba(6,11,8,.24) !important;
+  border-color: rgba(207,227,212,.05) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .compact-auto-toggle {
+  background: rgba(7,12,9,.25) !important;
+  border-color: rgba(207,227,212,.055) !important;
+}
+html[data-theme="dark"] #stockView .stock-card .compact-auto-toggle.active {
+  background: rgba(65,122,76,.14) !important;
+  border-color: rgba(103,174,117,.12) !important;
+}
+
+/* Contratos — categoria sem cápsula/borda, preservando apenas o ponto e a cor. */
+html[data-theme="dark"] #officeView #officeContractsPanel .contract-card-v2 .contract-type-label,
+html[data-theme="dark"] #officeView #officeContractsPanel .friendly-contract-card.contract-custom-color .contract-type-label {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* Pesquisa / Legados concluídos — não herdam o cinza genérico de disabled. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"][data-upgrade-completed="true"] button[data-action="buy-research"]:disabled,
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed button[data-action="buy-research"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #a9d2f3 !important;
+  background: linear-gradient(180deg, #20374a 0%, #182b3a 100%) !important;
+  border: 1px solid rgba(106,171,226,.16) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"][data-upgrade-completed="true"] button[data-action="buy-prestige-upgrade"]:disabled,
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed button[data-action="buy-prestige-upgrade"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #d7b5ef !important;
+  background: linear-gradient(180deg, #36263f 0%, #291e31 100%) !important;
+  border: 1px solid rgba(176,119,210,.17) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+
+html[data-theme="dark"] #catalogFilterDialog .catalog-filter-section-title { color: #dfe9e2 !important; }
+html[data-theme="dark"] #catalogFilterDialog .catalog-filter-header h2 { color: #eff5f0 !important; }
+
+
+/* ========================================================================== */
+
+/* ========================================================================== */
+
+/* Navegação em linha e em grade: ícones sem qualquer borda no modo escuro. */
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .main-nav .nav-tab.active .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .main-nav-grid .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .mobile-direct-nav .nav-tab .nav-tab-icon,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i,
+html[data-theme="dark"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Contratos: a área dos botões não deve virar uma faixa escura separada. */
+html[data-theme="dark"] #officeContractsPanel .contract-offer-actions-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-card-footer-v2,
+html[data-theme="dark"] #officeContractsPanel .contract-break-footer-v3,
+html[data-theme="dark"] #officeContractsPanel .contract-full-action-footer {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Atalho: novo posicionamento do tempo e ícones de controle brancos. */
+html[data-theme="dark"] .contract-dock-time {
+  color: #9eaea3 !important;
+}
+html[data-theme="dark"] .contract-dock-time.is-urgent {
+  color: #ef9a83 !important;
+}
+html[data-theme="dark"] .contract-dock-v2 .contract-dock-collapse-toggle > img {
+  filter: brightness(0) invert(1) opacity(.92) !important;
+}
+
+/* Cookies — banner e preferências totalmente integrados ao modo noturno. */
+html[data-theme="dark"] .cookie-banner {
+  color: #eaf1eb !important;
+  background: linear-gradient(165deg, rgba(25,34,29,.985), rgba(16,22,18,.985)) !important;
+  border-color: rgba(220,235,224,.10) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .cookie-banner-icon {
+  color: #b8d8bf !important;
+  background: linear-gradient(145deg, #243329, #19231d) !important;
+  border-color: rgba(118,178,130,.13) !important;
+}
+html[data-theme="dark"] .cookie-banner-copy h2 {
+  color: #f0f6f1 !important;
+}
+html[data-theme="dark"] .cookie-banner-copy p {
+  color: #a4b2a8 !important;
+}
+html[data-theme="dark"] .cookie-banner-copy a {
+  color: #8fc49a !important;
+}
+html[data-theme="dark"] .cookie-button.primary {
+  color: #f5fff6 !important;
+  background: linear-gradient(180deg,#4c9b60,#3c7f4f) !important;
+  border-color: rgba(127,199,142,.20) !important;
+}
+html[data-theme="dark"] .cookie-button.secondary {
+  color: #d8e5da !important;
+  background: #202b25 !important;
+  border-color: rgba(220,235,224,.10) !important;
+}
+html[data-theme="dark"] .cookie-button.ghost {
+  color: #b9c6bc !important;
+  background: #171f1b !important;
+  border-color: rgba(220,235,224,.08) !important;
+}
+html[data-theme="dark"] .cookie-preferences-dialog {
+  color: #eaf1eb !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .cookie-preferences-dialog::backdrop {
+  background: rgba(4,7,5,.72) !important;
+  backdrop-filter: blur(6px) !important;
+}
+html[data-theme="dark"] .cookie-preferences-dialog > form {
+  color: #eaf1eb !important;
+  background: linear-gradient(165deg,#1b241f,#121814) !important;
+  border-color: rgba(220,235,224,.10) !important;
+  box-shadow: 0 30px 84px rgba(0,0,0,.56), inset 0 1px 0 rgba(255,255,255,.022) !important;
+}
+html[data-theme="dark"] .cookie-dialog-heading .eyebrow {
+  color: #82b88d !important;
+}
+html[data-theme="dark"] .cookie-dialog-heading h2,
+html[data-theme="dark"] .cookie-category-copy strong {
+  color: #edf4ee !important;
+}
+html[data-theme="dark"] .cookie-dialog-heading p,
+html[data-theme="dark"] .cookie-category-copy small,
+html[data-theme="dark"] .cookie-dialog-note {
+  color: #9facA2 !important;
+}
+html[data-theme="dark"] .cookie-category {
+  color: #e8efe9 !important;
+  background: linear-gradient(180deg,#202a24,#19211d) !important;
+  border-color: rgba(220,235,224,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] .cookie-state-required {
+  color: #a9d2b1 !important;
+  background: #1b2b20 !important;
+  border: 1px solid rgba(111,177,124,.12) !important;
+}
+html[data-theme="dark"] .cookie-switch > span[aria-hidden="true"] {
+  background: #36423b !important;
+  box-shadow: inset 0 0 0 1px rgba(220,235,224,.07) !important;
+}
+html[data-theme="dark"] .cookie-switch > span[aria-hidden="true"]::after {
+  background: #dfe8e1 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.36) !important;
+}
+html[data-theme="dark"] .cookie-switch input:checked + span[aria-hidden="true"] {
+  background: #4d9560 !important;
+}
+
+/* ========================================================================== */
+/* R39.3 — correções verificadas do prompt anterior                           */
+/* ========================================================================== */
+
+/* Navegação: nenhum contorno, cápsula ou fundo ao redor dos ÍCONES. */
+html[data-theme="dark"] body .navigation-stack :is(.main-nav,.main-nav-grid,.mobile-direct-nav) .nav-tab > .nav-tab-icon,
+html[data-theme="dark"] body .navigation-stack :is(.main-nav,.main-nav-grid,.mobile-direct-nav) .nav-tab.active > .nav-tab-icon,
+html[data-theme="dark"] body .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i,
+html[data-theme="dark"] body .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i,
+html[data-theme="dark"] body[data-navigation-mode="grid"] .mobile-direct-nav .nav-tab > .nav-tab-icon,
+html[data-theme="dark"] body[data-navigation-mode="sidebar"] .navigation-stack > .context-nav-column .office-tab i {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body .navigation-stack :is(.main-nav,.main-nav-grid,.mobile-direct-nav) .nav-tab > .nav-tab-icon > img,
+html[data-theme="dark"] body .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab) i > img {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Contratos: o rodapé da proposta é apenas layout, nunca uma faixa. */
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-offer-card > footer.contract-offer-actions-v2,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-v2 > footer.contract-card-footer-v2,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-v2 > footer.contract-break-footer-v3,
+html[data-theme="dark"] body #officeView #officeContractsPanel .contract-card-v2 > footer.contract-full-action-footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-top: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Atalho: porcentagem/conclusão no canto superior direito e tempo abaixo da barra. */
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent] {
+  color: #aebdb2 !important;
+  background: rgba(255,255,255,.035) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent].is-completed {
+  color: #e4c76e !important;
+  background: rgba(183,148,54,.12) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent].is-defaulted {
+  color: #ef9a92 !important;
+  background: rgba(184,74,67,.11) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-title-line > [data-contract-dock-percent].is-urgent {
+  color: #efa086 !important;
+  background: rgba(180,83,58,.11) !important;
+}
+html[data-theme="dark"] .contract-dock-item-v2 .contract-dock-time {
+  color: #9caca1 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Ícones solicitados brancos, sem a antiga plaquinha branca/cinza. */
+html[data-theme="dark"] body .contract-dock-v2 .contract-dock-collapse-toggle,
+html[data-theme="dark"] body .contract-dock-v2 .contract-dock-collapse-toggle:hover {
+  border-color: rgba(226,238,229,.08) !important;
+}
+html[data-theme="dark"] body .contract-dock-v2 .contract-dock-collapse-toggle > img {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  filter: brightness(0) invert(1) !important;
+  opacity: 1 !important;
+}
+
+/* Cookies: banner e modal completos, incluindo áreas que ainda herdavam o tema claro. */
+html[data-theme="dark"] body #cookieBanner.cookie-banner {
+  color: #edf4ee !important;
+  background: linear-gradient(150deg, #1b251f 0%, #131a16 58%, #0f1512 100%) !important;
+  border: 1px solid rgba(220,236,224,.11) !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,.52), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-banner-copy,
+html[data-theme="dark"] body #cookieBanner .cookie-banner-copy > div,
+html[data-theme="dark"] body #cookieBanner .cookie-banner-actions {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-banner-icon {
+  background: rgba(95,158,108,.10) !important;
+  border: 1px solid rgba(112,179,126,.12) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-banner-icon img {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body #cookieBanner h2 { color: #f2f7f3 !important; }
+html[data-theme="dark"] body #cookieBanner p { color: #a5b4a9 !important; }
+html[data-theme="dark"] body #cookieBanner a { color: #91c89d !important; }
+html[data-theme="dark"] body #cookieBanner .cookie-banner-actions {
+  grid-template-columns: repeat(2, minmax(0,auto)) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-button.primary,
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-button.primary {
+  color: #f7fff8 !important;
+  background: linear-gradient(180deg,#4c9a5e,#387a49) !important;
+  border-color: rgba(126,199,141,.19) !important;
+}
+html[data-theme="dark"] body #cookieBanner .cookie-button.secondary {
+  color: #dce7de !important;
+  background: #202a24 !important;
+  border-color: rgba(220,236,224,.09) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog.cookie-preferences-dialog {
+  color: #edf4ee !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog.cookie-preferences-dialog > form {
+  color: #edf4ee !important;
+  background: linear-gradient(150deg,#1b251f,#121914 66%,#0f1512) !important;
+  border: 1px solid rgba(220,236,224,.10) !important;
+  box-shadow: 0 30px 86px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.02) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-dialog-heading,
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category-list,
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-dialog-actions {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg,#202a24,#18201c) !important;
+  border: 1px solid rgba(220,236,224,.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category-copy strong { color: #eef5ef !important; }
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-category-copy small { color: #9faea3 !important; }
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-state-required {
+  color: #b8d9bf !important;
+  background: rgba(77,142,90,.14) !important;
+  border: 1px solid rgba(111,180,124,.12) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-button.ghost {
+  color: #c1cec4 !important;
+  background: #1a221e !important;
+  border-color: rgba(220,236,224,.08) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-switch > span[aria-hidden="true"] {
+  background: #303c35 !important;
+  box-shadow: inset 0 0 0 1px rgba(220,236,224,.07) !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-switch input:checked + span[aria-hidden="true"] {
+  background: #4c955e !important;
+}
+html[data-theme="dark"] body #cookiePreferencesDialog .cookie-switch > span[aria-hidden="true"]::after {
+  background: #f0f5f1 !important;
+}
+
+/* R39.4 — novos controles de busca/filtro e pausa no modo escuro. */
+html[data-theme="dark"] #farmView .catalog-search-field,
+html[data-theme="dark"] #stockView .catalog-search-field,
+html[data-theme="dark"] #farmView .catalog-filter-button,
+html[data-theme="dark"] #stockView .catalog-filter-button {
+  color: #eef5ef !important;
+  background: linear-gradient(180deg, #202923 0%, #18201c 100%) !important;
+  border: 1px solid rgba(226,237,228,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 8px 18px rgba(0,0,0,.14) !important;
+}
+html[data-theme="dark"] #farmView .catalog-search-field:focus-within,
+html[data-theme="dark"] #stockView .catalog-search-field:focus-within {
+  border-color: rgba(110,178,124,.26) !important;
+  box-shadow: 0 0 0 3px rgba(83,145,95,.10), 0 10px 22px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] #farmView .catalog-search-field input,
+html[data-theme="dark"] #stockView .catalog-search-field input {
+  color: #edf4ee !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-theme="dark"] #farmView .catalog-filter-button:hover,
+html[data-theme="dark"] #stockView .catalog-filter-button:hover {
+  background: linear-gradient(180deg, #253029 0%, #1c2520 100%) !important;
+}
+html[data-theme="dark"] #farmView .catalog-filter-button.has-active-filters,
+html[data-theme="dark"] #stockView .catalog-filter-button.has-active-filters {
+  border-color: rgba(120,188,133,.24) !important;
+  background: linear-gradient(180deg, #243129 0%, #1b2820 100%) !important;
+}
+html[data-theme="dark"] #farmView .crop-progress-percent.is-paused,
+html[data-theme="dark"] #farmView .crop-art-progress.paused .crop-progress-percent.is-paused {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ========================================================================== */
+/* R39.5 — contraste do feedback e counters flutuantes                        */
+/* ========================================================================== */
+
+/* Feedback: textos legíveis no modal noturno. */
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-heading h2,
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-fields > label > span,
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-type > span {
+  color: #f1f6f2 !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-heading .eyebrow {
+  color: #8fc89a !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-heading p:not(.eyebrow) {
+  color: #c2d0c5 !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-fields small,
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-message-field small {
+  color: #aebdb2 !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog .player-feedback-status {
+  color: #cbd8ce !important;
+}
+html[data-theme="dark"] body #playerFeedbackDialog :is(input,select,textarea)::placeholder {
+  color: #7f9185 !important;
+}
+
+/* Counter flutuante: replica a identidade cromática dos counters do header. */
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="coins"] {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(237,190,68,.10), transparent 48%),
+    linear-gradient(180deg, #2b2616 0%, #211d13 100%) !important;
+  border-color: rgba(225,188,91,.15) !important;
+}
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="research"] {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(77,157,220,.11), transparent 48%),
+    linear-gradient(180deg, #17293a 0%, #12212d 100%) !important;
+  border-color: rgba(103,170,224,.16) !important;
+}
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="prestige"] {
+  background:
+    radial-gradient(circle at 18% 20%, rgba(164,103,214,.12), transparent 48%),
+    linear-gradient(180deg, #2b1d3a 0%, #21162e 100%) !important;
+  border-color: rgba(176,119,222,.18) !important;
+}
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="coins"] small { color: #c8b982 !important; }
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="research"] small { color: #9dbbd1 !important; }
+html[data-theme="dark"] body .floating-resource-strip .resource-pill[data-resource-shortcut="prestige"] small { color: #bca4cf !important; }
+html[data-theme="dark"] body .floating-resource-strip .resource-pill strong { color: #f5f8f6 !important; }
+
+/* ========================================================================== */
+/* R39.6 — dark: não recolocar moldura na navegação secundária em linha       */
+/* ========================================================================== */
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]),
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .context-nav-column.desktop-context-nav:not([hidden]),
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .context-tabs,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .office-tabs,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-context-nav:not([hidden]) > .profile-tabs {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+
+/* ========================================================================== */
+/* R39.7 — refinamentos dark: tabs, divisórias, Conta e view de Contratos     */
+/* ========================================================================== */
+
+/* Tab secundário ativo em navegação de linha = exatamente a mesma linguagem
+   visual do tab primário ativo. Remove o antigo sublinhado exclusivo. */
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .main-nav .nav-tab.active,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active {
+  color: #f2f7f3 !important;
+  background: linear-gradient(180deg, rgba(78, 140, 91, .20) 0%, rgba(48, 96, 59, .13) 100%) !important;
+  border: 1px solid rgba(112, 180, 126, .15) !important;
+  outline: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.028), 0 7px 18px rgba(0,0,0,.14) !important;
+}
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active::before,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active::after {
+  box-shadow: none !important;
+}
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .main-nav .nav-tab.active > .nav-tab-icon,
+html[data-theme="dark"] body[data-navigation-mode="line"] .navigation-stack .context-tabs :is(.office-tab,.profile-tab,.evolution-tab).active i {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Linhas horizontais personalizadas: no dark deixam de parecer linhas cinza
+   chapadas e passam a usar uma transição suave integrada ao verde da UI. */
+html[data-theme="dark"] .contract-section-divider,
+html[data-theme="dark"] .experience-divider.contract-section-divider {
+  gap: 12px !important;
+  margin-block: 26px 22px !important;
+}
+html[data-theme="dark"] .contract-section-divider::before,
+html[data-theme="dark"] .experience-divider.contract-section-divider::before {
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent 0%, rgba(111,174,123,.06) 22%, rgba(120,186,133,.26) 100%) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-section-divider::after,
+html[data-theme="dark"] .experience-divider.contract-section-divider::after {
+  height: 1px !important;
+  background: linear-gradient(90deg, rgba(120,186,133,.26) 0%, rgba(111,174,123,.06) 78%, transparent 100%) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .contract-section-divider > span,
+html[data-theme="dark"] .experience-divider.contract-section-divider > span {
+  width: 8px !important;
+  height: 8px !important;
+  flex: 0 0 8px !important;
+  border-radius: 999px !important;
+  background: #6eae7b !important;
+  border: 2px solid #172019 !important;
+  box-shadow: 0 0 0 3px rgba(110,174,123,.10), 0 0 14px rgba(110,174,123,.16) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .evolution-section-divider > span {
+  height: 1px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(116,178,129,.05) 13%,
+    rgba(135,192,147,.22) 42%,
+    rgba(172,113,207,.22) 58%,
+    rgba(154,102,190,.05) 87%,
+    transparent 100%) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.01) !important;
+}
+html[data-theme="dark"] .leaderboard-personal-divider::before,
+html[data-theme="dark"] .leaderboard-personal-divider::after{
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(133,163,142,.20), transparent) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .leaderboard-personal-divider span{
+  color: #829388 !important;
+}
+
+/* Conta não conectada ganha evidência também no tema noturno. */
+html[data-theme="dark"] #profileAccountPanel .account-email.is-disconnected {
+  color: #efb08b !important;
+  background: rgba(179, 91, 50, .13) !important;
+  border: 1px solid rgba(217, 123, 77, .12) !important;
+}
+
+/* Contratos: o painel interno não é uma segunda caixa. A superfície arredondada
+   pertence somente ao .office-workspace, eliminando o outline quadrado. */
+html[data-theme="dark"] body #officeView > .office-workspace.panel-card {
+  border-radius: 21px !important;
+  outline: 0 !important;
+}
+html[data-theme="dark"] body #officeView > .office-workspace.panel-card > #officeContractsPanel.office-panel,
+html[data-theme="dark"] body #officeView > .office-workspace.panel-card > #officeContractsPanel.office-panel.active {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ========================================================================== */
+/* R39.8 — complementos dark da Conta Google e Estoque                       */
+/* ========================================================================== */
+html[data-theme="dark"] #profileAccountPanel .account-connection-status {
+  background: rgba(211, 126, 75, .10) !important;
+  border-color: rgba(225, 151, 104, .16) !important;
+  color: #e7b18d !important;
+}
+html[data-theme="dark"] #stockView .stock-card .stock-head,
+html[data-theme="dark"] #stockView .normalized-stock-card .stock-head {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* ========================================================================== */
+/* R39.9 — Dark: pódio, Evoluções indisponíveis e Estatísticas                */
+/* ========================================================================== */
+
+/* Pódio: cada posição mantém uma assinatura cromática perceptível. */
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-1 {
+  background:
+    radial-gradient(22rem 8rem at 0% 50%, rgba(227, 188, 73, .18), transparent 68%),
+    linear-gradient(100deg, #302b1c 0%, #231f18 48%, #18201b 100%) !important;
+  border-color: rgba(227, 188, 73, .18) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-2 {
+  background:
+    radial-gradient(22rem 8rem at 0% 50%, rgba(166, 191, 207, .15), transparent 68%),
+    linear-gradient(100deg, #252e33 0%, #1e2629 48%, #18201b 100%) !important;
+  border-color: rgba(166, 191, 207, .16) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-3 {
+  background:
+    radial-gradient(22rem 8rem at 0% 50%, rgba(203, 137, 83, .16), transparent 68%),
+    linear-gradient(100deg, #30251d 0%, #241e19 48%, #18201b 100%) !important;
+  border-color: rgba(203, 137, 83, .17) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-4,
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-5 {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(91, 157, 106, .13), transparent 70%),
+    linear-gradient(100deg, #1d2a22 0%, #19231d 52%, #171e1a 100%) !important;
+  border-color: rgba(91, 157, 106, .12) !important;
+}
+
+/* Sem saldo: azul/roxo escuro, legível e claramente indisponível. */
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .button[data-action="buy-research"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #86a9c4 !important;
+  background: linear-gradient(180deg, #192936 0%, #14212b 100%) !important;
+  border-color: rgba(104, 161, 207, .14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .button[data-action="buy-prestige-upgrade"]:disabled {
+  opacity: 1 !important;
+  filter: none !important;
+  color: #b493c8 !important;
+  background: linear-gradient(180deg, #2b2132 0%, #221a28 100%) !important;
+  border-color: rgba(164, 111, 195, .14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+/* Estatísticas: o painel é a superfície; conteúdos internos não ganham outlines sucessivos. */
+html[data-theme="dark"] #profileAccountPanel .account-statistics-section {
+  border-color: rgba(222, 236, 225, .065) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-section-plain,
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section,
+html[data-theme="dark"] #profileAccountPanel .stats-mission-history {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article,
+html[data-theme="dark"] #profileAccountPanel .achievement-card {
+  border: 0 !important;
+  outline: 0 !important;
+  background: linear-gradient(180deg, #1c251f 0%, #171e1a 100%) !important;
+  box-shadow: 0 7px 18px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.016) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section > header h3,
+html[data-theme="dark"] #profileAccountPanel .stats-mission-history > summary {
+  color: #edf4ee !important;
+}
+html[data-theme="dark"] #profileAccountPanel .stats-benefit-section > header small,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary article small {
+  color: #9dacA1 !important;
+}
+html[data-theme="dark"] #profileAccountPanel .player-stat-icon,
+html[data-theme="dark"] #profileAccountPanel .achievement-summary > article > span,
+html[data-theme="dark"] #profileAccountPanel .achievement-card > span {
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+/* ========================================================================== */
+/* R39.10 — complementos dark para Configurações e footer normalizados       */
+/* ========================================================================== */
+html[data-theme="dark"] #settingsView > .settings-page-heading {
+  color: var(--dark-text) !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #settingsView .settings-grid-reworked > .settings-card,
+html[data-theme="dark"] #settingsView > .feedback-settings-card {
+  background: linear-gradient(180deg, #171f1b 0%, #121814 100%) !important;
+  border-color: rgba(225,238,228,.075) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] .app-footer .footer-links {
+  background: rgba(18, 26, 21, .72) !important;
+  border-color: rgba(225,238,228,.07) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.015) !important;
+}
+html[data-theme="dark"] .app-footer .footer-links :is(a,.footer-link-button) {
+  color: #aebdb2 !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] .app-footer .footer-links :is(a,.footer-link-button):hover {
+  color: #edf4ee !important;
+  background: rgba(105, 166, 117, .10) !important;
+}
+
+
+/* ========================================================================== */
+/* R39.11 — Agenda, configurações e ranking dark                              */
+/* ========================================================================== */
+
+/* Agenda: seta de abrir/fechar branca no modo escuro. */
+html[data-theme="dark"] #profileSocialPanel .social-events-chevron,
+html[data-theme="dark"] #profileSocialPanel .social-events-chevron img {
+  color: #fff !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-events-chevron img {
+  filter: brightness(0) invert(1) !important;
+  opacity: .94 !important;
+}
+
+/* Ranking: 4º e 5º voltam a ter identidades cromáticas distintas, como no claro. */
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-4 {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(91, 157, 106, .15), transparent 70%),
+    linear-gradient(100deg, #1d2a22 0%, #19231d 52%, #171e1a 100%) !important;
+  border-color: rgba(91, 157, 106, .14) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-5 {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(137, 105, 171, .16), transparent 70%),
+    linear-gradient(100deg, #292135 0%, #211b2b 52%, #171e1a 100%) !important;
+  border-color: rgba(137, 105, 171, .15) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .leaderboard-row.rank-position-6:not(.current-player):not(.personal-rank-row) {
+  background:
+    radial-gradient(20rem 8rem at 0% 50%, rgba(89, 124, 145, .08), transparent 70%),
+    linear-gradient(100deg, #1b2428 0%, #182023 52%, #171e1a 100%) !important;
+  border-color: rgba(132, 155, 168, .09) !important;
+}
+
+/* R40.4 — missões e agenda */
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward {
+  color: #e8f0ea !important;
+  background: color-mix(in srgb, var(--mission-title-accent) 13%, #19211d) !important;
+  border-color: color-mix(in srgb, var(--mission-title-accent) 26%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-mark {
+  color: color-mix(in srgb, var(--mission-title-accent) 82%, #fff) !important;
+  background: color-mix(in srgb, var(--mission-title-accent) 18%, #151c18) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-copy > small,
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-copy > em {
+  color: #9baaa0 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-icon {
+  background: #202a24 !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-admin-only-badge {
+  color: #c8a7da !important;
+  background: rgba(144, 89, 174, .12) !important;
+  border-color: rgba(172, 119, 199, .16) !important;
+}
+
+/* R40.5 — acabamento de missões */
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward {
+  color: #e8f0ea !important;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--mission-title-accent) 14%, #19211d),
+    #18201b) !important;
+  border-color: color-mix(in srgb, var(--mission-title-accent) 27%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 5px 13px rgba(0,0,0,.09) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-mark {
+  color: color-mix(in srgb, var(--mission-title-accent) 82%, #fff) !important;
+  background: color-mix(in srgb, var(--mission-title-accent) 19%, #151c18) !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-copy > small {
+  color: #9baaa0 !important;
+}
+html[data-theme="dark"] #profileMissionsPanel .mission-title-reward-rarity {
+  color: color-mix(in srgb, var(--mission-title-accent) 78%, #dce7df) !important;
+}
+
+
+/* ========================================================================== 
+   R43 — Contratos estáticos, header estável e navegação inline sem compressão
+   ========================================================================== */
+
+/* Barra de atualização das propostas. */
+.contract-offer-toolbar {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 0 0 14px;
+}
+.contract-refresh-button {
+  min-width: 205px;
+  min-height: 44px;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  white-space: nowrap;
+}
+.contract-refresh-button img {
+  width: 20px !important;
+  height: 20px !important;
+  object-fit: contain;
+}
+.contract-refresh-button:disabled {
+  transform: none !important;
+  filter: saturate(.75);
+}
+
+/* O tempo no canto superior tem sempre a mesma anatomia. Antes de assinar ele
+   é apenas informativo; depois de assinar o mesmo local recebe a contagem. */
+.contract-time-v2.contract-proposal-time-v4,
+.contract-time-v2.contract-completion-time-v4 {
+  min-width: 104px !important;
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  justify-items: end !important;
+  align-content: center !important;
+  gap: 3px !important;
+  padding: 0 !important;
+  border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+  text-align: right !important;
 }
-.tutorial-steps .tutorial-step.active {
-  background: linear-gradient(135deg, #eef7eb, #f9fbf7) !important;
-  border-color: rgba(79,139,83,.19) !important;
-  box-shadow: inset 3px 0 0 #5c9b60 !important;
+.contract-time-v2.contract-proposal-time-v4::before,
+.contract-time-v2.contract-completion-time-v4::before { content: none !important; }
+.contract-time-v2.contract-proposal-time-v4 > small,
+.contract-time-v2.contract-completion-time-v4 > small {
+  display: block !important;
+  margin: 0 !important;
+  color: var(--ui-muted, #667364) !important;
+  font-size: .57rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .055em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
 }
-.tutorial-steps .tutorial-step.done:not(.active) {
-  background: rgba(247,250,245,.78) !important;
-  border-color: rgba(79,139,83,.08) !important;
+.contract-time-v2.contract-proposal-time-v4 > span,
+.contract-time-v2.contract-completion-time-v4 > span {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
 }
-.tutorial-public-header .home-header-inner { width: min(1420px, calc(100% - 40px)); }
-.tutorial-public-footer.home-footer { padding-inline: max(20px, calc((100% - 1420px)/2)); }
-@media (max-width: 700px) {
-  .tutorial-public-header .home-header-inner { width: min(100% - 20px, 1420px); }
-  .tutorial-public-footer.home-footer { padding-inline: 18px; }
+.contract-time-v2.contract-proposal-time-v4 img,
+.contract-time-v2.contract-completion-time-v4 img {
+  width: 15px !important;
+  height: 15px !important;
+  object-fit: contain !important;
+}
+.contract-time-v2.contract-proposal-time-v4 b,
+.contract-time-v2.contract-completion-time-v4 b {
+  font-size: .78rem !important;
+  font-variant-numeric: tabular-nums;
 }
 
-/* R43 — anatomia atual do preview de contratos no tutorial. */
-.tutorial-body .contract-time-v2.contract-proposal-time-v4,
-.tutorial-body .contract-time-v2.contract-completion-time-v4 {
-  min-width: 102px !important; display:grid !important; justify-items:end !important; gap:3px !important;
-  padding:0 !important; border:0 !important; background:transparent !important;
+/* Recompensa: rótulo em cima, até quatro recursos sempre em uma linha abaixo. */
+.contract-reward-strip {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 7px !important;
 }
-.tutorial-body .contract-time-v2.contract-proposal-time-v4::before,
-.tutorial-body .contract-time-v2.contract-completion-time-v4::before { content:none !important; }
-.tutorial-body .contract-time-v2.contract-proposal-time-v4 > small,
-.tutorial-body .contract-time-v2.contract-completion-time-v4 > small {
-  font-size:.57rem !important; font-weight:900 !important; text-transform:uppercase !important; white-space:nowrap !important;
+.contract-reward-title {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  color: var(--ui-muted, #667364) !important;
+  font-size: .61rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .055em !important;
+  line-height: 1.1 !important;
+  text-transform: uppercase !important;
 }
-.tutorial-body .contract-time-v2.contract-proposal-time-v4 > span,
-.tutorial-body .contract-time-v2.contract-completion-time-v4 > span { display:inline-flex !important; align-items:center !important; gap:5px !important; }
-.tutorial-body .contract-reward-strip { display:grid !important; grid-template-columns:1fr !important; gap:7px !important; }
-.tutorial-body .contract-reward-title { display:block !important; width:100% !important; font-size:.61rem !important; font-weight:900 !important; text-transform:uppercase !important; }
-.tutorial-body .contract-reward-values { display:flex !important; flex-wrap:nowrap !important; gap:6px !important; width:100% !important; }
-.tutorial-body .contract-reward-values .resource-amount { flex:1 1 0 !important; min-width:0 !important; justify-content:center !important; }
+.contract-reward-values {
+  min-width: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+}
+.contract-reward-values .resource-amount {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  justify-content: center !important;
+  padding: 6px 7px !important;
+  overflow: hidden;
+}
+.contract-reward-values .resource-amount img {
+  width: 17px !important;
+  height: 17px !important;
+}
+.contract-reward-values .resource-amount span,
+.contract-reward-values .resource-amount b,
+.contract-reward-values .resource-amount strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(.61rem, 1vw, .75rem) !important;
+}
+.contract-offer-single-action {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+.contract-offer-single-action .button { width: 100% !important; }
 
-/* R43 — atualização manual das propostas no tutorial. */
-.tutorial-contract-offer-toolbar {
-  width:100%; display:flex; align-items:center; justify-content:flex-end; margin:0 0 12px;
+/* Header: quatro counters estáveis no desktop; 2x2 abaixo do breakpoint.
+   Nenhum counter pode esmagar o conteúdo interno. */
+@media (min-width: 901px) {
+  .app-header {
+    display: grid !important;
+    grid-template-columns: max-content minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    align-items: center !important;
+    column-gap: 16px !important;
+  }
+  .app-header > .brand {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+  }
+  .app-header > .resource-strip {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(132px, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .app-header > .resource-strip .resource-pill {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+  .app-header > .resource-strip .resource-pill > span {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+  .app-header > .resource-strip .resource-pill small,
+.app-header > .resource-strip .resource-pill strong {
+    display: block !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
 }
-.tutorial-contract-offer-toolbar .contract-refresh-button {
-  min-width:205px; min-height:44px; display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:8px !important; white-space:nowrap;
+@media (max-width: 900px) {
+  .app-header {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: stretch !important;
+  }
+  .app-header > .brand,
+.app-header > .resource-strip {
+    grid-column: 1 !important;
+    width: 100% !important;
+  }
+  .app-header > .resource-strip,
+.floating-resource-strip {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
 }
-.tutorial-contract-offer-toolbar .contract-refresh-button img { width:20px !important; height:20px !important; object-fit:contain; }
-@media (max-width:560px){
-  .tutorial-contract-offer-toolbar { justify-content:stretch; }
-  .tutorial-contract-offer-toolbar .contract-refresh-button { width:100%; min-width:0; }
+@media (min-width: 901px) {
+  .floating-resource-strip {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Ordem é definida no HTML. Em modo linha os sete tabs têm exatamente a
+   mesma largura mínima e NUNCA encolhem. O excesso fica no eixo horizontal e
+   appNavigation.js já fornece arraste com o cursor. */
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-main-nav,
+body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-main-nav {
+  width: 100% !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+  touch-action: pan-x pan-y;
+}
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-main-nav .nav-tab,
+body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-main-nav .nav-tab {
+  flex: 1 0 154px !important;
+  min-width: 154px !important;
+  max-width: none !important;
+  width: auto !important;
+  min-height: 58px !important;
+  height: 58px !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  padding: 0 14px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  scroll-snap-align: nearest;
+}
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-main-nav .nav-tab-icon,
+body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-main-nav .nav-tab-icon {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 34px !important;
+  display: grid !important;
+  place-items: center !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+}
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-main-nav .nav-tab-icon img,
+body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-main-nav .nav-tab-icon img {
+  display: block !important;
+  width: 30px !important;
+  height: 30px !important;
+  max-width: 30px !important;
+  max-height: 30px !important;
+  object-fit: contain !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-main-nav .nav-tab-label,
+body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-main-nav .nav-tab-label,
+body[data-navigation-mode="line"] .navigation-responsive-stack > .desktop-main-nav .nav-tab > span:not(.nav-tab-icon),
+body:not([data-navigation-mode="grid"]) .navigation-responsive-stack > .desktop-main-nav .nav-tab > span:not(.nav-tab-icon) {
+  min-width: max-content !important;
+  display: block !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  line-height: 1.1 !important;
+}
+
+@media (max-width: 560px) {
+  .contract-offer-toolbar { justify-content: stretch; }
+  .contract-refresh-button { width: 100%; min-width: 0; }
+  .contract-reward-values { gap: 4px !important; }
+  .contract-reward-values .resource-amount { padding-inline: 4px !important; }
 }

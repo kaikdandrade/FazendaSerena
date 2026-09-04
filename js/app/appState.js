@@ -47,11 +47,7 @@
   let contractDockCollapsed = false;
   let leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
   let leaderboardRequest = null;
-  let friendsState = { status: "idle", selfProfile: null, friends: [], incoming: [], outgoing: [], error: null, loadedAt: 0 };
-  let friendsRequest = null;
-  let friendsRealtimeUnsubscribe = null;
   let ownSaveRealtimeUnsubscribe = null;
-  let pendingFriendRemovalId = "";
   let pendingOfflineMilestones = [];
   let pendingContractBreakId = "";
   let lastResearchRenderSignature = "";
@@ -95,11 +91,8 @@
     cropGrid: $("#cropGrid"),
     cropEmpty: $("#cropEmpty"),
     searchCrop: $("#searchCrop"),
-    stockSearch: $("#stockSearch"),
     farmFilterButton: $("#farmFilterButton"),
     farmFilterCount: $("#farmFilterCount"),
-    stockFilterButton: $("#stockFilterButton"),
-    stockFilterCount: $("#stockFilterCount"),
     catalogFilterDialog: $("#catalogFilterDialog"),
     catalogFilterTitle: $("#catalogFilterTitle"),
     catalogFilterHideMastered: $("#catalogFilterHideMastered"),
@@ -108,18 +101,12 @@
     catalogFilterCategoryGrid: $("#catalogFilterCategoryGrid"),
     catalogFilterReset: $("#catalogFilterReset"),
     catalogFilterApply: $("#catalogFilterApply"),
-    stockGrid: $("#stockGrid"),
-    stockSummary: $("#stockSummary"),
     researchList: $("#researchList"),
     prestigeDashboard: $("#prestigeDashboard"),
     prestigeList: $("#prestigeList"),
     activeContractList: $("#activeContractList"),
     contractOfferList: $("#contractOfferList"),
     contractDock: $("#contractDock"),
-    orderList: $("#orderList"),
-    completedOrderList: $("#completedOrderList"),
-    completedOrderCount: $("#completedOrderCount"),
-    completedOrderBoard: $("#completedOrderBoard"),
     missionList: $("#missionList"),
     toggleCompletedMissions: $("#toggleCompletedMissions"),
     completedMissionCount: $("#completedMissionCount"),
@@ -129,7 +116,6 @@
     profilePanels: $$("[data-profile-panel]"),
     contextNavBlocks: $$(`[data-context-for]`),
     contractTabCount: $("#contractTabCount"),
-    orderTabCount: $("#orderTabCount"),
     missionTabCount: $("#missionTabCount"),
     coinsCounter: $("#coinsCounter"),
     researchCounter: $("#researchCounter"),
@@ -137,19 +123,13 @@
     floatingCoinsCounter: $("#floatingCoinsCounter"),
     floatingResearchCounter: $("#floatingResearchCounter"),
     floatingPrestigeCounter: $("#floatingPrestigeCounter"),
-    farmProgress: $(".farm-progress"),
-    farmXPTrack: $(".farm-progress .soft-progress"),
+    farmXPResource: $("#farmXPResource"),
     farmLevelLabel: $("#farmLevelLabel"),
-    farmXPBar: $("#farmXPBar"),
     farmXPText: $("#farmXPText"),
-    stockNavTab: $("#stockNavTab"),
-    stockNavBadge: $("#stockNavBadge"),
+    floatingFarmXPResource: $("#floatingFarmXPResource"),
+    floatingFarmXPText: $("#floatingFarmXPText"),
     contractsOfficeTab: $("#contractsOfficeTab"),
-    ordersOfficeTab: $("#ordersOfficeTab"),
     evolutionsOfficeTab: $("#evolutionsOfficeTab"),
-    friendsTabCount: $("#friendsTabCount"),
-    friendsContent: $("#friendsContent"),
-    friendsListDialog: $("#friendsListDialog"), friendsListDialogBody: $("#friendsListDialogBody"), friendCodeDialog: $("#friendCodeDialog"), friendCodeDialogBody: $("#friendCodeDialogBody"), removeFriendDialog: $("#removeFriendDialog"), removeFriendName: $("#removeFriendName"),
     statsHero: $("#statsHero"),
     prestigeLeaderboard: $("#prestigeLeaderboard"),
     socialEventsList: $("#socialEventsList"),

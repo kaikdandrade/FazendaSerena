@@ -7,7 +7,6 @@ const GameEngine = class GameEngine {
   static BASE_MAX_OFFLINE_SECONDS = 15 * 60;
   static MAX_OFFLINE_SECONDS = 15 * 60; // compatibilidade; o limite efetivo usa getMaxOfflineSeconds().
   static FEATURE_UNLOCK_LEVEL = 5; // compatibilidade com saves/integrações antigas
-  static ORDER_UNLOCK_LEVEL = 5;
   static EVOLUTION_UNLOCK_LEVEL = 5;
   static PRESTIGE_UNLOCK_LEVEL = 40;
   static PRESTIGE_BONUS = 0;
@@ -16,25 +15,19 @@ const GameEngine = class GameEngine {
   static CONTRACT_OFFER_COUNT = 6;
   static MAX_CONTRACT_OFFERS = 50;
   static ALLOW_CONTRACT_OFFER_CREATION = true;
-  static CONTRACT_SIGNED_COOLDOWN_RANGE = [25, 35];
-  static CONTRACT_EXPIRED_COOLDOWN_RANGE = [25, 35];
-  static CONTRACT_DECLINED_COOLDOWN_RANGE = [45, 75];
-  static CONTRACT_BROKEN_COOLDOWN_RANGE = [210, 270];
+  static CONTRACT_REFRESH_COOLDOWN_SECONDS = 10;
   static CONTRACT_DURATION_FACTOR = 1;
   static CONTRACT_REWARD_FACTOR = 1;
   static BASE_STARTING_COINS = 120;
   static TREASURY_COINS_PER_LEVEL = 5000;
-  static BASE_STORAGE_CAPACITY = 200;
   static BASE_PRODUCTION_MIN = 1;
   static BASE_PRODUCTION_CAP = 10;
   static BASE_PASSIVE_XP_RATE = 0.0005;
   static CONTRACT_CLAIM_XP_RATE = 0.05;
-  static ORDER_CLAIM_XP_RATE = 0.05;
   static ACTION_XP_RATE = 0.017;
   static CROP_MASTERY_XP_RATE = 0.10;
   static BASE_PASSIVE_RESEARCH_RATE = 0;
   static PASSIVE_RESEARCH_STAGE_RATES = Object.freeze([0.0001, 0.0002, 0.0002]);
-  static WHOLESALE_SALE_MULTIPLIER = 0.50;
   static MAX_BATCH_UPGRADES = 1000;
   static MAX_CROP_LEVEL = 500;
   static MAX_FARM_LEVEL = 1000;
@@ -88,21 +81,16 @@ const GameEngine = class GameEngine {
       const startingCoinsBonus = Math.max(0, Math.floor(this.getEvolutionBonus("startingCoins", permanentEffectState)));
       const startingResearchBonus = Math.max(0, Math.floor(this.getEvolutionBonus("startingResearch", permanentEffectState)));
       const crops = {};
-      const orders = {};
   
       this.data.crops.forEach(crop => {
         crops[crop.id] = {
           owned: false,
           level: 0,
           progress: 0,
-          stock: 0,
           totalHarvested: 0,
           totalSold: 0,
-          autoSell: false,
-          favorite: false,
           productionBuffer: 0
         };
-        orders[crop.id] = { tier: 0, delivered: 0, autoDeliver: false };
       });
   
       return {
@@ -114,20 +102,17 @@ const GameEngine = class GameEngine {
         farmLevel: 1,
         farmXP: 0,
         crops,
-        orders,
         upgrades: {},
-        storageExpansions: 0,
         researchTechs: Object.fromEntries(this.data.research.map(item => [item.id, 0])),
         prestigeUpgrades,
         permanentBonuses: {
           prestigeDouble: Boolean(permanent.permanentBonuses?.prestigeDouble),
           passiveXPPercentPerSecond: Math.max(0, Number(permanent.permanentBonuses?.passiveXPPercentPerSecond) || 0),
-          contractRewardPercent: Math.max(0, Number(permanent.permanentBonuses?.contractRewardPercent) || 0),
-          orderRewardPercent: Math.max(0, Number(permanent.permanentBonuses?.orderRewardPercent) || 0)
+          contractRewardPercent: Math.max(0, Number(permanent.permanentBonuses?.contractRewardPercent) || 0)
         },
         cropsDiscovered: { ...(permanent.cropsDiscovered || {}) },
         contractOffers: [],
-        contractCooldowns: [],
+        contractRefreshCooldownRemaining: 0,
         activeContracts: [],
         contractSerial: 1,
         missionsClaimed: { ...(permanent.missionsClaimed || {}) },
@@ -139,14 +124,9 @@ const GameEngine = class GameEngine {
           lifetimeSold: Number(permanent.lifetimeSold || 0),
           soldByCategory: Object.fromEntries(Object.keys(this.data.categories).map(id => [id, 0])),
           lifetimeSoldByCategory: { ...Object.fromEntries(Object.keys(this.data.categories).map(id => [id, 0])), ...(permanent.lifetimeSoldByCategory || {}) },
-          ordersCompleted: 0,
-          lifetimeOrdersCompleted: Number(permanent.lifetimeOrdersCompleted || 0),
-          orderUnitsDelivered: 0,
-          lifetimeOrderUnitsDelivered: Number(permanent.lifetimeOrderUnitsDelivered || 0),
           lifetimeCropPurchases: Number(permanent.lifetimeCropPurchases || 0),
           lifetimeCropUpgrades: Number(permanent.lifetimeCropUpgrades || 0),
           lifetimeCropPrestiges: Number(permanent.lifetimeCropPrestiges || 0),
-          completedOrderSeries: Number(permanent.completedOrderSeries || 0),
           contractsCompleted: 0,
           lifetimeContractsCompleted: Number(permanent.lifetimeContractsCompleted || 0),
           contractsFailed: 0,
@@ -164,7 +144,6 @@ const GameEngine = class GameEngine {
           maxCropLevel: Math.max(0, Number(permanent.maxCropLevel || 0)),
           maxCropsOwned: Math.max(0, Number(permanent.maxCropsOwned || 0)),
           maxCoinsHeld: Math.max(GameEngine.BASE_STARTING_COINS + startingCoinsBonus, Number(permanent.maxCoinsHeld || GameEngine.BASE_STARTING_COINS + startingCoinsBonus)),
-          maxStorageUsed: Math.max(0, Number(permanent.maxStorageUsed || 0)),
           prestiges
         },
         settings,
@@ -219,12 +198,9 @@ const GameEngine = class GameEngine {
         lifetimeHarvested: input?.stats?.lifetimeHarvested ?? input?.stats?.totalHarvested,
         lifetimeSold: input?.stats?.lifetimeSold ?? input?.stats?.totalSold,
         lifetimeSoldByCategory: input?.stats?.lifetimeSoldByCategory ?? input?.stats?.soldByCategory,
-        lifetimeOrdersCompleted: input?.stats?.lifetimeOrdersCompleted ?? input?.stats?.ordersCompleted,
-        lifetimeOrderUnitsDelivered: input?.stats?.lifetimeOrderUnitsDelivered ?? input?.stats?.orderUnitsDelivered,
         lifetimeCropPurchases: input?.stats?.lifetimeCropPurchases,
         lifetimeCropUpgrades: input?.stats?.lifetimeCropUpgrades,
         lifetimeCropPrestiges: input?.stats?.lifetimeCropPrestiges,
-        completedOrderSeries: input?.stats?.completedOrderSeries,
         lifetimeContractsCompleted: input?.stats?.lifetimeContractsCompleted ?? input?.stats?.contractsCompleted,
         lifetimeContractsFailed: input?.stats?.lifetimeContractsFailed ?? input?.stats?.contractsFailed,
         lifetimeContractsBroken: input?.stats?.lifetimeContractsBroken ?? input?.stats?.contractsBroken,
@@ -234,7 +210,6 @@ const GameEngine = class GameEngine {
         maxCropLevel: input?.stats?.maxCropLevel,
         maxCropsOwned: input?.stats?.maxCropsOwned,
         maxCoinsHeld: input?.stats?.maxCoinsHeld ?? input?.coins,
-        maxStorageUsed: input?.stats?.maxStorageUsed,
         accountCreatedAt: input?.createdAt,
         settings: input?.settings
       };
@@ -247,7 +222,6 @@ const GameEngine = class GameEngine {
         ...input,
         settings: { ...base.settings, ...(input.settings || {}) },
         upgrades: { ...base.upgrades, ...(input.upgrades || {}) },
-        storageExpansions: Math.max(0, Math.floor(Number(input.storageExpansions) || 0)),
         researchTechs: { ...base.researchTechs, ...(input.researchTechs || {}) },
         prestigeUpgrades: { ...base.prestigeUpgrades, ...(input.prestigeUpgrades || {}) },
         permanentBonuses: { ...base.permanentBonuses, ...(input.permanentBonuses || {}) },
@@ -256,7 +230,6 @@ const GameEngine = class GameEngine {
         cropsDiscovered: { ...base.cropsDiscovered, ...(input.cropsDiscovered || {}) },
         stats: { ...base.stats, ...(input.stats || {}) },
         crops: {},
-        orders: {}
       };
   
       const experienceDefaults = GameEngine.EXPERIENCE_DEFAULTS;
@@ -312,13 +285,13 @@ const GameEngine = class GameEngine {
         migrateLevels(merged.upgrades, input.upgrades, {
           irrigation: "irrigationNetwork", fertilizer: "harvestCrew", logistics: "regionalMarket",
           warehouse: "reinforcedBarn", seedWorkshop: "seedCooperative", maintenance: "precisionTools",
-          fieldTraining: "fieldAcademy", contractOffice: "contractBureau", orderCounter: "orderCenter",
+          fieldTraining: "fieldAcademy", contractOffice: "contractBureau",
           packingStation: "expressPacking"
         });
         migrateLevels(merged.researchTechs, input.researchTechs, {
           hydroponics: "acceleratedGermination", genetics: "hybridGenetics", marketData: "priceForecast",
           storageScience: "coldChain", seedCatalog: "smartSeedCatalog", soilMapping: "cultivationAlgorithms",
-          contractAI: "negotiationModels", orderAnalytics: "orderOptimization", deadlineModel: "logisticsSimulation",
+          contractAI: "negotiationModels", deadlineModel: "logisticsSimulation",
           farmEducation: "agriculturalPedagogy"
         });
         migrateLevels(merged.prestigeUpgrades, input.prestigeUpgrades, {
@@ -347,13 +320,13 @@ const GameEngine = class GameEngine {
       if (legacySaveFormat < 16) {
         // Propostas antigas são recriadas pelo sistema de equilíbrio atual.
         merged.contractOffers = [];
-        merged.contractCooldowns = [];
+        merged.contractRefreshCooldownRemaining = 0;
       }
       if (legacySaveFormat < 18) {
         // Propostas antigas são recriadas com o bônus atual de cada modalidade.
         // Contratos já assinados são preservados e nunca têm a recompensa reduzida.
         merged.contractOffers = [];
-        merged.contractCooldowns = [];
+        merged.contractRefreshCooldownRemaining = 0;
         // Compensa saves anteriores pela mudança do capital inicial do Tesouro.
         const treasuryLevel = Math.max(0, Math.floor(Number(merged.prestigeUpgrades.royalTreasury) || 0));
         merged.coins = Number(merged.coins || 0) + 1900 + treasuryLevel * 500;
@@ -372,7 +345,6 @@ const GameEngine = class GameEngine {
         precisionTools: "cultivationAlgorithms",
         fieldAcademy: "agriculturalPedagogy",
         contractBureau: "negotiationModels",
-        orderCenter: "orderOptimization",
         expressPacking: "logisticsSimulation"
       };
       Object.entries(retiredUpgradeResearchMap).forEach(([upgradeId, researchId]) => {
@@ -385,6 +357,32 @@ const GameEngine = class GameEngine {
         );
       });
       merged.upgrades = {};
+
+      // Migração da aposentadoria do Estoque: devolve integralmente os recursos
+      // gastos nas evoluções que só existiam para essa mecânica. As chaves são
+      // removidas do save normalizado para que o reembolso aconteça uma única vez.
+      const refundProgressionCost = (level, baseCost, growth) => {
+        let total = 0;
+        const safeLevel = Math.max(0, Math.floor(Number(level) || 0));
+        for (let index = 0; index < safeLevel; index += 1) total += Math.ceil(baseCost * Math.pow(growth, index));
+        return total;
+      };
+      const retiredColdChainLevel = Math.max(0, Math.floor(Number(merged.researchTechs.coldChain) || 0));
+      if (retiredColdChainLevel) merged.research = Math.max(0, Number(merged.research) || 0) + refundProgressionCost(retiredColdChainLevel, 8, 1.78);
+      Reflect.deleteProperty(merged.researchTechs, "coldChain");
+      Reflect.deleteProperty(merged.researchTechs, "storageScience");
+
+      const retiredGranaryLevel = Math.max(0, Math.floor(Number(merged.prestigeUpgrades.endlessGranary) || 0));
+      const retiredWholesaleLevel = Math.max(0, Math.min(1, Math.floor(Number(merged.prestigeUpgrades.wholesaleHub) || 0)));
+      if (retiredGranaryLevel) merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0) + refundProgressionCost(retiredGranaryLevel, 4, 2.10);
+      if (retiredWholesaleLevel) merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0) + refundProgressionCost(retiredWholesaleLevel, 35, 1);
+      Reflect.deleteProperty(merged.prestigeUpgrades, "endlessGranary");
+      Reflect.deleteProperty(merged.prestigeUpgrades, "wholesaleHub");
+      Reflect.deleteProperty(merged.prestigeUpgrades, "storageLegacy");
+
+      const retiredStorageExpansions = Math.max(0, Math.floor(Number(input.storageExpansions) || 0));
+      if (retiredStorageExpansions) merged.coins = Math.max(0, Number(merged.coins) || 0) + refundProgressionCost(retiredStorageExpansions, 1200, 1.85);
+      Reflect.deleteProperty(merged, "storageExpansions");
   
       this.data.research.forEach(item => {
         merged.researchTechs[item.id] = Math.max(0, Math.min(item.max, Math.floor(Number(merged.researchTechs[item.id]) || 0)));
@@ -399,31 +397,37 @@ const GameEngine = class GameEngine {
         merged.settings.fontScale = GameEngine.EXPERIENCE_DEFAULTS.fontScale;
       }
   
+      const legacyStockMigration = [];
       this.data.crops.forEach(crop => {
         const previous = input.crops?.[crop.id] || {};
+        const legacyStock = Math.max(0, Math.floor(Number(previous.stock) || 0));
         merged.crops[crop.id] = {
           owned: Boolean(previous.owned ?? base.crops[crop.id].owned),
           level: Math.max(0, Math.min(GameEngine.MAX_CROP_LEVEL, Math.floor(Number(previous.level ?? previous.tier ?? base.crops[crop.id].level) || 0))),
           progress: Math.max(0, Math.min(0.999, Number(previous.progress) || 0)),
-          stock: Math.max(0, Math.floor(Number(previous.stock) || 0)),
           totalHarvested: Math.max(0, Math.floor(Number(previous.totalHarvested) || 0)),
           totalSold: Math.max(0, Math.floor(Number(previous.totalSold) || 0)),
-          autoSell: Boolean(previous.autoSell),
-          favorite: Boolean(previous.favorite),
           productionBuffer: Math.max(0, Number(previous.productionBuffer) || 0)
         };
         if (merged.crops[crop.id].owned && merged.crops[crop.id].level < 1) merged.crops[crop.id].level = 1;
-        const previousOrder = input.orders?.[crop.id] || {};
-        const previousDelivered = Math.max(0, Math.floor(Number(previousOrder.delivered) || 0));
-        merged.orders[crop.id] = {
-          tier: Math.max(0, Math.min(this.data.orderSteps.length, Math.floor(Number(previousOrder.tier) || 0))),
-          delivered: legacySaveFormat < 19 ? 0 : previousDelivered,
-          autoDeliver: false
-        };
-        const step = this.data.orderSteps[merged.orders[crop.id].tier];
-        if (legacySaveFormat < 19 && previousDelivered > 0 && step) merged.crops[crop.id].stock += Math.min(step.amount, previousDelivered);
-        merged.orders[crop.id].delivered = 0;
+        if (legacyStock > 0) legacyStockMigration.push({ crop, amount: legacyStock });
       });
+
+      if (legacyStockMigration.length) {
+        const autoSaleBonus = 1 + Math.max(0, this.getEvolutionBonus("autoSalePricePercent", merged)) / 100;
+        for (const { crop, amount } of legacyStockMigration) {
+          const gain = Math.floor(amount * this.getSalePriceForState(crop.id, merged) * autoSaleBonus);
+          merged.coins = Math.max(0, Number(merged.coins) || 0) + gain;
+          merged.crops[crop.id].totalSold += amount;
+          merged.stats.totalSold = Math.max(0, Number(merged.stats.totalSold) || 0) + amount;
+          merged.stats.lifetimeSold = Math.max(0, Number(merged.stats.lifetimeSold) || 0) + amount;
+          merged.stats.runCoinsEarned = Math.max(0, Number(merged.stats.runCoinsEarned) || 0) + gain;
+          merged.stats.lifetimeCoins = Math.max(0, Number(merged.stats.lifetimeCoins) || 0) + gain;
+          merged.stats.soldByCategory[crop.category] = Math.max(0, Number(merged.stats.soldByCategory?.[crop.category]) || 0) + amount;
+          merged.stats.lifetimeSoldByCategory[crop.category] = Math.max(0, Number(merged.stats.lifetimeSoldByCategory?.[crop.category]) || 0) + amount;
+        }
+      }
+      Reflect.deleteProperty(merged, "storageExpansions");
   
       const legacyOwned = this.data.crops.filter(crop => merged.crops[crop.id].owned);
       const untouchedLegacyStarter = legacySaveFormat < 9
@@ -432,11 +436,9 @@ const GameEngine = class GameEngine {
         && merged.crops.onion.level <= 1
         && Number(input.stats?.totalHarvested || 0) === 0
         && Number(input.stats?.totalSold || 0) === 0
-        && Number(input.stats?.ordersCompleted || 0) === 0
         && Number(input.stats?.contractsCompleted || 0) === 0;
       if (untouchedLegacyStarter) {
-        Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
-        merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
+        Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, totalHarvested: 0, totalSold: 0 });
         merged.coins = GameEngine.BASE_STARTING_COINS + Math.max(0, Number(merged.prestigeUpgrades.royalTreasury || 0)) * GameEngine.TREASURY_COINS_PER_LEVEL;
       } else if (legacySaveFormat < 9 && legacyOwned.length === 0 && Number(input.stats?.totalHarvested || 0) === 0) {
         merged.coins = Math.min(merged.coins, GameEngine.BASE_STARTING_COINS + Math.max(0, Number(merged.prestigeUpgrades.royalTreasury || 0)) * GameEngine.TREASURY_COINS_PER_LEVEL);
@@ -449,18 +451,15 @@ const GameEngine = class GameEngine {
         && Number(input.stats?.totalSold || 0) === 0
         && Number(input.stats?.contractsCompleted || 0) === 0;
       if (legacyStarterOnly) {
-        Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0 });
-        merged.orders.onion = { tier: 0, delivered: 0, autoDeliver: false };
+        Object.assign(merged.crops.onion, { owned: false, level: 0, progress: 0, totalHarvested: 0, totalSold: 0 });
       }
   
       const legacyContracts = legacyStarterOnly ? [] : (Array.isArray(input.contracts) ? input.contracts.filter(Boolean) : []);
       const rawOffers = legacySaveFormat < 19 ? [] : (Array.isArray(input.contractOffers) ? input.contractOffers : legacyContracts);
       const rawActive = Array.isArray(input.activeContracts) ? input.activeContracts : [];
       merged.contractOffers = rawOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean).slice(0, GameEngine.MAX_CONTRACT_OFFERS);
-      merged.contractCooldowns = (legacySaveFormat < 19 ? [] : (Array.isArray(input.contractCooldowns) ? input.contractCooldowns : []))
-        .map(value => this.normalizeContractCooldown(value))
-        .filter(Boolean)
-        .slice(0, GameEngine.MAX_CONTRACT_OFFERS);
+      merged.contractRefreshCooldownRemaining = Math.max(0, Number(input.contractRefreshCooldownRemaining) || 0);
+      Reflect.deleteProperty(merged, "contractCooldowns");
       merged.activeContracts = rawActive.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
       if (legacySaveFormat < 19) {
         merged.activeContracts.forEach(contract => {
@@ -483,7 +482,7 @@ const GameEngine = class GameEngine {
         const migrateContractBalance = (contract, active = false) => {
           const previousDuration = Math.max(1, Number(contract.durationSeconds) || 1);
           contract.durationSeconds = Math.max(22, Math.round(previousDuration * 0.70));
-          if (active && !contract.defaultedAt && !contract.completedAt) {
+          if (active && !contract.completedAt) {
             contract.timeRemaining = Math.max(0, Math.min(
               contract.durationSeconds,
               Number(contract.timeRemaining || 0) * 0.70
@@ -492,7 +491,6 @@ const GameEngine = class GameEngine {
             contract.timeRemaining = contract.durationSeconds;
           }
           contract.rewardCoins = Math.max(1, Math.floor(Number(contract.rewardCoins || 1) * GameEngine.CONTRACT_REWARD_FACTOR));
-          if (contract.defaultedAt) contract.penaltyCoins = Math.max(1, Math.ceil(contract.rewardCoins * 1.20));
         };
         merged.contractOffers.forEach(contract => migrateContractBalance(contract, false));
         merged.activeContracts.forEach(contract => migrateContractBalance(contract, true));
@@ -507,8 +505,6 @@ const GameEngine = class GameEngine {
           || Object.values(input.crops || {}).some(crop => crop?.owned || Number(crop?.totalHarvested || 0) > 0 || Number(crop?.totalSold || 0) > 0)
           || Object.values(input.upgrades || {}).some(level => Number(level || 0) > 0)
           || Object.values(input.researchTechs || {}).some(level => Number(level || 0) > 0)
-          || Number(input.storageExpansions || 0) > 0
-          || Number(input.stats?.ordersCompleted || 0) > 0
           || Number(input.stats?.contractsCompleted || 0) > 0
           || Number(input.stats?.contractsFailed || 0) > 0
           || Number(input.stats?.contractsBroken || 0) > 0;
@@ -535,8 +531,8 @@ const GameEngine = class GameEngine {
       merged.prestigePoints = Math.max(0, Number(merged.prestigePoints) || 0);
       merged.passiveResearchProgress = Math.max(0, Number(merged.passiveResearchProgress) || 0) % 1;
       Reflect.deleteProperty(merged, ["repu", "tation"].join(""));
-      merged.stats.soldByCategory = { ...base.stats.soldByCategory, ...(input.stats?.soldByCategory || {}) };
-      merged.stats.lifetimeSoldByCategory = { ...base.stats.lifetimeSoldByCategory, ...(input.stats?.lifetimeSoldByCategory || input.stats?.soldByCategory || {}) };
+      merged.stats.soldByCategory = { ...base.stats.soldByCategory, ...(merged.stats.soldByCategory || {}) };
+      merged.stats.lifetimeSoldByCategory = { ...base.stats.lifetimeSoldByCategory, ...(merged.stats.lifetimeSoldByCategory || {}) };
       for (const category of Object.keys(this.data.categories)) {
         merged.stats.soldByCategory[category] = Math.max(0, Math.floor(Number(merged.stats.soldByCategory[category]) || 0));
         merged.stats.lifetimeSoldByCategory[category] = Math.max(0, Math.floor(Number(merged.stats.lifetimeSoldByCategory[category]) || 0));
@@ -545,10 +541,6 @@ const GameEngine = class GameEngine {
       merged.stats.lifetimeHarvested = Math.max(merged.stats.totalHarvested, Math.floor(Number(merged.stats.lifetimeHarvested) || 0));
       merged.stats.totalSold = Math.max(0, Math.floor(Number(merged.stats.totalSold) || 0));
       merged.stats.lifetimeSold = Math.max(merged.stats.totalSold, Math.floor(Number(merged.stats.lifetimeSold) || 0));
-      merged.stats.ordersCompleted = Math.max(0, Math.floor(Number(merged.stats.ordersCompleted) || 0));
-      merged.stats.lifetimeOrdersCompleted = Math.max(merged.stats.ordersCompleted, Math.floor(Number(merged.stats.lifetimeOrdersCompleted) || 0));
-      merged.stats.orderUnitsDelivered = Math.max(0, Math.floor(Number(merged.stats.orderUnitsDelivered) || 0));
-      merged.stats.lifetimeOrderUnitsDelivered = Math.max(merged.stats.orderUnitsDelivered, Math.floor(Number(merged.stats.lifetimeOrderUnitsDelivered) || 0));
       const discoveredCount = Object.keys(merged.cropsDiscovered || {}).filter(id => merged.cropsDiscovered[id]).length;
       const ownedCount = Object.values(merged.crops).filter(item => item.owned).length;
       const currentCropUpgradeCount = Object.values(merged.crops).reduce((sum, item) => sum + Math.max(0, Number(item.level || 0) - (item.owned ? 1 : 0)), 0);
@@ -556,7 +548,6 @@ const GameEngine = class GameEngine {
       merged.stats.lifetimeCropUpgrades = Math.max(currentCropUpgradeCount, Math.floor(Number(merged.stats.lifetimeCropUpgrades) || 0));
       const currentPrestigedCrops = Object.values(merged.crops).filter(item => Number(item.level || 0) >= GameEngine.MAX_CROP_LEVEL).length;
       merged.stats.lifetimeCropPrestiges = Math.max(currentPrestigedCrops, Math.floor(Number(merged.stats.lifetimeCropPrestiges) || 0));
-      merged.stats.completedOrderSeries = Math.max(0, Math.floor(Number(merged.stats.completedOrderSeries) || 0));
       merged.stats.contractsCompleted = Math.max(0, Math.floor(Number(merged.stats.contractsCompleted) || 0));
       merged.stats.lifetimeContractsCompleted = Math.max(merged.stats.contractsCompleted, Math.floor(Number(merged.stats.lifetimeContractsCompleted) || 0));
       merged.stats.contractsFailed = Math.max(0, Math.floor(Number(merged.stats.contractsFailed) || 0));
@@ -574,12 +565,10 @@ const GameEngine = class GameEngine {
       merged.stats.maxCropLevel = Math.max(0, Math.floor(Number(merged.stats.maxCropLevel) || 0), ...Object.values(merged.crops).map(item => item.level || 0));
       merged.stats.maxCropsOwned = Math.max(0, Math.floor(Number(merged.stats.maxCropsOwned) || 0), Object.values(merged.crops).filter(item => item.owned).length);
       merged.stats.maxCoinsHeld = Math.max(merged.coins || 0, Math.floor(Number(merged.stats.maxCoinsHeld) || 0));
-      merged.stats.maxStorageUsed = Math.max(this.getStorageUsedFromState(merged), Math.floor(Number(merged.stats.maxStorageUsed) || 0));
       for (const crop of this.data.crops) if (merged.crops[crop.id]?.owned) merged.cropsDiscovered[crop.id] = true;
       merged.permanentBonuses.prestigeDouble = Boolean(merged.permanentBonuses.prestigeDouble);
       merged.permanentBonuses.passiveXPPercentPerSecond = Math.max(0, Number(merged.permanentBonuses.passiveXPPercentPerSecond) || 0);
       merged.permanentBonuses.contractRewardPercent = Math.max(0, Number(merged.permanentBonuses.contractRewardPercent) || 0);
-      merged.permanentBonuses.orderRewardPercent = Math.max(0, Number(merged.permanentBonuses.orderRewardPercent) || 0);
       merged.farmLevel = Math.max(1, Math.floor(Number(merged.farmLevel) || 1));
       merged.farmXP = Math.max(0, Number(merged.farmXP) || 0);
       Reflect.deleteProperty(merged, "seasonIndex");
@@ -626,8 +615,7 @@ const GameEngine = class GameEngine {
           ...this.state.activeContracts
             .filter(contract => contract.delivered < contract.amount && !contract.completedAt)
             .map(contract => Math.max(0, Number(contract.timeRemaining) || 0)),
-          ...this.state.contractOffers.map(contract => Math.max(0, Number(contract.timeRemaining) || 0)),
-          ...this.state.contractCooldowns.map(cooldown => Math.max(0, Number(cooldown.timeRemaining) || 0))
+          Math.max(0, Number(this.state.contractRefreshCooldownRemaining) || 0)
         ].filter(time => time > 0);
         const nearestDeadline = activeTimes.length ? Math.min(...activeTimes) : Infinity;
         const normalStep = offline ? 60 : remaining;

@@ -18,9 +18,9 @@
 
   const metricOptions = fixedOptions([
     ["harvested", "Quantidade colhida"], ["owned", "Quantidade possuída"], ["cropPurchases", "Compras de plantas"], ["sold", "Itens vendidos"],
-    ["cropLevels", "Níveis de plantas"], ["cropUpgrades", "Melhorias de plantas"], ["orders", "Pedidos entregues"], ["contracts", "Contratos concluídos"],
-    ["maxCropLevel", "Maior nível de planta"], ["farmLevel", "Nível da fazenda"], ["stock", "Quantidade em estoque"], ["coinsEarned", "Moedas obtidas"],
-    ["prestiges", "Prestígios realizados"], ["categorySold", "Itens vendidos por categoria"], ["cropPurchased", "Compra de planta específica"], ["cropUnlocked", "Desbloqueio de planta"]
+    ["cropLevels", "Níveis de plantas"], ["cropUpgrades", "Melhorias de plantas"], ["contracts", "Contratos concluídos"],
+    ["maxCropLevel", "Maior nível de planta"], ["farmLevel", "Nível da fazenda"], ["coinsEarned", "Moedas obtidas"],
+    ["prestiges", "Prestígios realizados"], ["categorySold", "Itens vendidos por categoria"], ["cropPurchased", "Comprar planta específica"], ["cropUnlocked", "Desbloqueio de planta por nível"]
   ]);
   const rewardOptions = fixedOptions([["coins", "Moedas"], ["research", "Pesquisa"], ["prestige", "Prestígio"]]);
   const playerTitleRarityOptions = fixedOptions([["common", "Comum"], ["uncommon", "Incomum"], ["rare", "Raro"], ["epic", "Épico"], ["legendary", "Lendário"]]);
@@ -39,7 +39,7 @@
     return selected.length ? selected.map(key => rewardOptions.find(option => option.value === key)?.label || key).join(" + ") : "Sem recompensa de recursos";
   };
   const effectLabel = value => window.GameAdminConfig?.getEvolutionEffectOptions?.().find(option => option.value === value)?.label || "Bônus configurável";
-  const eventTypeOptions = fixedOptions([["harvest", "Produção das safras"], ["growthSpeed", "Velocidade de produção"], ["salePrice", "Valor de venda"], ["xp", "Experiência (XP)"], ["research", "Pontos de pesquisa"], ["coins", "Moedas recebidas"], ["contractRewards", "Recompensas de contratos"], ["orderRewards", "Recompensas de pedidos"]]);
+  const eventTypeOptions = fixedOptions([["harvest", "Produção das safras"], ["growthSpeed", "Velocidade de produção"], ["salePrice", "Valor de venda"], ["xp", "Experiência (XP)"], ["research", "Pontos de pesquisa"], ["coins", "Moedas recebidas"], ["contractRewards", "Recompensas de contratos"]]);
   const eventWeekdayOptions = fixedOptions([[1, "Segunda"], [2, "Terça"], [3, "Quarta"], [4, "Quinta"], [5, "Sexta"], [6, "Sábado"], [7, "Domingo"]]);
   const effectOptions = () => [{ value: "", label: "Sem segundo bônus" }, ...(window.GameAdminConfig?.getEvolutionEffectOptions?.() || [])];
 const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Number(value) || 60)); const hours = Math.floor(minutes / 60); const rest = minutes % 60; return hours ? `${hours}h${rest ? ` ${rest}min` : ""}` : `${minutes} min`; };
@@ -99,13 +99,12 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       { key: "category", label: "Categoria de plantas", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Todas as categorias" },
       imageField("icon", "Ícone", "icone")
     ]},
-    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => { const proposal = Array.isArray(item.proposalDurationRange) ? item.proposalDurationRange : [item.minDurationSeconds || item.durationSeconds || 0, item.maxDurationSeconds || item.durationSeconds || 0]; const delivery = Array.isArray(item.deliveryDurationRange) ? item.deliveryDurationRange : proposal; return `proposta ${proposal[0] || 0}s–${proposal[1] ?? proposal[0] ?? 0}s · entrega ${delivery[0] || 0}s–${delivery[1] ?? delivery[0] ?? 0}s · ${item.chancePercent ?? 100}% chance · prioridade ${item.priority || 0} · multa ${item.penaltyPercent ?? 20}% · ${rewardSelectionLabel(item.rewards)}${Number(item.xpPercent) > 0 ? ` + ${item.xpPercent}% XP` : ""}`; }, fields: [
+    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => { const delivery = Array.isArray(item.deliveryDurationRange) ? item.deliveryDurationRange : [item.minDurationSeconds || item.durationSeconds || 0, item.maxDurationSeconds || item.durationSeconds || 0]; return `conclusão ${delivery[0] || 0}s–${delivery[1] ?? delivery[0] ?? 0}s · ${item.chancePercent ?? 100}% chance · prioridade ${item.priority || 0} · multa ${item.penaltyPercent ?? 20}% · ${rewardSelectionLabel(item.rewards)}${Number(item.xpPercent) > 0 ? ` + ${item.xpPercent}% XP` : ""}`; }, fields: [
       { key: "label", label: "Nome do tipo de contrato", type: "text", required: true },
       percentField("chancePercent", "Chance de aparecer (%)", { min: 0, max: 100, required: true, defaultValue: 100, help: "Probabilidade real por proposta. Use 100% em pelo menos um tipo comum. Um tipo de 5% aparece, em média, em cerca de 5 de cada 100 propostas; o tipo de 100% preenche as propostas em que nenhum raro é sorteado." }),
       numberField("priority", "Prioridade de entrega", { min: 0, integer: true, required: true, defaultValue: 0, help: "Quando dois contratos pedirem a mesma planta, a produção é entregue primeiro ao contrato com maior prioridade." }),
       percentField("penaltyPercent", "Multa / quebra do contrato (%)", { min: 0, required: true, defaultValue: 20, help: "Percentual adicional aplicado sobre (quantidade que falta × valor unitário atual da planta)." }),
-      { key: "proposalDurationRange", label: "Tempo da proposta — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, required: true, defaultValue: [60, 120], help: "Informe dois valores separados por vírgula. Ex.: 60, 120. Este é apenas o tempo disponível para decidir se assina." },
-      { key: "deliveryDurationRange", label: "Tempo de entrega — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, required: true, defaultValue: [180, 360], help: "Informe dois valores separados por vírgula. Ao assinar, um novo cronômetro de entrega usa o tempo sorteado neste intervalo." },
+      { key: "deliveryDurationRange", label: "Tempo de conclusão — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, required: true, defaultValue: [180, 360], help: "Informe dois valores separados por vírgula. Este tempo fica estático na proposta e só começa a decair depois que o contrato é assinado." },
       numberField("quantityMultiplier", "Multiplicador de quantidade", { min: 0.01, required: true }),
       { key: "rewards", label: "Recompensas adicionais do contrato", type: "checkboxes", options: rewardOptions, help: "Opcional. Moedas, pesquisa e prestígio podem ficar desmarcados; o contrato pode conceder somente XP." },
       percentField("coinMultiplierPercent", "Multiplicador de moedas (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "coins" }, defaultValue: 100 }),
@@ -117,16 +116,9 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
     contractSlots: { label: "slot de contrato", idSource: "name", title: item => item.name || "Novo slot", subtitle: item => `Libera no nível ${item.unlockLevel || 1}`, fields: [
       { key: "name", label: "Nome do slot", type: "text", required: true }, numberField("unlockLevel", "Nível da fazenda para desbloquear", { min: 1, integer: true, required: true })
     ]},
-    orderSteps: { label: "etapa de pedido", idSource: "name", title: (_item, index) => `Etapa ${index + 1}`, subtitle: item => `${item.amount || 0} un. · +${item.coinBonusPercent || 0}% moedas · ${item.xpPercent || 0}% XP`, fields: [
-      numberField("amount", "Quantidade necessária", { min: 0, integer: true, required: true, defaultValue: 0 }),
-      percentField("coinBonusPercent", "Multiplicador de moedas (%)", { min: 0, required: true, defaultValue: 0, help: "Percentual adicional aplicado ao valor total do pedido (quantidade × valor unitário da planta)." }),
-      numberField("rewardResearch", "Recompensa de pesquisa", { min: 0, integer: true, required: true, defaultValue: 0 }),
-      numberField("rewardPrestige", "Recompensa de prestígio", { min: 0, integer: true, required: true, defaultValue: 0 }),
-      percentField("xpPercent", "Recompensa de XP (%)", { min: 0, max: 100, required: true, defaultValue: 0 })
-    ]},
     missions: { label: "missão", idSource: "title", title: item => item.title || "Nova missão", subtitle: item => `${item.hidden === true ? "Oculta · " : ""}${Array.isArray(item.series) ? item.series.length : 0} ${Array.isArray(item.series) && item.series.length === 1 ? "série" : "séries"}`, fields: [
       { key: "title", label: "Título da missão", type: "text", required: true }, { key: "desc", label: "Descrição", type: "textarea", required: true },
-      { key: "metric", label: "O que será medido", type: "select", required: true, options: metricOptions, help: "Em Compra de planta específica e Desbloqueio de planta, cada série permite escolher sua própria planta." },
+      { key: "metric", label: "O que será medido", type: "select", required: true, options: metricOptions, help: "Em Comprar planta específica e Desbloqueio de planta por nível, cada série permite escolher sua própria planta." },
       { key: "category", label: "Categoria da planta, quando necessária", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Não se aplica" },
       { key: "hidden", label: "Ocultar missão dos jogadores", type: "checkbox", help: "Missões ocultas continuam visíveis no Admin e aparecem no jogo apenas para contas administradoras." }
     ]},
@@ -195,28 +187,23 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
         if (action === "down") this.move(index, 1);
       });
     }
-    normalizeOrderedLabels() {
-      if (this.name !== "orderSteps") return;
-      this.items.forEach((item, index) => { item.name = `Etapa ${index + 1}`; });
-    }
     setValue(items) {
       this.items = Array.isArray(items) ? clone(items) : [];
       if (this.name === "playerTitles" && !this.items.some(item => item?.id === "fazendeiro" || item?.default === true)) {
         this.items.unshift({ id: "fazendeiro", name: "Fazendeiro", rarity: "common", default: true, locked: true });
       }
-      this.normalizeOrderedLabels();
       this.render();
     }
-    getValue() { this.normalizeOrderedLabels(); return clone(this.items); }
+    getValue() { return clone(this.items); }
     makeUniqueId(sourceValue, currentIndex) { const base = autoId(sourceValue); const used = new Set(this.items.filter((_, index) => index !== currentIndex).map(item => item.id)); let candidate = base; let suffix = 2; while (used.has(candidate)) candidate = `${base}${suffix++}`; return candidate; }
     missionSeriesRowMarkup(serie = {}, index = 0, missionIndex = 0) {
       const reward = serie.reward || {};
       const numeric = value => sanitizePositive(value ?? "", true);
       const metric = this.items[missionIndex]?.metric;
       const cropTargetMetric = metric === "cropUnlocked" || metric === "cropPurchased";
-      const cropTargetLabel = metric === "cropPurchased" ? "Planta que deve ser comprada" : "Planta do marco";
+      const cropTargetLabel = metric === "cropPurchased" ? "Planta da missão" : "Planta do marco";
       const cropTargetHelp = metric === "cropPurchased"
-        ? "A série fica concluída quando esta planta tiver sido comprada pelo jogador, mesmo que a compra tenha acontecido em uma jornada anterior."
+        ? "Ao comprar esta planta, o progresso da série passa de 0/1 para 1/1 e a recompensa fica disponível."
         : "A série fica concluída quando o nível da fazenda já tiver liberado esta planta. Não é necessário comprá-la.";
       const goalField = cropTargetMetric
         ? `<label class="admin-series-crop-milestone"><span>${cropTargetLabel}</span><select data-series-field="cropId">${cropTargetOptions(serie.cropId).map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(serie.cropId || "") ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select><small>${cropTargetHelp}</small></label>`
@@ -329,7 +316,6 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       }
     }
     render() {
-      this.normalizeOrderedLabels();
       if (this.count) this.count.textContent = String(this.items.length);
       if (!this.list) return;
       this.list.innerHTML = this.items.length ? this.items.map((item, index) => {
@@ -349,13 +335,12 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       const item = index >= 0 ? clone(this.items[index]) : {};
       window.AdminItemDialog.open({ title: index >= 0 ? `Editar ${this.schema.label}` : `Adicionar ${this.schema.label}`, fields: this.schema.fields, item, saveLabel: index >= 0 ? "Salvar alteração" : "Cadastrar", onSave: async value => {
         const previous = index >= 0 ? clone(this.items[index]) : null;
-        if (this.name === "orderSteps") value.name = `Etapa ${index >= 0 ? index + 1 : this.items.length + 1}`;
         if (this.name === "missions" && !Array.isArray(value.series)) value.series = Array.isArray(previous?.series) ? clone(previous.series) : [];
         value.id = this.name === "playerTitles" && previous?.id
           ? previous.id
           : this.makeUniqueId(getPath(value, this.schema.idSource), index);
         if (this.schema.idTarget) setPath(value, this.schema.idTarget, value.id);
-        if (index >= 0) this.items[index] = value; else this.items.push(value); this.normalizeOrderedLabels(); this.render();
+        if (index >= 0) this.items[index] = value; else this.items.push(value); this.render();
         try { await window.AdminCloudActions?.beforeCatalogSave?.(this.name, previous, value); await window.AdminCloudActions?.saveCatalog?.(this.name); }
         catch (error) { if (index >= 0) this.items[index] = previous; else this.items.pop(); this.render(); window.AdminCloudActions?.restoreEditors?.(); throw error; }
       }});

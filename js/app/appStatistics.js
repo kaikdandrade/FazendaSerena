@@ -136,13 +136,11 @@
       statCard("assets/icons/caixa-colheita.webp", "Produção total", engine.formatNumber(stats.lifetimeHarvested), "", "featured", "lifetimeHarvested"),
       statCard("assets/icons/carteira-moedas.webp", "Itens vendidos", engine.formatNumber(stats.lifetimeSold), "", "featured", "lifetimeSold"),
       statCard("assets/icons/contrato-comercial.webp", "Contratos entregues", engine.formatNumber(stats.lifetimeContractsCompleted), "", "", "lifetimeContractsCompleted"),
-      statCard("assets/icons/prancheta-tarefas.webp", "Pedidos entregues", engine.formatNumber(stats.lifetimeOrdersCompleted), "", "", "lifetimeOrdersCompleted"),
       statCard("assets/icons/prestigio-conta.webp", "Prestígio de conta", engine.formatNumber(stats.prestiges), "", "", "prestiges")
     ].join("");
     dom.recordStats.innerHTML = [
       statCard("assets/icons/fazenda-celeiro.webp", "Maior nível", engine.formatNumber(stats.maxFarmLevel), "", "record", "maxFarmLevel"),
       statCard("assets/icons/estrela-dominio-cultura.webp", "Plantas platinadas", `${engine.formatNumber(masteredCropCount)} / ${engine.formatNumber(totalCropCount)}`, "", "record", "lifetimeCropPrestiges"),
-      statCard("assets/icons/galpao-industrial.webp", "Maior estoque", engine.formatNumber(stats.maxStorageUsed), "", "record", "maxStorageUsed"),
       statCard("assets/icons/moeda.webp", "Maior saldo", resourceAmount("coins", stats.maxCoinsHeld), "", "record", "maxCoinsHeld")
     ].join("");
     dom.achievementSummary.innerHTML = `
@@ -153,15 +151,15 @@
     const researchMarkup = researchEntries.length ? researchEntries.map(({ item, level }) => {
       const benefits = summarizeEvolutionBenefits(item, level);
       return `<article class="achievement-card progression-benefit-card"><span>${statIcon(typeof item.icon === "string" && /\.(?:png|webp|svg)$/i.test(item.icon) ? item.icon : "assets/icons/livros.webp", item.name)}</span><div><small>Pesquisa · nível ${level}/${item.max}</small><h3>${escapeHtml(item.name)}</h3><p>${benefits.length ? benefits.map(escapeHtml).join(" · ") : enrichResourceText(item.desc)}</p></div></article>`;
-    }).join("") : `<div class="friends-empty-state">Nenhuma pesquisa adquirida ainda.</div>`;
+    }).join("") : `<div class="stats-empty-state">Nenhuma pesquisa adquirida ainda.</div>`;
 
     const legacyMarkup = legacyEntries.length ? legacyEntries.map(({ item, level }) => {
       const benefits = summarizeEvolutionBenefits(item, level);
       const icon = typeof item.icon === "string" && /\.(?:png|webp|svg)$/i.test(item.icon) ? item.icon : "assets/icons/prestigio.webp";
       return `<article class="achievement-card legacy-achievement progression-benefit-card"><span>${statIcon(icon, item.name)}</span><div><small>Legado · nível ${level}/${item.max}</small><h3>${escapeHtml(item.name)}</h3><p>${benefits.length ? benefits.map(escapeHtml).join(" · ") : enrichResourceText(item.desc)}</p></div></article>`;
-    }).join("") : `<div class="friends-empty-state">Nenhum legado adquirido ainda.</div>`;
+    }).join("") : `<div class="stats-empty-state">Nenhum legado adquirido ainda.</div>`;
 
-    const missionMarkup = claimed.length ? claimed.map(mission => `<article class="achievement-card"><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missão concluída")}</span><div><small>${mission.series ? `Série ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></article>`).join("") : `<div class="friends-empty-state stats-mission-empty"><small>${runtimeTextHtml("completedMissionHistoryDescription", "As missões que você concluir aparecerão aqui para registrar as conquistas da sua fazenda.")}</small></div>`;
+    const missionMarkup = claimed.length ? claimed.map(mission => `<article class="achievement-card"><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missão concluída")}</span><div><small>${mission.series ? `Série ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></article>`).join("") : `<div class="stats-empty-state stats-mission-empty"><small>${runtimeTextHtml("completedMissionHistoryDescription", "As missões que você concluir aparecerão aqui para registrar as conquistas da sua fazenda.")}</small></div>`;
 
     dom.achievementGrid.innerHTML = `
       <section class="stats-benefit-section research-benefit-section"><header><div><small>benefícios acumulados</small><h3>Pesquisa</h3></div><b>${researchLevels}</b></header><div class="stats-benefit-list">${researchMarkup}</div></section>

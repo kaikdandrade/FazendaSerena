@@ -14,11 +14,8 @@
 
     if (activeView === "farmView") {
       renderCrops();
-    } else if (activeView === "stockView") {
-      renderStock();
     } else if (activeView === "officeView") {
       if (activeOfficeTab === "contracts") renderContracts();
-      if (activeOfficeTab === "orders") renderOrders();
       if (activeOfficeTab === "evolutions") {
         renderResearch();
         renderPrestigeUpgrades();
@@ -33,7 +30,6 @@
         renderPlayerTitleControl();
       }
       if (activeProfileTab === "social") {
-        if (friendsState.status === "idle") refreshFriends(false);
         refreshPrestigeLeaderboard(false);
       }
       if (activeProfileTab === "missions") renderMissions();
@@ -62,7 +58,7 @@
       coins: [dom.floatingCoinsCounter, dom.coinsCounter],
       research: [dom.floatingResearchCounter, dom.researchCounter],
       prestige: [dom.floatingPrestigeCounter, dom.prestigeCounter],
-      xp: [dom.farmXPText, dom.farmProgress]
+      xp: [dom.floatingFarmXPResource, dom.farmXPResource]
     }[type] || [];
 
     return counters.find(counter => {
@@ -126,8 +122,7 @@
 
   function getActionSound(action) {
     if (["upgrade-crop-selected", "buy-research", "buy-prestige-upgrade"].includes(action)) return "upgrade";
-    if (["sell-fraction", "sell-all-stock"].includes(action)) return "sell";
-    if (["claim-contract", "deliver-order", "claim-mission"].includes(action)) return "reward";
+    if (["claim-contract", "claim-mission"].includes(action)) return "reward";
     if (action === "perform-prestige") return "prestige";
     return "click";
   }
@@ -138,66 +133,8 @@
     const cropId = button.dataset.crop;
     const id = button.dataset.id;
 
-    if (action === "refresh-friends") {
-      refreshFriends(true).then(() => startFriendsRealtime()).catch(() => {});
-      return;
-    }
-    if (action === "friends-sign-in") {
-      dom.googleSignIn?.click();
-      return;
-    }
-    if (action === "open-account-profile") {
-      showProfileTab("account");
-      render(true);
-      return;
-    }
-    if (action === "open-friends-list") {
-      openFriendsListDialog();
-      return;
-    }
-    if (action === "open-friend-code-dialog") {
-      openFriendCodeDialog();
-      return;
-    }
-    if (action === "close-friend-code-dialog") {
-      if (dom.friendCodeDialog?.open) dom.friendCodeDialog.close("cancel");
-      return;
-    }
-    if (action === "confirm-remove-friend") {
-      confirmFriendRemoval().catch(error => setFriendsFeedback(window.FirebaseManager.getFriendlyError(error), "error"));
-      return;
-    }
-    if (action === "remove-friend") {
-      requestFriendRemoval(button.dataset.friendshipId);
-      return;
-    }
-    if (action === "copy-friend-code") {
-      const code = friendsState.selfProfile?.friendCode || window.FirebaseManager.getUser()?.uid || "";
-      const codeElement = document.getElementById("currentFriendCode");
-      const showCopied = () => {
-        if (!codeElement) return;
-        codeElement.textContent = "Código copiado.";
-        codeElement.classList.add("is-copy-feedback");
-        window.clearTimeout(codeElement._restoreTimer);
-        codeElement._restoreTimer = window.setTimeout(() => {
-          if (!codeElement.isConnected) return;
-          codeElement.textContent = code;
-          codeElement.classList.remove("is-copy-feedback");
-        }, 2200);
-      };
-      if (code) {
-        const copyOperation = navigator.clipboard?.writeText?.(code);
-        if (copyOperation) copyOperation.then(showCopied).catch(() => codeElement?.select?.());
-        else { try { navigator.clipboard?.writeText?.(code); } catch (_) {} showCopied(); }
-      }
-      return;
-    }
-    if (["accept-friend", "reject-friend", "cancel-friend-request"].includes(action)) {
-      handleFriendRelationshipAction(action, button.dataset.friendshipId);
-      return;
-    }
 
-    if (!["perform-prestige", "buy-crop", "accept-contract", "decline-contract", "break-contract"].includes(action)) soundEngine.play(getActionSound(action));
+    if (!["perform-prestige", "buy-crop", "accept-contract", "break-contract"].includes(action)) soundEngine.play(getActionSound(action));
 
     if (action === "buy-crop") {
       const result = engine.buyCrop(cropId);
@@ -217,43 +154,13 @@
       const result = mode === "max" ? engine.upgradeCropMax(cropId) : engine.upgradeCrop(cropId, 1);
       act(result);
     }
-    if (action === "sell-fraction") {
-      const stock = engine.state.crops[cropId]?.stock || 0;
-      const amount = Math.max(1, Math.floor(stock * Number(button.dataset.fraction || 1)));
-      const result = engine.sellCrop(cropId, amount);
-      if (!result.ok) return act(result);
-      animateResourceReward(button, { coins: result.gain });
-      render(true);
-      requestGameSave();
-    }
-    if (action === "toggle-auto-sell") act(engine.toggleAutoSell(cropId));
-    if (action === "toggle-stock-favorite") act(engine.toggleStockFavorite(cropId));
-    if (action === "toggle-all-auto-sell") {
-      const owned = engine.data.crops.filter(crop => engine.state.crops[crop.id]?.owned);
-      const allEnabled = owned.length > 0 && owned.every(crop => engine.state.crops[crop.id].autoSell);
-      act(engine.setAllAutoSell(!allEnabled));
-    }
-    if (action === "sell-all-stock") {
-      const result = engine.sellAll();
-      if (!result.ok) return act(result);
-      animateResourceReward(button, { coins: result.gain });
-      render(true);
-      requestGameSave();
-    }
-    if (action === "expand-storage") act(engine.expandStorage());
     if (action === "buy-research") act(engine.buyResearch(id));
     if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
     if (action === "accept-contract") {
       const offer = engine.state.contractOffers.find(contract => contract.id === id);
-      const canSignNow = Boolean(offer && Number(offer.timeRemaining) > 0 && engine.state.activeContracts.length < engine.getActiveContractSlotLimit());
+      const canSignNow = Boolean(offer && engine.state.activeContracts.length < engine.getActiveContractSlotLimit());
       if (canSignNow) soundEngine.playImmediate("contractSignature");
       const result = engine.acceptContract(id);
-      act(result);
-    }
-    if (action === "decline-contract") {
-      const offer = engine.state.contractOffers.find(contract => contract.id === id);
-      if (offer) soundEngine.playImmediate("contractRefusal");
-      const result = engine.declineContract(id);
       act(result);
     }
     if (action === "break-contract") {
@@ -267,8 +174,17 @@
       if (typeof dom.contractBreakDialog?.showModal === "function") dom.contractBreakDialog.showModal();
       else if (window.confirm(`Quebrar contrato e pagar ${engine.formatNumber(penalty)} moedas?`)) {
         pendingContractBreakId = "";
-        soundEngine.playImmediate("contractRefusal");
+        soundEngine.playImmediate("contractBreak");
         const result = engine.breakContract(id);
+        act(result);
+      }
+    }
+    if (action === "refresh-contracts") {
+      const result = engine.refreshContractOffers();
+      if (result.ok) {
+        renderContracts();
+        requestGameSave();
+      } else {
         act(result);
       }
     }
@@ -277,14 +193,6 @@
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch, prestige: result.contract.rewardPrestige, xp: result.xpAward });
-      render(true);
-      requestGameSave();
-    }
-    if (action === "pay-contract-penalty") act(engine.payContractPenalty(id));
-    if (action === "deliver-order") {
-      const result = engine.deliverOrder(cropId);
-      if (!result.ok) return act(result);
-      animateResourceReward(button, result.rewards || {});
       render(true);
       requestGameSave();
     }
@@ -304,7 +212,7 @@
       const gain = engine.getPrestigeEstimate();
       if (!engine.isPrestigeUnlocked() || gain < 1) return;
       if (dom.prestigeConfirmText) {
-        dom.prestigeConfirmText.textContent = `Prestigiar agora reiniciará moedas, pesquisa, nível, culturas, estoque, tecnologias, contratos e pedidos desta jornada. Você receberá ${engine.formatNumber(gain)} ponto${gain === 1 ? "" : "s"} de prestígio permanente${gain === 1 ? "" : "s"}.`;
+        dom.prestigeConfirmText.textContent = `Prestigiar agora reiniciará moedas, pesquisa, nível, culturas, tecnologias e contratos desta jornada. Você receberá ${engine.formatNumber(gain)} ponto${gain === 1 ? "" : "s"} de prestígio permanente${gain === 1 ? "" : "s"}.`;
       }
       if (typeof dom.prestigeConfirmDialog?.showModal === "function" && !dom.prestigeConfirmDialog.open) {
         dom.prestigeConfirmDialog.showModal();

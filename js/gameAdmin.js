@@ -45,7 +45,6 @@
     "assets/icons/harvest-crate.png": "assets/icons/caixa-colheita.webp",
     "assets/icons/irrigation.png": "assets/icons/irrigacao.webp",
     "assets/icons/level-milestone.png": "assets/icons/marco-nivel.webp",
-    "assets/icons/package.png": "assets/icons/pacote.webp",
     "assets/icons/potion.png": "assets/icons/pocao-pesquisa.webp",
     "assets/icons/prestige.png": "assets/icons/prestigio.webp",
     "assets/icons/price-estimate.png": "assets/icons/estimativa-preco.webp",
@@ -93,30 +92,22 @@
     : fallback;
 
   const defaultTexts = Object.freeze({
-    profileDescription: "Gerencie sua conta, faça amizades, cumpra missões e desenvolva legados permanentes.",
-    officeDescription: "Gerencie contratos, acompanhe pedidos e desenvolva novas tecnologias para a fazenda.",
+    profileDescription: "Gerencie sua conta, acompanhe o ranking, cumpra missões e desenvolva legados permanentes.",
+    officeDescription: "Gerencie contratos e desenvolva novas tecnologias para a fazenda.",
     settingsDescription: "Personalize a navegação, a experiência visual, a formatação e o áudio do jogo.",
     missionsDescription: "Avance em séries contínuas e receba recompensas proporcionais ao desafio.",
     prestigeDescription: "Invista pontos de prestígio em melhorias que permanecem após cada recomeço.",
     researchDescription: "Invista pontos de pesquisa em tecnologias que aperfeiçoam toda a operação da fazenda.",
     emptyCropsCatalog: "Nenhuma planta foi publicada no catálogo administrativo.",
     emptyCropFilter: "Nenhuma planta corresponde aos filtros atuais.",
-    emptyStockCategory: "Nenhum item pertence à categoria selecionada.",
     emptyContractCropsCatalog: "Nenhuma planta foi publicada no catálogo administrativo. Os contratos serão liberados automaticamente depois que o catálogo for configurado.",
     emptyContractCompaniesCatalog: "Nenhuma indústria foi publicada no catálogo administrativo. As propostas comerciais aparecerão depois que o catálogo for configurado.",
     emptyContractTypesCatalog: "Nenhum tipo de contrato foi publicado no catálogo administrativo. Cadastre pelo menos um tipo para começar a gerar propostas.",
     emptyContractOwnedCrops: "Compre uma cultura para começar a receber oportunidades comerciais.",
-    emptyContractRenewal: "As propostas estão em renovação. Aguarde o término dos intervalos.",
-    emptyOrdersCatalog: "Nenhuma etapa de pedido foi publicada no catálogo administrativo.",
-    emptyOrdersOwnedCrops: "Compre uma cultura para iniciar sua primeira sequência de pedidos.",
-    emptyOrdersComplete: "Todas as séries de pedidos foram concluídas.",
     emptyMissionsCatalog: "Nenhuma missão foi publicada no catálogo administrativo.",
     emptyMissionsComplete: "Todas as séries de missões foram concluídas.",
     emptyResearchCatalog: "Nenhuma pesquisa foi publicada no catálogo administrativo.",
     emptyPrestigeCatalog: "Nenhum legado permanente foi publicado no catálogo administrativo.",
-    emptyFriends: "Sua lista de amigos ainda está vazia.",
-    emptyIncomingFriends: "Nenhuma solicitação recebida.",
-    emptyOutgoingFriends: "Nenhuma solicitação enviada.",
     emptyMissionHistory: "Nenhuma missão concluída ainda.",
     completedMissionHistoryDescription: "As missões que você concluir aparecerão aqui para registrar as conquistas da sua fazenda.",
     leaderboardLoadingTitle: "Atualizando o ranking global...",
@@ -135,18 +126,13 @@
     cropMasteryXPPercent: 10,
     passiveXPPercentPerSecond: 0.05,
     passiveResearchPercentPerSecond: 0,
-    ordersUnlockLevel: 5,
     evolutionsUnlockLevel: 5,
     prestigeUnlockLevel: 40,
     prestigeBonus: 0,
     startingCoins: 120,
-    storageCapacity: 200,
     baseProductionMin: 1,
     baseProductionCap: 10,
-    contractSignedCooldownRange: [25, 35],
-    contractExpiredCooldownRange: [25, 35],
-    contractDeclinedCooldownRange: [45, 75],
-    contractBrokenCooldownRange: [210, 270],
+    contractRefreshCooldownSeconds: 10,
     contractOfferCount: 6,
     maxOfflineMinutes: 15
   });
@@ -155,12 +141,11 @@
     growthSpeedPercent: "Velocidade de produção (%)",
     yieldPercent: "Rendimento das safras (%)",
     salePricePercent: "Valor das vendas (%)",
-    storageCapacityPercent: "Capacidade do estoque (%)",
     cropPurchaseDiscountPercent: "Desconto na compra de plantas (%)",
     cropUpgradeDiscountPercent: "Desconto nos níveis das plantas (%)",
     farmXPGainPercent: "XP recebido (%)",
     passiveXPPercentPerSecond: "XP passivo por segundo (%)",
-    contractDurationPercent: "Prazo dos contratos (%)",
+    contractDurationPercent: "Velocidade de conclusão dos contratos (%)",
     contractCoinRewardPercent: "Moedas recebidas em contratos (%)",
     contractResearchRewardPercent: "Pesquisa recebida em contratos (%)",
     contractPrestigeRewardPercent: "Prestígio recebido em contratos (%)",
@@ -171,8 +156,6 @@
     passiveResearchPercentPerSecond: "Pesquisa passiva por segundo (%)",
     prestigeGainPercent: "Prestígio obtido (%)",
     autoSalePricePercent: "Valor da venda automática (%)",
-    wholesaleOverflowUnlock: "Desbloquear venda atacadista (1 = sim)",
-    orderRewardPercent: "Recompensas recebidas por pedidos (%)",
     offlineProductionMinutes: "Produção offline (+ minutos)"
   });
   const effectTypes = new Set(Object.keys(effectLabels));
@@ -181,7 +164,6 @@
     acceleratedGermination: ["growthSpeedPercent", 7],
     hybridGenetics: ["yieldPercent", 8],
     priceForecast: ["salePricePercent", 6],
-    coldChain: ["storageCapacityPercent", 20],
     smartSeedCatalog: ["cropPurchaseDiscountPercent", 4],
     cultivationAlgorithms: ["cropUpgradeDiscountPercent", 4],
     negotiationModels: ["contractCoinRewardPercent", 8],
@@ -192,13 +174,11 @@
     royalTreasury: ["startingCoins", 5000],
     eternalHarvest: ["growthSpeedPercent", 12, "yieldPercent", 10],
     goldenExchange: ["salePricePercent", 15],
-    endlessGranary: ["storageCapacityPercent", 60],
     ancestralMastery: ["cropPurchaseDiscountPercent", 8, "cropUpgradeDiscountPercent", 6],
     immortalAcademy: ["contractResearchRewardPercent", 25, "startingResearch", 3],
     laboratoryFunding: ["passiveResearchPercentPerSecond", 0.01],
     prestigeResonance: ["prestigeGainPercent", 20],
     sovereignNetwork: ["contractCoinRewardPercent", 20, "contractDurationPercent", 10, "autoSalePricePercent", 10],
-    wholesaleHub: ["wholesaleOverflowUnlock", 1],
     experienceLegacy: ["passiveXPPercentPerSecond", 0.05],
     contractEmpire: ["activeContractSlots", 1]
   });
@@ -210,14 +190,10 @@
 
   const defaultNavigationIcons = Object.freeze({
     farm: "assets/icons/muda-vaso.webp",
-    stock: "assets/icons/galpao-industrial.webp",
-    office: "assets/icons/prancheta-tarefas.webp",
     profile: "assets/icons/perfil.webp",
     settings: "assets/icons/configuracoes.webp",
     contracts: "assets/icons/contrato-comercial.webp",
-    orders: "assets/icons/pacote.webp",
     evolutions: "assets/icons/livros.webp",
-    account: "assets/icons/logo-google.webp",
     social: "assets/icons/social.webp",
     missions: "assets/icons/chapeu-formatura.webp"
   });
@@ -226,11 +202,9 @@
   }
   const defaultGridNavigationIcons = Object.freeze({
     farm: defaultNavigationIcons.farm,
-    stock: defaultNavigationIcons.stock,
     contracts: defaultNavigationIcons.contracts,
-    orders: defaultNavigationIcons.orders,
     evolutions: defaultNavigationIcons.evolutions,
-    account: defaultNavigationIcons.account,
+    profile: defaultNavigationIcons.profile,
     social: defaultNavigationIcons.social,
     missions: defaultNavigationIcons.missions,
     settings: defaultNavigationIcons.settings
@@ -244,8 +218,8 @@
   function normalizePrestigeIcons(raw = {}) {
     return Object.fromEntries(Object.entries(defaultPrestigeIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
   }
-  const defaultLineNavigationOrder = Object.freeze(["farm", "stock", "office", "profile", "settings", "contracts", "orders", "evolutions", "account", "social", "missions"]);
-  const defaultGridNavigationOrder = Object.freeze(["farm", "stock", "contracts", "orders", "evolutions", "account", "social", "missions", "settings"]);
+  const defaultLineNavigationOrder = Object.freeze(["farm", "contracts", "evolutions", "missions", "social", "profile", "settings"]);
+  const defaultGridNavigationOrder = Object.freeze(["farm", "contracts", "evolutions", "missions", "social", "profile", "settings"]);
   function normalizeGridNavigationIcons(raw = {}, line = defaultNavigationIcons) {
     return Object.fromEntries(Object.entries(defaultGridNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], line?.[key] || fallback)]));
   }
@@ -288,7 +262,7 @@
   }
 
   const defaults = Object.freeze({
-    schemaVersion: 21,
+    schemaVersion: 23,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.0",
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
@@ -297,7 +271,6 @@
     companies: [],
     contractTypes: [],
     contractSlots: clone(defaultContractSlots),
-    orderSteps: [],
     missions: [],
     playerTitles: [clone(defaultPlayerTitle)],
     research: clone(window.GameData.research),
@@ -349,18 +322,13 @@
         raw.passiveResearchPercentPerSecond ?? raw.researchPassiveXPPercentPerLevel,
         0, 100, defaultBalance.passiveResearchPercentPerSecond
       ),
-      ordersUnlockLevel: integer(raw.ordersUnlockLevel ?? raw.featureUnlockLevel, 1, 1000, defaultBalance.ordersUnlockLevel),
       evolutionsUnlockLevel: integer(raw.evolutionsUnlockLevel ?? raw.featureUnlockLevel, 1, 1000, defaultBalance.evolutionsUnlockLevel),
       prestigeUnlockLevel: integer(raw.prestigeUnlockLevel, 1, 1000, defaultBalance.prestigeUnlockLevel),
       prestigeBonus: integer(raw.prestigeBonus, 0, Number.MAX_SAFE_INTEGER, defaultBalance.prestigeBonus),
       startingCoins: integer(raw.startingCoins, 0, Number.MAX_SAFE_INTEGER, defaultBalance.startingCoins),
-      storageCapacity: integer(raw.storageCapacity, 1, Number.MAX_SAFE_INTEGER, defaultBalance.storageCapacity),
       baseProductionMin,
       baseProductionCap,
-      contractSignedCooldownRange: rangePair(raw.contractSignedCooldownRange ?? raw.contractSignedCooldownSeconds, defaultBalance.contractSignedCooldownRange),
-      contractExpiredCooldownRange: rangePair(raw.contractExpiredCooldownRange ?? raw.contractExpiredCooldownSeconds, defaultBalance.contractExpiredCooldownRange),
-      contractDeclinedCooldownRange: rangePair(raw.contractDeclinedCooldownRange ?? raw.contractDeclinedCooldownSeconds, defaultBalance.contractDeclinedCooldownRange),
-      contractBrokenCooldownRange: rangePair(raw.contractBrokenCooldownRange ?? raw.contractBrokenCooldownSeconds, defaultBalance.contractBrokenCooldownRange),
+      contractRefreshCooldownSeconds: integer(raw.contractRefreshCooldownSeconds, 1, 3600, defaultBalance.contractRefreshCooldownSeconds),
       contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount),
       maxOfflineMinutes: integer(raw.maxOfflineMinutes ?? (Number(raw.maxOfflineSeconds) / 60), 1, 43200, defaultBalance.maxOfflineMinutes)
     };
@@ -431,14 +399,6 @@
         chancePercent: clamp(item?.chancePercent, 0, 100, 100),
         priority: integer(item?.priority, 0, 1000, 0),
         penaltyPercent: clamp(item?.penaltyPercent ?? item?.finePercent, 0, 100000, 20),
-        proposalDurationRange: (() => {
-          const legacyMin = integer(item?.minDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360);
-          const legacyMax = integer(item?.maxDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, legacyMin);
-          const rawRange = Array.isArray(item?.proposalDurationRange) ? item.proposalDurationRange : [legacyMin, legacyMax];
-          const a = integer(rawRange[0], 5, 604800, legacyMin);
-          const b = integer(rawRange[1] ?? rawRange[0], 5, 604800, legacyMax);
-          return [Math.min(a, b), Math.max(a, b)];
-        })(),
         deliveryDurationRange: (() => {
           const legacyMin = integer(item?.minDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, 360);
           const legacyMax = integer(item?.maxDurationSeconds ?? item?.durationSeconds ?? item?.duration, 5, 604800, legacyMin);
@@ -459,7 +419,6 @@
     }));
     return normalizedTypes.map(type => ({
       ...type,
-      proposalDurationRange: [...type.proposalDurationRange],
       deliveryDurationRange: [...type.deliveryDurationRange]
     }));
   }
@@ -473,19 +432,6 @@
     })));
   }
 
-  function normalizeOrderSteps(raw, balance = defaultBalance) {
-    if (!Array.isArray(raw)) return [];
-    return raw.slice(0, 500).map((item, index) => ({
-      id: id(item?.id, `order_${index + 1}`),
-      name: `Etapa ${index + 1}`,
-      amount: integer(item?.amount, 0, Number.MAX_SAFE_INTEGER, 0),
-      coinBonusPercent: clamp(item?.coinBonusPercent, 0, 100000, 0),
-      rewardResearch: integer(item?.rewardResearch, 0, Number.MAX_SAFE_INTEGER, 0),
-      rewardPrestige: integer(item?.rewardPrestige, 0, Number.MAX_SAFE_INTEGER, 0),
-      xpPercent: clamp(item?.xpPercent, 0, 100, 0)
-    }));
-  }
-
   function normalizePointTypes(raw) {
     const standardKeys = new Set(standardPointTypes.map(item => item.key));
     const custom = Array.isArray(raw) ? uniqueById(raw.slice(0, 100).map((item, index) => {
@@ -497,7 +443,7 @@
 
   const missionMetrics = new Set([
     "harvested", "owned", "cropPurchases", "sold", "cropLevels", "cropUpgrades",
-    "orders", "contracts", "maxCropLevel", "farmLevel", "stock", "coinsEarned",
+    "contracts", "maxCropLevel", "farmLevel", "coinsEarned",
     "prestiges", "categorySold", "cropPurchased", "cropUnlocked"
   ]);
 
@@ -597,9 +543,10 @@
     return { type: values[position * 2] || "", amount: Number(values[position * 2 + 1]) || 0 };
   }
 
+  const retiredEvolutionIds = new Set(["coldChain", "endlessGranary", "wholesaleHub"]);
   function normalizeEvolution(raw, fallback, prestige = false) {
     if (!Array.isArray(raw)) raw = clone(fallback);
-    return uniqueById(raw.slice(0, 300).map((item, index) => {
+    return uniqueById(raw.slice(0, 300).filter(item => !retiredEvolutionIds.has(String(item?.id || ""))).map((item, index) => {
       const legacyRows = [legacyEffectFor(item?.id, 0), legacyEffectFor(item?.id, 1), legacyEffectFor(item?.id, 2)];
       const explicitLegacyRows = [
         { type: item?.bonusType, amount: item?.bonusAmount, stageValues: item?.stageRates },
@@ -665,7 +612,7 @@
     }));
   }
 
-  const eventTypes = new Set(["harvest", "growthSpeed", "salePrice", "xp", "research", "coins", "contractRewards", "orderRewards"]);
+  const eventTypes = new Set(["harvest", "growthSpeed", "salePrice", "xp", "research", "coins", "contractRewards"]);
   const eventWeekdays = new Set([1, 2, 3, 4, 5, 6, 7]);
   function mondayStart(timestamp = Date.now()) {
     const date = new Date(Number(timestamp) || Date.now());
@@ -733,13 +680,15 @@
 
   function normalizeConfig(raw = {}) {
     const source = raw?.config && typeof raw.config === "object" ? raw.config : raw;
-    const acceptsRemoteCatalogs = Number(source?.schemaVersion) >= 2;
+    const sourceSchemaVersion = Math.max(0, Math.floor(Number(source?.schemaVersion) || 0));
+    const acceptsRemoteCatalogs = sourceSchemaVersion >= 2;
+    const migratePrimaryNavigationOrder = sourceSchemaVersion < 23;
     const balance = normalizeBalance(source?.balance);
     const categories = acceptsRemoteCatalogs ? normalizeCategories(source?.categories) : [];
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 21,
+      schemaVersion: 23,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
@@ -748,7 +697,6 @@
       companies: acceptsRemoteCatalogs ? normalizeCompanies(source?.companies) : [],
       contractTypes: acceptsRemoteCatalogs ? normalizeContractTypes(source?.contractTypes, balance) : [],
       contractSlots: normalizeContractSlots(source?.contractSlots),
-      orderSteps: acceptsRemoteCatalogs ? normalizeOrderSteps(source?.orderSteps, balance) : [],
       playerTitles: normalizePlayerTitles(source?.playerTitles),
       missions: acceptsRemoteCatalogs ? normalizeMissions(source?.missions) : [],
       research: normalizeEvolution(source?.research, defaults.research, false),
@@ -759,8 +707,8 @@
       gridNavigationIcons: normalizeGridNavigationIcons(source?.gridNavigationIcons || source?.mobileNavigationIcons, normalizeNavigationIcons(source?.navigationIcons)),
       prestigeIcons: normalizePrestigeIcons(source?.prestigeIcons),
       prestigeIconOrder: normalizeNavigationOrder(source?.prestigeIconOrder, Object.keys(defaultPrestigeIcons), defaultPrestigeIconOrder),
-      lineNavigationOrder: normalizeNavigationOrder(source?.lineNavigationOrder, Object.keys(defaultNavigationIcons), defaultLineNavigationOrder),
-      gridNavigationOrder: normalizeNavigationOrder(source?.gridNavigationOrder || source?.mobileNavigationOrder, Object.keys(defaultGridNavigationIcons), defaultGridNavigationOrder),
+      lineNavigationOrder: normalizeNavigationOrder(migratePrimaryNavigationOrder ? defaultLineNavigationOrder : source?.lineNavigationOrder, Object.keys(defaultNavigationIcons), defaultLineNavigationOrder),
+      gridNavigationOrder: normalizeNavigationOrder(migratePrimaryNavigationOrder ? defaultGridNavigationOrder : (source?.gridNavigationOrder || source?.mobileNavigationOrder), Object.keys(defaultGridNavigationIcons), defaultGridNavigationOrder),
       texts: normalizeTexts(source?.texts)
     };
   }
@@ -857,24 +805,18 @@
     GameEngine.CROP_MASTERY_XP_RATE = balance.cropMasteryXPPercent / 100;
     GameEngine.BASE_PASSIVE_XP_RATE = balance.passiveXPPercentPerSecond / 100;
     GameEngine.BASE_PASSIVE_RESEARCH_RATE = balance.passiveResearchPercentPerSecond / 100;
-    GameEngine.ORDER_UNLOCK_LEVEL = balance.ordersUnlockLevel;
     GameEngine.EVOLUTION_UNLOCK_LEVEL = balance.evolutionsUnlockLevel;
-    GameEngine.FEATURE_UNLOCK_LEVEL = Math.min(balance.ordersUnlockLevel, balance.evolutionsUnlockLevel);
+    GameEngine.FEATURE_UNLOCK_LEVEL = balance.evolutionsUnlockLevel;
     GameEngine.PRESTIGE_UNLOCK_LEVEL = balance.prestigeUnlockLevel;
     GameEngine.PRESTIGE_BONUS = balance.prestigeBonus;
     GameEngine.BASE_STARTING_COINS = balance.startingCoins;
-    GameEngine.CONTRACT_SIGNED_COOLDOWN_RANGE = balance.contractSignedCooldownRange;
-    GameEngine.CONTRACT_EXPIRED_COOLDOWN_RANGE = balance.contractExpiredCooldownRange;
-    GameEngine.CONTRACT_DECLINED_COOLDOWN_RANGE = balance.contractDeclinedCooldownRange;
-    GameEngine.CONTRACT_BROKEN_COOLDOWN_RANGE = balance.contractBrokenCooldownRange;
+    GameEngine.CONTRACT_REFRESH_COOLDOWN_SECONDS = balance.contractRefreshCooldownSeconds;
     GameEngine.CONTRACT_OFFER_COUNT = balance.contractOfferCount;
     GameEngine.BASE_MAX_OFFLINE_SECONDS = Math.max(60, Math.floor(balance.maxOfflineMinutes * 60));
     GameEngine.MAX_OFFLINE_SECONDS = GameEngine.BASE_MAX_OFFLINE_SECONDS;
-    GameEngine.BASE_STORAGE_CAPACITY = balance.storageCapacity;
     GameEngine.BASE_PRODUCTION_MIN = balance.baseProductionMin;
     GameEngine.BASE_PRODUCTION_CAP = balance.baseProductionCap;
-    // Recompensa, prazo e XP dos contratos/pedidos pertencem aos próprios
-    // catálogos administrativos, não aos parâmetros globais.
+    // Recompensa, prazo e XP dos contratos pertencem ao próprio catálogo administrativo.
     GameEngine.CONTRACT_REWARD_FACTOR = 1;
     GameEngine.CONTRACT_DURATION_FACTOR = 1;
 
@@ -883,7 +825,6 @@
     replaceArray(window.GameData.companies, config.companies);
     replaceArray(window.GameData.contractTypes, config.contractTypes);
     replaceArray(window.GameData.contractSlots, config.contractSlots);
-    replaceArray(window.GameData.orderSteps, config.orderSteps);
     replaceArray(window.GameData.playerTitles, config.playerTitles);
     replaceArray(window.GameData.missions, flattenMissions(config.missions));
     replaceArray(window.GameData.research, config.research);
@@ -927,7 +868,7 @@
   function validateForSave(raw) {
     if (!raw || typeof raw !== "object") throw new Error("A configuração precisa ser um objeto JSON.");
     const requiredArrays = [
-      "pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"
+      "pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"
     ];
     requiredArrays.forEach(key => {
       if (!Array.isArray(raw[key])) throw new Error(`A seção “${key}” precisa ser uma lista.`);
@@ -935,7 +876,7 @@
     const normalized = normalizeConfig(raw);
     const sourceIds = [
       ["tipos de pontos", normalized.pointTypes], ["categorias", normalized.categories], ["plantas", normalized.crops], ["indústrias", normalized.companies],
-      ["tipos de contrato", normalized.contractTypes], ["slots de contrato", normalized.contractSlots], ["etapas de pedidos", normalized.orderSteps],
+      ["tipos de contrato", normalized.contractTypes], ["slots de contrato", normalized.contractSlots],
       ["títulos de jogador", normalized.playerTitles], ["missões", normalized.missions], ["pesquisas", normalized.research], ["legados", normalized.prestigeUpgrades], ["eventos", normalized.events], ["notas", normalized.updateNotes]
     ];
     sourceIds.forEach(([label, items]) => {

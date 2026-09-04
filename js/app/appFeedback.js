@@ -14,7 +14,7 @@ function setupFeedback() {
     if (dom.playerFeedbackHint) {
       dom.playerFeedbackHint.textContent = signedIn
         ? "Envie uma sugestão, ideia ou relate algo que poderia funcionar melhor."
-        : "Conecte sua conta Google em Minha Conta para enviar uma mensagem.";
+        : "Conecte sua conta Google em Perfil para enviar uma mensagem.";
     }
     if (dom.submitPlayerFeedback) dom.submitPlayerFeedback.disabled = !signedIn;
     return signedIn;

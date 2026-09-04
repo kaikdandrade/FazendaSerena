@@ -28,42 +28,49 @@ Object.assign(GameEngine.prototype, {
     const elapsed = Math.max(0, Number(seconds) || 0);
     if (elapsed <= 0) return;
     this.state.activeContracts.forEach(contract => {
-      if (contract.completedAt || contract.defaultedAt || contract.delivered >= contract.amount) return;
+      if (contract.completedAt || contract.delivered >= contract.amount) return;
+      const duration = Math.max(5, Number(contract.deliveryDurationSeconds || contract.durationSeconds) || 5);
       contract.timeRemaining = Math.max(0, Number(contract.timeRemaining || 0) - elapsed);
+      const elapsedRatio = Math.max(0, Math.min(1, 1 - contract.timeRemaining / duration));
+      const targetDelivered = contract.timeRemaining <= 0
+        ? Math.max(1, Math.floor(Number(contract.amount) || 1))
+        : Math.floor(Math.max(1, Number(contract.amount) || 1) * elapsedRatio);
+      const previousDelivered = Math.max(0, Math.floor(Number(contract.delivered) || 0));
+      const nextDelivered = Math.max(previousDelivered, Math.min(contract.amount, targetDelivered));
+      const delta = Math.max(0, nextDelivered - previousDelivered);
+      if (delta > 0) {
+        contract.delivered = nextDelivered;
+        this.state.stats.contractUnitsDelivered += delta;
+        this.state.stats.lifetimeContractUnitsDelivered += delta;
+      }
+      if (contract.timeRemaining <= 0) this.markContractComplete(contract.id, silent, true);
     });
-    this.state.contractOffers.forEach(contract => {
-      contract.timeRemaining = Math.max(0, Number(contract.timeRemaining || 0) - elapsed);
-    });
-    this.state.contractCooldowns.forEach(cooldown => {
-      cooldown.timeRemaining = Math.max(0, Number(cooldown.timeRemaining || 0) - elapsed);
-    });
+    this.state.contractRefreshCooldownRemaining = Math.max(0, Number(this.state.contractRefreshCooldownRemaining || 0) - elapsed);
     this.expireContracts(silent);
-    this.expireContractOffers();
   },
 
   expireContracts(silent = false) {
-    const expired = this.state.activeContracts.filter(contract =>
-      !contract.completedAt && !contract.defaultedAt && Number(contract.timeRemaining || 0) <= 0 && contract.delivered < contract.amount
+    const completed = this.state.activeContracts.filter(contract =>
+      !contract.completedAt && Number(contract.timeRemaining || 0) <= 0
     );
-    if (!expired.length) return [];
-    const defaultedAt = Date.now();
-    expired.forEach(contract => {
-      contract.timeRemaining = 0;
-      contract.defaultedAt = defaultedAt;
-      contract.penaltyCoins = this.calculateContractPenalty(contract);
-      this.state.stats.contractsFailed += 1;
-      this.state.stats.lifetimeContractsFailed += 1;
+    completed.forEach(contract => {
+      const previousDelivered = Math.max(0, Math.floor(Number(contract.delivered) || 0));
+      const finalAmount = Math.max(1, Math.floor(Number(contract.amount) || 1));
+      const delta = Math.max(0, finalAmount - previousDelivered);
+      if (delta > 0) {
+        contract.delivered = finalAmount;
+        this.state.stats.contractUnitsDelivered += delta;
+        this.state.stats.lifetimeContractUnitsDelivered += delta;
+      }
+      this.markContractComplete(contract.id, silent, true);
     });
-    return expired;
+    return completed;
   },
 
   expireContractOffers() {
-    const expired = this.state.contractOffers.filter(contract => Number(contract.timeRemaining || 0) <= 0);
-    if (!expired.length) return [];
-    const expiredIds = new Set(expired.map(contract => contract.id));
-    this.state.contractOffers = this.state.contractOffers.filter(contract => !expiredIds.has(contract.id));
-    expired.forEach(() => this.startContractCooldown(this.getContractCooldownSeconds("expired"), "expired"));
-    return expired;
+    // As propostas não expiram mais. Elas permanecem até serem assinadas ou
+    // substituídas manualmente pelo botão Atualizar contratos.
+    return [];
   },
 
   normalizeContract(contract, active = false) {
@@ -73,18 +80,13 @@ Object.assign(GameEngine.prototype, {
     if (!company || !type) return null;
     const amount = Math.max(1, Math.floor(Number(contract.amount) || 1));
     const delivered = active ? Math.max(0, Math.min(amount, Math.floor(Number(contract.delivered) || 0))) : 0;
-    const proposalRange = Array.isArray(type.proposalDurationRange) ? type.proposalDurationRange : [60, 120];
     const deliveryRange = Array.isArray(type.deliveryDurationRange) ? type.deliveryDurationRange : [180, 360];
-    const proposalFallback = Math.max(5, Math.round((Number(proposalRange[0]) + Number(proposalRange[1] ?? proposalRange[0])) / 2) || 60);
     const deliveryFallback = Math.max(5, Math.round((Number(deliveryRange[0]) + Number(deliveryRange[1] ?? deliveryRange[0])) / 2) || 180);
-    const legacyDuration = Math.max(5, Math.floor(Number(contract.durationSeconds) || Number(type.durationSeconds) || deliveryFallback));
-    const proposalDurationSeconds = Math.max(5, Math.floor(Number(contract.proposalDurationSeconds) || (!active ? Number(contract.durationSeconds) : 0) || proposalFallback));
-    const deliveryDurationSeconds = Math.max(5, Math.floor(Number(contract.deliveryDurationSeconds) || legacyDuration));
+    const legacyDuration = Math.max(5, Math.floor(Number(contract.deliveryDurationSeconds) || Number(contract.durationSeconds) || Number(type.durationSeconds) || deliveryFallback));
+    const deliveryDurationSeconds = legacyDuration;
     const legacyDeadline = Number(contract.deadlineAt || 0);
-    const defaultRemaining = active ? deliveryDurationSeconds : proposalDurationSeconds;
-    const legacyRemaining = legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : defaultRemaining;
+    const legacyRemaining = active && legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : deliveryDurationSeconds;
     const completedAt = active && (Number(contract.completedAt || 0) > 0 || delivered >= amount) ? Number(contract.completedAt || Date.now()) : 0;
-    const defaultedAt = active && Number(contract.defaultedAt || 0) > 0 ? Number(contract.defaultedAt) : 0;
     return {
       id: String(contract.id || `contract-${Date.now()}-${this.state?.contractSerial || 1}`),
       companyId: company.id,
@@ -101,15 +103,13 @@ Object.assign(GameEngine.prototype, {
       typeColorAlpha: Math.max(0, Math.min(100, Number(contract.typeColorAlpha ?? type.colorAlpha ?? 18) || 0)),
       priority: Math.max(0, Math.floor(Number(contract.priority ?? type.priority) || 0)),
       penaltyPercent: Math.max(0, Number(contract.penaltyPercent ?? type.penaltyPercent ?? 20) || 0),
-      proposalDurationSeconds,
       deliveryDurationSeconds,
       durationSeconds: deliveryDurationSeconds,
-      timeRemaining: defaultedAt ? 0 : Math.max(0, Number.isFinite(Number(contract.timeRemaining)) ? Number(contract.timeRemaining) : legacyRemaining),
+      ...(active ? { timeRemaining: Math.max(0, Number.isFinite(Number(contract.timeRemaining)) ? Number(contract.timeRemaining) : legacyRemaining) } : {}),
       createdAt: Number(contract.createdAt || Date.now()),
       acceptedAt: active ? Number(contract.acceptedAt || Date.now()) : 0,
       completedAt,
-      defaultedAt,
-      penaltyCoins: defaultedAt ? 0 : 0
+      penaltyCoins: 0
     };
   },
 
@@ -210,10 +210,9 @@ Object.assign(GameEngine.prototype, {
       const type = chooseContractType();
       if (!type) continue;
 
-      const durationBonus = Math.max(0, this.getEvolutionBonus("contractDurationPercent")) / 100;
-      const proposalDurationSeconds = randomRangeSeconds(type.proposalDurationRange, 90);
+      const speedBonus = Math.max(0, this.getEvolutionBonus("contractDurationPercent")) / 100;
       const baseDeliveryDuration = randomRangeSeconds(type.deliveryDurationRange, 240);
-      const deliveryDurationSeconds = Math.max(5, Math.round(baseDeliveryDuration * (1 + durationBonus) * GameEngine.CONTRACT_DURATION_FACTOR));
+      const deliveryDurationSeconds = Math.max(5, Math.round(baseDeliveryDuration / (1 + speedBonus) * GameEngine.CONTRACT_DURATION_FACTOR));
       const rate = Math.max(0.01, this.getProductionRate(crop.id));
       const expectedProduction = Math.max(1, rate * deliveryDurationSeconds);
       // O contrato padrão pede uma fração da produção possível dentro do prazo,
@@ -225,14 +224,14 @@ Object.assign(GameEngine.prototype, {
       const progressionReward = 1 + this.state.farmLevel * 0.012 + crop.index * 0.025 + averageLevel * 0.0015;
       const rewardKeys = this.getContractRewardKeys(type);
       const coinBonus = 1 + Math.max(0, this.getEvolutionBonus("contractCoinRewardPercent")) / 100;
-      const orderValue = amount * this.getSalePrice(crop.id);
-      const baseCoins = orderValue * (Math.max(0, Number(type.coinMultiplierPercent) || 0) / 100) * progressionReward * GameEngine.CONTRACT_REWARD_FACTOR * coinBonus;
+      const contractValue = amount * this.getSalePrice(crop.id);
+      const baseCoins = contractValue * (Math.max(0, Number(type.coinMultiplierPercent) || 0) / 100) * progressionReward * GameEngine.CONTRACT_REWARD_FACTOR * coinBonus;
       const missionRewardMultiplier = 1 + Math.max(0, Number(this.state.permanentBonuses?.contractRewardPercent) || 0) / 100;
       const rewardCoins = rewardKeys.has("coins") ? Math.max(0, Math.floor(baseCoins * missionRewardMultiplier)) : 0;
       const rewardResearch = Math.max(0, Math.floor(this.getContractResearchReward(type, amount) * missionRewardMultiplier));
       const prestigeBonus = 1 + Math.max(0, this.getEvolutionBonus("contractPrestigeRewardPercent")) / 100;
       const prestigeBase = Math.max(0, Number(type.prestigeMultiplierPercent) || 0) / 100;
-      const rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(Math.max(1, Math.log10(orderValue + 10)) * prestigeBase * prestigeBonus * missionRewardMultiplier)) : 0;
+      const rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(Math.max(1, Math.log10(contractValue + 10)) * prestigeBase * prestigeBonus * missionRewardMultiplier)) : 0;
 
       result.push({
         id: `contract-${Date.now()}-${this.state.contractSerial++}-${index}`,
@@ -250,10 +249,8 @@ Object.assign(GameEngine.prototype, {
         typeColorAlpha: type.colorAlpha,
         priority: Math.max(0, Math.floor(Number(type.priority) || 0)),
         penaltyPercent: Math.max(0, Number(type.penaltyPercent ?? 20) || 0),
-        proposalDurationSeconds,
         deliveryDurationSeconds,
         durationSeconds: deliveryDurationSeconds,
-        timeRemaining: proposalDurationSeconds,
         createdAt: Date.now(),
         acceptedAt: 0
       });
@@ -261,25 +258,10 @@ Object.assign(GameEngine.prototype, {
     return result;
   },
 
-  normalizeContractCooldown(value) {
-    const legacyAvailableAt = typeof value === "object" && value !== null ? Number(value.availableAt) : Number(value);
-    const legacyRemaining = legacyAvailableAt > Date.now() ? (legacyAvailableAt - Date.now()) / 1000 : 0;
-    const remaining = Math.max(0, Number(value?.timeRemaining ?? legacyRemaining) || 0);
-    if (remaining <= 0) return null;
-    return {
-      reason: String(value?.reason || "renewal"),
-      durationSeconds: Math.max(1, Number(value?.durationSeconds) || remaining),
-      timeRemaining: remaining,
-      startedAt: Number(value?.startedAt || Date.now()),
-      sourceContractId: String(value?.sourceContractId || "")
-    };
-  },
 
   getContractOfferTargetCount(state = this.state) {
-    const cooldowns = Array.isArray(state?.contractCooldowns) ? state.contractCooldowns : [];
     const extraOfferSpaces = Math.max(0, Math.floor(this.getEvolutionBonus("contractOfferCount", state)));
-    const configuredOffers = Math.min(GameEngine.MAX_CONTRACT_OFFERS, Math.max(0, GameEngine.CONTRACT_OFFER_COUNT + extraOfferSpaces));
-    return Math.max(0, configuredOffers - cooldowns.filter(item => Number(item?.timeRemaining) > 0).length);
+    return Math.min(GameEngine.MAX_CONTRACT_OFFERS, Math.max(0, GameEngine.CONTRACT_OFFER_COUNT + extraOfferSpaces));
   },
 
   needsContractOfferRefresh(state = this.state) {
@@ -289,17 +271,13 @@ Object.assign(GameEngine.prototype, {
 
   ensureContractOffers() {
     if (!Array.isArray(this.state.contractOffers)) this.state.contractOffers = [];
-    if (!Array.isArray(this.state.contractCooldowns)) this.state.contractCooldowns = [];
     if (!Array.isArray(this.state.activeContracts)) this.state.activeContracts = [];
+    this.state.contractRefreshCooldownRemaining = Math.max(0, Number(this.state.contractRefreshCooldownRemaining) || 0);
     this.state.contractOffers = this.state.contractOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean);
     this.state.activeContracts = this.state.activeContracts.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
-    this.state.contractCooldowns = this.state.contractCooldowns.map(value => this.normalizeContractCooldown(value)).filter(Boolean);
-    this.expireContractOffers();
-    this.state.contractCooldowns = this.state.contractCooldowns.filter(item => Number(item.timeRemaining) > 0);
 
     if (!this.getContractEligibleCrops().length || !this.data.companies?.length || !this.data.contractTypes?.length) {
       this.state.contractOffers = [];
-      this.state.contractCooldowns = [];
       return;
     }
     const maximumOffers = this.getContractOfferTargetCount(this.state);
@@ -317,50 +295,34 @@ Object.assign(GameEngine.prototype, {
     const amount = Math.max(1, Number(contract?.amount) || 1);
     const delivered = Math.max(0, Math.min(amount, Number(contract?.delivered) || 0));
     const completed = Boolean(contract?.completedAt) || delivered >= amount;
-    const defaulted = Boolean(contract?.defaultedAt);
     const remaining = completed ? 0 : Math.max(0, amount - delivered);
-    const stock = Math.max(0, Math.floor(Number(this.state.crops[contract?.cropId]?.stock) || 0));
-    let stockPool = stock;
-    let availableNow = 0;
-    if (!completed) {
-      const queue = this.state.activeContracts.filter(item => item.cropId === contract?.cropId && item.delivered < item.amount && !item.completedAt).sort((a, b) => (Number(b.priority) - Number(a.priority)) || (Boolean(a.defaultedAt) !== Boolean(b.defaultedAt) ? (a.defaultedAt ? -1 : 1) : (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt)));
-      for (const queued of queue) {
-        const needed = Math.max(0, queued.amount - queued.delivered);
-        const allocation = Math.min(stockPool, needed);
-        if (queued.id === contract?.id) { availableNow = allocation; break; }
-        stockPool -= allocation;
-      }
-    }
-    const fulfillable = completed ? amount : Math.min(amount, delivered + availableNow);
+    const duration = Math.max(5, Number(contract?.deliveryDurationSeconds || contract?.durationSeconds) || 5);
+    const timeRemaining = Math.max(0, Number(contract?.timeRemaining) || 0);
+    const timedPercent = completed ? 100 : Math.max(0, Math.min(100, (1 - timeRemaining / duration) * 100));
     return {
-      delivered, remaining, stock, availableNow, fulfillable, completed, defaulted,
-      penaltyCoins: defaulted ? this.calculateContractPenalty(contract) : 0,
-      readyToClaim: completed && !defaulted,
-      readyToPayPenalty: defaulted,
-      percent: completed ? 100 : Math.max(0, Math.min(100, delivered / amount * 100)),
-      availablePercent: completed ? 100 : Math.max(0, Math.min(100, fulfillable / amount * 100)),
-      readyToComplete: !completed && remaining > 0 && availableNow >= remaining
+      delivered, remaining, completed,
+      penaltyCoins: 0,
+      readyToClaim: completed,
+      percent: timedPercent,
+      availablePercent: timedPercent,
+      readyToComplete: timeRemaining <= 0
     };
   },
 
-  getContractCooldownSeconds(reason = "renewal") {
-    const ranges = {
-      signed: GameEngine.CONTRACT_SIGNED_COOLDOWN_RANGE,
-      expired: GameEngine.CONTRACT_EXPIRED_COOLDOWN_RANGE,
-      declined: GameEngine.CONTRACT_DECLINED_COOLDOWN_RANGE,
-      broken: GameEngine.CONTRACT_BROKEN_COOLDOWN_RANGE
-    };
-    const pair = Array.isArray(ranges[reason]) ? ranges[reason] : [30, 30];
-    const min = Math.max(1, Math.floor(Number(pair[0]) || 1));
-    const max = Math.max(min, Math.floor(Number(pair[1]) || min));
-    return min + Math.floor(Math.random() * (max - min + 1));
+  getContractRefreshCooldownSeconds() {
+    return Math.max(1, Math.floor(Number(GameEngine.CONTRACT_REFRESH_COOLDOWN_SECONDS) || 10));
   },
 
-  startContractCooldown(durationSeconds, reason = "renewal", sourceContractId = "") {
-    const seconds = Math.max(1, Math.floor(Number(durationSeconds) || 1));
-    const cooldown = { reason, startedAt: Date.now(), durationSeconds: seconds, timeRemaining: seconds, sourceContractId: String(sourceContractId || "") };
-    this.state.contractCooldowns.push(cooldown);
-    return cooldown;
+  refreshContractOffers() {
+    this.ensureContractOffers();
+    const remaining = Math.max(0, Number(this.state.contractRefreshCooldownRemaining) || 0);
+    if (remaining > 0) return { ok: false, message: `Você poderá atualizar os contratos em ${this.formatTime(Math.ceil(remaining))}.`, cooldownSeconds: remaining };
+    const target = this.getContractOfferTargetCount(this.state);
+    this.state.contractOffers = [];
+    if (GameEngine.ALLOW_CONTRACT_OFFER_CREATION && target > 0) this.state.contractOffers = this.createContractOffers(target);
+    const cooldownSeconds = this.getContractRefreshCooldownSeconds();
+    this.state.contractRefreshCooldownRemaining = cooldownSeconds;
+    return { ok: true, offers: this.state.contractOffers, cooldownSeconds };
   },
 
   acceptContract(id) {
@@ -370,63 +332,26 @@ Object.assign(GameEngine.prototype, {
     const index = this.state.contractOffers.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [offer] = this.state.contractOffers.splice(index, 1);
-    if (offer.timeRemaining <= 0) { this.startContractCooldown(this.getContractCooldownSeconds("expired"), "expired"); this.ensureContractOffers(); return { ok: false, message: "O prazo desta proposta terminou." }; }
-    // A duração sorteada pertence ao contrato. Se houver prazo de proposta, ele
-    // apenas limita por quanto tempo a oferta fica disponível. Ao assinar, o
-    // cronômetro de entrega sempre recomeça com a duração completa sorteada.
     const contract = { ...offer, delivered: 0, acceptedAt: Date.now(), completedAt: 0, timeRemaining: Math.max(5, Number(offer.deliveryDurationSeconds || offer.durationSeconds) || 5) };
     this.state.activeContracts.push(contract);
-    const cooldown = this.startContractCooldown(this.getContractCooldownSeconds("signed"), "signed", contract.id);
-    const stockDelivery = this.deliverStockToContract(contract.id, true);
+    // Assinar substitui a vaga de proposta imediatamente; não existe mais
+    // cartão intermediário de renovação.
     this.ensureContractOffers();
-    return { ok: true, contract, autoDelivered: stockDelivery.delivered || 0, completed: Boolean(contract.completedAt), cooldownSeconds: cooldown.durationSeconds };
-  },
-
-  declineContract(id) {
-    this.ensureContractOffers();
-    const index = this.state.contractOffers.findIndex(contract => contract.id === id);
-    if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
-    const [contract] = this.state.contractOffers.splice(index, 1);
-    const cooldown = this.startContractCooldown(this.getContractCooldownSeconds("declined"), "declined");
-    this.ensureContractOffers();
-    return { ok: true, contract, cooldownSeconds: cooldown.durationSeconds };
+    return { ok: true, contract, completed: Boolean(contract.completedAt) };
   },
 
   breakContract(id) {
     const index = this.state.activeContracts.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Contrato não encontrado." };
     const contract = this.state.activeContracts[index];
-    if (contract.completedAt && !contract.defaultedAt) return { ok: false, message: "Receba a recompensa deste contrato concluído." };
+    if (contract.completedAt) return { ok: false, message: "Receba a recompensa deste contrato concluído." };
     const penaltyCoins = this.calculateContractPenalty(contract);
     this.state.coins -= penaltyCoins;
     this.state.activeContracts.splice(index, 1);
     this.state.stats.contractsBroken += 1;
     this.state.stats.lifetimeContractsBroken += 1;
-    // Se a reposição de 30 s da assinatura ainda não aconteceu, ela é
-    // substituída pelo prazo de 4 min da quebra, evitando dois bloqueios para
-    // a mesma proposta original.
-    this.state.contractCooldowns = this.state.contractCooldowns.filter(cooldown => !(cooldown.reason === "signed" && cooldown.sourceContractId === contract.id));
-    const cooldown = this.startContractCooldown(this.getContractCooldownSeconds("broken"), "broken", contract.id);
     this.ensureContractOffers();
-    return { ok: true, contract, penaltyCoins, cooldownSeconds: cooldown.durationSeconds };
-  },
-
-  deliverStockToContract(id, silent = false) {
-    const contract = this.state.activeContracts.find(item => item.id === id);
-    if (!contract || contract.completedAt || contract.defaultedAt) return { ok: false, delivered: 0, contract };
-    if (contract.timeRemaining <= 0) this.expireContracts(silent);
-    if (contract.defaultedAt) return { ok: false, delivered: 0, contract };
-    const cropState = this.state.crops[contract.cropId];
-    const needed = Math.max(0, contract.amount - contract.delivered);
-    const delivered = Math.min(Math.max(0, cropState.stock), needed);
-    if (delivered > 0) {
-      cropState.stock -= delivered;
-      contract.delivered += delivered;
-      this.state.stats.contractUnitsDelivered += delivered;
-      this.state.stats.lifetimeContractUnitsDelivered += delivered;
-    }
-    if (contract.delivered >= contract.amount) this.markContractComplete(contract.id, silent, false);
-    return { ok: delivered > 0, delivered, completed: Boolean(contract.completedAt), contract };
+    return { ok: true, contract, penaltyCoins };
   },
 
   markContractComplete(id, silent = false, automatic = false) {
@@ -435,10 +360,8 @@ Object.assign(GameEngine.prototype, {
     contract.delivered = contract.amount;
     contract.completedAt = Date.now();
     contract.timeRemaining = Math.max(0, Number(contract.timeRemaining) || 0);
-    if (!contract.defaultedAt) {
-      this.state.stats.contractsCompleted += 1;
-      this.state.stats.lifetimeContractsCompleted += 1;
-    }
+    this.state.stats.contractsCompleted += 1;
+    this.state.stats.lifetimeContractsCompleted += 1;
     return contract;
   },
 
@@ -455,7 +378,6 @@ Object.assign(GameEngine.prototype, {
     const index = this.state.activeContracts.findIndex(contract => contract.id === id);
     if (index < 0) return { ok: false, message: "Contrato não encontrado." };
     const contract = this.state.activeContracts[index];
-    if (contract.defaultedAt) return { ok: false, message: "Este contrato venceu. Pague a multa para liberar o slot." };
     if (!contract.completedAt || contract.delivered < contract.amount) return { ok: false, message: "Este contrato ainda não foi concluído." };
     this.state.activeContracts.splice(index, 1);
     const rewards = this.getEffectiveContractRewards(contract);
@@ -468,19 +390,7 @@ Object.assign(GameEngine.prototype, {
     return { ok: true, contract, rewards, xpRate: contract.xpRate, xpAward };
   },
 
-  payContractPenalty(id) {
-    const index = this.state.activeContracts.findIndex(contract => contract.id === id);
-    if (index < 0) return { ok: false, message: "Contrato não encontrado." };
-    const contract = this.state.activeContracts[index];
-    if (!contract.defaultedAt) return { ok: false, message: "Este contrato não possui multa." };
-    const penaltyCoins = this.calculateContractPenalty(contract);
-    this.state.coins -= penaltyCoins;
-    this.state.activeContracts.splice(index, 1);
-    this.ensureContractOffers();
-    return { ok: true, contract, penaltyCoins };
-  },
-
   getReadyContractCount() {
-    return this.state.activeContracts.filter(contract => Boolean(contract.completedAt || contract.defaultedAt)).length;
+    return this.state.activeContracts.filter(contract => Boolean(contract.completedAt)).length;
   }
 });

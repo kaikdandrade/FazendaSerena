@@ -11,8 +11,6 @@ class FirebaseManager {
   static SAVE_SUBCOLLECTION = "saves";
   static SAVE_DOCUMENT = "main";
   static LEADERBOARD_COLLECTION = "prestigeLeaderboard";
-  static FRIEND_PROFILE_COLLECTION = "friendProfiles";
-  static FRIENDSHIP_COLLECTION = "friendships";
   static GAME_CONFIG_COLLECTION = "gameConfig";
   static GAME_CONFIG_DOCUMENT = "public";
   static ADMIN_COLLECTION = "administrators";
@@ -27,7 +25,6 @@ class FirebaseManager {
     this.initialAuthResolved = false;
     this.authListeners = new Set();
     this.saveQueue = Promise.resolve();
-    this.friendProfileSignatureByUid = new Map();
     this.adminAccessCache = new Map();
     this.moderationCache = new Map();
     this.saveAdminRevisionByUid = new Map();
@@ -254,21 +251,8 @@ class FirebaseManager {
     return { ok: true, administrator: false };
   }
 
-  getFriendProfileReference(user = this.currentUser) {
-    if (!user || !this.db || !this.sdk) return null;
-    return this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, user.uid);
-  }
 
-  getFriendshipReference(friendshipId) {
-    const safeId = String(friendshipId || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 180);
-    if (!safeId || !this.db || !this.sdk) return null;
-    return this.sdk.doc(this.db, FirebaseManager.FRIENDSHIP_COLLECTION, safeId);
-  }
 
-  makeFriendshipId(firstUid, secondUid) {
-    const members = [String(firstUid || ""), String(secondUid || "")].filter(Boolean).sort();
-    return members.length === 2 && members[0] !== members[1] ? members.join("__") : "";
-  }
 
   getModerationReference(userId = this.currentUser?.uid) {
     const uid = String(userId || "").trim();
@@ -534,41 +518,8 @@ class FirebaseManager {
     };
   }
 
-  hasCompleteFriendProfile(state) {
-    const nickname = this.normalizeNickname(state?.settings?.playerNickname);
-    const avatar = this.getAvatarEntry(state?.settings?.playerAvatar);
-    return nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
-  }
 
-  buildFriendProfileEntry(state, user = this.currentUser) {
-    if (!user || !this.hasCompleteFriendProfile(state)) return null;
-    const avatar = this.getAvatarEntry(state.settings.playerAvatar);
-    return {
-      displayName: this.normalizeNickname(state.settings.playerNickname),
-      avatarId: avatar.id,
-      playerTitleId: this.normalizePlayerTitleId(state),
-      friendCode: user.uid,
-      profileComplete: true,
-      updatedAt: this.sdk.serverTimestamp(),
-      updatedAtClient: Date.now()
-    };
-  }
 
-  async syncOwnFriendProfile(state) {
-    await this.ready();
-    const user = this.currentUser;
-    const reference = this.getFriendProfileReference(user);
-    if (!user || !reference) return { ok: false, reason: "guest" };
-    const entry = this.buildFriendProfileEntry(state, user);
-    if (entry) {
-      await this.sdk.setDoc(reference, entry, { merge: false });
-      this.friendProfileSignatureByUid.set(user.uid, `${entry.displayName}\u0000${entry.avatarId}\u0000${entry.playerTitleId || "fazendeiro"}`);
-      return { ok: true, visible: true };
-    }
-    try { await this.sdk.deleteDoc(reference); } catch (_) {}
-    this.friendProfileSignatureByUid.set(user.uid, "");
-    return { ok: true, visible: false };
-  }
 
   async syncOwnLeaderboard(state, { forceModeration = false } = {}) {
     await this.ready();
@@ -705,7 +656,6 @@ class FirebaseManager {
         const user = this.currentUser;
         const reference = this.getSaveReference(user);
         const leaderboardReference = this.getLeaderboardReference(user);
-        const friendProfileReference = this.getFriendProfileReference(user);
         if (!user || !reference) return { ok: false, reason: "guest" };
         if (requestedNickname.length < 4 || requestedNickname.length > 24 || !requestedAvatar) {
           return { ok: false, reason: "invalid-profile", error: new Error("Apelido ou avatar inválido.") };
@@ -727,8 +677,8 @@ class FirebaseManager {
             playerAvatar: requestedAvatar.id
           };
 
-          // Primeiro confirma o perfil dentro do save. Ranking e amizade são
-          // sincronizações secundárias e nunca podem cancelar esta gravação.
+          // Primeiro confirma o perfil dentro do save. O ranking é uma
+          // sincronização secundária e nunca pode cancelar esta gravação.
           await this.sdk.updateDoc(reference, {
             "state.settings.playerNickname": requestedNickname,
             "state.settings.playerAvatar": requestedAvatar.id
@@ -742,22 +692,6 @@ class FirebaseManager {
             console.warn("Perfil salvo, mas o ranking não pôde ser atualizado:", error);
           }
 
-          try {
-            const friendProfileEntry = friendProfileReference
-              ? this.buildFriendProfileEntry(cloudState, user)
-              : null;
-            if (friendProfileReference) {
-              if (friendProfileEntry) await this.sdk.setDoc(friendProfileReference, friendProfileEntry, { merge: false });
-              else await this.sdk.deleteDoc(friendProfileReference);
-              const friendProfileSignature = friendProfileEntry
-                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}\u0000${friendProfileEntry.playerTitleId || "fazendeiro"}`
-                : "";
-              this.friendProfileSignatureByUid.set(user.uid, friendProfileSignature);
-            }
-          } catch (error) {
-            socialSynced = false;
-            console.warn("Perfil salvo, mas o perfil de amizade não pôde ser atualizado:", error);
-          }
 
           const savedAt = new Date();
           this.emitSaveStatus("saved", { savedAt });
@@ -802,9 +736,7 @@ class FirebaseManager {
       const savedAt = new Date();
       this.emitSaveStatus("saving");
       try {
-        // O save do jogo é independente do ranking/amigos. Antes, tudo ficava
-        // no mesmo batch: uma regra social rejeitada cancelava também a compra,
-        // o upgrade e todo o progresso. Agora o estado principal é soberano.
+        // O save do jogo é independente do ranking. O estado principal é soberano.
         await this.sdk.setDoc(reference, {
           state: snapshot,
           saveVersion: String(snapshot.version || window.FazendaSerenaConfig.appVersion),
@@ -816,13 +748,11 @@ class FirebaseManager {
 
         this.emitSaveStatus("saved", { savedAt });
 
-        // Ranking e perfil de amizade são projeções públicas do save. Falhas
-        // nessas projeções nunca mais podem invalidar o progresso da fazenda.
+        // O ranking é uma projeção pública do save e nunca invalida o progresso da fazenda.
         Promise.resolve().then(async () => {
           try {
             const leaderboardReference = this.getLeaderboardReference(user);
-            const friendProfileReference = this.getFriendProfileReference(user);
-            if (leaderboardReference) {
+                if (leaderboardReference) {
               try {
                 await this.syncOwnLeaderboard(snapshot);
               } catch (socialError) {
@@ -830,24 +760,8 @@ class FirebaseManager {
               }
             }
 
-            if (friendProfileReference) {
-              const friendProfileEntry = this.buildFriendProfileEntry(snapshot, user);
-              const friendProfileSignature = friendProfileEntry
-                ? `${friendProfileEntry.displayName}\u0000${friendProfileEntry.avatarId}\u0000${friendProfileEntry.playerTitleId || "fazendeiro"}`
-                : "";
-              const shouldSyncFriendProfile = this.friendProfileSignatureByUid.get(user.uid) !== friendProfileSignature;
-              if (shouldSyncFriendProfile) {
-                try {
-                  if (friendProfileEntry) await this.sdk.setDoc(friendProfileReference, friendProfileEntry, { merge: false });
-                  else await this.sdk.deleteDoc(friendProfileReference);
-                  this.friendProfileSignatureByUid.set(user.uid, friendProfileSignature);
-                } catch (socialError) {
-                  console.warn("Save concluído, mas o perfil social não pôde ser sincronizado:", socialError);
-                }
-              }
-            }
           } catch (socialError) {
-            console.warn("Save concluído; sincronização social adiada:", socialError);
+            console.warn("Save concluído; sincronização do ranking adiada:", socialError);
           }
         });
 
@@ -906,186 +820,10 @@ class FirebaseManager {
     return { authenticated: Boolean(user), top: validEntries.slice(0, outputLimit), rank: player?.position || null, player };
   }
 
-  async loadFriendships() {
-    await this.ready();
-    const user = this.currentUser;
-    if (!user || !this.available || !this.db || !this.sdk) {
-      return { authenticated: false, selfProfile: null, friends: [], incoming: [], outgoing: [] };
-    }
 
-    const selfReference = this.getFriendProfileReference(user);
-    const relationshipsQuery = this.sdk.query(
-      this.sdk.collection(this.db, FirebaseManager.FRIENDSHIP_COLLECTION),
-      this.sdk.where("members", "array-contains", user.uid),
-      this.sdk.limit(100)
-    );
-    const [selfSnapshot, relationshipsSnapshot] = await Promise.all([
-      this.sdk.getDoc(selfReference),
-      this.sdk.getDocs(relationshipsQuery)
-    ]);
 
-    const relationships = relationshipsSnapshot.docs.map(document => ({
-      id: document.id,
-      ...document.data()
-    }));
-    const otherUids = [...new Set(relationships.map(item =>
-      Array.isArray(item.members) ? item.members.find(uid => uid !== user.uid) : ""
-    ).filter(Boolean))];
-    const profileEntries = await Promise.all(otherUids.map(async uid => {
-      const snapshot = await this.sdk.getDoc(this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, uid));
-      return [uid, snapshot.exists() ? { uid, ...snapshot.data() } : null];
-    }));
-    const profiles = new Map(profileEntries);
-    const enrich = item => {
-      const friendUid = Array.isArray(item.members) ? item.members.find(uid => uid !== user.uid) : "";
-      return { ...item, friendUid, profile: profiles.get(friendUid) || null };
-    };
 
-    return {
-      authenticated: true,
-      selfProfile: selfSnapshot.exists() ? { uid: user.uid, ...selfSnapshot.data() } : null,
-      friends: relationships.filter(item => item.status === "accepted").map(enrich),
-      incoming: relationships.filter(item => item.status === "pending" && item.requestedBy !== user.uid).map(enrich),
-      outgoing: relationships.filter(item => item.status === "pending" && item.requestedBy === user.uid).map(enrich)
-    };
-  }
 
-  async subscribeFriendships(listener) {
-    await this.ready();
-    const user = this.currentUser;
-    if (typeof listener !== "function" || !user || !this.available || !this.db || !this.sdk) return () => {};
-
-    const selfReference = this.getFriendProfileReference(user);
-    const relationshipsQuery = this.sdk.query(
-      this.sdk.collection(this.db, FirebaseManager.FRIENDSHIP_COLLECTION),
-      this.sdk.where("members", "array-contains", user.uid),
-      this.sdk.limit(100)
-    );
-    let generation = 0;
-    const buildResult = async relationshipsSnapshot => {
-      const currentGeneration = ++generation;
-      const [selfSnapshot] = await Promise.all([this.sdk.getDoc(selfReference)]);
-      const relationships = relationshipsSnapshot.docs.map(document => ({ id: document.id, ...document.data() }));
-      const otherUids = [...new Set(relationships.map(item =>
-        Array.isArray(item.members) ? item.members.find(uid => uid !== user.uid) : ""
-      ).filter(Boolean))];
-      const profileEntries = await Promise.all(otherUids.map(async uid => {
-        const snapshot = await this.sdk.getDoc(this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, uid));
-        return [uid, snapshot.exists() ? { uid, ...snapshot.data() } : null];
-      }));
-      if (currentGeneration !== generation) return null;
-      const profiles = new Map(profileEntries);
-      const enrich = item => {
-        const friendUid = Array.isArray(item.members) ? item.members.find(uid => uid !== user.uid) : "";
-        return { ...item, friendUid, profile: profiles.get(friendUid) || null };
-      };
-      return {
-        authenticated: true,
-        selfProfile: selfSnapshot.exists() ? { uid: user.uid, ...selfSnapshot.data() } : null,
-        friends: relationships.filter(item => item.status === "accepted").map(enrich),
-        incoming: relationships.filter(item => item.status === "pending" && item.requestedBy !== user.uid).map(enrich),
-        outgoing: relationships.filter(item => item.status === "pending" && item.requestedBy === user.uid).map(enrich)
-      };
-    };
-
-    const unsubscribe = this.sdk.onSnapshot(
-      relationshipsQuery,
-      snapshot => {
-        buildResult(snapshot)
-          .then(result => { if (result) listener(result, null); })
-          .catch(error => listener(null, error));
-      },
-      error => listener(null, error)
-    );
-    return typeof unsubscribe === "function" ? unsubscribe : () => {};
-  }
-
-  async sendFriendRequest(friendCode) {
-    await this.ready();
-    const user = this.currentUser;
-    if (!user) throw new Error("Entre com o Google para adicionar amigos.");
-    const targetUid = String(friendCode || "").trim().slice(0, 128);
-    if (!targetUid) throw new Error("Informe o código de amizade.");
-    if (targetUid === user.uid) throw new Error("Você não pode adicionar a própria conta.");
-
-    const ownReference = this.getFriendProfileReference(user);
-    const targetReference = this.sdk.doc(this.db, FirebaseManager.FRIEND_PROFILE_COLLECTION, targetUid);
-    const [ownSnapshot, targetSnapshot] = await Promise.all([
-      this.sdk.getDoc(ownReference),
-      this.sdk.getDoc(targetReference)
-    ]);
-    if (!ownSnapshot.exists()) throw new Error("Configure apelido e avatar em Minha Conta antes de usar o Social.");
-    if (!targetSnapshot.exists()) throw new Error("Nenhum jogador foi encontrado com esse código de amizade.");
-
-    const members = [user.uid, targetUid].sort();
-    const friendshipId = this.makeFriendshipId(user.uid, targetUid);
-    const reference = this.getFriendshipReference(friendshipId);
-
-    // Não faça get() antes da criação. Para um documento inexistente, as regras
-    // não têm resource.data.members para provar que o usuário faz parte da
-    // amizade e a leitura seria corretamente negada. A própria regra de create
-    // garante que somente um dos dois membros possa criar o vínculo pendente.
-    try {
-      await this.sdk.setDoc(reference, {
-        members,
-        requestedBy: user.uid,
-        status: "pending",
-        createdAt: this.sdk.serverTimestamp(),
-        updatedAt: this.sdk.serverTimestamp(),
-        updatedAtClient: Date.now()
-      });
-    } catch (error) {
-      // Se o documento já existir, setDoc passa a ser um update e as regras
-      // recusam a sobrescrita. Nesse cenário o documento existe e a leitura é
-      // permitida ao membro, permitindo apresentar uma mensagem amigável.
-      if (["permission-denied", "already-exists", "failed-precondition"].includes(String(error?.code || ""))) {
-        try {
-          const existing = await this.sdk.getDoc(reference);
-          if (existing.exists()) {
-            const data = existing.data() || {};
-            const existingMembers = Array.isArray(data.members) ? data.members : [];
-            if (existingMembers.includes(user.uid)) {
-              throw new Error(data.status === "accepted"
-                ? "Esse jogador já está na sua lista de amigos."
-                : "Já existe uma solicitação entre essas contas.");
-            }
-          }
-        } catch (lookupError) {
-          if (!String(lookupError?.code || "").includes("permission-denied") && lookupError?.message) throw lookupError;
-        }
-      }
-      throw error;
-    }
-    return { ok: true, friendshipId };
-  }
-
-  async acceptFriendRequest(friendshipId) {
-    await this.ready();
-    const user = this.currentUser;
-    const reference = this.getFriendshipReference(friendshipId);
-    if (!user || !reference) throw new Error("Entre com o Google para aceitar amizades.");
-    const snapshot = await this.sdk.getDoc(reference);
-    const data = snapshot.exists() ? snapshot.data() : null;
-    if (!data || data.status !== "pending" || !Array.isArray(data.members) || !data.members.includes(user.uid)) {
-      throw new Error("Esta solicitação não está mais disponível.");
-    }
-    if (data.requestedBy === user.uid) throw new Error("A outra pessoa precisa aceitar esta solicitação.");
-    await this.sdk.updateDoc(reference, {
-      status: "accepted",
-      updatedAt: this.sdk.serverTimestamp(),
-      updatedAtClient: Date.now()
-    });
-    return { ok: true };
-  }
-
-  async deleteFriendship(friendshipId) {
-    await this.ready();
-    const user = this.currentUser;
-    const reference = this.getFriendshipReference(friendshipId);
-    if (!user || !reference) throw new Error("Entre com o Google para gerenciar amizades.");
-    await this.sdk.deleteDoc(reference);
-    return { ok: true };
-  }
 
   async submitPlayerFeedback({ type = "feedback", subject = "", message = "" } = {}) {
     await this.ready();
@@ -1233,18 +971,16 @@ class FirebaseManager {
       state.farmXP = 0;
       const cropIds = new Set([...Object.keys(state.crops || {}), ...cropsCatalog.map(item => item.id).filter(Boolean)]);
       state.crops = Object.fromEntries([...cropIds].map(id => [id, {
-        owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0,
-        autoSell: false, favorite: false, productionBuffer: 0
+        owned: false, level: 0, progress: 0, totalHarvested: 0, totalSold: 0, productionBuffer: 0
       }]));
-      state.orders = Object.fromEntries([...cropIds].map(id => [id, { tier: 0, delivered: 0, autoDeliver: false }]));
       state.upgrades = {};
-      state.storageExpansions = 0;
       state.researchTechs = Object.fromEntries(researchCatalog.map(item => [item.id, 0]));
       state.prestigeUpgrades = Object.fromEntries(prestigeCatalog.map(item => [item.id, 0]));
-      state.permanentBonuses = { prestigeDouble: false, passiveXPPercentPerSecond: 0, contractRewardPercent: 0, orderRewardPercent: 0 };
+      state.permanentBonuses = { prestigeDouble: false, passiveXPPercentPerSecond: 0, contractRewardPercent: 0 };
       state.cropsDiscovered = {};
       state.contractOffers = [];
-      state.contractCooldowns = [];
+      state.contractRefreshCooldownRemaining = 0;
+      delete state.contractCooldowns;
       state.activeContracts = [];
       state.contractSerial = 1;
       state.missionsClaimed = {};
@@ -1253,20 +989,18 @@ class FirebaseManager {
       const soldByCategory = Object.fromEntries(categories.map(item => [item.id, 0]));
       state.stats = {
         totalHarvested: 0, lifetimeHarvested: 0, totalSold: 0, lifetimeSold: 0, soldByCategory, lifetimeSoldByCategory: { ...soldByCategory },
-        ordersCompleted: 0, lifetimeOrdersCompleted: 0, orderUnitsDelivered: 0, lifetimeOrderUnitsDelivered: 0,
-        lifetimeCropPurchases: 0, lifetimeCropUpgrades: 0, lifetimeCropPrestiges: 0, completedOrderSeries: 0,
+        lifetimeCropPurchases: 0, lifetimeCropUpgrades: 0, lifetimeCropPrestiges: 0,
         contractsCompleted: 0, lifetimeContractsCompleted: 0, contractsFailed: 0, lifetimeContractsFailed: 0,
         contractsBroken: 0, lifetimeContractsBroken: 0, contractUnitsDelivered: 0, lifetimeContractUnitsDelivered: 0,
         runCoinsEarned: 0, lifetimeCoins: 0, lifetimeResearchEarned: 0, lifetimeFarmXPEarned: 0, totalPrestigeEarned: 0,
-        maxFarmLevel: 1, maxCropLevel: 0, maxCropsOwned: 0, maxCoinsHeld: startingCoins, maxStorageUsed: 0, prestiges: 0
+        maxFarmLevel: 1, maxCropLevel: 0, maxCropsOwned: 0, maxCoinsHeld: startingCoins, prestiges: 0
       };
       return true;
     }, "full-account-reset");
 
-    // Remove apenas a projeção antiga do ranking. O perfil social e amizades
-    // permanecem, e o próprio jogo republica a posição com os valores zerados.
+    // Remove a projeção antiga do ranking; o jogo republica a posição com os valores zerados.
     try { await this.sdk.deleteDoc(this.sdk.doc(this.db, FirebaseManager.LEADERBOARD_COLLECTION, uid)); } catch (_) {}
-    return { ...result, friendshipsRemoved: 0 };
+    return result;
   }
 
   async mutateAllPlayerSavesForAdmin(mutator, { batchSize = 8, mutationType = "global-admin" } = {}) {

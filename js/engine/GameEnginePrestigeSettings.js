@@ -78,12 +78,9 @@ Object.assign(GameEngine.prototype, {
         lifetimeHarvested: this.state.stats.lifetimeHarvested,
         lifetimeSold: this.state.stats.lifetimeSold,
         lifetimeSoldByCategory: { ...this.state.stats.lifetimeSoldByCategory },
-        lifetimeOrdersCompleted: this.state.stats.lifetimeOrdersCompleted,
-        lifetimeOrderUnitsDelivered: this.state.stats.lifetimeOrderUnitsDelivered,
         lifetimeCropPurchases: this.state.stats.lifetimeCropPurchases,
         lifetimeCropUpgrades: this.state.stats.lifetimeCropUpgrades,
         lifetimeCropPrestiges: this.state.stats.lifetimeCropPrestiges,
-        completedOrderSeries: this.state.stats.completedOrderSeries,
         lifetimeContractsCompleted: this.state.stats.lifetimeContractsCompleted,
         lifetimeContractsFailed: this.state.stats.lifetimeContractsFailed,
         lifetimeContractsBroken: this.state.stats.lifetimeContractsBroken,
@@ -93,14 +90,13 @@ Object.assign(GameEngine.prototype, {
         maxCropLevel: this.state.stats.maxCropLevel,
         maxCropsOwned: this.state.stats.maxCropsOwned,
         maxCoinsHeld: this.state.stats.maxCoinsHeld,
-        maxStorageUsed: this.state.stats.maxStorageUsed,
         cropsDiscovered: { ...this.state.cropsDiscovered },
         accountCreatedAt: this.state.createdAt,
         settings: { ...this.state.settings }
       };
       this.state = this.createState(permanent);
       this.state.contractOffers = [];
-      this.state.contractCooldowns = [];
+      this.state.contractRefreshCooldownRemaining = 0;
       this.state.activeContracts = [];
       this.save();
       return { ok: true, gain };
@@ -115,17 +111,13 @@ Object.assign(GameEngine.prototype, {
       const cropStates = Object.values(this.state.crops);
       return {
         owned: cropStates.filter(item => item.owned).length,
-        stock: cropStates.reduce((sum, item) => sum + item.stock, 0),
         sold: this.state.stats.totalSold,
         harvested: this.state.stats.totalHarvested,
         contracts: this.state.stats.contractsCompleted,
         activeContracts: this.state.activeContracts.length,
         activeContractSlots: this.getActiveContractSlotLimit(),
         contractOffers: this.state.contractOffers.length,
-        orders: this.state.stats.ordersCompleted,
-        maxCropLevel: Math.max(0, ...cropStates.map(item => item.level || 0)),
-        storageCapacity: this.getStorageCap(),
-        storageRemaining: this.getStorageRemaining()
+        maxCropLevel: Math.max(0, ...cropStates.map(item => item.level || 0))
       };
     },
 

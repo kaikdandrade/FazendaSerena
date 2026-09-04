@@ -2,118 +2,47 @@
 
 Object.assign(GameEngine.prototype, {
   produce(seconds, offline) {
-      const activeContractCropIds = new Set(this.state.activeContracts
-        .filter(contract => contract.delivered < contract.amount && !contract.completedAt && !contract.defaultedAt && contract.timeRemaining > 0)
-        .map(contract => contract.cropId));
-      const wholesaleOverflowEnabled = this.hasWholesaleOverflowSale();
-      let storageRemaining = this.getStorageRemaining();
-  
+      const silent = Boolean(offline);
       for (const crop of this.data.crops) {
         const cropState = this.state.crops[crop.id];
-        if (!cropState.owned || cropState.level <= 0) continue;
-  
-        const directRoute = cropState.autoSell || activeContractCropIds.has(crop.id) || wholesaleOverflowEnabled;
-        if (!directRoute && storageRemaining <= 0) {
-          cropState.progress = Math.min(cropState.progress, 0.995);
-          continue;
-        }
-  
+        if (!cropState?.owned || cropState.level <= 0) continue;
+
         const growthTime = this.getGrowthTime(crop.id);
         cropState.progress += growthTime <= 0
           ? seconds * this.getInstantCyclesPerSecond(crop.id)
           : seconds / growthTime;
-  
+
         const cycles = Math.floor(cropState.progress);
         if (cycles < 1) continue;
-  
+
         const producedThisTick = this.rollProductionYield(crop.id, cycles);
         cropState.progress -= cycles;
         cropState.productionBuffer = Math.max(0, Number(cropState.productionBuffer) || 0) + producedThisTick;
-        const requested = Math.floor(cropState.productionBuffer);
-        if (requested < 1) continue;
-        const routed = this.routeProducedCrop(crop.id, requested, offline, storageRemaining);
-        storageRemaining = Math.max(0, storageRemaining - routed.stored);
-        cropState.productionBuffer = Math.max(0, cropState.productionBuffer - routed.accepted);
-        if (routed.accepted < 1) continue;
-  
-        cropState.totalHarvested += routed.accepted;
-        this.state.stats.totalHarvested += routed.accepted;
-        this.state.stats.lifetimeHarvested += routed.accepted;
+        const produced = Math.floor(cropState.productionBuffer);
+        if (produced < 1) continue;
+        cropState.productionBuffer = Math.max(0, cropState.productionBuffer - produced);
+
+        cropState.totalHarvested += produced;
+        this.state.stats.totalHarvested += produced;
+        this.state.stats.lifetimeHarvested += produced;
+
+        const gain = Math.floor(produced * this.getAutoSalePrice(crop.id));
+        this.recordSale(crop.id, produced, gain, silent);
       }
-  
-      this.state.stats.maxStorageUsed = Math.max(
-        this.state.stats.maxStorageUsed,
-        this.getStorageCap() - storageRemaining
-      );
     },
 
-  routeProducedCrop(cropId, amount, silent = false, storageRemainingOverride = null) {
+  routeProducedCrop(cropId, amount, silent = false) {
+      const crop = this.getCrop(cropId);
       const cropState = this.state.crops[cropId];
-      let remaining = Math.max(0, Math.floor(Number(amount) || 0));
-      let delivered = 0;
-      let autoSold = 0;
-      let wholesaleSold = 0;
-      let stored = 0;
-      let gain = 0;
-  
-      const contracts = this.state.activeContracts
-        .filter(contract => contract.cropId === cropId && contract.delivered < contract.amount && !contract.completedAt && !contract.defaultedAt && contract.timeRemaining > 0)
-        .sort((a, b) => (Number(b.priority) - Number(a.priority)) || (a.timeRemaining - b.timeRemaining) || (a.acceptedAt - b.acceptedAt));
-  
-      for (const contract of contracts) {
-        if (remaining < 1) break;
-        const needed = Math.max(0, contract.amount - contract.delivered);
-        const sent = Math.min(remaining, needed);
-        if (sent < 1) continue;
-        contract.delivered += sent;
-        remaining -= sent;
-        delivered += sent;
-        this.state.stats.contractUnitsDelivered += sent;
-        this.state.stats.lifetimeContractUnitsDelivered += sent;
-        if (contract.delivered >= contract.amount) this.markContractComplete(contract.id, silent, true);
-      }
-  
-      const orderDelivered = 0;
-  
-      if (remaining > 0 && cropState.autoSell) {
-        autoSold = remaining;
-        const autoSaleGain = Math.floor(autoSold * this.getAutoSalePrice(cropId));
-        gain += autoSaleGain;
-        this.recordSale(cropId, autoSold, autoSaleGain, silent);
-        remaining = 0;
-      }
-  
-      if (remaining > 0) {
-        const availableStorage = Number.isFinite(storageRemainingOverride)
-          ? Math.max(0, Number(storageRemainingOverride) || 0)
-          : this.getStorageRemaining();
-        stored = Math.min(remaining, availableStorage);
-        cropState.stock += stored;
-        remaining -= stored;
-      }
-  
-      if (remaining > 0 && this.hasWholesaleOverflowSale()) {
-        wholesaleSold = remaining;
-        const wholesaleGain = Math.floor(wholesaleSold * this.getWholesaleSalePrice(cropId));
-        gain += wholesaleGain;
-        this.recordSale(cropId, wholesaleSold, wholesaleGain, silent);
-        remaining = 0;
-      }
-  
-      return {
-        accepted: Math.max(0, amount - remaining),
-        delivered,
-        orderDelivered,
-        autoSold,
-        wholesaleSold,
-        stored,
-        gain,
-        blocked: remaining
-      };
+      const sold = Math.max(0, Math.floor(Number(amount) || 0));
+      if (!crop || !cropState || sold < 1) return { accepted: 0, autoSold: 0, gain: 0 };
+      const gain = Math.floor(sold * this.getAutoSalePrice(cropId));
+      this.recordSale(cropId, sold, gain, silent);
+      return { accepted: sold, autoSold: sold, gain };
     },
 
-  hasActiveContractForCrop(cropId) {
-      return this.state.activeContracts.some(contract => contract.cropId === cropId && contract.delivered < contract.amount && !contract.completedAt && !contract.defaultedAt && contract.timeRemaining > 0);
+  hasActiveContractForCrop() {
+      return false;
     },
 
   getOwnedCrops() {

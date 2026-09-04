@@ -71,9 +71,6 @@ Object.assign(GameEngine.prototype, {
       return true;
     },
 
-  isOrdersUnlocked() {
-      return this.state.farmLevel >= GameEngine.ORDER_UNLOCK_LEVEL;
-    },
 
   isOfficeCommerceUnlocked() {
       return this.isContractsUnlocked();
@@ -191,11 +188,8 @@ Object.assign(GameEngine.prototype, {
         .filter(crop => Number(crop.unlockLevel) === milestoneLevel)
         .sort((cropA, cropB) => cropA.index - cropB.index)
         .map(crop => ({ text: `Nova cultura disponível para compra: ${crop.name}.`, icon: crop.image, type: "crop" }));
-      if (milestoneLevel === GameEngine.ORDER_UNLOCK_LEVEL) {
-        unlocks.push({ text: "Pedidos liberados no Escritório.", icon: "assets/icons/pacote.webp", type: "feature" });
-      }
       if (milestoneLevel === GameEngine.EVOLUTION_UNLOCK_LEVEL) {
-        unlocks.push({ text: "Centro de pesquisa liberado em Evoluções, no Escritório.", icon: "assets/icons/livros.webp", type: "feature" });
+        unlocks.push({ text: "Centro de pesquisa liberado em Evoluções.", icon: "assets/icons/livros.webp", type: "feature" });
       }
       (this.data.contractSlots || []).filter(slot => Number(slot.unlockLevel) === milestoneLevel && milestoneLevel > 1).forEach(slot => {
         unlocks.push({ text: `${slot.name || "Novo slot"} de contrato liberado.`, icon: "assets/icons/contrato-comercial.webp", type: "feature" });

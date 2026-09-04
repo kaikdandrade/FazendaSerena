@@ -3,10 +3,10 @@
   const defaultCatalogFilterState = () => ({ categories: new Set(), hideMastered: false, hideLocked: false });
 
   function loadCatalogFilters() {
-    const result = { farm: defaultCatalogFilterState(), stock: defaultCatalogFilterState() };
+    const result = { farm: defaultCatalogFilterState() };
     try {
       const raw = JSON.parse(localStorage.getItem(CATALOG_FILTER_STORAGE_KEY) || "null");
-      ["farm", "stock"].forEach(context => {
+      ["farm"].forEach(context => {
         if (!raw?.[context]) return;
         result[context].categories = new Set(Array.isArray(raw[context].categories) ? raw[context].categories.map(String) : []);
         result[context].hideMastered = Boolean(raw[context].hideMastered);
@@ -22,8 +22,7 @@
   function saveCatalogFilters() {
     try {
       localStorage.setItem(CATALOG_FILTER_STORAGE_KEY, JSON.stringify({
-        farm: { ...catalogFilters.farm, categories: [...catalogFilters.farm.categories] },
-        stock: { ...catalogFilters.stock, categories: [...catalogFilters.stock.categories] }
+        farm: { ...catalogFilters.farm, categories: [...catalogFilters.farm.categories] }
       }));
     } catch (_) {}
   }
@@ -34,7 +33,7 @@
   }
 
   function syncCatalogFilterButtons() {
-    [["farm", dom.farmFilterButton, dom.farmFilterCount], ["stock", dom.stockFilterButton, dom.stockFilterCount]].forEach(([context, button, badge]) => {
+    [["farm", dom.farmFilterButton, dom.farmFilterCount]].forEach(([context, button, badge]) => {
       const count = catalogFilterCount(context);
       button?.classList.toggle("has-active-filters", count > 0);
       button?.setAttribute("aria-label", count ? `Filtros, ${count} ${count === 1 ? "filtro ativo" : "filtros ativos"}` : "Filtros");
@@ -44,7 +43,7 @@
 
   function setupCategoryFilter() {
     const validCategories = new Set(Object.keys(engine.data.categories || {}));
-    ["farm", "stock"].forEach(context => {
+    ["farm"].forEach(context => {
       catalogFilters[context].categories = new Set([...catalogFilters[context].categories].filter(id => validCategories.has(id)));
     });
     saveCatalogFilters();
@@ -52,9 +51,9 @@
   }
 
   function renderCatalogFilterDialog(context) {
-    catalogFilterContext = context === "stock" ? "stock" : "farm";
+    catalogFilterContext = "farm";
     const state = catalogFilters[catalogFilterContext];
-    if (dom.catalogFilterTitle) dom.catalogFilterTitle.textContent = catalogFilterContext === "farm" ? "Filtros da Fazenda" : "Filtros do estoque";
+    if (dom.catalogFilterTitle) dom.catalogFilterTitle.textContent = "Filtros da Fazenda";
     if (dom.catalogFilterHideMastered) dom.catalogFilterHideMastered.checked = state.hideMastered;
     if (dom.catalogFilterHideLocked) dom.catalogFilterHideLocked.checked = state.hideLocked;
     if (dom.catalogFilterLockedRow) dom.catalogFilterLockedRow.hidden = catalogFilterContext !== "farm";
@@ -79,7 +78,7 @@
     saveCatalogFilters();
     syncCatalogFilterButtons();
     dom.catalogFilterDialog?.close("applied");
-    if (catalogFilterContext === "stock") renderStock(); else renderCrops();
+    renderCrops();
   }
 
   function resetCatalogFilterDraft() {
@@ -89,12 +88,12 @@
   }
 
   function clearCatalogFilters(context) {
-    const key = context === "stock" ? "stock" : "farm";
+    const key = "farm";
     catalogFilters[key] = defaultCatalogFilterState();
     saveCatalogFilters();
     syncCatalogFilterButtons();
     if (dom.catalogFilterDialog?.open && catalogFilterContext === key) renderCatalogFilterDialog(key);
-    if (key === "stock") renderStock(); else renderCrops();
+    renderCrops();
   }
 
   let scrollUiFrame = 0;
@@ -331,41 +330,10 @@
     [dom.fontScaleSetting, dom.masterVolumeSetting, dom.effectVolumeSetting, dom.musicVolumeSetting].forEach(syncRangeVisual);
   }
 
-  function updateStockNavigation(metrics = engine.getMetrics()) {
-    const used = Math.max(0, Number(metrics.stock) || 0);
-    const capacity = Math.max(1, Number(metrics.storageCapacity) || 1);
-    const usage = percent((used / capacity) * 100);
-    const full = used >= capacity;
-    const signature = `${used}|${capacity}|${Math.floor(usage)}|${full ? 1 : 0}`;
-    if (dom.stockNavTab?.dataset.liveStockSignature === signature) return;
-    if (dom.stockNavTab) dom.stockNavTab.dataset.liveStockSignature = signature;
-    dom.stockNavTab.style.setProperty("--stock-progress", `${usage}%`);
-    dom.stockNavTab.classList.toggle("stock-full", full);
-    dom.stockNavBadge.hidden = !full;
-    dom.stockNavTab.setAttribute("aria-label", full
-      ? `Estoque cheio: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados.`
-      : `Estoque: ${engine.formatNumber(used)} de ${engine.formatNumber(capacity)} espaços usados, ${Math.floor(usage)} por cento.`);
-    dom.stockNavTab.title = `Estoque ${Math.floor(usage)}% cheio`;
-    document.querySelectorAll(".mobile-stock-nav-tab").forEach(tab => {
-      tab.title = dom.stockNavTab.title;
-      tab.setAttribute("aria-label", dom.stockNavTab.getAttribute("aria-label") || "Estoque");
-      tab.style.setProperty("--stock-progress", `${usage}%`);
-      tab.classList.toggle("stock-full", full);
-      tab.querySelectorAll(".mobile-stock-nav-badge, .nav-alert").forEach(badge => { badge.hidden = !full; });
-    });
-  }
-
-  function updateOfficeNavigation() {
-    const officeNavTab = document.querySelector("#officeNavTab");
-    if (!officeNavTab) return;
-    officeNavTab.classList.remove("has-attention");
-    officeNavTab.setAttribute("aria-label", "Escritório");
-    officeNavTab.title = "Escritório";
-  }
 
   function syncFeatureLocks() {
     const runtime = window.FazendaSerenaRuntimeConfig || {};
-    const iconFor = key => runtime.navigationIcons?.[key] || ({ orders: "assets/icons/pacote.webp", evolutions: "assets/icons/livros.webp" })[key] || "assets/icons/cadeado.webp";
+    const iconFor = key => runtime.navigationIcons?.[key] || ({ evolutions: "assets/icons/livros.webp" })[key] || "assets/icons/cadeado.webp";
     const sync = (selector, key, unlocked, label, level) => {
       document.querySelectorAll(selector).forEach(tab => {
         tab.disabled = false; // a prévia continua acessível; somente as ações ficam bloqueadas no painel.
@@ -382,7 +350,6 @@
         if (image && image.getAttribute("src") !== source) image.src = source;
       });
     };
-    sync('[data-office-tab="orders"]', "orders", engine.isOrdersUnlocked(), "Pedidos", GameEngine.ORDER_UNLOCK_LEVEL);
     sync('[data-office-tab="evolutions"]', "evolutions", engine.isEvolutionUnlocked(), "Evoluções", GameEngine.EVOLUTION_UNLOCK_LEVEL);
   }
 
@@ -390,31 +357,31 @@
     const state = engine.state;
     const maximumLevel = GameEngine.MAX_FARM_LEVEL;
     const atMaximum = state.farmLevel >= maximumLevel;
-    const farmNeed = engine.getFarmXPNeed();
+    const farmNeed = Math.max(1, engine.getFarmXPNeed());
     const levelText = String(Math.min(maximumLevel, state.farmLevel));
-    if (dom.farmLevelLabel?.textContent !== levelText) dom.farmLevelLabel.textContent = levelText;
-    dom.farmProgress?.classList.toggle("max-level", atMaximum);
-
-    const width = atMaximum ? "100%" : `${percent((state.farmXP / farmNeed) * 100)}%`;
-    if (dom.farmXPBar?.style.width !== width) dom.farmXPBar.style.width = width;
-
-    // A imagem de XP é criada uma única vez no HTML. No loop alteramos
-    // exclusivamente o texto, evitando o flash causado por innerHTML.
-    const xpValue = dom.farmXPText?.querySelector?.("[data-farm-xp-value]");
+    const progress = atMaximum ? 100 : percent((state.farmXP / farmNeed) * 100);
+    const progressText = `${progress}%`;
     const xpText = atMaximum
       ? engine.formatNumber(state.farmXP)
       : `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)}`;
-    if (xpValue && xpValue.textContent !== xpText) xpValue.textContent = xpText;
 
-    if (dom.farmXPTrack) {
-      const maxValue = atMaximum ? "100" : String(farmNeed);
-      const nowValue = atMaximum ? "100" : String(Math.floor(state.farmXP));
-      const label = atMaximum ? `Nível máximo. ${engine.formatNumber(state.farmXP)} XP.` : "Experiência da fazenda";
-      if (dom.farmXPTrack.getAttribute("aria-valuemin") !== "0") dom.farmXPTrack.setAttribute("aria-valuemin", "0");
-      if (dom.farmXPTrack.getAttribute("aria-valuemax") !== maxValue) dom.farmXPTrack.setAttribute("aria-valuemax", maxValue);
-      if (dom.farmXPTrack.getAttribute("aria-valuenow") !== nowValue) dom.farmXPTrack.setAttribute("aria-valuenow", nowValue);
-      if (dom.farmXPTrack.getAttribute("aria-label") !== label) dom.farmXPTrack.setAttribute("aria-label", label);
-    }
+    if (dom.farmLevelLabel?.textContent !== levelText) dom.farmLevelLabel.textContent = levelText;
+    const xpValue = dom.farmXPText?.querySelector?.("[data-farm-xp-value]");
+    if (xpValue && xpValue.textContent !== xpText) xpValue.textContent = xpText;
+    if (dom.floatingFarmXPText?.textContent !== xpText) dom.floatingFarmXPText.textContent = xpText;
+    const floatingLevel = dom.floatingFarmXPResource?.querySelector?.("[data-floating-farm-level]");
+    if (floatingLevel && floatingLevel.textContent !== levelText) floatingLevel.textContent = levelText;
+
+    [dom.farmXPResource, dom.floatingFarmXPResource].forEach(counter => {
+      if (!counter) return;
+      counter.style.setProperty("--farm-xp-progress", progressText);
+      counter.classList.toggle("max-level", atMaximum);
+      counter.setAttribute("aria-valuemin", "0");
+      counter.setAttribute("aria-valuemax", atMaximum ? "100" : String(farmNeed));
+      counter.setAttribute("aria-valuenow", atMaximum ? "100" : String(Math.floor(state.farmXP)));
+      counter.setAttribute("aria-label", atMaximum ? `XP da fazenda: nível máximo, ${engine.formatNumber(state.farmXP)} XP.` : `XP da fazenda: nível ${levelText}, ${xpText}.`);
+      counter.title = atMaximum ? `Nível máximo · ${engine.formatNumber(state.farmXP)} XP` : `Nível ${levelText} · ${xpText} XP`;
+    });
   }
 
   function renderHeader() {
@@ -432,15 +399,10 @@
     updateFarmProgressDisplay();
 
     const metrics = engine.getMetrics();
-    updateStockNavigation(metrics);
     const readyContracts = engine.isContractsUnlocked() ? engine.getReadyContractCount() : 0;
-    const readyOrders = engine.isOrdersUnlocked() ? engine.getReadyOrderCount() : 0;
     const readyMissions = engine.getReadyMissionCount();
-    updateOfficeNavigation();
     if (dom.contractTabCount) dom.contractTabCount.textContent = String(readyContracts);
     if (dom.contractTabCount) dom.contractTabCount.hidden = readyContracts < 1;
-    if (dom.orderTabCount) dom.orderTabCount.textContent = String(readyOrders);
-    if (dom.orderTabCount) dom.orderTabCount.hidden = readyOrders < 1;
     if (dom.missionTabCount) dom.missionTabCount.textContent = String(readyMissions);
     if (dom.missionTabCount) dom.missionTabCount.hidden = readyMissions < 1;
     updateLiveContractDockUI?.();
@@ -467,10 +429,6 @@
     if (dom.floatingResearchCounter && dom.floatingResearchCounter.textContent !== researchText) dom.floatingResearchCounter.textContent = researchText;
     if (dom.floatingPrestigeCounter && dom.floatingPrestigeCounter.textContent !== prestigeText) dom.floatingPrestigeCounter.textContent = prestigeText;
     updateFarmProgressDisplay();
-    updateStockNavigation({
-      stock: engine.getStorageUsed(),
-      storageCapacity: engine.getStorageCap()
-    });
   }
 
   function rebuildLiveCropCache() {
@@ -505,11 +463,6 @@
 
   function updateLiveFarmUI(now = performance.now()) {
     if (activeView !== "farmView" || now < navigationScrollActiveUntil) return;
-    const storageRemaining = engine.getStorageRemaining();
-    const wholesaleOverflowEnabled = engine.hasWholesaleOverflowSale();
-    const activeContractCropIds = new Set(engine.state.activeContracts
-      .filter(contract => contract.delivered < contract.amount && !contract.completedAt && (contract.timeRemaining > 0 || contract.defaultedAt))
-      .map(contract => contract.cropId));
     const updateControls = now - lastCropControls >= getPerformanceProfile().cropControlsInterval;
     if (updateControls) lastCropControls = now;
 
@@ -521,8 +474,7 @@
       const growthTime = engine.getGrowthTime(cropId);
       const instant = growthTime <= 0;
       const optimizedRing = instant || growthTime <= 1.5;
-      const directRoute = cropState.autoSell || activeContractCropIds.has(cropId) || wholesaleOverflowEnabled;
-      const paused = storageRemaining <= 0 && !directRoute;
+      const paused = false;
       const progress = optimizedRing ? 100 : percent(cropState.progress * 100);
       if (ring) {
         const previous = Number(ring.dataset.lastProgress || 0);
@@ -558,8 +510,6 @@
         const cycleText = instant ? "Contínua" : paused ? "Pausada" : formatLiveTime((1 - cropState.progress) * growthTime);
         if (cycle.textContent !== cycleText) cycle.textContent = cycleText;
       }
-      const autoSellEnabled = Boolean(cropState.autoSell);
-      if (card.classList.contains("auto-sell-enabled") !== autoSellEnabled) card.classList.toggle("auto-sell-enabled", autoSellEnabled);
 
       if (updateControls) updateCropUpgradePanel(card, cropId);
     });

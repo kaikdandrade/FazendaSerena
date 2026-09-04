@@ -1,3 +1,243 @@
+/* ========================================================================== 
+   Fazenda Serena — Stylish global
+   Camada global única: normalização, tipografia, botões, formulários,
+   counters, superfícies e comportamento acessível compartilhado pelo site.
+   Regras exclusivas de páginas pertencem aos respectivos arquivos locais.
+   ========================================================================== */
+
+:root {
+  --ui-bg: #f3f7ef;
+  --ui-surface: rgba(255, 255, 255, .88);
+  --ui-surface-strong: #ffffff;
+  --ui-surface-soft: rgba(246, 250, 243, .90);
+  --ui-border: rgba(52, 82, 50, .14);
+  --ui-border-strong: rgba(52, 82, 50, .22);
+  --ui-text: #203020;
+  --ui-muted: #667364;
+  --ui-green: #397849;
+  --ui-green-strong: #245f35;
+  --ui-green-soft: #edf7ef;
+  --ui-gold-soft: #fff8df;
+  --ui-red: #9e3f3f;
+  --ui-red-soft: #fff1f0;
+  --ui-shadow: 0 14px 36px rgba(36, 58, 34, .09);
+  --ui-shadow-soft: 0 6px 18px rgba(36, 58, 34, .07);
+  --ui-radius-xl: 24px;
+  --ui-radius-lg: 18px;
+  --ui-radius-md: 14px;
+  --ui-radius-sm: 10px;
+  --ui-gap: clamp(12px, 1.5vw, 20px);
+
+  /* Tipografia global normalizada. */
+  --font-family-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-title-size: clamp(1.55rem, 2.5vw, 2.15rem);
+  --font-subtitle-size: clamp(1.02rem, 1.4vw, 1.22rem);
+  --font-text-size: .9rem;
+  --font-small-size: .74rem;
+  --font-title-weight: 900;
+  --font-subtitle-weight: 800;
+  --font-text-weight: 500;
+  --font-title-line: 1.08;
+  --font-subtitle-line: 1.25;
+  --font-text-line: 1.6;
+
+  /* Aliases usados por componentes históricos ainda mantidos nas páginas. */
+  --ink: var(--ui-text);
+  --ink-soft: var(--ui-muted);
+  --green-deep: var(--ui-green-strong);
+  --green: var(--ui-green);
+  --line: var(--ui-border);
+  --surface: var(--ui-surface-strong);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  color: var(--ui-text);
+  font-family: var(--font-family-ui);
+  font-size: var(--font-text-size);
+  font-weight: var(--font-text-weight);
+  line-height: var(--font-text-line);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; }
+button, input, select, textarea { font: inherit; }
+button, .button, .nav-tab, [role="button"] { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid rgba(57, 120, 73, .25);
+  outline-offset: 2px;
+}
+
+/* Três níveis tipográficos canônicos para o site. Todas as páginas partem
+   destes valores e só especializam quando o layout local realmente exige. */
+h1 {
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-line);
+  letter-spacing: -.03em;
+}
+h2, h3 {
+  font-size: var(--font-subtitle-size);
+  font-weight: var(--font-subtitle-weight);
+  line-height: var(--font-subtitle-line);
+}
+p, li, label, input, select, textarea, button {
+  font-family: var(--font-family-ui);
+  font-size: var(--font-text-size);
+  line-height: var(--font-text-line);
+}
+.ui-title, .text-title {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
+  letter-spacing: -.03em;
+  line-height: var(--font-title-line);
+}
+.ui-subtitle, .text-subtitle {
+  margin: 0;
+  color: var(--ui-text);
+  font-size: var(--font-subtitle-size);
+  font-weight: var(--font-subtitle-weight);
+  line-height: var(--font-subtitle-line);
+}
+.ui-text, .text-body {
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: var(--font-text-size);
+  font-weight: var(--font-text-weight);
+  line-height: var(--font-text-line);
+}
+:where(main, article, section) > h1:not([class]),
+:where(main, article, section) > header h1:not([class]) {
+  font-size: var(--font-title-size);
+  font-weight: var(--font-title-weight);
+  line-height: var(--font-title-line);
+}
+:where(main, article, section) h2:not([class]),
+:where(main, article, section) h3:not([class]) {
+  font-weight: var(--font-subtitle-weight);
+  line-height: var(--font-subtitle-line);
+}
+
+/* Botões globais. Variações locais podem mudar cor/forma, não a anatomia. */
+.button, button.button, .admin-button, .cookie-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-decoration: none;
+  cursor: pointer;
+}
+.button:disabled, button.button:disabled, .admin-button:disabled, .cookie-button:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+.button img, button.button img, .admin-button img, .cookie-button img {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.button.primary { box-shadow: 0 5px 14px rgba(57, 120, 73, .16); }
+.button.danger {
+  background: var(--ui-red-soft);
+  color: var(--ui-red);
+  border-color: rgba(158, 63, 63, .22);
+}
+
+/* Campos globais. */
+input, select, textarea {
+  min-width: 0;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select, textarea {
+  border-radius: 10px;
+}
+
+/* Counter de recurso global. */
+.resource-strip, .floating-resource-strip {
+  min-width: 0;
+}
+.resource-pill {
+  min-width: 0;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow: hidden;
+  border: 1px solid var(--ui-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .84);
+}
+.resource-pill > img,
+.resource-pill .resource-icon {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+.resource-pill > div,
+.resource-pill .resource-copy {
+  min-width: 0;
+}
+.resource-pill small,
+.resource-pill strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.resource-pill strong { font-variant-numeric: tabular-nums; }
+.resource-amount {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.resource-amount img {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Superfícies e modais compartilhados. */
+.panel-card, .settings-card, .account-settings-card, .social-profile-panel,
+.prestige-leaderboard, .evolution-panel {
+  min-width: 0;
+  border-color: var(--ui-border);
+  background: var(--ui-surface);
+  border-radius: var(--ui-radius-lg);
+  box-shadow: var(--ui-shadow-soft);
+}
+dialog::backdrop {
+  background: rgba(18, 28, 19, .42);
+  backdrop-filter: blur(4px);
+}
+
+/* Acessibilidade de movimento. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+
+/* ==========================================================================
+   Modais globais compartilhados
+   ========================================================================== */
 /* Revisão 36 — camada final dos modais reais do jogo.
    Este arquivo é carregado depois do CSS legado e vence regras conflitantes. */
 html.modal-open,

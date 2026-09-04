@@ -6,11 +6,6 @@
     tomato: { id:"tomato", name:"Tomate", category:"Frutas", image:"assets/plants/tomate.webp", cost:55, cycle:2.6, yield:3, sell:5, glow:"rgba(217,115,91,.18)" }
   };
 
-  const orderStages = [
-    { crop:"leaf", amount:8, coins:35, research:0, xp:20 },
-    { crop:"tomato", amount:6, coins:55, research:0, xp:25 },
-    { crop:"leaf", amount:14, coins:80, research:0, xp:30 }
-  ];
 
   const initialState = () => ({
     coins:120,
@@ -20,17 +15,16 @@
     xp:0,
     level:1,
     crops:{
-      leaf:{owned:false,level:0,stock:0,progress:0},
-      tomato:{owned:false,level:0,stock:0,progress:0}
+      leaf:{owned:false,level:0,progress:0},
+      tomato:{owned:false,level:0,progress:0}
     },
-    orderStage:0,
-    contract:{accepted:false,delivered:0,claimed:false},
+    contract:{accepted:false,delivered:0,claimed:false,duration:12,timeRemaining:0,offerVariant:0,refreshCooldown:0},
     researchLevels:{germination:0,prices:0},
     legacy:false,
     prestigeReady:false,
     prestiged:false,
     tutorialComplete:false,
-    unlocks:{tomato:false,orders:false,contracts:false,evolutions:false,prestige:false,legacy:false}
+    unlocks:{tomato:false,contracts:false,evolutions:false,prestige:false,legacy:false}
   });
 
   let state = initialState();
@@ -44,9 +38,6 @@
     const icons={coins:"assets/icons/moeda.webp",research:"assets/icons/pocao-pesquisa.webp",prestige:"assets/icons/prestigio.webp",xp:"assets/icons/xp.webp"};
     return `<span class="resource-amount resource-${type}${compact?" compact":""}"><img src="${icons[type]}" alt=""><b>${fmt(value)}</b></span>`;
   };
-
-  const totalStock = () => state.crops.leaf.stock + state.crops.tomato.stock;
-  const stockCapacity = 60;
   const TUTORIAL_MAX_CROP_LEVEL = 10;
   const researchSpeed = () => 1 + state.researchLevels.germination * .10;
   const sellMultiplier = () => 1 + state.researchLevels.prices * .15 + (state.legacy ? .10 : 0);
@@ -54,7 +45,6 @@
 
   const panelRequirement = {
     farm: () => true,
-    orders: () => state.unlocks.orders,
     contracts: () => state.unlocks.contracts,
     evolutions: () => state.unlocks.evolutions || state.unlocks.legacy,
     prestige: () => state.unlocks.prestige
@@ -91,7 +81,7 @@
     const allowed = panelRequirement[name]?.() ?? false;
     if (!allowed) {
       if (!silent) {
-        const labels={orders:"Pedidos",contracts:"Contratos",evolutions:"Evoluções",prestige:"Prestígio"};
+        const labels={contracts:"Contratos",evolutions:"Evoluções",prestige:"Prestígio"};
         setMessage(`${labels[name] || "Esta área"} ainda está bloqueada. Conclua o objetivo atual para continuar.`,"notice");
       }
       return false;
@@ -108,22 +98,15 @@
 
     if (level === 2) {
       state.unlocks.tomato = true;
-      state.unlocks.orders = true;
+      state.unlocks.contracts = true;
       showMilestone({
         title:"Marco alcançado: nível 2",
         items:[
           { icon:"assets/plants/tomate.webp", title:"Tomate desbloqueado", text:"Uma nova cultura já pode ser comprada na Fazenda." },
-          { icon:"assets/icons/pacote.webp", title:"Pedidos desbloqueados", text:"Entregue culturas em etapas para avançar no treinamento." }
+          { icon:"assets/icons/contrato-comercial.webp", title:"Contratos desbloqueados", text:"Assine uma proposta comercial e acompanhe o preenchimento automático pelo tempo." }
         ]
       });
-      setMessage("Nível 2 alcançado. Tomate e Pedidos foram desbloqueados.","success");
-    } else if (level === 3) {
-      state.unlocks.contracts = true;
-      showMilestone({
-        title:"Marco alcançado: nível 3",
-        items:[{ icon:"assets/icons/contrato-comercial.webp", title:"Contratos desbloqueados", text:"Assine uma proposta e complete a entrega para receber moedas e pesquisa." }]
-      });
-      setMessage("Pedidos concluídos. Contratos foram desbloqueados.","success");
+      setMessage("Nível 2 alcançado. Tomate e Contratos foram desbloqueados.","success");
     } else if (level === 4) {
       state.unlocks.evolutions = true;
       showMilestone({
@@ -145,36 +128,25 @@
   function addXP(value) {
     if (state.prestigeReady || state.prestiged) return;
     state.xp += Math.max(0, Number(value) || 0);
-
-    if (state.level === 1 && state.xp >= 100) {
-      setLevel(2);
-      return;
-    }
-
-    // A partir do nível 2, o tutorial segura o próximo nível até o objetivo
-    // de Pedidos ser concluído para ensinar os sistemas na ordem correta.
-    if (state.level === 2 && state.orderStage < orderStages.length) {
-      state.xp = Math.min(state.xp, 99);
-    }
+    if (state.level === 1 && state.xp >= 100) setLevel(2);
+    else if (state.level >= 2) state.xp = Math.min(state.xp, 99);
   }
 
   function currentStep() {
-    if (state.tutorialComplete) return 6;
+    if (state.tutorialComplete) return 5;
     if (state.level < 2) return 1;
-    if (state.orderStage < orderStages.length) return 2;
-    if (!state.contract.claimed) return 3;
-    if (!state.researchLevels.germination && !state.researchLevels.prices) return 4;
-    if (!state.prestiged) return 5;
-    return 6;
+    if (!state.contract.claimed) return 2;
+    if (!state.researchLevels.germination && !state.researchLevels.prices) return 3;
+    if (!state.prestiged) return 4;
+    return 5;
   }
 
   const copy={
-    1:["Produza Folha e alcance o nível 2","No começo somente a Folha está disponível. Cada ciclo rende XP. Ao subir de nível, o primeiro marco libera Tomate e Pedidos."],
-    2:["Complete as três etapas de Pedidos","O Tomate já está liberado. Produza o que cada etapa pede e entregue o estoque para avançar."],
-    3:["Assine e conclua o contrato","O contrato comercial dá moedas e, principalmente, os pontos de pesquisa necessários para continuar."],
-    4:["Invista a pesquisa em uma Evolução","Escolha uma pesquisa. Depois dela, a demonstração apresenta o desbloqueio do Prestígio."],
-    5:["Faça seu primeiro Prestígio","Converta esta jornada de treinamento em 1 ponto permanente."],
-    6:[state.tutorialComplete?"Tutorial concluído":"Compre seu primeiro Legado",state.tutorialComplete?"Você percorreu o ciclo principal da Fazenda Serena. Agora pode começar sua fazenda de verdade.":"Use o ponto de prestígio para desenvolver Colheita experiente e encerrar o tutorial."]
+    1:["Produza Folha e alcance o nível 2","No começo somente a Folha está disponível. Cada ciclo rende XP. Ao subir de nível, o primeiro marco libera Tomate e Contratos."],
+    2:["Assine e conclua o contrato","Assine o contrato e aguarde o preenchimento automático. Ele rende moedas e os pontos de pesquisa necessários para continuar."],
+    3:["Invista a pesquisa em uma Evolução","Escolha uma pesquisa. Depois dela, a demonstração apresenta o desbloqueio do Prestígio."],
+    4:["Faça seu primeiro Prestígio","Converta esta jornada de treinamento em 1 ponto permanente."],
+    5:[state.tutorialComplete?"Tutorial concluído":"Compre seu primeiro Legado",state.tutorialComplete?"Você percorreu o ciclo principal da Fazenda Serena. Agora pode começar sua fazenda de verdade.":"Use o ponto de prestígio para desenvolver Colheita experiente e encerrar o tutorial."]
   };
 
   function cropMarkup(crop) {
@@ -199,9 +171,6 @@
 
   function renderCrops(){
     $("tutorialCropGrid").innerHTML=cropMarkup(crops.leaf)+cropMarkup(crops.tomato);
-    $("tutorialStockTotal").textContent=fmt(totalStock());
-    $("tutorialStockBreakdown").textContent=`Folha ${fmt(state.crops.leaf.stock)} · Tomate ${fmt(state.crops.tomato.stock)}`;
-    $("tutorialSell").disabled=totalStock()<=0;
   }
 
   function updateCropsLive(){
@@ -218,63 +187,53 @@
       if(percent) percent.textContent=`${pct}%`;
       if(time) time.textContent=`${Math.max(0,(1-d.progress)*cropCycle(crop)).toFixed(1).replace(".",",")}s`;
     }
-    $("tutorialStockTotal").textContent=fmt(totalStock());
-    $("tutorialStockBreakdown").textContent=`Folha ${fmt(state.crops.leaf.stock)} · Tomate ${fmt(state.crops.tomato.stock)}`;
-    $("tutorialSell").disabled=totalStock()<=0;
   }
 
-  function orderMarkup(){
-    if(!state.unlocks.orders) return `<article class="order-card normalized-order-card"><div class="order-head"><div class="contract-crop"><img src="assets/icons/cadeado.webp" alt=""><div><small>Bloqueado</small><h3>Pedidos</h3></div></div></div><p>Alcance o nível 2 para liberar Pedidos e o Tomate.</p></article>`;
-    if(state.orderStage>=orderStages.length) return `<article class="order-card order-complete compact-completed-order"><div class="completed-order-identity"><img src="assets/icons/pacote.webp" alt=""><div><small>Série completa</small><h3>Pedidos de treinamento</h3><p>3 etapas concluídas</p></div></div><strong class="completed-order-status">Pedido finalizado</strong></article>`;
-    const o=orderStages[state.orderStage], c=crops[o.crop], available=Math.min(state.crops[o.crop].stock,o.amount), pct=clamp(available/o.amount*100,0,100), ready=available>=o.amount;
-    return `<article class="order-card normalized-order-card ${ready?"order-ready-to-deliver":""}"><div class="order-head"><div class="contract-crop"><img src="${c.image}" alt="${c.name}"><div><small>Etapa ${state.orderStage+1} de ${orderStages.length}</small><h3>${c.name}</h3></div></div></div><p>${ready?"Lote completo disponível no estoque. Entregue para avançar.":`Reúna ${o.amount} unidades no estoque. Faltam ${Math.max(0,o.amount-available)}.`}</p><div class="order-progress"><div class="progress-label"><span>Disponível no estoque</span><strong>${available} / ${o.amount}</strong></div><div class="progress-track growth"><span style="width:${pct}%"></span></div></div><div class="contract-reward-unified"><span>Recompensa</span><strong class="resource-reward-group">${resource("coins",o.coins)}${resource("xp",o.xp)}</strong></div><button class="button ${ready?"primary":"secondary"} full" type="button" data-deliver-order ${ready?"":"disabled"}>Entregar pedido</button></article>`;
-  }
-
-  function renderOrders(){ $("tutorialOrderList").innerHTML=orderMarkup(); }
-
-  function updateOrderLive(){
-    if(!state.unlocks.orders || state.orderStage>=orderStages.length) return;
-    const card=$("tutorialOrderList")?.querySelector(".order-card");
-    if(!card) return;
-    const o=orderStages[state.orderStage], available=Math.min(state.crops[o.crop].stock,o.amount), ready=available>=o.amount, pct=clamp(available/o.amount*100,0,100);
-    const body=card.querySelector(":scope > p");
-    const count=card.querySelector(".progress-label strong");
-    const bar=card.querySelector(".progress-track span");
-    const button=card.querySelector("[data-deliver-order]");
-    card.classList.toggle("order-ready-to-deliver",ready);
-    if(body) body.textContent=ready?"Lote completo disponível no estoque. Entregue para avançar.":`Reúna ${o.amount} unidades no estoque. Faltam ${Math.max(0,o.amount-available)}.`;
-    if(count) count.textContent=`${available} / ${o.amount}`;
-    if(bar) bar.style.width=`${pct}%`;
-    if(button){ button.disabled=!ready; button.classList.toggle("primary",ready); button.classList.toggle("secondary",!ready); }
-  }
+  const tutorialContractDurations = [12, 18, 24];
+  const tutorialContractRewards = [
+    { coins:120, research:3, xp:20 },
+    { coins:180, research:2, xp:28 },
+    { coins:150, research:4, xp:24 }
+  ];
+  const tutorialContractTime = seconds => `${String(Math.floor(seconds/60)).padStart(2,"0")}:${String(Math.ceil(seconds%60)).padStart(2,"0")}`;
+  const tutorialContractRewardMarkup = () => {
+    const reward=tutorialContractRewards[state.contract.offerVariant % tutorialContractRewards.length];
+    return `${resource("coins",reward.coins)}${resource("research",reward.research)}${resource("xp",reward.xp)}`;
+  };
 
   function contractMarkup(){
-    const c=state.contract, stock=state.crops.leaf.stock;
-    if(!state.unlocks.contracts) return `<article class="contract-card contract-card-v2"><div class="contract-main-v2"><img src="assets/icons/cadeado.webp" alt=""><div><span class="contract-type-label"><i></i>Bloqueado</span><h3>Contratos</h3><div class="contract-main-meta"><span>Conclua as três etapas de Pedidos.</span></div></div></div></article>`;
-    if(!c.accepted&&!c.claimed) return `<article class="contract-card contract-card-v2 contract-offer-card" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img src="assets/icons/contrato-comercial.webp" alt=""></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2"><img src="assets/icons/relogio.webp" alt="">02:00</span></header><div class="contract-main-v2"><img src="assets/plants/folha.webp" alt="Folha"><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3><div class="contract-main-meta"><span>Estoque</span><span class="contract-stock-chip"><img src="assets/icons/galpao-industrial.webp" alt=""><b>${fmt(stock)}</b></span></div></div></div><div class="contract-delivery-time-v3"><span><img src="assets/icons/relogio.webp" alt="">Tempo para concluir</span><strong>02:00</strong></div><div class="contract-reward-strip"><span>Recompensa</span><strong>${resource("coins",120)}${resource("research",3)}${resource("xp",20)}</strong></div><footer class="contract-offer-actions-v2"><button class="button primary" type="button" data-contract-accept>Assinar</button><button class="button secondary contract-decline-button-v2" type="button" disabled>Recusar</button></footer></article>`;
-    if(c.claimed) return `<article class="contract-card contract-card-v2 contract-completed-card" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img src="assets/icons/contrato-comercial.webp" alt=""></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2">Concluído</span></header><div class="contract-main-v2"><img src="assets/plants/folha.webp" alt="Folha"><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3></div></div><div class="contract-reward-strip"><span>Recompensa recebida</span><strong>${resource("coins",120)}${resource("research",3)}${resource("xp",20)}</strong></div></article>`;
+    const c=state.contract;
+    if(!state.unlocks.contracts) return `<article class="contract-card contract-card-v2"><div class="contract-main-v2"><img src="assets/icons/cadeado.webp" alt=""><div><span class="contract-type-label"><i></i>Bloqueado</span><h3>Contratos</h3><div class="contract-main-meta"><span>Alcance o nível 2 para liberar Contratos.</span></div></div></div></article>`;
+    if(!c.accepted&&!c.claimed) return `<article class="contract-card contract-card-v2 contract-offer-card" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img src="assets/icons/contrato-comercial.webp" alt=""></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2 contract-proposal-time-v4"><small>Proposta</small><span><img src="assets/icons/relogio.webp" alt=""><b>${tutorialContractTime(c.duration)}</b></span></span></header><div class="contract-main-v2"><img src="assets/plants/folha.webp" alt="Folha"><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3><div class="contract-main-meta"><span>Preenchimento</span><strong>Automático após assinar</strong></div></div></div><div class="contract-reward-strip"><span class="contract-reward-title">Recompensa</span><strong class="contract-reward-values">${tutorialContractRewardMarkup()}</strong></div><footer class="contract-offer-actions-v2 contract-offer-single-action"><button class="button primary" type="button" data-contract-accept>Assinar</button></footer></article>`;
+    if(c.claimed) return `<article class="contract-card contract-card-v2 contract-completed-card" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img src="assets/icons/contrato-comercial.webp" alt=""></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2">Concluído</span></header><div class="contract-main-v2"><img src="assets/plants/folha.webp" alt="Folha"><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3></div></div><div class="contract-reward-strip"><span class="contract-reward-title">Recompensa recebida</span><strong class="contract-reward-values">${tutorialContractRewardMarkup()}</strong></div></article>`;
     const pct=clamp(c.delivered/12*100,0,100), done=c.delivered>=12;
-    return `<article class="contract-card contract-card-v2 ${done?"contract-completed-card":""}" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img src="assets/icons/contrato-comercial.webp" alt=""></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2"><img src="assets/icons/relogio.webp" alt="">02:00</span></header><div class="contract-main-v2"><img src="assets/plants/folha.webp" alt="Folha"><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3><div class="contract-main-meta"><span>A produção da Folha vai direto para a entrega.</span></div></div></div><div class="contract-progress-v2"><div><span>Entregue</span><strong>${c.delivered} / 12</strong></div><div class="progress-track"><span style="width:${pct}%"></span></div></div><div class="contract-reward-strip"><span>Recompensa</span><strong>${resource("coins",120)}${resource("research",3)}${resource("xp",20)}</strong></div>${done?'<footer class="contract-card-footer-v2 contract-full-action-footer"><button class="button gold contract-full-action contract-claim-action" type="button" data-contract-claim>Receber recompensa</button></footer>':'<footer class="contract-card-footer-v2"><button class="button secondary" type="button" disabled>Produzindo para o contrato...</button></footer>'}</article>`;
+    const timer=done?"Concluído":`${String(Math.floor(c.timeRemaining/60)).padStart(2,"0")}:${String(Math.ceil(c.timeRemaining%60)).padStart(2,"0")}`;
+    return `<article class="contract-card contract-card-v2 ${done?"contract-completed-card":""}" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img src="assets/icons/contrato-comercial.webp" alt=""></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2 contract-completion-time-v4"><small>Conclusão</small><span><img src="assets/icons/relogio.webp" alt=""><b data-tutorial-contract-time>${timer}</b></span></span></header><div class="contract-main-v2"><img src="assets/plants/folha.webp" alt="Folha"><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3><div class="contract-main-meta"><span>Preenchimento automático</span><strong data-tutorial-contract-percent>${Math.floor(pct)}%</strong></div></div></div><div class="contract-progress-v2"><div><span>Preenchido</span><strong>${c.delivered} / 12</strong></div><div class="progress-track"><span style="width:${pct}%"></span></div></div><div class="contract-reward-strip"><span class="contract-reward-title">Recompensa</span><strong class="contract-reward-values">${tutorialContractRewardMarkup()}</strong></div>${done?'<footer class="contract-card-footer-v2 contract-full-action-footer"><button class="button gold contract-full-action contract-claim-action" type="button" data-contract-claim>Receber recompensa</button></footer>':'<footer class="contract-card-footer-v2"><button class="button secondary" type="button" disabled>Preenchendo automaticamente...</button></footer>'}</article>`;
   }
 
   function renderContract(){ $("tutorialContractList").innerHTML=contractMarkup(); }
 
   function updateContractLive(){
     const root=$("tutorialContractList");
-    if(!root || !state.unlocks.contracts) return;
     const c=state.contract;
-    if(!c.accepted&&!c.claimed){
-      const stock=root.querySelector(".contract-stock-chip b");
-      if(stock) stock.textContent=fmt(state.crops.leaf.stock);
-      return;
+    const refreshButton=document.querySelector("[data-tutorial-contract-refresh]");
+    const refreshLabel=document.querySelector("[data-tutorial-contract-refresh-label]");
+    if(refreshButton){
+      const blocked=!state.unlocks.contracts || c.accepted || c.claimed || c.refreshCooldown>0;
+      refreshButton.disabled=blocked;
+      if(refreshLabel) refreshLabel.textContent=c.refreshCooldown>0 ? `Atualizar contratos (${Math.ceil(c.refreshCooldown)}s)` : "Atualizar contratos";
     }
-    if(c.claimed) return;
+    if(!root || !state.unlocks.contracts) return;
+    if(!c.accepted || c.claimed) return;
     const progress=root.querySelector(".contract-progress-v2");
     if(!progress) return;
     const count=progress.querySelector("strong");
     const bar=progress.querySelector(".progress-track span");
+    const pct=clamp(c.delivered/12*100,0,100);
     if(count) count.textContent=`${c.delivered} / 12`;
-    if(bar) bar.style.width=`${clamp(c.delivered/12*100,0,100)}%`;
+    if(bar) bar.style.width=`${pct}%`;
+    const pctText=root.querySelector("[data-tutorial-contract-percent]"); if(pctText) pctText.textContent=`${Math.floor(pct)}%`;
+    const timer=root.querySelector("[data-tutorial-contract-time]"); if(timer) timer.textContent=c.delivered>=12?"Concluído":`${String(Math.floor(c.timeRemaining/60)).padStart(2,"0")}:${String(Math.ceil(c.timeRemaining%60)).padStart(2,"0")}`;
     if(c.delivered>=12 && !root.querySelector("[data-contract-claim]")) renderContract();
   }
 
@@ -317,7 +276,7 @@
   }
 
   function renderLocks(){
-    const unlocked={farm:true,orders:state.unlocks.orders,contracts:state.unlocks.contracts,evolutions:state.unlocks.evolutions||state.unlocks.legacy,prestige:state.unlocks.prestige};
+    const unlocked={farm:true,contracts:state.unlocks.contracts,evolutions:state.unlocks.evolutions||state.unlocks.legacy,prestige:state.unlocks.prestige};
     document.querySelectorAll(".tutorial-game-nav [data-tutorial-tab]").forEach((tab)=>{
       const name=tab.dataset.tutorialTab;
       const isLocked=!unlocked[name];
@@ -335,24 +294,20 @@
   function renderGuide(){
     const step=currentStep();
     let [title,hint]=copy[step];
-    if(step===6 && state.tutorialComplete){
-      title="Tutorial concluído";
-      hint="Você percorreu o ciclo principal da Fazenda Serena. Agora pode começar sua fazenda de verdade.";
-    }
     $("tutorialObjective").textContent=title;
     $("tutorialHint").textContent=hint;
-    const stepAllowed={1:true,2:state.unlocks.orders,3:state.unlocks.contracts,4:state.unlocks.evolutions,5:state.unlocks.prestige,6:state.unlocks.legacy};
+    const stepAllowed={1:true,2:state.unlocks.contracts,3:state.unlocks.evolutions,4:state.unlocks.prestige,5:state.unlocks.legacy};
     document.querySelectorAll(".tutorial-step").forEach((el)=>{
       const n=Number(el.dataset.step);
       el.classList.toggle("active",n===step&&!state.tutorialComplete);
-      el.classList.toggle("done",n<step||(n===6&&state.tutorialComplete));
+      el.classList.toggle("done",n<step||(n===5&&state.tutorialComplete));
       el.classList.toggle("is-locked",!stepAllowed[n]);
       el.setAttribute("aria-disabled",stepAllowed[n]?"false":"true");
     });
   }
 
-  function renderAll(){ renderHeader();renderCrops();renderOrders();renderContract();renderResearch();renderPrestige();renderLocks();renderGuide(); }
-  function updateLive(){ renderHeader();updateCropsLive();updateOrderLive();updateContractLive();renderGuide(); }
+  function renderAll(){ renderHeader();renderCrops();renderContract();renderResearch();renderPrestige();renderLocks();renderGuide();updateContractLive(); }
+  function updateLive(){ renderHeader();updateCropsLive();updateContractLive();renderGuide(); }
 
   $("tutorialMilestoneClose")?.addEventListener("click", closeMilestone);
 
@@ -388,36 +343,27 @@
       return;
     }
 
-    if(e.target.closest("#tutorialSell")){
-      let earned=0;
-      for(const [id,c] of Object.entries(crops)){ earned+=state.crops[id].stock*c.sell;state.crops[id].stock=0; }
-      earned=Math.floor(earned*sellMultiplier());
-      if(earned>0){ state.coins+=earned;addXP(8);setMessage(`Estoque vendido por ${fmt(earned)} moedas.`,"success");renderAll(); }
-      return;
-    }
-
-    if(e.target.closest("[data-deliver-order]")){
-      const o=orderStages[state.orderStage];
-      if(state.unlocks.orders&&o&&state.crops[o.crop].stock>=o.amount){
-        state.crops[o.crop].stock-=o.amount;state.coins+=o.coins;addXP(o.xp);state.orderStage+=1;
-        if(state.orderStage>=orderStages.length){
-          setLevel(3);
-        } else {
-          setMessage(`Etapa ${state.orderStage} concluída. A próxima entrega já está disponível.`,"success");
-          renderAll();
-        }
+    if(e.target.closest("[data-tutorial-contract-refresh]")){
+      const c=state.contract;
+      if(state.unlocks.contracts && !c.accepted && !c.claimed && c.refreshCooldown<=0){
+        c.offerVariant=(c.offerVariant+1)%tutorialContractDurations.length;
+        c.duration=tutorialContractDurations[c.offerVariant];
+        c.refreshCooldown=10;
+        setMessage("Propostas atualizadas. O botão ficará disponível novamente em 10 segundos.","success");
+        renderAll();
       }
       return;
     }
 
     if(e.target.closest("[data-contract-accept]")){
-      if(state.unlocks.contracts){ state.contract.accepted=true;setMessage("Contrato assinado. A produção de Folha agora será enviada primeiro para o contrato.","success");renderAll(); }
+      if(state.unlocks.contracts){ state.contract.accepted=true;state.contract.delivered=0;state.contract.timeRemaining=state.contract.duration;setMessage("Contrato assinado. O preenchimento começou e avançará automaticamente pelo tempo.","success");renderAll(); }
       return;
     }
 
     if(e.target.closest("[data-contract-claim]")){
       if(state.contract.delivered>=12&&!state.contract.claimed){
-        state.contract.claimed=true;state.coins+=120;state.research+=3;addXP(20);setLevel(4);
+        const reward=tutorialContractRewards[state.contract.offerVariant % tutorialContractRewards.length];
+        state.contract.claimed=true;state.coins+=reward.coins;state.research+=reward.research;addXP(reward.xp);setLevel(4);
       }
       return;
     }
@@ -434,7 +380,7 @@
     if(e.target.closest("[data-prestige-action]")){
       if(state.unlocks.prestige&&state.prestigeReady&&!state.prestiged){
         state.prestiged=true;state.prestiges+=1;state.prestige+=1;state.unlocks.legacy=true;state.coins=120;state.research=0;state.xp=0;state.level=1;
-        for(const d of Object.values(state.crops)){ d.owned=false;d.level=0;d.stock=0;d.progress=0; }
+        for(const d of Object.values(state.crops)){ d.owned=false;d.level=0;d.progress=0; }
         showMilestone({ title:"Novo legado disponível", eyebrow:"Prestígio concluído", items:[{icon:"assets/icons/prestigio.webp",title:"1 ponto de prestígio recebido",text:"Use esse ponto em Evoluções para comprar um benefício permanente."}] });
         setMessage("Prestígio concluído. Abra Evoluções e compre seu primeiro Legado.","success");
         renderAll();
@@ -456,7 +402,7 @@
             {icon:"assets/logo.webp",title:"Hora de começar sua fazenda",text:"O treinamento terminou. Seu progresso real continua separado desta demonstração."}
           ]
         });
-        setMessage("Tutorial concluído. Você percorreu cultivo, pedidos, contratos, pesquisa, prestígio e legado.","success");
+        setMessage("Tutorial concluído. Você percorreu cultivo, contratos, pesquisa, prestígio e legado.","success");
         renderAll();
       }
       return;
@@ -475,16 +421,16 @@
       while(d.progress>=1){
         d.progress-=1;
         const amount=c.yield+Math.floor((d.level-1)/5);
-        if(id==="leaf"&&state.contract.accepted&&!state.contract.claimed&&state.contract.delivered<12){
-          const needed=12-state.contract.delivered,delivered=Math.min(needed,amount);
-          state.contract.delivered+=delivered;
-          const rest=amount-delivered;
-          if(rest>0&&totalStock()<stockCapacity)d.stock+=Math.min(rest,stockCapacity-totalStock());
-        } else if(totalStock()<stockCapacity) {
-          d.stock+=Math.min(amount,stockCapacity-totalStock());
-        }
+        state.coins += Math.floor(amount * c.sell * sellMultiplier());
         addXP(state.level===1?25:2);
       }
+    }
+    if(state.contract.refreshCooldown>0) state.contract.refreshCooldown=Math.max(0,state.contract.refreshCooldown-dt);
+    if(state.contract.accepted && !state.contract.claimed && state.contract.delivered < 12){
+      state.contract.timeRemaining=Math.max(0,state.contract.timeRemaining-dt);
+      const ratio=clamp(1-state.contract.timeRemaining/state.contract.duration,0,1);
+      state.contract.delivered=Math.min(12,Math.floor(12*ratio));
+      if(state.contract.timeRemaining<=0) state.contract.delivered=12;
     }
     if(now-lastRender>=100){lastRender=now;updateLive();}
     requestAnimationFrame(tick);
@@ -493,9 +439,7 @@
   renderAll();showPanel("farm",{silent:true});
   window.__FazendaSerenaTutorial={
     getState:()=>JSON.parse(JSON.stringify(state)),
-    addStock:(id,amount)=>{ if(state.crops[id]){state.crops[id].stock=Math.min(stockCapacity,state.crops[id].stock+Math.max(0,Number(amount)||0));updateLive();} },
-    setOrderReady:()=>{const o=orderStages[state.orderStage];if(o){state.crops[o.crop].stock=Math.max(state.crops[o.crop].stock,o.amount);updateLive();}},
-    setContractReady:()=>{state.contract.delivered=12;updateContractLive();},
+    setContractReady:()=>{state.contract.delivered=12;state.contract.timeRemaining=0;updateContractLive();},
     showPanel,
     closeMilestone
   };

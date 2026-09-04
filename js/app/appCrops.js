@@ -99,26 +99,22 @@
     const instant = growthTime <= 0;
     const optimizedRing = instant || growthTime <= 1.5;
     const growthPct = optimizedRing ? 100 : percent(data.progress * 100);
-    const directRoute = data.autoSell
-      || engine.hasActiveContractForCrop(crop.id)
-      || engine.hasWholesaleOverflowSale();
-    const storageFull = engine.getStorageRemaining() <= 0 && !directRoute;
     const speedMaxed = data.level >= engine.getInstantGrowthLevel();
     const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;
     const masteryXpPercent = Math.max(0, Number(GameEngine.CROP_MASTERY_XP_RATE) || 0) * 100;
-    const cycleLabel = instant ? "Contínua" : storageFull ? "Pausada" : formatLiveTime((1 - data.progress) * growthTime);
+    const cycleLabel = instant ? "Contínua" : formatLiveTime((1 - data.progress) * growthTime);
     const selection = getCropUpgradeSelection(crop.id);
 
     return `
-      <article class="crop-card ${data.autoSell ? "auto-sell-enabled" : ""} ${mastered ? "crop-mastered" : ""}" data-live-render-key="${renderKey}" data-live-render-signature="owned|${data.level}|${mastered ? 1 : 0}|${numberFormat}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
+      <article class="crop-card ${mastered ? "crop-mastered" : ""}" data-live-render-key="${renderKey}" data-live-render-signature="owned|${data.level}|${mastered ? 1 : 0}|${numberFormat}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
         <div class="crop-level-strip" title="${mastered ? `Nível máximo alcançado e bônus de ${engine.formatNumber(masteryXpPercent)}% de XP` : speedMaxed ? `Velocidade máxima; ao alcançar o nível 500 esta cultura concede ${engine.formatNumber(masteryXpPercent)}% de XP` : `Ao alcançar o nível 500 esta cultura concede ${engine.formatNumber(masteryXpPercent)}% de XP`}">
           <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
           ${mastered ? `<span class="crop-mastery-badge" aria-label="Cultura no nível máximo"><img alt="" src="assets/icons/estrela-dominio-cultura.webp"></span>` : ""}
         </div>
         <div class="crop-head">
-          <div class="crop-art-progress ${storageFull ? "paused" : ""} ${optimizedRing ? "instant optimized-ring" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
+          <div class="crop-art-progress ${optimizedRing ? "instant optimized-ring" : ""}" data-crop-ring data-last-progress="${growthPct}" style="--growth-progress:${growthPct}%" title="Progresso da produção">
             <div class="crop-art"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"></div>
-            ${optimizedRing ? "" : `<span class="crop-progress-percent ${storageFull ? "is-paused" : ""}" data-crop-percent><span data-crop-percent-text ${storageFull ? "hidden" : ""}>${Math.floor(growthPct)}%</span><img data-crop-paused-icon src="assets/icons/pausa-producao.webp" alt="Produção pausada" ${storageFull ? "" : "hidden"}></span>`}
+            ${optimizedRing ? "" : `<span class="crop-progress-percent " data-crop-percent><span data-crop-percent-text>${Math.floor(growthPct)}%</span></span>`}
           </div>
           <div class="crop-info">
             <div class="crop-title-row"><h3>${escapeHtml(crop.name)}</h3></div>
@@ -173,62 +169,3 @@
     }
     rebuildLiveCropCache();
   }
-
-  function renderStock() {
-    const term = normalize(dom.stockSearch?.value || "");
-    const allOwned = engine.data.crops.filter(crop => engine.state.crops[crop.id].owned)
-      .sort((a, b) => Number(Boolean(engine.state.crops[b.id]?.favorite)) - Number(Boolean(engine.state.crops[a.id]?.favorite)) || a.index - b.index);
-    const filters = catalogFilters.stock;
-    const owned = allOwned.filter(crop => {
-      const data = engine.state.crops[crop.id];
-      const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;
-      if (filters.hideMastered && mastered) return false;
-      if (filters.categories.size && !filters.categories.has(crop.category)) return false;
-      return !term || normalize(`${crop.name} ${engine.data.categories[crop.category] || ""}`).includes(term);
-    });
-    const totalCapacity = engine.getStorageCap();
-    const storageUsed = engine.getStorageUsed();
-    const storagePct = percent((storageUsed / totalCapacity) * 100);
-    const totalValue = allOwned.reduce((sum, crop) => sum + engine.state.crops[crop.id].stock * engine.getSalePrice(crop.id), 0);
-    const expansionCost = engine.getDirectStorageExpansionCost();
-    const canExpandStorage = engine.state.coins >= expansionCost;
-
-    const allAutoSellEnabled = allOwned.length > 0 && allOwned.every(crop => engine.state.crops[crop.id].autoSell);
-    const enabledAutoSellCount = allOwned.filter(crop => engine.state.crops[crop.id].autoSell).length;
-
-    const stockSummaryMarkup = `
-      <article class="summary-card storage-capacity-card normalized-summary-card" data-live-render-key="stock-summary-capacity" data-live-render-signature="capacity|${engine.getStorageCap()}|${engine.getDirectStorageExpansionCost()}|${engine.state.settings.numberFormat || "brazilian"}">
-        <div class="summary-card-heading"><div><small>Estoque</small><strong data-stock-summary-capacity>${engine.formatNumber(storageUsed)} / ${engine.formatNumber(totalCapacity)}</strong></div><span class="summary-status ${storagePct >= 100 ? "full" : ""}" data-stock-summary-status>${storagePct >= 100 ? "Cheio" : "Capacidade"}</span></div>
-        <div class="progress-track growth"><span data-stock-summary-progress style="width:${Math.min(100, storagePct)}%"></span></div>
-        <button class="button primary full storage-expand-button" type="button" data-action="expand-storage" ${canExpandStorage ? "" : "disabled"}>+100 espaços de armazenamento ${resourceAmount("coins", -expansionCost, { compact: true })}</button>
-      </article>
-      <article class="summary-card stock-sale-summary normalized-summary-card" data-live-render-key="stock-summary-sale" data-live-render-signature="sale|${engine.state.settings.numberFormat || "brazilian"}">
-        <div class="summary-card-heading"><div><small>Venda geral</small><strong data-stock-summary-items>${engine.formatNumber(storageUsed)} itens</strong></div><span class="summary-status">Mercado</span></div>
-        <button class="button primary full" type="button" data-action="sell-all-stock" data-stock-sell-all ${storageUsed <= 0 ? "disabled" : ""}><span data-stock-sell-all-label>${storageUsed > 0 ? "Vender estoque" : "Estoque vazio"}</span> <span data-stock-sell-all-value ${storageUsed > 0 ? "" : "hidden"}>${resourceAmount("coins", totalValue, { compact: true })}</span></button>
-      </article>
-      <article class="summary-card stock-auto-summary normalized-summary-card" data-live-render-key="stock-summary-auto" data-live-render-signature="auto|${allOwned.length}|${enabledAutoSellCount}|${allAutoSellEnabled ? 1 : 0}">
-        <div class="summary-card-heading"><div><small>Venda automática geral</small><strong>${enabledAutoSellCount} / ${allOwned.length} ativas</strong></div><span class="summary-status">Automação</span></div>
-        <button class="auto-sell-toggle global-auto-sell-toggle ${allAutoSellEnabled ? "active" : ""}" type="button" data-action="toggle-all-auto-sell" aria-pressed="${String(allAutoSellEnabled)}" ${allOwned.length ? "" : "disabled"}><span><strong>${allAutoSellEnabled ? "Desativar todas" : "Ativar todas"}</strong><small>${allAutoSellEnabled ? "Todas as vendas estão ativas" : enabledAutoSellCount ? "Ativar as vendas restantes" : "Nenhuma venda automática ativa"}</small></span><span class="auto-sell-switch"><i></i></span></button>
-      </article>`;
-    reconcileLiveCards(dom.stockSummary, stockSummaryMarkup);
-
-    const ownedCards = owned.map(crop => {
-      const data = engine.state.crops[crop.id];
-      const price = engine.getSalePrice(crop.id);
-      return `
-        <article class="stock-card normalized-stock-card ${data.autoSell ? "auto-sell-card" : ""} ${data.favorite ? "favorite-stock-card" : ""}" data-live-render-key="stock:${crop.id}" data-live-render-signature="stock|${data.favorite ? 1 : 0}|${data.autoSell ? 1 : 0}|${engine.state.settings.numberFormat || "brazilian"}" data-stock-crop="${crop.id}">
-          <div class="stock-head"><div class="stock-ident"><img src="${crop.image}" alt="${escapeHtml(crop.name)}" loading="lazy"><div><h3>${escapeHtml(crop.name)}</h3><small>${escapeHtml(engine.data.categories[crop.category])}</small></div></div><button class="stock-favorite-button ${data.favorite ? "active" : ""}" type="button" data-action="toggle-stock-favorite" data-crop="${crop.id}" aria-pressed="${String(Boolean(data.favorite))}" aria-label="${data.favorite ? "Remover dos favoritos" : "Favoritar cultura"}" title="${data.favorite ? "Remover dos favoritos" : "Favoritar cultura"}">${data.favorite ? "★" : "☆"}</button></div>
-          <div class="stock-value-grid"><div><small>Quantidade</small><strong><b data-stock-quantity>${engine.formatNumber(data.stock)}</b> <span>un.</span></strong></div><div><small>Valor un.</small><strong data-stock-unit-value>${resourceAmount("coins", price, { compact: true })}</strong></div><div><small>Valor total</small><strong data-stock-total-value>${resourceAmount("coins", data.stock * price, { compact: true })}</strong></div></div>
-          <button class="auto-sell-toggle compact-auto-toggle ${data.autoSell ? "active" : ""}" type="button" data-action="toggle-auto-sell" data-crop="${crop.id}" aria-pressed="${String(data.autoSell)}"><span><strong>Venda automática</strong><small>${data.autoSell ? "Ativada" : "Desativada"}</small></span><span class="auto-sell-switch"><i></i></span></button>
-          <div class="stock-actions"><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.25" ${data.stock <= 0 ? "disabled" : ""}>25%</button><button class="button secondary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="0.5" ${data.stock <= 0 ? "disabled" : ""}>50%</button><button class="button primary" data-action="sell-fraction" data-crop="${crop.id}" data-fraction="1" ${data.stock <= 0 ? "disabled" : ""}>Vender tudo</button></div>
-        </article>`;
-    });
-    const cards = ownedCards;
-    const stockGridMarkup = cards.length
-      ? cards.join("")
-      : `<div class="empty-state" data-live-render-key="stock-empty" data-live-render-signature="empty">${engine.data.crops.length
-        ? runtimeTextHtml("emptyStockCategory", "Nenhum item corresponde aos filtros atuais.")
-        : runtimeTextHtml("emptyCropsCatalog", "Nenhuma planta foi publicada no catálogo administrativo.")}</div>`;
-    reconcileLiveCards(dom.stockGrid, stockGridMarkup);
-  }
-

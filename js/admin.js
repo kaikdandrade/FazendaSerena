@@ -6,33 +6,32 @@
     gate: $("#adminGate"), gateMessage: $("#adminGateMessage"), loader: $("#adminLoader"), signIn: $("#adminSignIn"), app: $("#adminApp"),
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
     actionXP: $("#adminActionXP"), cropMasteryXPPercent: $("#adminCropMasteryXPPercent"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
-    ordersUnlockLevel: $("#adminOrdersUnlockLevel"), evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), prestigeBonus: $("#adminPrestigeBonus"), startingCoins: $("#adminStartingCoins"), storageCapacity: $("#adminStorageCapacity"), baseProductionMin: $("#adminBaseProductionMin"), baseProductionCap: $("#adminBaseProductionCap"),
-    contractSignedCooldown: $("#adminContractSignedCooldown"), contractExpiredCooldown: $("#adminContractExpiredCooldown"), contractDeclinedCooldown: $("#adminContractDeclinedCooldown"), contractBrokenCooldown: $("#adminContractBrokenCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
+evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), prestigeBonus: $("#adminPrestigeBonus"), startingCoins: $("#adminStartingCoins"), baseProductionMin: $("#adminBaseProductionMin"), baseProductionCap: $("#adminBaseProductionCap"),
+    contractRefreshCooldown: $("#adminContractRefreshCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
     navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), prestigeIconGrid: $("#adminPrestigeIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
     playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"), feedbackTypeFilter: $("#adminFeedbackTypeFilter"), feedbackStatusFilter: $("#adminFeedbackStatusFilter"), feedbackFilterCount: $("#adminFeedbackFilterCount"),
     textsEditor: $("#adminTextsEditor"), saveBalance: $("#adminSaveBalance"), saveTexts: $("#adminSaveTexts"),
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
-    globalResetCoins: $("#adminGlobalResetCoins"), globalResetResearchPoints: $("#adminGlobalResetResearchPoints"), globalResetPrestigePoints: $("#adminGlobalResetPrestigePoints"), globalResetOrders: $("#adminGlobalResetOrders"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalResolveResearch: $("#adminGlobalResolveResearch"), globalRefundResearch: $("#adminGlobalRefundResearch"), globalResetEvolutions: $("#adminGlobalResetEvolutions"), globalRefundEvolutions: $("#adminGlobalRefundEvolutions"), globalRefreshPlayers: $("#adminGlobalRefreshPlayers"), globalPlayerSelect: $("#adminGlobalPlayerSelect"), globalPlayerStatus: $("#adminGlobalPlayerStatus"), globalPlayerCoins: $("#adminGlobalPlayerCoins"), globalPlayerResearch: $("#adminGlobalPlayerResearch"), globalPlayerPrestigePoints: $("#adminGlobalPlayerPrestigePoints"), globalPlayerPrestigeCount: $("#adminGlobalPlayerPrestigeCount"), globalPlayerFarmLevel: $("#adminGlobalPlayerFarmLevel"), globalPlayerApply: $("#adminGlobalPlayerApply"), globalPlayerRanking: $("#adminGlobalPlayerRanking"), globalPlayerReset: $("#adminGlobalPlayerReset"), globalPlayerBan: $("#adminGlobalPlayerBan"), globalFeedback: $("#adminGlobalFeedback")
+    globalResetCoins: $("#adminGlobalResetCoins"), globalResetResearchPoints: $("#adminGlobalResetResearchPoints"), globalResetPrestigePoints: $("#adminGlobalResetPrestigePoints"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalResolveResearch: $("#adminGlobalResolveResearch"), globalRefundResearch: $("#adminGlobalRefundResearch"), globalResetEvolutions: $("#adminGlobalResetEvolutions"), globalRefundEvolutions: $("#adminGlobalRefundEvolutions"), globalRefreshPlayers: $("#adminGlobalRefreshPlayers"), globalPlayerSelect: $("#adminGlobalPlayerSelect"), globalPlayerStatus: $("#adminGlobalPlayerStatus"), globalPlayerCoins: $("#adminGlobalPlayerCoins"), globalPlayerResearch: $("#adminGlobalPlayerResearch"), globalPlayerPrestigePoints: $("#adminGlobalPlayerPrestigePoints"), globalPlayerPrestigeCount: $("#adminGlobalPlayerPrestigeCount"), globalPlayerFarmLevel: $("#adminGlobalPlayerFarmLevel"), globalPlayerApply: $("#adminGlobalPlayerApply"), globalPlayerRanking: $("#adminGlobalPlayerRanking"), globalPlayerReset: $("#adminGlobalPlayerReset"), globalPlayerBan: $("#adminGlobalPlayerBan"), globalFeedback: $("#adminGlobalFeedback")
   };
   const balanceFields = [
     ["actionXPPercent", dom.actionXP, true, false],
     ["cropMasteryXPPercent", dom.cropMasteryXPPercent, true, false],
     ["passiveXPPercentPerSecond", dom.passiveXP, true, false],
     ["passiveResearchPercentPerSecond", dom.passiveResearch, true, false],
-    ["ordersUnlockLevel", dom.ordersUnlockLevel, false, true], ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["prestigeBonus", dom.prestigeBonus, false, true], ["startingCoins", dom.startingCoins, false, true], ["storageCapacity", dom.storageCapacity, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
-    ["contractSignedCooldownRange", dom.contractSignedCooldown, false, false, true], ["contractExpiredCooldownRange", dom.contractExpiredCooldown, false, false, true], ["contractDeclinedCooldownRange", dom.contractDeclinedCooldown, false, false, true], ["contractBrokenCooldownRange", dom.contractBrokenCooldown, false, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
+["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["prestigeBonus", dom.prestigeBonus, false, true], ["startingCoins", dom.startingCoins, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
+    ["contractRefreshCooldownSeconds", dom.contractRefreshCooldown, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
-  const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "orderSteps", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
+  const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
 
   const navigationIconFields = Object.freeze([
-    ["farm", "Fazenda"], ["stock", "Estoque"], ["office", "Escritório"], ["profile", "Perfil"], ["settings", "Configurações"],
-    ["contracts", "Contratos"], ["orders", "Pedidos"], ["evolutions", "Evoluções"], ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"]
+    ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"], ["missions", "Missões"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
   ]);
   const gridNavigationIconFields = Object.freeze([
-    ["farm", "Fazenda"], ["stock", "Estoque"], ["contracts", "Contratos"], ["orders", "Pedidos"], ["evolutions", "Evoluções"],
-    ["account", "Minha Conta"], ["social", "Social"], ["missions", "Missões"], ["settings", "Configurações"]
+    ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"],
+    ["missions", "Missões"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
   ]);
   const prestigeIconFields = Object.freeze([["resource", "Contador de prestígio"], ["account", "Painel de prestígio"], ["legacy", "Legado nas estatísticas"]]);
   let playerFeedbackLoaded = false;
@@ -189,11 +188,25 @@
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
   function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.globalResetCoins, dom.globalResetResearchPoints, dom.globalResetPrestigePoints, dom.globalResolveResearch, dom.globalResetEvolutions, dom.globalResolveCrops, dom.globalRefreshPlayers, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
-  function showGate(message, { login = false, loading = false } = {}) { authorized = false; dom.app.hidden = true; dom.gate.hidden = false; dom.gateMessage.textContent = message; dom.signIn.hidden = !login; dom.loader.hidden = !loading; dom.userActions.hidden = true; }
+  function showGate(message, { login = false, loading = false } = {}) {
+    authorized = false;
+    dom.app.hidden = true;
+    dom.app.inert = true;
+    dom.app.setAttribute("aria-hidden", "true");
+    dom.gate.hidden = false;
+    dom.gate.setAttribute("aria-busy", String(Boolean(loading)));
+    dom.gateMessage.textContent = message;
+    dom.signIn.hidden = !login;
+    dom.loader.hidden = !loading;
+    dom.userActions.hidden = true;
+  }
   function showApp(user) {
     authorized = true;
     dom.gate.hidden = true;
+    dom.gate.setAttribute("aria-busy", "false");
     dom.app.hidden = false;
+    dom.app.inert = false;
+    dom.app.removeAttribute("aria-hidden");
     dom.userActions.hidden = false;
     dom.userLabel.textContent = user.email || user.displayName || "Administrador";
     const remembered = (() => { try { return sessionStorage.getItem("fazenda-serena-admin-section") || "balance"; } catch { return "balance"; } })();
@@ -310,7 +323,7 @@
     const retiredUpgradeResearchMap = {
       irrigationNetwork: "acceleratedGermination", harvestCrew: "hybridGenetics", regionalMarket: "priceForecast", reinforcedBarn: "coldChain",
       seedCooperative: "smartSeedCatalog", precisionTools: "cultivationAlgorithms", fieldAcademy: "agriculturalPedagogy", contractBureau: "negotiationModels",
-      orderCenter: "orderOptimization", expressPacking: "logisticsSimulation"
+expressPacking: "logisticsSimulation"
     };
     Object.entries(retiredUpgradeResearchMap).forEach(([upgradeId, researchId]) => {
       levels[researchId] = Math.max(Number(levels[researchId]) || 0, Number(state?.upgrades?.[upgradeId]) || 0);
@@ -339,15 +352,11 @@
     let changed = false;
     lockedIds.forEach(cropId => {
       const crop = state?.crops?.[cropId];
-      if (crop && (crop.owned || Number(crop.level) > 0 || Number(crop.stock) > 0 || Number(crop.progress) > 0 || crop.autoSell)) {
-        Object.assign(crop, { owned: false, level: 0, progress: 0, stock: 0, autoSell: false, productionBuffer: 0 });
+      if (crop && (crop.owned || Number(crop.level) > 0 || Number(crop.progress) > 0)) {
+        Object.assign(crop, { owned: false, level: 0, progress: 0, productionBuffer: 0 });
         changed = true;
       }
       if (state?.cropsDiscovered && state.cropsDiscovered[cropId]) { delete state.cropsDiscovered[cropId]; changed = true; }
-      if (state?.orders?.[cropId] && (state.orders[cropId].tier || state.orders[cropId].delivered || state.orders[cropId].autoDeliver)) {
-        Object.assign(state.orders[cropId], { tier: 0, delivered: 0, autoDeliver: false });
-        changed = true;
-      }
     });
     if (Array.isArray(state.contractOffers)) {
       const next = state.contractOffers.filter(contract => !lockedIds.has(contract?.cropId));
@@ -360,14 +369,9 @@
     return changed;
   }
   function resetCropsInState(state) {
-    Object.values(state.crops || {}).forEach(crop => Object.assign(crop, { owned: false, level: 0, progress: 0, stock: 0, totalHarvested: 0, totalSold: 0, autoSell: false, productionBuffer: 0 }));
+    Object.values(state.crops || {}).forEach(crop => Object.assign(crop, { owned: false, level: 0, progress: 0, totalHarvested: 0, totalSold: 0, productionBuffer: 0 }));
     state.cropsDiscovered = {};
     state.upgrades = {};
-    state.storageExpansions = 0;
-  }
-  function resetOrdersInState(state) {
-    Object.values(state.orders || {}).forEach(order => Object.assign(order, { tier: 0, delivered: 0, autoDeliver: false }));
-    if (state.stats) { state.stats.ordersCompleted = 0; state.stats.orderUnitsDelivered = 0; }
   }
 
   async function renderAdministrators() {
@@ -434,27 +438,6 @@
   dom.globalResetCoins?.addEventListener("click", () => resetGlobalResource("coins", "as moedas").catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
   dom.globalResetResearchPoints?.addEventListener("click", () => resetGlobalResource("research", "os pontos de pesquisa").catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
   dom.globalResetPrestigePoints?.addEventListener("click", () => resetGlobalResource("prestigePoints", "os pontos de prestígio").catch(error => setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error")));
-  dom.globalResetOrders?.addEventListener("click", async () => {
-    if (!confirm("Resetar os pedidos de TODOS os jogadores?")) return;
-    dom.globalResetOrders.disabled = true;
-    setGlobalFeedback("Resetando pedidos...", "pending");
-    try {
-      const result = await window.FirebaseManager.mutateAllPlayerSavesForAdmin(state => {
-        const hadProgress = Object.values(state.orders || {}).some(order => Number(order?.tier) > 0 || Number(order?.delivered) > 0 || Boolean(order?.autoDeliver))
-          || Number(state.stats?.ordersCompleted) > 0
-          || Number(state.stats?.orderUnitsDelivered) > 0;
-        if (!hadProgress) return false;
-        resetOrdersInState(state);
-        return true;
-      }, { mutationType: "reset-orders-global" });
-      setGlobalFeedback(`${result.updated} de ${result.scanned} saves tiveram os pedidos resetados.`, "success");
-      globalPlayersLoaded = false;
-    } catch (error) {
-      setGlobalFeedback(window.FirebaseManager.getFriendlyError(error), "error");
-    } finally {
-      dom.globalResetOrders.disabled = false;
-    }
-  });
 
   dom.globalResolveResearch?.addEventListener("click", async () => {
     const refundPoints = Boolean(dom.globalRefundResearch?.checked);
@@ -496,7 +479,7 @@
         if (refund) state.prestigePoints = Math.max(0, Number(state.prestigePoints) || 0) + refund;
         state.prestigeUpgrades = Object.fromEntries((currentConfig?.prestigeUpgrades || []).map(item => [item.id, 0]));
         state.permanentBonuses = {
-          prestigeDouble: false, passiveXPPercentPerSecond: 0, contractRewardPercent: 0, orderRewardPercent: 0
+          prestigeDouble: false, passiveXPPercentPerSecond: 0, contractRewardPercent: 0
         };
         return true;
       }, { mutationType: refundPoints ? "reset-evolutions-refund" : "reset-evolutions-no-refund" });

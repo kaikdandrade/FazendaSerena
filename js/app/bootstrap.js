@@ -48,9 +48,9 @@ async function boot() {
 
   const initialRoute = new URLSearchParams(window.location.search);
   const requestedView = initialRoute.get("view");
-  if (["farmView", "stockView", "officeView", "profileView", "settingsView"].includes(requestedView)) activeView = requestedView;
+  if (["farmView", "officeView", "profileView", "settingsView"].includes(requestedView)) activeView = requestedView;
   const requestedOffice = initialRoute.get("office");
-  if (["contracts", "orders", "evolutions"].includes(requestedOffice)) activeOfficeTab = requestedOffice;
+  if (["contracts", "evolutions"].includes(requestedOffice)) activeOfficeTab = requestedOffice;
   const requestedProfile = initialRoute.get("profile");
   if (["account", "social", "missions"].includes(requestedProfile)) activeProfileTab = requestedProfile;
 

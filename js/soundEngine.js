@@ -19,10 +19,10 @@ class SoundEngine {
     cropPurchase: "assets/sounds/comprar-cultura.wav",
     upgrade: "assets/sounds/confirmar-aprimoramento.wav",
     reward: "assets/sounds/coletar-recompensa.wav",
-    sell: "assets/sounds/vender-estoque.wav",
+    sell: "assets/sounds/venda-automatica.wav",
     prestige: "assets/sounds/ativar-prestigio.wav",
     contractSignature: "assets/sounds/assinar-contrato.wav",
-    contractRefusal: "assets/sounds/recusar-contrato.wav",
+    contractBreak: "assets/sounds/quebrar-contrato.wav",
     levelUp: "assets/sounds/subir-nivel.wav",
   });
 

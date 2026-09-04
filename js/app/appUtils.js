@@ -327,7 +327,6 @@
         const startLevel = Math.max(1, endLevel - count + 1);
         const crossed = level => Number(level) >= startLevel && Number(level) <= endLevel;
         const cropUnlocked = engine.data.crops.some(crop => crossed(crop.unlockLevel));
-        const ordersUnlocked = crossed(GameEngine.ORDER_UNLOCK_LEVEL);
         const evolutionsUnlocked = crossed(GameEngine.EVOLUTION_UNLOCK_LEVEL);
         const prestigeUnlocked = crossed(GameEngine.PRESTIGE_UNLOCK_LEVEL);
 
@@ -336,7 +335,6 @@
         updateLiveNavigationBadges?.();
 
         if (activeView === "farmView" && cropUnlocked) renderCrops();
-        if (activeView === "officeView" && activeOfficeTab === "orders" && ordersUnlocked) renderOrders();
         if (activeView === "officeView" && activeOfficeTab === "evolutions" && evolutionsUnlocked) {
           lastResearchRenderSignature = "";
           lastPrestigeRenderSignature = "";
