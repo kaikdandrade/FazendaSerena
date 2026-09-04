@@ -1,12 +1,12 @@
 "use strict";
 
-const CACHE_NAME = "fazenda-serena-pwa-r66-avatar-loading-search";
+const CACHE_NAME = "fazenda-serena-pwa-r72-ui-corrections";
 const APP_SHELL = [
   "/",
   "/index.html",
   "/play.html",
   "/css/stylish.css",
-  "/css/play.css?v=66",
+  "/css/play.css?v=72",
   "/css/tutorial.css",
   "/css/admin.css?v=66",
   "/css/index.css?v=64",
