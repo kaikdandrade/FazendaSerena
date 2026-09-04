@@ -126,7 +126,11 @@
       dom.playerProfileForm.setAttribute("aria-hidden", String(!signedIn));
     }
 
-    if (dom.accountProviderLabel) dom.accountProviderLabel.textContent = signedIn ? "Conta Google" : "Conta visitante";
+    if (dom.accountProviderLabel) {
+      dom.accountProviderLabel.textContent = signedIn ? "" : "Conta visitante";
+      dom.accountProviderLabel.hidden = signedIn;
+      dom.accountProviderLabel.setAttribute("aria-hidden", String(signedIn));
+    }
 
     if (dom.accountName) {
       const accountDisplayName = storedNickname || user?.displayName || user?.email || "Jogador";

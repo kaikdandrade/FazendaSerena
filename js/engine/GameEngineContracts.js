@@ -139,7 +139,9 @@ Object.assign(GameEngine.prototype, {
     if (!contract) return null;
     const rawItems = this.getContractItems(contract);
     if (!rawItems.length) return null;
-    const items = rawItems.map(item => ({ ...item, delivered: active ? item.delivered : 0 }));
+    const rawBoardStatus = ["offer", "delivered", "broken", "penalized"].includes(String(contract.boardStatus || "")) ? String(contract.boardStatus) : "offer";
+    const terminalBoardStatus = !active && rawBoardStatus !== "offer";
+    const items = rawItems.map(item => ({ ...item, delivered: active || terminalBoardStatus ? item.delivered : 0 }));
     const company = this.data.companies.find(item => item.id === contract.companyId) || this.data.companies[0];
     const type = this.getContractDifficulty(contract.difficulty || contract.typeId);
     if (!company || !type) return null;
@@ -151,7 +153,7 @@ Object.assign(GameEngine.prototype, {
     const deliveryDurationSeconds = legacyDuration;
     const legacyDeadline = Number(contract.deadlineAt || 0);
     const legacyRemaining = active && legacyDeadline > 0 ? Math.max(0, (legacyDeadline - Date.now()) / 1000) : deliveryDurationSeconds;
-    const completedAt = active && (Number(contract.completedAt || 0) > 0 || delivered >= amount) ? Number(contract.completedAt || Date.now()) : 0;
+    const completedAt = (active || terminalBoardStatus) && (Number(contract.completedAt || 0) > 0 || delivered >= amount) ? Number(contract.completedAt || Date.now()) : 0;
     const normalized = {
       id: String(contract.id || `contract-${Date.now()}-${this.state?.contractSerial || 1}`),
       companyId: company.id,
@@ -175,13 +177,16 @@ Object.assign(GameEngine.prototype, {
       createdAt: Number(contract.createdAt || Date.now()),
       acceptedAt: active ? Number(contract.acceptedAt || Date.now()) : 0,
       completedAt,
-      penaltyCoins: 0,
+      penaltyCoins: Math.max(0, Number(contract.penaltyCoins) || 0),
       rewardSnapshotVersion: Math.max(0, Math.floor(Number(contract.rewardSnapshotVersion) || 0)),
       lockedRewardCoins: Math.max(0, Math.floor(Number(contract.lockedRewardCoins) || 0)),
       lockedRewardResearch: Math.max(0, Math.floor(Number(contract.lockedRewardResearch) || 0)),
       lockedRewardPrestige: Math.max(0, Math.floor(Number(contract.lockedRewardPrestige) || 0)),
       lockedRewardXP: Math.max(0, Number(contract.lockedRewardXP) || 0),
-      penaltyUnitPrices: contract.penaltyUnitPrices && typeof contract.penaltyUnitPrices === "object" ? { ...contract.penaltyUnitPrices } : {}
+      penaltyUnitPrices: contract.penaltyUnitPrices && typeof contract.penaltyUnitPrices === "object" ? { ...contract.penaltyUnitPrices } : {},
+      boardStatus: active ? "active" : rawBoardStatus,
+      boardOrder: Number.isFinite(Number(contract.boardOrder)) ? Number(contract.boardOrder) : Number.MAX_SAFE_INTEGER,
+      resolvedAt: Math.max(0, Number(contract.resolvedAt) || 0)
     };
     return this.state ? this.lockContractParameters(normalized, false) : normalized;
   },
@@ -201,9 +206,9 @@ Object.assign(GameEngine.prototype, {
         const orderB = Math.max(0, Number(this.state.crops?.[b.id]?.purchaseOrder) || 0);
         return orderB - orderA || Number(b.index) - Number(a.index);
       })
-      .slice(0, 10);
+      .slice(0, Math.max(1, Math.floor(Number(GameEngine.CONTRACT_RECENT_CROP_LIMIT) || 5)));
 
-    // Além das 10 compras mais recentes, deixa visível a planta desbloqueada
+    // Além das compras recentes configuradas, deixa visível a planta desbloqueada
     // mais avançada que ainda não foi comprada. Isso transforma o contrato em
     // um incentivo de progressão sem trazer de volta todo o catálogo antigo.
     const newestUnlockedUnpurchased = unlocked
@@ -355,7 +360,10 @@ Object.assign(GameEngine.prototype, {
         deliveryDurationSeconds,
         durationSeconds: deliveryDurationSeconds,
         createdAt: Date.now(),
-        acceptedAt: 0
+        acceptedAt: 0,
+        boardStatus: "offer",
+        boardOrder: Number.MAX_SAFE_INTEGER,
+        resolvedAt: 0
       };
       result.push(this.lockContractParameters(generatedContract, true));
     }
@@ -364,13 +372,27 @@ Object.assign(GameEngine.prototype, {
 
 
   getContractOfferTargetCount(state = this.state) {
-    const extraOfferSpaces = Math.max(0, Math.floor(this.getEvolutionBonus("contractOfferCount", state)));
-    return Math.min(GameEngine.MAX_CONTRACT_OFFERS, Math.max(0, GameEngine.CONTRACT_OFFER_COUNT + extraOfferSpaces));
+    // A grade comercial cresce apenas com a capacidade de contratos ativos:
+    // padrão 6 cards; a partir de 3 slots, 9; a partir de 6 slots, 12.
+    const activeSlots = Math.max(0, this.getActiveContractSlotLimit(state));
+    if (activeSlots >= 6) return 12;
+    if (activeSlots >= 3) return 9;
+    return 6;
+  },
+
+  getContractBoardEntries(state = this.state) {
+    const active = Array.isArray(state?.activeContracts) ? state.activeContracts : [];
+    const inactive = Array.isArray(state?.contractOffers) ? state.contractOffers : [];
+    return [...active, ...inactive].sort((a, b) => {
+      const orderA = Number.isFinite(Number(a?.boardOrder)) ? Number(a.boardOrder) : Number.MAX_SAFE_INTEGER;
+      const orderB = Number.isFinite(Number(b?.boardOrder)) ? Number(b.boardOrder) : Number.MAX_SAFE_INTEGER;
+      return orderA - orderB || Number(a?.createdAt || 0) - Number(b?.createdAt || 0) || String(a?.id || "").localeCompare(String(b?.id || ""));
+    });
   },
 
   needsContractOfferRefresh(state = this.state) {
     if (!this.getContractEligibleCrops().length || !this.data.companies?.length || !this.data.contractTypes?.length) return false;
-    return (Array.isArray(state?.contractOffers) ? state.contractOffers.length : 0) < this.getContractOfferTargetCount(state);
+    return this.getContractBoardEntries(state).length < this.getContractOfferTargetCount(state);
   },
 
   ensureContractOffers() {
@@ -380,24 +402,56 @@ Object.assign(GameEngine.prototype, {
     this.state.contractOffers = this.state.contractOffers.map(contract => this.normalizeContract(contract, false)).filter(Boolean);
     this.state.activeContracts = this.state.activeContracts.map(contract => this.normalizeContract(contract, true)).filter(Boolean).slice(0, GameEngine.MAX_ACTIVE_CONTRACTS);
 
+    // Migração de saves anteriores: preserva a ordem visual atual e passa a usar
+    // um único tabuleiro para propostas, contratos em andamento e estados finais.
+    const ordered = this.getContractBoardEntries(this.state);
+    const usedOrders = new Set();
+    ordered.forEach((contract, index) => {
+      let order = Number(contract.boardOrder);
+      if (!Number.isFinite(order) || order >= Number.MAX_SAFE_INTEGER || usedOrders.has(order)) order = index;
+      contract.boardOrder = order;
+      usedOrders.add(order);
+      if (this.state.activeContracts.includes(contract)) contract.boardStatus = "active";
+      else if (!["delivered", "broken", "penalized"].includes(contract.boardStatus)) contract.boardStatus = "offer";
+    });
+
     const eligibleCrops = this.getContractEligibleCrops();
     const eligibleCropIds = new Set(eligibleCrops.map(crop => crop.id));
-    // Propostas antigas que apontavam para plantas que saíram da janela das 10
-    // compras recentes são descartadas. Contratos já assinados são preservados.
+    // Somente propostas ainda assináveis dependem da janela atual de plantas.
+    // Cards encerrados permanecem visíveis até o usuário atualizar os contratos.
     this.state.contractOffers = this.state.contractOffers.filter(contract => {
+      if (contract.boardStatus !== "offer") return true;
       const items = this.getContractItems(contract);
       return items.length > 0 && items.every(item => eligibleCropIds.has(item.cropId));
     });
 
     if (!eligibleCrops.length || !this.data.companies?.length || !this.data.contractTypes?.length) {
-      this.state.contractOffers = [];
+      // Contratos ativos e cards já encerrados continuam visíveis. Apenas não são
+      // criadas novas propostas enquanto o catálogo não puder gerar contratos.
+      this.state.contractOffers = this.state.contractOffers.filter(contract => contract.boardStatus !== "offer");
       return;
     }
-    const maximumOffers = this.getContractOfferTargetCount(this.state);
-    if (GameEngine.ALLOW_CONTRACT_OFFER_CREATION && this.state.contractOffers.length < maximumOffers) {
-      this.state.contractOffers.push(...this.createContractOffers(maximumOffers - this.state.contractOffers.length));
+
+    const boardCapacity = this.getContractOfferTargetCount(this.state);
+    const activeCount = this.state.activeContracts.length;
+    const roomForInactive = Math.max(0, boardCapacity - activeCount);
+    if (this.state.contractOffers.length > roomForInactive) {
+      this.state.contractOffers = [...this.state.contractOffers]
+        .sort((a, b) => Number(a.boardOrder) - Number(b.boardOrder))
+        .slice(0, roomForInactive);
     }
-    this.state.contractOffers = this.state.contractOffers.slice(0, maximumOffers);
+
+    const currentTotal = activeCount + this.state.contractOffers.length;
+    if (GameEngine.ALLOW_CONTRACT_OFFER_CREATION && currentTotal < boardCapacity) {
+      const missing = boardCapacity - currentTotal;
+      const created = this.createContractOffers(missing);
+      const maxOrder = this.getContractBoardEntries(this.state).reduce((max, contract) => Math.max(max, Number(contract.boardOrder) || -1), -1);
+      created.forEach((contract, index) => {
+        contract.boardStatus = "offer";
+        contract.boardOrder = maxOrder + index + 1;
+      });
+      this.state.contractOffers.push(...created);
+    }
   },
 
   getCompany(companyId) {
@@ -415,7 +469,7 @@ Object.assign(GameEngine.prototype, {
     const timedPercent = completed ? 100 : Math.max(0, Math.min(100, (1 - timeRemaining / duration) * 100));
     return {
       items, amount, delivered, remaining, completed,
-      penaltyCoins: 0,
+      penaltyCoins: Math.max(0, Number(contract.penaltyCoins) || 0),
       readyToClaim: completed,
       percent: timedPercent,
       availablePercent: timedPercent,
@@ -435,9 +489,28 @@ Object.assign(GameEngine.prototype, {
     this.ensureContractOffers();
     const remaining = Math.max(0, Number(this.state.contractRefreshCooldownRemaining) || 0);
     if (remaining > 0) return { ok: false, message: `Você poderá atualizar os contratos em ${this.formatTime(Math.ceil(remaining))}.`, cooldownSeconds: remaining };
-    const target = this.getContractOfferTargetCount(this.state);
+
+    // Atualizar nunca remove contratos em andamento/concluídos aguardando coleta.
+    // Ofertas antigas e cards encerrados são descartados. Os ativos são movidos
+    // para o começo do tabuleiro e as posições restantes recebem novas propostas.
+    this.state.activeContracts
+      .sort((a, b) => Number(a.boardOrder) - Number(b.boardOrder))
+      .forEach((contract, index) => {
+        contract.boardOrder = index;
+        contract.boardStatus = "active";
+      });
     this.state.contractOffers = [];
-    if (GameEngine.ALLOW_CONTRACT_OFFER_CREATION && target > 0) this.state.contractOffers = this.createContractOffers(target);
+
+    const boardCapacity = this.getContractOfferTargetCount(this.state);
+    const proposalCount = Math.max(0, boardCapacity - this.state.activeContracts.length);
+    if (GameEngine.ALLOW_CONTRACT_OFFER_CREATION && proposalCount > 0) {
+      const created = this.createContractOffers(proposalCount);
+      created.forEach((contract, index) => {
+        contract.boardStatus = "offer";
+        contract.boardOrder = this.state.activeContracts.length + index;
+      });
+      this.state.contractOffers = created;
+    }
     const cooldownSeconds = this.getContractRefreshCooldownSeconds();
     this.state.contractRefreshCooldownRemaining = cooldownSeconds;
     return { ok: true, offers: this.state.contractOffers, cooldownSeconds };
@@ -447,7 +520,7 @@ Object.assign(GameEngine.prototype, {
     this.ensureContractOffers();
     const slotLimit = this.getActiveContractSlotLimit();
     if (this.state.activeContracts.length >= slotLimit) return { ok: false, message: `Você já utiliza todos os ${slotLimit} slots de contratos ativos.` };
-    const index = this.state.contractOffers.findIndex(contract => contract.id === id);
+    const index = this.state.contractOffers.findIndex(contract => contract.id === id && contract.boardStatus === "offer");
     if (index < 0) return { ok: false, message: "Esta proposta não está mais disponível." };
     const [offer] = this.state.contractOffers.splice(index, 1);
     const contract = {
@@ -456,11 +529,14 @@ Object.assign(GameEngine.prototype, {
       delivered: 0,
       acceptedAt: Date.now(),
       completedAt: 0,
+      resolvedAt: 0,
+      boardStatus: "active",
       timeRemaining: Math.max(5, Number(offer.deliveryDurationSeconds || offer.durationSeconds) || 5)
     };
     this.syncContractTotals(contract);
     this.state.activeContracts.push(contract);
-    this.ensureContractOffers();
+    // Não cria uma proposta de reposição: o contrato assinado continua ocupando
+    // exatamente o card que já ocupava na grade.
     return { ok: true, contract, completed: Boolean(contract.completedAt) };
   },
 
@@ -472,10 +548,17 @@ Object.assign(GameEngine.prototype, {
     const penaltyCoins = this.calculateContractPenalty(contract);
     this.state.coins -= penaltyCoins;
     this.state.activeContracts.splice(index, 1);
+    const archived = {
+      ...contract,
+      boardStatus: "broken",
+      resolvedAt: Date.now(),
+      penaltyCoins,
+      timeRemaining: Math.max(0, Number(contract.timeRemaining) || 0)
+    };
+    this.state.contractOffers.push(archived);
     this.state.stats.contractsBroken += 1;
     this.state.stats.lifetimeContractsBroken += 1;
-    this.ensureContractOffers();
-    return { ok: true, contract, penaltyCoins };
+    return { ok: true, contract: archived, penaltyCoins };
   },
 
   markContractComplete(id, silent = false, automatic = false) {
@@ -514,8 +597,14 @@ Object.assign(GameEngine.prototype, {
     if (rewards.prestige) this.addPrestigePoints(rewards.prestige);
     const xpAward = this.getContractFrozenXPReward(contract);
     if (xpAward > 0) this.addFarmXP(xpAward, false, false);
-    this.ensureContractOffers();
-    return { ok: true, contract, rewards, xpRate: contract.xpRate, xpAward };
+    const archived = {
+      ...contract,
+      boardStatus: "delivered",
+      resolvedAt: Date.now(),
+      timeRemaining: 0
+    };
+    this.state.contractOffers.push(archived);
+    return { ok: true, contract: archived, rewards, xpRate: contract.xpRate, xpAward };
   },
 
   getReadyContractCount() {

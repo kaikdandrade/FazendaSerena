@@ -31,7 +31,7 @@
 
     if (!dom.contractDock.querySelector(".contract-dock-panel.contract-dock-v2")) {
       dom.contractDock.innerHTML = `<section class="contract-dock-panel contract-dock-v2">
-        <header class="contract-dock-header"><button type="button" data-go-office-contracts><img src="assets/icons/contrato-agricola.webp" alt=""><span><strong>Contratos ativos</strong><small>Acompanhe seus contratos</small></span></button><button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock"><img src="assets/icons/seta-cima.webp" alt=""></button></header>
+        <header class="contract-dock-header"><button type="button" data-go-office-contracts><img src="assets/icons/contrato-agricola.webp" alt=""><span><strong>Contratos</strong><small>Acompanhe seus contratos</small></span></button><button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock"><img src="assets/icons/seta-cima.webp" alt=""></button></header>
         <div class="contract-dock-list"></div>
       </section>`;
     }
@@ -79,18 +79,25 @@
   }
 
   function renderContracts() {
-    if (dom.contractCapacitySummary) dom.contractCapacitySummary.replaceChildren();
     const hasCrops = Array.isArray(engine.data.crops) && engine.data.crops.length > 0;
     const hasCompanies = Array.isArray(engine.data.companies) && engine.data.companies.length > 0;
     const hasContractTypes = Array.isArray(engine.data.contractTypes) && engine.data.contractTypes.length > 0;
-    if (!hasCrops && !engine.state.activeContracts.length) { dom.activeContractList.innerHTML = ""; dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyContractCropsCatalog", "Nenhuma planta foi publicada no catálogo administrativo. Os contratos serão liberados automaticamente depois que o catálogo for configurado.")}</div>`; markContractsStructureRendered?.(); return; }
-    if (!hasCompanies && !engine.state.activeContracts.length) { dom.activeContractList.innerHTML = ""; dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyContractCompaniesCatalog", "Nenhuma indústria foi publicada no catálogo administrativo. As propostas comerciais aparecerão depois que o catálogo for configurado.")}</div>`; markContractsStructureRendered?.(); return; }
-    if (!hasContractTypes && !engine.state.activeContracts.length) { dom.activeContractList.innerHTML = ""; dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyContractTypesCatalog", "Nenhum tipo de contrato foi publicado no catálogo administrativo. Cadastre pelo menos um tipo para começar a gerar propostas.")}</div>`; markContractsStructureRendered?.(); return; }
-    const eligible = engine.getContractEligibleCrops();
-    if (!eligible.length) { dom.activeContractList.innerHTML = ""; dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">${runtimeTextHtml("emptyContractOwnedCrops", "Compre uma cultura para começar a receber oportunidades comerciais.")}</div>`; markContractsStructureRendered?.(); return; }
 
     engine.ensureContractOffers();
-    const active = engine.state.activeContracts;
+    const active = engine.state.activeContracts || [];
+    const boardEntries = engine.getContractBoardEntries?.() || [...active, ...(engine.state.contractOffers || [])];
+    const eligible = engine.getContractEligibleCrops();
+
+    const renderEmpty = message => {
+      if (dom.contractCapacitySummary) dom.contractCapacitySummary.replaceChildren();
+      if (dom.contractOfferList) dom.contractOfferList.innerHTML = `<div class="empty-state office-empty">${message}</div>`;
+      markContractsStructureRendered?.();
+    };
+    if (!boardEntries.length && !hasCrops) return renderEmpty(runtimeTextHtml("emptyContractCropsCatalog", "Nenhuma planta foi publicada no catálogo administrativo. Os contratos serão liberados automaticamente depois que o catálogo for configurado."));
+    if (!boardEntries.length && !hasCompanies) return renderEmpty(runtimeTextHtml("emptyContractCompaniesCatalog", "Nenhuma indústria foi publicada no catálogo administrativo. As propostas comerciais aparecerão depois que o catálogo for configurado."));
+    if (!boardEntries.length && !hasContractTypes) return renderEmpty(runtimeTextHtml("emptyContractTypesCatalog", "Nenhum tipo de contrato foi publicado no catálogo administrativo. Cadastre pelo menos um tipo para começar a gerar propostas."));
+    if (!boardEntries.length && !eligible.length) return renderEmpty(runtimeTextHtml("emptyContractOwnedCrops", "Compre uma cultura para começar a receber oportunidades comerciais."));
+
     if (pendingContractBreakId) {
       const pending = active.find(item => item.id === pendingContractBreakId);
       const pendingProgress = pending ? engine.getContractProgress(pending) : null;
@@ -99,7 +106,7 @@
         if (dom.contractBreakDialog?.open) dom.contractBreakDialog.close("contract-state-changed");
       }
     }
-    const offers = engine.state.contractOffers;
+
     const slotLimit = engine.getActiveContractSlotLimit();
     const openSlots = Math.max(0, slotLimit - active.length);
     const contractFormatMode = engine.state.settings.numberFormat || "brazilian";
@@ -111,55 +118,69 @@
       return `style="--contract-type-color:${escapeHtml(color)};--contract-type-alpha:${alpha}%"`;
     };
     const typeBadge = contract => `<span class="contract-type-label contract-type-label-v5"><i aria-hidden="true"></i>${escapeHtml(engine.getContractDifficulty(contract.difficulty)?.label || "Contrato")}</span>`;
-    const rewardStrip = contract => {
+    const rewardStrip = (contract, label = "Recompensa") => {
       const reward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
-      return `<section class="contract-reward-strip contract-reward-v5"><span class="contract-reward-title">Recompensa</span><strong class="contract-reward-values">${resourceRewards({ coins: reward.coins, research: reward.research, prestige: reward.prestige, xp: contractXPReward(contract) })}</strong></section>`;
+      return `<section class="contract-reward-strip contract-reward-v5"><span class="contract-reward-title">${escapeHtml(label)}</span><strong class="contract-reward-values">${resourceRewards({ coins: reward.coins, research: reward.research, prestige: reward.prestige, xp: contractXPReward(contract) })}</strong></section>`;
     };
-    const cropList = (contract, progress, activeContract = false) => {
+    const penaltyStrip = contract => `<section class="contract-reward-strip contract-reward-v5 contract-penalty-paid-v67"><span class="contract-reward-title">Multa paga</span><strong class="contract-reward-values">${resourceAmount("coins", -Math.max(0, Number(contract.penaltyCoins) || 0), { compact: true })}</strong></section>`;
+    const cropList = (contract, progress, showDelivered = false) => {
       const items = progress?.items?.length ? progress.items : engine.getContractItems(contract);
       return `<div class="contract-crop-list-v5" data-contract-crop-count="${items.length}">${items.map(item => {
         const crop = engine.getCrop(item.cropId);
-        const quantity = activeContract
+        const quantity = showDelivered
           ? `<strong><span data-contract-live-item-delivered="${escapeHtml(item.cropId)}">${engine.formatNumber(item.delivered)}</span> / ${engine.formatNumber(item.amount)}</strong>`
           : `<strong>${engine.formatNumber(item.amount)}</strong>`;
-        return `<div class="contract-crop-item-v5" data-contract-crop-id="${escapeHtml(item.cropId)}"><span class="contract-crop-art-v5"><img src="${escapeHtml(crop.image)}" alt=""></span><span class="contract-crop-copy-v5"><small>${activeContract ? "Entrega" : "Quantidade"}</small><b>${escapeHtml(crop.name)}</b></span>${quantity}</div>`;
+        return `<div class="contract-crop-item-v5" data-contract-crop-id="${escapeHtml(item.cropId)}"><span class="contract-crop-art-v5"><img src="${escapeHtml(crop.image)}" alt=""></span><span class="contract-crop-copy-v5"><small>${showDelivered ? "Entrega" : "Quantidade"}</small><b>${escapeHtml(crop.name)}</b></span>${quantity}</div>`;
       }).join("")}</div>`;
     };
     const progressBlock = progress => `<section class="contract-progress-v5"><div class="contract-progress-v5-head"><span>Progresso</span><strong data-contract-live-fill>${Math.floor(progress.percent)}%</strong></div><div class="progress-track"><span data-contract-live-progress style="width:${percent(progress.percent)}%"></span></div><small><b data-contract-live-delivered>${engine.formatNumber(progress.delivered)}</b> / ${engine.formatNumber(progress.amount)} unidades</small></section>`;
-    const cardHeader = (contract, company, activeContract, progress = null) => {
-      const completed = Boolean(activeContract && progress?.completed);
-      const time = activeContract ? engine.formatTime(contract.timeRemaining) : engine.formatTime(contract.deliveryDurationSeconds || contract.durationSeconds);
-      const status = completed
-        ? `<span class="contract-time-badge-v5 contract-time-completed-v5"><b>Concluído</b></span>`
-        : `<span class="contract-time-badge-v5"><b ${activeContract ? "data-contract-live-time-value" : ""}>${time}</b></span>`;
-      return `<header class="contract-card-header-v5"><div class="contract-company-v5"><span class="contract-company-icon-v5">${companyIconMarkup(company)}</span><span><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></span></div><div class="contract-time-v5" ${activeContract && !completed ? "data-contract-live-time" : ""}>${status}</div></header>`;
+    const cardHeader = (contract, state, progress = null) => {
+      const company = engine.getCompany(contract.companyId);
+      let timing = "";
+      if (state === "running") timing = `<span class="contract-time-badge-v5"><b data-contract-live-time-value>${engine.formatTime(contract.timeRemaining)}</b></span>`;
+      else if (state === "completed") timing = `<span class="contract-time-badge-v5 contract-time-completed-v5"><b>Concluído</b></span>`;
+      else if (state === "delivered") timing = `<span class="contract-time-badge-v5 contract-time-terminal-v67"><b>Entregue</b></span>`;
+      else if (state === "broken") timing = `<span class="contract-time-badge-v5 contract-time-terminal-v67 is-broken"><b>Quebrado</b></span>`;
+      else if (state === "penalized") timing = `<span class="contract-time-badge-v5 contract-time-terminal-v67 is-penalized"><b>Multado</b></span>`;
+      else timing = `<span class="contract-time-badge-v5"><b>${engine.formatTime(contract.deliveryDurationSeconds || contract.durationSeconds)}</b></span>`;
+      return `<header class="contract-card-header-v5"><div class="contract-company-v5"><span class="contract-company-icon-v5">${companyIconMarkup(company)}</span><span><small>${escapeHtml(company.specialty || "Parceiro comercial")}</small><strong>${escapeHtml(company.name)}</strong></span></div><div class="contract-time-v5" ${state === "running" ? "data-contract-live-time" : ""}>${timing}</div></header>`;
     };
 
-    const slotSummary = `<article class="contract-capacity-v2 contract-capacity-v5" data-live-render-key="capacity" data-live-render-signature="${active.length}|${slotLimit}|${openSlots}"><div><img src="assets/icons/contrato-agricola.webp" alt=""><span><small>Contratos ativos</small><strong>${active.length} de ${slotLimit}</strong></span></div><b class="${openSlots ? "available" : "full"}">${openSlots ? `${openSlots} ${openSlots === 1 ? "vaga" : "vagas"}` : "Lotado"}</b></article>`;
+    // O contador é deliberadamente compacto: apenas ícone e contratos ativos/slots.
+    if (dom.contractCapacitySummary) {
+      dom.contractCapacitySummary.innerHTML = `<article class="contract-capacity-compact-v67" aria-label="${active.length} de ${slotLimit} contratos ativos"><img src="assets/icons/contrato-agricola.webp" alt=""><strong>${active.length}/${slotLimit}</strong></article>`;
+    }
 
-    const activeCards = active.map(contract => {
-      const company = engine.getCompany(contract.companyId);
+    const cards = boardEntries.map(contract => {
+      const isActive = active.some(item => item.id === contract.id);
       const progress = engine.getContractProgress(contract);
+      const terminalStatus = !isActive ? String(contract.boardStatus || "offer") : "";
+      const state = isActive ? (progress.completed ? "completed" : "running") : terminalStatus;
       const itemsKey = progress.items.map(item => `${item.cropId}:${item.amount}`).join(",");
-      const body = `<div class="contract-body-v5"><div class="contract-body-title-v5">${typeBadge(contract)}</div>${cropList(contract, progress, true)}${progress.completed ? "" : progressBlock(progress)}</div>`;
-      if (progress.completed) {
-        return `<article class="contract-card contract-card-v2 contract-card-v5 contract-completed-card" data-live-render-key="active:${escapeHtml(contract.id)}" data-live-render-signature="completed|${escapeHtml(contractFormatMode)}|${escapeHtml(itemsKey)}|${escapeHtml(contract.companyId)}" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${cardHeader(contract, company, true, progress)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5"><button class="button gold contract-full-action contract-claim-action" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button></footer></article>`;
+      const showDelivered = isActive || ["delivered", "broken", "penalized"].includes(state);
+      const body = `<div class="contract-body-v5"><div class="contract-body-title-v5">${typeBadge(contract)}</div>${cropList(contract, progress, showDelivered)}${state === "running" ? progressBlock(progress) : ""}</div>`;
+      const key = `board:${escapeHtml(contract.id)}`;
+      const signature = `${state}|${escapeHtml(contractFormatMode)}|${escapeHtml(itemsKey)}|${escapeHtml(contract.companyId)}`;
+      const common = `class="contract-card contract-card-v2 contract-card-v5 contract-board-card-v67 contract-state-${escapeHtml(state)}" data-live-render-key="${key}" data-live-render-signature="${signature}" data-contract-board-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}`;
+
+      if (state === "running") {
+        const fine = Math.max(1, engine.calculateContractPenalty(contract));
+        return `<article ${common} data-contract-id="${escapeHtml(contract.id)}">${cardHeader(contract, state, progress)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5"><button class="button contract-break-button-v3" type="button" data-action="break-contract" data-id="${contract.id}" title="Quebrar contrato e pagar a multa estimada"><span>Quebrar contrato</span><strong data-contract-live-penalty>${resourceAmount("coins", -fine, { compact: true })}</strong></button></footer></article>`;
       }
-      const fine = Math.max(1, engine.calculateContractPenalty(contract));
-      return `<article class="contract-card contract-card-v2 contract-card-v5" data-live-render-key="active:${escapeHtml(contract.id)}" data-live-render-signature="running|${escapeHtml(contractFormatMode)}|${escapeHtml(itemsKey)}|${escapeHtml(contract.companyId)}" data-contract-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${cardHeader(contract, company, true, progress)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5"><button class="button contract-break-button-v3" type="button" data-action="break-contract" data-id="${contract.id}" title="Quebrar contrato e pagar a multa estimada"><span>Quebrar contrato</span><strong data-contract-live-penalty>${resourceAmount("coins", -fine, { compact: true })}</strong></button></footer></article>`;
+      if (state === "completed") {
+        return `<article ${common} data-contract-id="${escapeHtml(contract.id)}">${cardHeader(contract, state, progress)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5"><button class="button gold contract-full-action contract-claim-action" type="button" data-action="claim-contract" data-id="${contract.id}">Receber recompensa</button></footer></article>`;
+      }
+      if (state === "delivered") {
+        return `<article ${common}>${cardHeader(contract, state, progress)}${body}${rewardStrip(contract, "Recompensa recebida")}<footer class="contract-terminal-footer-v67">Entregue</footer></article>`;
+      }
+      if (state === "broken" || state === "penalized") {
+        return `<article ${common}>${cardHeader(contract, state, progress)}${body}${penaltyStrip(contract)}<footer class="contract-terminal-footer-v67">${state === "broken" ? "Contrato quebrado" : "Multa quitada"}</footer></article>`;
+      }
+      return `<article ${common} data-contract-offer-id="${escapeHtml(contract.id)}">${cardHeader(contract, "offer", progress)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5 contract-offer-actions-v5"><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>Assinar</button></footer></article>`;
     });
-    if (dom.contractCapacitySummary) reconcileLiveCards(dom.contractCapacitySummary, slotSummary);
-    reconcileLiveCards(dom.activeContractList, activeCards.join(""));
 
-    const offerCards = offers.map(contract => {
-      const company = engine.getCompany(contract.companyId);
-      const progress = engine.getContractProgress(contract);
-      const itemsKey = progress.items.map(item => `${item.cropId}:${item.amount}`).join(",");
-      const body = `<div class="contract-body-v5"><div class="contract-body-title-v5">${typeBadge(contract)}</div>${cropList(contract, progress, false)}</div>`;
-      return `<article class="contract-card contract-card-v2 contract-card-v5 contract-offer-card" data-live-render-key="offer:${escapeHtml(contract.id)}" data-live-render-signature="offer|${escapeHtml(contractFormatMode)}|${escapeHtml(itemsKey)}|${escapeHtml(contract.companyId)}" data-contract-offer-id="${escapeHtml(contract.id)}" ${contractStyle(contract)}>${cardHeader(contract, company, false)}${body}${rewardStrip(contract)}<footer class="contract-actions-v5 contract-offer-actions-v5"><button class="button primary" type="button" data-action="accept-contract" data-id="${contract.id}" ${openSlots < 1 ? "disabled" : ""}>Assinar</button></footer></article>`;
-    });
-    const offersMarkup = offerCards.length ? offerCards.join("") : `<div class="empty-state office-empty" data-live-render-key="empty-offers" data-live-render-signature="empty">Nenhuma proposta disponível.</div>`;
-    reconcileLiveCards(dom.contractOfferList, offersMarkup);
+    const boardMarkup = cards.length ? cards.join("") : `<div class="empty-state office-empty" data-live-render-key="empty-board" data-live-render-signature="empty">Nenhum contrato disponível.</div>`;
+    reconcileLiveCards(dom.contractOfferList, boardMarkup);
     markContractsStructureRendered?.();
   }
 

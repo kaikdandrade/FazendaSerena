@@ -44,9 +44,15 @@ function contractStatus(contract) {
 
 function getContractsStructureSignature() {
   if (!engine) return "";
-  const active = (engine.state.activeContracts || []).map(contract => `${contract.id}:${contractStatus(contract)}`).join("|");
-  const offers = (engine.state.contractOffers || []).map(contract => contract.id).join("|");
-  return `${engine.isContractsUnlocked() ? 1 : 0};slots:${engine.getActiveContractSlotLimit()};a:${active};o:${offers}`;
+  const board = (engine.getContractBoardEntries?.() || [
+    ...(engine.state.activeContracts || []),
+    ...(engine.state.contractOffers || [])
+  ]).map(contract => {
+    const active = (engine.state.activeContracts || []).some(item => item.id === contract.id);
+    const state = active ? contractStatus(contract) : String(contract.boardStatus || "offer");
+    return `${contract.id}:${state}:${Number(contract.boardOrder) || 0}`;
+  }).join("|");
+  return `${engine.isContractsUnlocked() ? 1 : 0};slots:${engine.getActiveContractSlotLimit()};board:${board}`;
 }
 
 function getContractDockStructureSignature() {
@@ -112,7 +118,7 @@ function updateLiveContractsUI() {
   }
 
   (engine.state.activeContracts || []).forEach(contract => {
-    const card = dom.activeContractList?.querySelector?.(`[data-contract-id="${CSS.escape(contract.id)}"]`);
+    const card = dom.contractOfferList?.querySelector?.(`[data-contract-id="${CSS.escape(contract.id)}"]`);
     if (!card) return;
     const progress = engine.getContractProgress(contract);
     const timeText = progress.completed ? "Concluído" : engine.formatTime(contract.timeRemaining);
@@ -135,7 +141,7 @@ function updateLiveContractsUI() {
     }
   });
 
-  (engine.state.contractOffers || []).forEach(contract => {
+  (engine.state.contractOffers || []).filter(contract => (contract.boardStatus || "offer") === "offer").forEach(contract => {
     const card = dom.contractOfferList?.querySelector?.(`[data-contract-offer-id="${CSS.escape(contract.id)}"]`);
     if (!card) return;
     const openSlots = Math.max(0, engine.getActiveContractSlotLimit() - (engine.state.activeContracts || []).length);
@@ -150,6 +156,9 @@ function updateLiveContractsUI() {
       xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
     });
   });
+
+  const capacity = dom.contractCapacitySummary?.querySelector?.(".contract-capacity-compact-v67 strong");
+  if (capacity) setLiveText(capacity, `${(engine.state.activeContracts || []).length}/${engine.getActiveContractSlotLimit()}`);
 
   const refreshButton = document.getElementById("refreshContractsButton");
   if (refreshButton) {

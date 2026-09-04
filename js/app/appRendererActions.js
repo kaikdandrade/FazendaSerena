@@ -192,7 +192,7 @@
     if (action === "claim-contract") {
       const result = engine.claimContractReward(id);
       if (!result.ok) return act(result);
-      animateResourceReward(button, { coins: result.contract.rewardCoins, research: result.contract.rewardResearch, prestige: result.contract.rewardPrestige, xp: result.xpAward });
+      animateResourceReward(button, { ...result.rewards, xp: result.xpAward });
       render(true);
       requestGameSave();
     }

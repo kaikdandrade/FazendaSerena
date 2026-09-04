@@ -135,7 +135,7 @@
     baseProductionCap: 10,
     contractRefreshCooldownMinSeconds: 5,
     contractRefreshCooldownMaxSeconds: 15,
-    contractOfferCount: 6,
+    contractRecentCropLimit: 5,
     maxOfflineMinutes: 15
   });
 
@@ -152,7 +152,6 @@
     contractResearchRewardPercent: "Pesquisa recebida em contratos (%)",
     contractPrestigeRewardPercent: "Prestígio recebido em contratos (%)",
     activeContractSlots: "Mais contratos ativos (+)",
-    contractOfferCount: "Mais espaços para contratos (+)",
     startingCoins: "Moedas iniciais (+)",
     startingResearch: "Pesquisa inicial (+)",
     passiveResearchPercentPerSecond: "Pesquisa passiva por segundo (%)",
@@ -346,7 +345,7 @@
       baseProductionCap,
       contractRefreshCooldownMinSeconds,
       contractRefreshCooldownMaxSeconds,
-      contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount),
+      contractRecentCropLimit: integer(raw.contractRecentCropLimit, 1, 50, defaultBalance.contractRecentCropLimit),
       maxOfflineMinutes: integer(raw.maxOfflineMinutes ?? (Number(raw.maxOfflineSeconds) / 60), 1, 43200, defaultBalance.maxOfflineMinutes)
     };
   }
@@ -834,7 +833,8 @@
     GameEngine.BASE_STARTING_COINS = balance.startingCoins;
     GameEngine.CONTRACT_REFRESH_COOLDOWN_MIN_SECONDS = Math.min(balance.contractRefreshCooldownMinSeconds, balance.contractRefreshCooldownMaxSeconds);
     GameEngine.CONTRACT_REFRESH_COOLDOWN_MAX_SECONDS = Math.max(balance.contractRefreshCooldownMinSeconds, balance.contractRefreshCooldownMaxSeconds);
-    GameEngine.CONTRACT_OFFER_COUNT = balance.contractOfferCount;
+    GameEngine.CONTRACT_OFFER_COUNT = 6; // compatibilidade: a grade agora é calculada pelos slots ativos.
+    GameEngine.CONTRACT_RECENT_CROP_LIMIT = Math.max(1, Math.min(50, Math.floor(Number(balance.contractRecentCropLimit) || 5)));
     GameEngine.BASE_MAX_OFFLINE_SECONDS = Math.max(60, Math.floor(balance.maxOfflineMinutes * 60));
     GameEngine.MAX_OFFLINE_SECONDS = GameEngine.BASE_MAX_OFFLINE_SECONDS;
     GameEngine.BASE_PRODUCTION_MIN = balance.baseProductionMin;

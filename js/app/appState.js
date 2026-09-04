@@ -104,7 +104,6 @@
     researchList: $("#researchList"),
     prestigeDashboard: $("#prestigeDashboard"),
     prestigeList: $("#prestigeList"),
-    activeContractList: $("#activeContractList"),
     contractCapacitySummary: $("#contractCapacitySummary"),
     contractOfferList: $("#contractOfferList"),
     contractDock: $("#contractDock"),

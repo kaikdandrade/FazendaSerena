@@ -7,7 +7,7 @@
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
     maxFarmLevel: $("#adminMaxFarmLevel"), actionXP: $("#adminActionXP"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
     prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), prestigeBonus: $("#adminPrestigeBonus"), startingCoins: $("#adminStartingCoins"), baseProductionRange: $("#adminBaseProductionRange"),
-    contractRefreshCooldownRange: $("#adminContractRefreshCooldownRange"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
+    contractRefreshCooldownRange: $("#adminContractRefreshCooldownRange"), contractRecentCropLimit: $("#adminContractRecentCropLimit"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
     navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
     playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"), feedbackTypeFilter: $("#adminFeedbackTypeFilter"), feedbackStatusFilter: $("#adminFeedbackStatusFilter"), feedbackFilterCount: $("#adminFeedbackFilterCount"),
@@ -24,7 +24,7 @@
     ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true],
     ["prestigeBonus", dom.prestigeBonus, false, true],
     ["startingCoins", dom.startingCoins, false, true],
-    ["contractOfferCount", dom.contractOfferCount, false, true],
+    ["contractRecentCropLimit", dom.contractRecentCropLimit, false, true],
     ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
   const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];

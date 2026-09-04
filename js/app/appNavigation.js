@@ -359,6 +359,49 @@
     sync('[data-office-tab="evolutions"]', "evolutions", engine.isEvolutionUnlocked(), "Evoluções", GameEngine.EVOLUTION_UNLOCK_LEVEL);
   }
 
+  const farmXPBorderObservers = new WeakMap();
+
+  function syncFarmXPBorderGeometry(counter) {
+    if (!counter) return;
+    const svg = counter.querySelector(".farm-xp-border-v67");
+    const track = svg?.querySelector(".farm-xp-track-stroke-v67");
+    const progressPath = svg?.querySelector(".farm-xp-progress-stroke-v67");
+    if (!svg || !track || !progressPath) return;
+    if (!farmXPBorderObservers.has(counter) && typeof ResizeObserver === "function") {
+      const observer = new ResizeObserver(() => syncFarmXPBorderGeometry(counter));
+      observer.observe(counter);
+      farmXPBorderObservers.set(counter, observer);
+    }
+    const rect = counter.getBoundingClientRect();
+    const width = Math.max(0, rect.width);
+    const height = Math.max(0, rect.height);
+    if (width < 8 || height < 8) return;
+    const inset = 2;
+    const computedRadius = parseFloat(getComputedStyle(counter).borderTopLeftRadius) || 12;
+    const radius = Math.max(0, Math.min(computedRadius, (height - inset * 2) / 2, (width - inset * 2) / 2));
+    const left = inset;
+    const top = inset;
+    const right = width - inset;
+    const bottom = height - inset;
+    const centerY = height / 2;
+    const d = [
+      `M ${left} ${centerY}`,
+      `V ${top + radius}`,
+      `Q ${left} ${top} ${left + radius} ${top}`,
+      `H ${right - radius}`,
+      `Q ${right} ${top} ${right} ${top + radius}`,
+      `V ${bottom - radius}`,
+      `Q ${right} ${bottom} ${right - radius} ${bottom}`,
+      `H ${left + radius}`,
+      `Q ${left} ${bottom} ${left} ${bottom - radius}`,
+      `V ${centerY}`,
+      "Z"
+    ].join(" " );
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    track.setAttribute("d", d);
+    progressPath.setAttribute("d", d);
+  }
+
   function updateFarmProgressDisplay() {
     const state = engine.state;
     const maximumLevel = GameEngine.MAX_FARM_LEVEL;
@@ -379,17 +422,21 @@
 
     [dom.farmXPResource, dom.floatingFarmXPResource].forEach(counter => {
       if (!counter) return;
+      syncFarmXPBorderGeometry(counter);
       const nextLevel = Number(levelText) || 1;
       const previousLevel = Number(counter.dataset.farmXpLevel || nextLevel) || nextLevel;
+      const dashOffset = String(Math.max(0, Math.min(100, 100 - progress)));
       if (previousLevel !== nextLevel) {
         counter.classList.add("xp-ring-resetting");
         counter.style.setProperty("--farm-xp-progress", progressText);
+        counter.style.setProperty("--farm-xp-dashoffset", dashOffset);
         counter.dataset.farmXpLevel = String(nextLevel);
         void counter.offsetWidth;
         window.requestAnimationFrame(() => counter.classList.remove("xp-ring-resetting"));
       } else {
         counter.dataset.farmXpLevel = String(nextLevel);
         counter.style.setProperty("--farm-xp-progress", progressText);
+        counter.style.setProperty("--farm-xp-dashoffset", dashOffset);
       }
       counter.classList.toggle("max-level", atMaximum);
       counter.setAttribute("aria-valuemin", "0");
