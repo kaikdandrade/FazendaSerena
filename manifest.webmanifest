@@ -53,19 +53,6 @@
           "type": "image/png"
         }
       ]
-    },
-    {
-      "name": "Notícias",
-      "short_name": "Notícias",
-      "description": "Ver as últimas atualizações do jogo",
-      "url": "/noticias.html",
-      "icons": [
-        {
-          "src": "/assets/pwa/shortcut-play.png",
-          "sizes": "96x96",
-          "type": "image/png"
-        }
-      ]
     }
   ]
 }
