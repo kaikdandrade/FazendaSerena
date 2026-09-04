@@ -1,248 +1,393 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8"/>
-<base href="/"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="noindex,nofollow,noarchive" name="robots"/>
-<meta content="#f3f6f0" name="theme-color"/>
-<title>Fazenda Serena</title>
-<link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-<link href="css/stylish.css" rel="stylesheet"/>
-<link href="css/admin.css?v=66" rel="stylesheet"/>
-<script defer="" src="js/publicCloud.js"></script>
-<script defer="" src="js/modalGuard.js"></script>
-<script defer="" src="js/appConfig.js"></script>
-<script defer="" src="js/cacheManager.js"></script>
-<script defer="" src="js/firebase-config.js"></script>
-<script defer="" src="js/localAssets.js"></script>
-<script defer="" src="js/firebaseManager.js"></script>
-<script defer="" src="js/avatars.js"></script>
-<script defer="" src="js/data.js"></script>
-<script defer="" src="js/cropEconomy.js"></script>
-<script defer="" src="js/gameAdmin.js"></script>
-<script defer="" src="js/adminImageSelect.js"></script>
-<script defer="" src="js/adminCatalogEditor.js"></script>
-<script defer="" src="js/admin.js"></script>
+    <meta charset="utf-8" />
+    <base href="/" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta content="noindex,nofollow,noarchive" name="robots" />
+    <meta content="#f3f6f0" name="theme-color" />
+    <title>Administração - Fazenda Serena</title>
+    <link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/admin.css" rel="stylesheet" />
+    <script defer="" src="js/publicCloud.js"></script>
+    <script defer="" src="js/modalGuard.js"></script>
+    <script defer="" src="js/appConfig.js"></script>
+    <script defer="" src="js/cacheManager.js"></script>
+    <script defer="" src="js/firebase-config.js"></script>
+    <script defer="" src="js/localAssets.js"></script>
+    <script defer="" src="js/firebaseManager.js"></script>
+    <script defer="" src="js/avatars.js"></script>
+    <script defer="" src="js/data.js"></script>
+    <script defer="" src="js/cropEconomy.js"></script>
+    <script defer="" src="js/gameAdmin.js"></script>
+    <script defer="" src="js/adminImageSelect.js"></script>
+    <script defer="" src="js/adminCatalogEditor.js"></script>
+    <script defer="" src="js/admin.js"></script>
 </head>
+
 <body>
-<main class="admin-shell">
-<header class="admin-header">
-<a aria-label="Voltar ao Fazenda Serena" class="admin-brand" href="play.html">
-<img alt="Fazenda Serena" src="assets/logo.webp"/>
-</a>
-<div class="admin-user-actions" hidden="" id="adminUserActions">
-<span id="adminUserLabel"></span>
-<a class="admin-button secondary" href="play.html">Voltar ao jogo</a>
-<button class="admin-button secondary" id="adminSignOut" type="button">Sair</button>
-</div>
-</header>
-<section class="admin-gate" id="adminGate">
-<div class="admin-gate-card">
-<h1>Painel administrativo</h1>
-<p id="adminGateMessage">Verificando sua conta.</p>
-<button class="admin-button primary" hidden="" id="adminSignIn" type="button">
-<img alt="" src="assets/icons/logo-google.webp"/>Entrar com o Google
-    </button>
-<div aria-label="Carregando" class="admin-loader" id="adminLoader"><span></span></div>
-</div>
-</section>
-<section aria-hidden="true" class="admin-app" hidden="" id="adminApp" inert="">
-<header class="admin-page-heading">
-<div>
-<h1>Configuração do jogo</h1>
-<p id="adminCloudStatus">Carregando configuração da nuvem.</p>
-</div>
-</header>
-<section aria-label="Selecionar área administrativa" class="admin-workspace-picker">
-<label for="adminWorkspaceSelect"><span>Editar</span><select id="adminWorkspaceSelect">
-<option value="administrators">Administradores</option>
-<option value="contractsCatalog">Contratos</option>
-<option value="globalControl">Controle global</option>
-
-<option value="events">Eventos</option>
-<option value="playerFeedback">Feedback e ideias</option>
-<option value="navigationIcons">Ícones da navegação</option>
-<option value="missions">Missões</option>
-<option value="playerTitles">Títulos de jogador</option>
-<option value="updateNotes">Notas de atualização</option>
-<option value="balance">Parâmetros principais</option>
-<option value="evolutionsCatalog">Pesquisas e evoluções</option>
-<option value="plantsCatalog">Plantas e categorias</option>
-<option value="texts">Textos públicos</option>
-<option value="pointTypes">Tipos de pontos</option>
-</select></label>
-</section>
-<section class="admin-panel admin-balance-section" data-admin-section="balance">
-<div class="admin-section-heading"><h2>Parâmetros principais</h2></div>
-<div class="admin-balance-grid">
-<label><span>Nível máximo da fazenda</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminMaxFarmLevel" inputmode="numeric" type="text"/></label>
-<label><span>XP de aprimoramentos (%)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminActionXP" inputmode="decimal" type="text"/></label>
-<label><span>XP passivo base (%/s)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminPassiveXP" inputmode="decimal" type="text"/></label>
-<label><span>Pesquisa passiva base (%/s)</span><input autocomplete="off" data-admin-number="" data-admin-percent="" id="adminPassiveResearch" inputmode="decimal" type="text"/></label>
-
-<label><span>Nível de liberação do prestígio</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminPrestigeUnlockLevel" inputmode="numeric" type="text"/></label>
-<label><span>Bônus de prestígio</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminPrestigeBonus" inputmode="numeric" type="text"/></label>
-<label><span>Moedas iniciais</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminStartingCoins" inputmode="numeric" type="text"/></label>
-<label><span>Safra por produção · mínimo, máximo</span><input autocomplete="off" data-admin-range="" id="adminBaseProductionRange" inputmode="decimal" placeholder="1, 10" type="text"/></label>
-<label><span>Atualizar contratos · mínimo, máximo (segundos)</span><input autocomplete="off" data-admin-range="" id="adminContractRefreshCooldownRange" inputmode="decimal" placeholder="5, 15" type="text"/></label>
-<label><span>Plantas recentes usadas em contratos</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminContractRecentCropLimit" inputmode="numeric" type="text"/></label>
-<label><span>Tempo máximo de geração offline (minutos)</span><input autocomplete="off" data-admin-integer="" data-admin-number="" id="adminMaxOfflineMinutes" inputmode="numeric" type="text"/></label>
-</div>
-<div class="admin-section-save"><button class="admin-button primary" id="adminSaveBalance" type="button">Salvar parâmetros</button></div>
-</section>
-<section class="admin-panel admin-administrators-section" data-admin-section="administrators">
-<div class="admin-section-heading"><h2>Administradores</h2></div>
-<form autocomplete="off" class="admin-inline-form" id="adminAdministratorForm">
-<label><span>E-mail Google</span><input autocomplete="off" id="adminAdministratorEmail" placeholder="usuario@gmail.com" required="" type="email"/></label>
-<label><span>Nome (opcional)</span><input autocomplete="off" id="adminAdministratorName" maxlength="80" placeholder="Administrador" type="text"/></label>
-<button class="admin-button primary" type="submit">Adicionar administrador</button>
-</form>
-<div class="admin-administrator-list" id="adminAdministratorList"></div>
-</section>
-<section class="admin-panel admin-navigation-icons-section" data-admin-section="navigationIcons" hidden="">
-<div class="admin-section-heading"><h2>Ícones da navegação</h2></div>
-<section class="admin-navigation-icon-group"><header><strong>Tabulação em linha</strong></header><div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div></section>
-<section class="admin-navigation-icon-group"><header><strong>Tabulação em grade</strong></header><div class="admin-navigation-icon-grid" id="adminGridNavigationIconGrid"></div></section>
-<div class="admin-section-save"><button class="admin-button primary" id="adminSaveNavigationIcons" type="button">Salvar ícones e ordem</button></div>
-</section>
-<section class="admin-panel admin-player-feedback-section" data-admin-section="playerFeedback" hidden="">
-<div class="admin-section-heading"><h2>Feedback e ideias</h2><button class="admin-button secondary compact" id="adminRefreshPlayerFeedback" type="button">Atualizar</button></div>
-<div aria-label="Filtros de feedback" class="admin-feedback-filters">
-<label><span>Categoria</span><select id="adminFeedbackTypeFilter"><option value="all">Todas</option><option value="feedback">Feedback</option><option value="idea">Ideias</option><option value="problem">Problemas</option></select></label>
-<label><span>Visualização</span><select id="adminFeedbackStatusFilter"><option value="unread">Somente não lidas</option><option value="all">Lidas e não lidas</option><option value="read">Somente lidas</option></select></label>
-<div class="admin-feedback-filter-count" id="adminFeedbackFilterCount">0 mensagens</div>
-</div>
-<div class="admin-feedback-inbox" id="adminPlayerFeedbackList"><div class="admin-catalog-empty">Abra esta área para carregar os envios.</div></div>
-</section>
-<section class="admin-panel admin-global-control-section" data-admin-section="globalControl" hidden="">
-<div class="admin-section-heading"><h2>Controle global</h2><button class="admin-button secondary compact" id="adminGlobalRefreshPlayers" type="button">Atualizar jogadores</button></div>
-<div class="admin-control-groups">
-<section class="admin-control-group admin-maintenance-control">
-<header><span class="admin-control-kicker">Disponibilidade</span><h3>Modo manutenção</h3></header>
-<div class="admin-maintenance-row">
-<label class="admin-maintenance-toggle"><span><strong>Bloquear o jogo para manutenção</strong><small>Quando ativo, play.html exibe somente a tela de manutenção e impede o acesso à fazenda. O painel Admin continua disponível.</small></span><input id="adminMaintenanceMode" type="checkbox"/></label>
-<button class="admin-button primary" id="adminSaveMaintenanceMode" type="button">Salvar modo</button>
-</div>
-</section>
-<section class="admin-control-group">
-<header><span class="admin-control-kicker">Recursos</span><h3>Resetar recursos</h3></header>
-<div class="admin-control-action-grid">
-<button class="admin-action-tile danger" id="adminGlobalResetCoins" type="button"><strong>Resetar moedas</strong></button>
-<button class="admin-action-tile danger" id="adminGlobalResetResearchPoints" type="button"><strong>Resetar pesquisas</strong></button>
-<button class="admin-action-tile danger" id="adminGlobalResetPrestigePoints" type="button"><strong>Resetar prestígio</strong></button>
-
-</div>
-</section>
-<section class="admin-control-group">
-<header><span class="admin-control-kicker">Consistência</span><h3>Resolver conflitos</h3></header>
-<div class="admin-control-action-grid two">
-<button class="admin-action-tile warning" id="adminGlobalResolveCrops" type="button"><strong>Resolver plantas em conflito</strong></button>
-<div class="admin-action-tile warning interactive">
-<div><strong>Resolver pesquisa</strong></div>
-<label class="admin-inline-check"><input checked="" id="adminGlobalRefundResearch" type="checkbox"/><span>Devolver pontos gastos</span></label>
-<button class="admin-button warning" id="adminGlobalResolveResearch" type="button">Resolver pesquisas</button>
-</div>
-<div class="admin-action-tile warning interactive">
-<div><strong>Resetar evoluções</strong></div>
-<label class="admin-inline-check"><input checked="" id="adminGlobalRefundEvolutions" type="checkbox"/><span>Devolver pontos de prestígio gastos</span></label>
-<button class="admin-button warning" id="adminGlobalResetEvolutions" type="button">Resetar evoluções</button>
-</div>
-</div>
-</section>
-<section class="admin-control-group admin-single-player-control">
-<header><span class="admin-control-kicker">Jogador</span><h3>Ações de uma única conta</h3></header>
-<div class="admin-player-picker-row">
-<label class="admin-player-select-field"><span>Jogador</span><select id="adminGlobalPlayerSelect"><option value="">Selecione um jogador</option></select></label>
-<div class="admin-player-status" id="adminGlobalPlayerStatus">Nenhum jogador selecionado.</div>
-</div>
-<div class="admin-player-editor-grid">
-<label><span>Moedas</span><input data-admin-integer="" data-admin-number="" id="adminGlobalPlayerCoins" inputmode="numeric" type="text"/></label>
-<label><span>Pesquisa</span><input data-admin-integer="" data-admin-number="" id="adminGlobalPlayerResearch" inputmode="numeric" type="text"/></label>
-<label><span>Prestígio</span><input data-admin-integer="" data-admin-number="" id="adminGlobalPlayerPrestigePoints" inputmode="numeric" type="text"/></label>
-<label><span>Prestígios da conta</span><input data-admin-integer="" data-admin-number="" id="adminGlobalPlayerPrestigeCount" inputmode="numeric" type="text"/></label>
-<label><span>Nível da fazenda</span><input data-admin-integer="" data-admin-number="" id="adminGlobalPlayerFarmLevel" inputmode="numeric" type="text"/></label>
-</div>
-<div class="admin-player-primary-actions">
-<button class="admin-button primary" id="adminGlobalPlayerApply" type="button">Salvar variáveis</button>
-<button class="admin-button secondary" disabled="" id="adminGlobalPlayerRanking" type="button">Bloquear no ranking</button>
-<button class="admin-button danger" disabled="" id="adminGlobalPlayerReset" type="button">Resetar conta</button>
-<button class="admin-button danger" disabled="" id="adminGlobalPlayerBan" type="button">Banir jogador</button>
-</div>
-</section>
-</div>
-<div aria-live="polite" class="admin-global-feedback" id="adminGlobalFeedback"></div>
-</section>
-<section class="admin-catalog-stack">
-<section class="admin-panel admin-catalog-editor" data-admin-section="pointTypes" data-catalog-editor="pointTypes" hidden="">
-<div class="admin-section-heading"><h2>Tipos de pontos</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar tipo</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="plantsCatalog" data-catalog-editor="categories" hidden="">
-<div class="admin-section-heading"><h2>Categorias de plantas</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar categoria</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="plantsCatalog" data-catalog-editor="crops" hidden="">
-<div class="admin-section-heading"><h2>Plantas</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar planta</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="contractsCatalog" data-catalog-editor="contractSlots" hidden="">
-<div class="admin-section-heading"><h2>Slots de contrato</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar slot</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="contractsCatalog" data-catalog-editor="companies" hidden="">
-<div class="admin-section-heading"><h2>Empresas e indústrias</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar empresa</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="contractsCatalog" data-catalog-editor="contractTypes" hidden="">
-<div class="admin-section-heading"><h2>Tipos de contrato</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar tipo</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-
-<section class="admin-panel admin-catalog-editor" data-admin-section="missions" data-catalog-editor="missions" hidden="">
-<div class="admin-section-heading"><h2>Missões</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar missão</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor admin-player-titles-editor" data-admin-section="playerTitles" data-catalog-editor="playerTitles" hidden="">
-<div class="admin-section-heading"><div><h2>Títulos de jogador</h2><p class="admin-section-description">Cadastre títulos que podem ser entregues pelas séries das missões. A raridade define automaticamente a aparência no jogo.</p></div><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar título</button></div>
-<div aria-label="Cores das raridades" class="admin-title-rarity-guide"><span data-title-rarity="common">Comum</span><span data-title-rarity="uncommon">Incomum</span><span data-title-rarity="rare">Raro</span><span data-title-rarity="epic">Épico</span><span data-title-rarity="legendary">Lendário</span><span data-title-rarity="mystic">Místico</span></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="evolutionsCatalog" data-catalog-editor="research" hidden="">
-<div class="admin-section-heading"><h2>Pesquisas</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar pesquisa</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="evolutionsCatalog" data-catalog-editor="prestigeUpgrades" hidden="">
-<div class="admin-section-heading"><h2>Evoluções de prestígio</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar legado</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="events" data-catalog-editor="events" hidden="">
-<div class="admin-section-heading"><h2>Eventos</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar evento</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-catalog-editor" data-admin-section="updateNotes" data-catalog-editor="updateNotes" hidden="">
-<div class="admin-section-heading"><h2>Notas de atualização</h2><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar nota</button></div>
-<div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div><div class="admin-catalog-list" data-catalog-list=""></div>
-</section>
-<section class="admin-panel admin-editor" data-admin-section="texts" hidden="">
-<div class="admin-section-heading"><h2>Textos públicos</h2></div>
-<textarea aria-label="Textos públicos" autocomplete="off" id="adminTextsEditor" spellcheck="false"></textarea>
-<div class="admin-section-save"><button class="admin-button primary" id="adminSaveTexts" type="button">Salvar textos</button></div>
-</section>
-</section>
-<div aria-live="polite" class="admin-feedback" id="adminFeedback" role="status"></div>
-</section>
-</main>
-<dialog class="admin-item-dialog" id="adminItemDialog">
-<form autocomplete="off" method="dialog">
-<div class="admin-dialog-heading"><h2 data-admin-dialog-title="">Editar item</h2></div>
-<div class="admin-dialog-fields" data-admin-dialog-fields=""></div>
-<div class="admin-dialog-actions">
-<button class="admin-button secondary" data-admin-dialog-cancel="" type="button">Cancelar</button>
-<button class="admin-button primary" type="submit">Salvar na nuvem</button>
-</div>
-</form>
-</dialog>
+    <main class="admin-shell">
+        <header class="admin-header">
+            <a aria-label="Voltar ao Fazenda Serena" class="admin-brand" href="play.html">
+                <img alt="Fazenda Serena" src="assets/logo.webp" />
+            </a>
+            <div class="admin-user-actions" hidden="" id="adminUserActions">
+                <span id="adminUserLabel"></span>
+                <a class="admin-button secondary" href="play.html">Voltar ao jogo</a>
+                <button class="admin-button secondary" id="adminSignOut" type="button">Sair</button>
+            </div>
+        </header>
+        <section class="admin-gate" id="adminGate">
+            <div class="admin-gate-card">
+                <h1>Painel administrativo</h1>
+                <p id="adminGateMessage">Verificando sua conta.</p>
+                <button class="admin-button primary" hidden="" id="adminSignIn" type="button">
+                    <img alt="" src="assets/icons/logo-google.webp" />Entrar com o Google
+                </button>
+                <div aria-label="Carregando" class="admin-loader" id="adminLoader"><span></span></div>
+            </div>
+        </section>
+        <section aria-hidden="true" class="admin-app" hidden="" id="adminApp" inert="">
+            <header class="admin-page-heading">
+                <div>
+                    <h1>Configuração do jogo</h1>
+                    <p id="adminCloudStatus">Carregando configuração da nuvem.</p>
+                </div>
+            </header>
+            <section aria-label="Selecionar área administrativa" class="admin-workspace-picker">
+                <label for="adminWorkspaceSelect"><span>Editar</span><select id="adminWorkspaceSelect">
+                        <option value="administrators">Administradores</option>
+                        <option value="contractsCatalog">Contratos</option>
+                        <option value="globalControl">Controle global</option>
+                        <option value="events">Eventos</option>
+                        <option value="playerFeedback">Feedback e ideias</option>
+                        <option value="navigationIcons">Ícones da navegação</option>
+                        <option value="missions">Missões</option>
+                        <option value="playerTitles">Títulos de jogador</option>
+                        <option value="balance">Parâmetros principais</option>
+                        <option value="evolutionsCatalog">Pesquisas e evoluções</option>
+                        <option value="plantsCatalog">Plantas e categorias</option>
+                        <option value="texts">Textos públicos</option>
+                        <option value="pointTypes">Tipos de pontos</option>
+                    </select></label>
+            </section>
+            <section class="admin-panel admin-balance-section" data-admin-section="balance">
+                <div class="admin-section-heading">
+                    <h2>Parâmetros principais</h2>
+                </div>
+                <div class="admin-balance-grid">
+                    <label><span>Nível máximo da fazenda</span><input autocomplete="off" data-admin-integer=""
+                            data-admin-number="" id="adminMaxFarmLevel" inputmode="numeric" type="text" /></label>
+                    <label><span>XP de aprimoramentos (%)</span><input autocomplete="off" data-admin-number=""
+                            data-admin-percent="" id="adminActionXP" inputmode="decimal" type="text" /></label>
+                    <label><span>XP passivo base (%/s)</span><input autocomplete="off" data-admin-number=""
+                            data-admin-percent="" id="adminPassiveXP" inputmode="decimal" type="text" /></label>
+                    <label><span>Pesquisa passiva base (%/s)</span><input autocomplete="off" data-admin-number=""
+                            data-admin-percent="" id="adminPassiveResearch" inputmode="decimal" type="text" /></label>
+                    <label><span>Nível de liberação do prestígio</span><input autocomplete="off" data-admin-integer=""
+                            data-admin-number="" id="adminPrestigeUnlockLevel" inputmode="numeric"
+                            type="text" /></label>
+                    <label><span>Bônus de prestígio</span><input autocomplete="off" data-admin-integer=""
+                            data-admin-number="" id="adminPrestigeBonus" inputmode="numeric" type="text" /></label>
+                    <label><span>Moedas iniciais</span><input autocomplete="off" data-admin-integer=""
+                            data-admin-number="" id="adminStartingCoins" inputmode="numeric" type="text" /></label>
+                    <label><span>Safra por produção · mínimo, máximo</span><input autocomplete="off" data-admin-range=""
+                            id="adminBaseProductionRange" inputmode="decimal" placeholder="1, 10" type="text" /></label>
+                    <label><span>Atualizar contratos · mínimo, máximo (segundos)</span><input autocomplete="off"
+                            data-admin-range="" id="adminContractRefreshCooldownRange" inputmode="decimal"
+                            placeholder="5, 15" type="text" /></label>
+                    <label><span>Plantas recentes usadas em contratos</span><input autocomplete="off"
+                            data-admin-integer="" data-admin-number="" id="adminContractRecentCropLimit"
+                            inputmode="numeric" type="text" /></label>
+                    <label><span>Tempo máximo de geração offline (minutos)</span><input autocomplete="off"
+                            data-admin-integer="" data-admin-number="" id="adminMaxOfflineMinutes" inputmode="numeric"
+                            type="text" /></label>
+                </div>
+                <div class="admin-section-save"><button class="admin-button primary" id="adminSaveBalance"
+                        type="button">Salvar parâmetros</button></div>
+            </section>
+            <section class="admin-panel admin-administrators-section" data-admin-section="administrators">
+                <div class="admin-section-heading">
+                    <h2>Administradores</h2>
+                </div>
+                <form autocomplete="off" class="admin-inline-form" id="adminAdministratorForm">
+                    <label><span>E-mail Google</span><input autocomplete="off" id="adminAdministratorEmail"
+                            placeholder="usuario@gmail.com" required="" type="email" /></label>
+                    <label><span>Nome (opcional)</span><input autocomplete="off" id="adminAdministratorName"
+                            maxlength="80" placeholder="Administrador" type="text" /></label>
+                    <button class="admin-button primary" type="submit">Adicionar administrador</button>
+                </form>
+                <div class="admin-administrator-list" id="adminAdministratorList"></div>
+            </section>
+            <section class="admin-panel admin-navigation-icons-section" data-admin-section="navigationIcons" hidden="">
+                <div class="admin-section-heading">
+                    <h2>Ícones da navegação</h2>
+                </div>
+                <section class="admin-navigation-icon-group">
+                    <header><strong>Tabulação em linha</strong></header>
+                    <div class="admin-navigation-icon-grid" id="adminNavigationIconGrid"></div>
+                </section>
+                <section class="admin-navigation-icon-group">
+                    <header><strong>Tabulação em grade</strong></header>
+                    <div class="admin-navigation-icon-grid" id="adminGridNavigationIconGrid"></div>
+                </section>
+                <div class="admin-section-save"><button class="admin-button primary" id="adminSaveNavigationIcons"
+                        type="button">Salvar ícones e ordem</button></div>
+            </section>
+            <section class="admin-panel admin-player-feedback-section" data-admin-section="playerFeedback" hidden="">
+                <div class="admin-section-heading">
+                    <h2>Feedback e ideias</h2><button class="admin-button secondary compact"
+                        id="adminRefreshPlayerFeedback" type="button">Atualizar</button>
+                </div>
+                <div aria-label="Filtros de feedback" class="admin-feedback-filters">
+                    <label><span>Categoria</span><select id="adminFeedbackTypeFilter">
+                            <option value="all">Todas</option>
+                            <option value="feedback">Feedback</option>
+                            <option value="idea">Ideias</option>
+                            <option value="problem">Problemas</option>
+                        </select></label>
+                    <label><span>Visualização</span><select id="adminFeedbackStatusFilter">
+                            <option value="unread">Somente não lidas</option>
+                            <option value="all">Lidas e não lidas</option>
+                            <option value="read">Somente lidas</option>
+                        </select></label>
+                    <div class="admin-feedback-filter-count" id="adminFeedbackFilterCount">0 mensagens</div>
+                </div>
+                <div class="admin-feedback-inbox" id="adminPlayerFeedbackList">
+                    <div class="admin-catalog-empty">Abra esta área para carregar os envios.</div>
+                </div>
+            </section>
+            <section class="admin-panel admin-global-control-section" data-admin-section="globalControl" hidden="">
+                <div class="admin-section-heading">
+                    <h2>Controle global</h2><button class="admin-button secondary compact"
+                        id="adminGlobalRefreshPlayers" type="button">Atualizar jogadores</button>
+                </div>
+                <div class="admin-control-groups">
+                    <section class="admin-control-group admin-maintenance-control">
+                        <header><span class="admin-control-kicker">Disponibilidade</span>
+                            <h3>Modo manutenção</h3>
+                        </header>
+                        <div class="admin-maintenance-row">
+                            <label class="admin-maintenance-toggle"><span><strong>Bloquear o jogo para
+                                        manutenção</strong><small>Quando ativo, play.html exibe somente a tela de
+                                        manutenção e impede o acesso à fazenda. O painel Admin continua
+                                        disponível.</small></span><input id="adminMaintenanceMode"
+                                    type="checkbox" /></label>
+                            <button class="admin-button primary" id="adminSaveMaintenanceMode" type="button">Salvar
+                                modo</button>
+                        </div>
+                    </section>
+                    <section class="admin-control-group">
+                        <header><span class="admin-control-kicker">Recursos</span>
+                            <h3>Resetar recursos</h3>
+                        </header>
+                        <div class="admin-control-action-grid">
+                            <button class="admin-action-tile danger" id="adminGlobalResetCoins"
+                                type="button"><strong>Resetar moedas</strong></button>
+                            <button class="admin-action-tile danger" id="adminGlobalResetResearchPoints"
+                                type="button"><strong>Resetar pesquisas</strong></button>
+                            <button class="admin-action-tile danger" id="adminGlobalResetPrestigePoints"
+                                type="button"><strong>Resetar prestígio</strong></button>
+                        </div>
+                    </section>
+                    <section class="admin-control-group">
+                        <header><span class="admin-control-kicker">Consistência</span>
+                            <h3>Resolver conflitos</h3>
+                        </header>
+                        <div class="admin-control-action-grid two">
+                            <button class="admin-action-tile warning" id="adminGlobalResolveCrops"
+                                type="button"><strong>Resolver plantas em conflito</strong></button>
+                            <div class="admin-action-tile warning interactive">
+                                <div><strong>Resolver pesquisa</strong></div>
+                                <label class="admin-inline-check"><input checked="" id="adminGlobalRefundResearch"
+                                        type="checkbox" /><span>Devolver pontos gastos</span></label>
+                                <button class="admin-button warning" id="adminGlobalResolveResearch"
+                                    type="button">Resolver pesquisas</button>
+                            </div>
+                            <div class="admin-action-tile warning interactive">
+                                <div><strong>Resetar evoluções</strong></div>
+                                <label class="admin-inline-check"><input checked="" id="adminGlobalRefundEvolutions"
+                                        type="checkbox" /><span>Devolver pontos de prestígio gastos</span></label>
+                                <button class="admin-button warning" id="adminGlobalResetEvolutions"
+                                    type="button">Resetar evoluções</button>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="admin-control-group admin-single-player-control">
+                        <header><span class="admin-control-kicker">Jogador</span>
+                            <h3>Ações de uma única conta</h3>
+                        </header>
+                        <div class="admin-player-picker-row">
+                            <label class="admin-player-select-field"><span>Jogador</span><select
+                                    id="adminGlobalPlayerSelect">
+                                    <option value="">Selecione um jogador</option>
+                                </select></label>
+                            <div class="admin-player-status" id="adminGlobalPlayerStatus">Nenhum jogador selecionado.
+                            </div>
+                        </div>
+                        <div class="admin-player-editor-grid">
+                            <label><span>Moedas</span><input data-admin-integer="" data-admin-number=""
+                                    id="adminGlobalPlayerCoins" inputmode="numeric" type="text" /></label>
+                            <label><span>Pesquisa</span><input data-admin-integer="" data-admin-number=""
+                                    id="adminGlobalPlayerResearch" inputmode="numeric" type="text" /></label>
+                            <label><span>Prestígio</span><input data-admin-integer="" data-admin-number=""
+                                    id="adminGlobalPlayerPrestigePoints" inputmode="numeric" type="text" /></label>
+                            <label><span>Prestígios da conta</span><input data-admin-integer="" data-admin-number=""
+                                    id="adminGlobalPlayerPrestigeCount" inputmode="numeric" type="text" /></label>
+                            <label><span>Nível da fazenda</span><input data-admin-integer="" data-admin-number=""
+                                    id="adminGlobalPlayerFarmLevel" inputmode="numeric" type="text" /></label>
+                        </div>
+                        <div class="admin-player-primary-actions">
+                            <button class="admin-button primary" id="adminGlobalPlayerApply" type="button">Salvar
+                                variáveis</button>
+                            <button class="admin-button secondary" disabled="" id="adminGlobalPlayerRanking"
+                                type="button">Bloquear no ranking</button>
+                            <button class="admin-button danger" disabled="" id="adminGlobalPlayerReset"
+                                type="button">Resetar conta</button>
+                            <button class="admin-button danger" disabled="" id="adminGlobalPlayerBan"
+                                type="button">Banir jogador</button>
+                        </div>
+                    </section>
+                </div>
+                <div aria-live="polite" class="admin-global-feedback" id="adminGlobalFeedback"></div>
+            </section>
+            <section class="admin-catalog-stack">
+                <section class="admin-panel admin-catalog-editor" data-admin-section="pointTypes"
+                    data-catalog-editor="pointTypes" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Tipos de pontos</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar tipo</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="plantsCatalog"
+                    data-catalog-editor="categories" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Categorias de plantas</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar categoria</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="plantsCatalog"
+                    data-catalog-editor="crops" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Plantas</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar planta</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="contractsCatalog"
+                    data-catalog-editor="contractSlots" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Slots de contrato</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar slot</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="contractsCatalog"
+                    data-catalog-editor="companies" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Empresas e indústrias</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar empresa</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="contractsCatalog"
+                    data-catalog-editor="contractTypes" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Tipos de contrato</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar tipo</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="missions"
+                    data-catalog-editor="missions" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Missões</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar missão</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor admin-player-titles-editor"
+                    data-admin-section="playerTitles" data-catalog-editor="playerTitles" hidden="">
+                    <div class="admin-section-heading">
+                        <div>
+                            <h2>Títulos de jogador</h2>
+                            <p class="admin-section-description">Cadastre títulos que podem ser entregues pelas séries
+                                das missões. A raridade define automaticamente a aparência no jogo.</p>
+                        </div><button class="admin-button primary compact" data-catalog-add="" type="button">Adicionar
+                            título</button>
+                    </div>
+                    <div aria-label="Cores das raridades" class="admin-title-rarity-guide"><span
+                            data-title-rarity="common">Comum</span><span
+                            data-title-rarity="uncommon">Incomum</span><span data-title-rarity="rare">Raro</span><span
+                            data-title-rarity="epic">Épico</span><span
+                            data-title-rarity="legendary">Lendário</span><span data-title-rarity="mystic">Místico</span>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="evolutionsCatalog"
+                    data-catalog-editor="research" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Pesquisas</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar pesquisa</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="evolutionsCatalog"
+                    data-catalog-editor="prestigeUpgrades" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Evoluções de prestígio</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar legado</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastradas</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-catalog-editor" data-admin-section="events"
+                    data-catalog-editor="events" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Eventos</h2><button class="admin-button primary compact" data-catalog-add=""
+                            type="button">Adicionar evento</button>
+                    </div>
+                    <div class="admin-catalog-meta"><b data-catalog-count="">0</b> cadastrados</div>
+                    <div class="admin-catalog-list" data-catalog-list=""></div>
+                </section>
+                <section class="admin-panel admin-editor" data-admin-section="texts" hidden="">
+                    <div class="admin-section-heading">
+                        <h2>Textos públicos</h2>
+                    </div>
+                    <textarea aria-label="Textos públicos" autocomplete="off" id="adminTextsEditor"
+                        spellcheck="false"></textarea>
+                    <div class="admin-section-save"><button class="admin-button primary" id="adminSaveTexts"
+                            type="button">Salvar textos</button></div>
+                </section>
+            </section>
+            <div aria-live="polite" class="admin-feedback" id="adminFeedback" role="status"></div>
+        </section>
+    </main>
+    <dialog class="admin-item-dialog" id="adminItemDialog">
+        <form autocomplete="off" method="dialog">
+            <div class="admin-dialog-heading">
+                <h2 data-admin-dialog-title="">Editar item</h2>
+            </div>
+            <div class="admin-dialog-fields" data-admin-dialog-fields=""></div>
+            <div class="admin-dialog-actions">
+                <button class="admin-button secondary" data-admin-dialog-cancel="" type="button">Cancelar</button>
+                <button class="admin-button primary" type="submit">Salvar na nuvem</button>
+            </div>
+        </form>
+    </dialog>
 </body>
+
 </html>

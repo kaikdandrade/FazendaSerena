@@ -1,122 +1,343 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="Tutorial interativo da Fazenda Serena. Aprenda a cultivar, vender, assinar contratos, pesquisar evoluções e usar o prestígio em uma fazenda de demonstração." name="description"/>
-<meta content="index,follow" name="robots"/>
-<title>Fazenda Serena</title>
-<link href="https://fazenda-serena.web.app/tutorial.html" rel="canonical"/>
-<link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-<link href="css/stylish.css" rel="stylesheet"/>
-<link href="css/tutorial.css" rel="stylesheet"/>
-<script defer="" src="js/tutorial.js"></script>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta
+        content="Tutorial interativo da Fazenda Serena. Aprenda a cultivar, vender, assinar contratos, pesquisar evoluções e usar o prestígio em uma fazenda de demonstração."
+        name="description" />
+    <meta content="index,follow" name="robots" />
+    <title>Tutorial - Fazenda Serena</title>
+    <link href="https://fazenda-serena.web.app/tutorial.html" rel="canonical" />
+    <link href="assets/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="css/styles.css" rel="stylesheet" />
+    <link href="css/tutorial.css" rel="stylesheet" />
+    <script defer="" src="js/tutorial.js"></script>
 </head>
+
 <body class="tutorial-body compact-cards">
-<div class="tutorial-page">
-<header class="tutorial-header">
-<a class="tutorial-brand" href="index.html"><img alt="Fazenda Serena" src="assets/logo.webp"/><span><small>Fazenda Serena</small><strong>Tutorial interativo</strong></span></a>
-<a class="tutorial-back" href="play.html">Ir para minha fazenda</a>
-</header>
-<main class="tutorial-main">
-<section class="tutorial-hero">
-<div>
-<p class="tutorial-eyebrow">aprenda dentro de uma fazenda de demonstração</p>
-<h1>Veja como o jogo funciona antes de começar sua jornada.</h1>
-<p>Compre culturas, acompanhe a produção, assine um contrato, invista em pesquisas e conheça o prestígio usando telas muito próximas das que você encontrará no jogo.</p>
-</div>
-<div class="tutorial-safety"><strong>Seu progresso real fica intacto</strong><span>Tudo acontece somente nesta demonstração. Recarregar a página reinicia o treinamento e não altera sua fazenda.</span></div>
-</section>
-<section class="tutorial-layout">
-<aside aria-label="Etapas do tutorial" class="tutorial-steps">
-<button class="tutorial-step active" data-jump="farm" data-step="1"><span>1</span><div><strong>Comece com a Folha</strong><small>Produza XP e suba de nível.</small></div></button>
-
-<button class="tutorial-step is-locked" data-jump="contracts" data-step="2"><span>2</span><div><strong>Assine um contrato</strong><small>Aprenda a negociar sua produção.</small></div></button>
-<button class="tutorial-step is-locked" data-jump="evolutions" data-step="3"><span>3</span><div><strong>Faça uma pesquisa</strong><small>Use a recompensa do contrato.</small></div></button>
-<button class="tutorial-step is-locked" data-jump="prestige" data-step="4"><span>4</span><div><strong>Faça um prestígio</strong><small>Transforme a jornada em legado.</small></div></button>
-<button class="tutorial-step is-locked" data-jump="evolutions" data-step="5"><span>5</span><div><strong>Crie seu legado</strong><small>Compre o benefício permanente.</small></div></button>
-</aside>
-<section class="tutorial-simulator">
-<header class="tutorial-simulator-head">
-<div><p class="tutorial-eyebrow">objetivo atual</p><h2 id="tutorialObjective">Compre sua primeira cultura</h2><p id="tutorialHint">A Folha é a cultura inicial desta demonstração. Depois de comprada, ela começa a produzir automaticamente.</p></div>
-<button class="button secondary" id="tutorialReset" type="button">Reiniciar tutorial</button>
-</header>
-<div class="tutorial-game-shell">
-<header aria-label="Resumo da fazenda de demonstração" class="app-header tutorial-game-header">
-<a class="brand tutorial-game-brand" data-tutorial-tab="farm" href="#tutorialFarm"><img alt="Fazenda Serena" class="brand-logo" src="assets/logo.webp"/><span class="brand-copy"><small>fazenda de demonstração</small><strong>Fazenda Serena</strong></span></a>
-<section aria-label="Nível da fazenda" class="farm-progress">
-<div class="farm-progress-head"><span>Nível da fazenda</span><strong id="tutorialLevel">1</strong></div>
-<div aria-label="Experiência da fazenda" aria-valuemax="100" aria-valuemin="0" class="soft-progress" id="tutorialXPProgress" role="progressbar"><span id="tutorialXPBar"></span></div>
-<small><span id="tutorialXPText">0 / 100</span> <img alt="XP" class="farm-xp-inline-icon" src="assets/icons/xp.webp"/></small>
-</section>
-<section aria-label="Recursos" class="resource-strip tutorial-resource-strip">
-<article class="resource-pill"><img alt="" src="assets/icons/moeda.webp"/><span><small>Moedas</small><strong id="tutorialCoins">120</strong></span></article>
-<article class="resource-pill"><img alt="" src="assets/icons/pocao-pesquisa.webp"/><span><small>Pesquisa</small><strong id="tutorialResearch">0</strong></span></article>
-<article class="resource-pill prestige-resource"><img alt="" src="assets/icons/prestigio.webp"/><span><small>Prestígio</small><strong id="tutorialPrestigePoints">0</strong></span></article>
-</section>
-</header>
-<nav aria-label="Áreas da demonstração" class="tutorial-game-nav main-nav">
-<button class="nav-tab active" data-tutorial-tab="farm" type="button"><span class="nav-tab-icon"><img alt="" src="assets/icons/muda-vaso.webp"/></span><span class="nav-tab-label">Fazenda</span></button>
-
-<button class="nav-tab" data-feature-locked="true" data-tutorial-tab="contracts" type="button"><span class="nav-tab-icon"><img alt="" data-unlocked-icon="assets/icons/contrato-comercial.webp" src="assets/icons/cadeado.webp"/></span><span class="nav-tab-label">Contratos</span></button>
-<button class="nav-tab" data-feature-locked="true" data-tutorial-tab="evolutions" type="button"><span class="nav-tab-icon"><img alt="" data-unlocked-icon="assets/icons/livros.webp" src="assets/icons/cadeado.webp"/></span><span class="nav-tab-label">Evoluções</span></button>
-<button class="nav-tab" data-feature-locked="true" data-tutorial-tab="prestige" type="button"><span class="nav-tab-icon"><img alt="" data-unlocked-icon="assets/icons/prestigio.webp" src="assets/icons/cadeado.webp"/></span><span class="nav-tab-label">Prestígio</span></button>
-</nav>
-<div class="tutorial-game-panels">
-<section class="tutorial-game-panel active" data-tutorial-panel="farm" id="tutorialFarm">
-<div class="section-heading compact-heading"><div><p class="eyebrow">cultivo</p><h2>Fazenda</h2><p>Compre uma cultura e acompanhe o ciclo de produção. Cada ciclo concluído vende a produção automaticamente, gera moedas e concede experiência à fazenda.</p></div></div>
-<div class="crop-grid tutorial-crop-grid" id="tutorialCropGrid">
-<article class="crop-card locked" data-tutorial-crop="leaf" style="--crop-glow:rgba(131,187,101,.20)">
-<div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ 10</small></span></div>
-<div class="crop-head"><div class="crop-art locked-art crop-preview-unlocked"><img alt="Folha" src="assets/plants/folha.webp"/></div><div class="crop-info"><div class="crop-title-row"><h3>Folha</h3></div><div class="crop-meta-row"><span class="crop-category-list">Folhas e hortaliças</span></div></div></div>
-<button class="button primary full crop-buy-button" data-buy-crop="leaf" type="button">Comprar <span class="resource-amount resource-coins compact"><img alt="" src="assets/icons/moeda.webp"/><b>30</b></span></button>
-</article>
-<article class="crop-card locked" data-tutorial-crop="tomato" style="--crop-glow:rgba(217,115,91,.18)">
-<div class="crop-level-strip locked-level-strip"><span class="crop-level-compact">Nível <strong>0</strong><small>/ 10</small></span></div>
-<div class="crop-head"><div class="crop-art locked-art tutorial-level-lock"><img alt="Bloqueado" src="assets/icons/cadeado.webp"/></div><div class="crop-info"><div class="crop-title-row"><h3>Tomate</h3></div><div class="crop-meta-row"><span class="crop-category-list">Frutas</span></div></div></div>
-<button class="button secondary full crop-buy-button" data-buy-crop="tomato" disabled="" type="button">Disponível no nível 2</button>
-</article>
-</div>
-</section>
-<div class="tutorial-office-scope" id="officeView">
-
-<section class="tutorial-game-panel" data-tutorial-panel="contracts" id="tutorialContracts">
-<div class="section-heading compact-heading"><div><p class="eyebrow">oportunidade comercial</p><h2>Contratos</h2><p>Assine uma proposta e acompanhe o progresso pelo tempo até receber a recompensa.</p></div></div>
-<div class="contract-offer-toolbar tutorial-contract-offer-toolbar"><button class="button secondary contract-refresh-button" data-tutorial-contract-refresh="" disabled="" type="button"><img alt="" src="assets/icons/renovar-contrato.webp"/><span data-tutorial-contract-refresh-label="">Atualizar contratos</span></button></div>
-<div class="contract-grid" id="tutorialContractList">
-<article class="contract-card contract-card-v2 contract-offer-card" style="--contract-type-color:#7aa668"><header class="contract-card-header-v2"><div class="contract-company-v2"><span><img alt="" src="assets/icons/contrato-comercial.webp"/></span><div><small>Parceiro comercial</small><strong>Mercado Escola</strong></div></div><span class="contract-time-v2 contract-proposal-time-v4"><small>Proposta</small><span><img alt="" src="assets/icons/relogio.webp"/><b>00:12</b></span></span></header><div class="contract-main-v2"><img alt="Folha" src="assets/plants/folha.webp"/><div><span class="contract-type-label"><i></i>Comercial</span><h3>12 <span>Folha</span></h3></div></div><div class="contract-reward-strip"><span class="contract-reward-title">Recompensa</span><strong class="contract-reward-values"><span class="resource-amount resource-coins"><img alt="" src="assets/icons/moeda.webp"/><b>120</b></span><span class="resource-amount resource-research"><img alt="" src="assets/icons/pocao-pesquisa.webp"/><b>2</b></span></strong></div><footer class="contract-offer-actions-v2 contract-offer-single-action"><button class="button primary" data-contract-accept="" disabled="" type="button">Desbloqueie os contratos</button></footer></article>
-</div>
-</section>
-<section class="tutorial-game-panel" data-tutorial-panel="evolutions" id="tutorialEvolutions">
-<div id="officeEvolutionsPanel">
-<div class="section-heading compact-heading"><div><p class="eyebrow">evoluções da fazenda</p><h2>Pesquisa</h2><p>Use pontos de pesquisa para desenvolver melhorias que alteram a jornada.</p></div></div>
-<div class="upgrade-grid tutorial-upgrade-grid" id="tutorialResearchList">
-<article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-research-card="germination"><div class="upgrade-level-badge"><strong>Nível 0/3</strong></div><div class="upgrade-card-identity"><span class="upgrade-icon"><img alt="" src="assets/icons/livros.webp"/></span><h3>Germinação acelerada</h3></div><p class="upgrade-description">Reduz em 10% o tempo de produção das culturas a cada nível.</p><button class="button primary full" data-buy-research="germination" disabled="" type="button">Pesquisar <span class="resource-amount resource-research compact"><img alt="" src="assets/icons/pocao-pesquisa.webp"/><b>2</b></span></button></article>
-<article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-research-card="prices"><div class="upgrade-level-badge"><strong>Nível 0/3</strong></div><div class="upgrade-card-identity"><span class="upgrade-icon"><img alt="" src="assets/icons/moeda.webp"/></span><h3>Previsão de preços</h3></div><p class="upgrade-description">Aumenta em 15% o valor das vendas automáticas a cada nível.</p><button class="button primary full" data-buy-research="prices" disabled="" type="button">Pesquisar <span class="resource-amount resource-research compact"><img alt="" src="assets/icons/pocao-pesquisa.webp"/><b>2</b></span></button></article>
-</div>
-<section class="tutorial-legacy-section"><div class="section-heading compact-heading"><div><p class="eyebrow">benefícios permanentes</p><h2>Legados</h2><p>Pontos de prestígio podem ser investidos em benefícios que continuam entre jornadas.</p></div></div><div class="prestige-grid"><article class="upgrade-card normalized-upgrade-card redesigned-evolution-card" data-legacy-card=""><div class="upgrade-level-badge"><strong>Nível 0/1</strong></div><div class="upgrade-card-identity"><span class="upgrade-icon"><img alt="" src="assets/icons/prestigio.webp"/></span><h3>Colheita experiente</h3></div><p class="upgrade-description">Demonstra um benefício permanente: +10% no valor das vendas.</p><button class="button gold full" data-buy-legacy="" disabled="" type="button">Desenvolver <span class="resource-amount resource-prestige compact"><img alt="" src="assets/icons/prestigio.webp"/><b>1</b></span></button></article></div></section>
-</div>
-</section>
-</div>
-<section class="tutorial-game-panel" data-tutorial-panel="prestige" id="tutorialPrestigePanel">
-<div class="section-heading compact-heading"><div><p class="eyebrow">nova jornada</p><h2>Prestígio</h2><p>Quando o requisito é alcançado, o progresso da jornada pode ser convertido em pontos permanentes.</p></div></div>
-<div class="prestige-rework prestige-locked" id="tutorialPrestigeDashboard"><div class="prestige-rework-gain"><span class="prestige-rework-kicker">Disponível no nível 40</span><div class="prestige-rework-icon"><img alt="" src="assets/icons/prestigio.webp"/></div><strong><span class="resource-amount resource-prestige"><img alt="" src="assets/icons/prestigio.webp"/><b>0</b></span></strong><div class="prestige-rework-details"><article><small>Níveis úteis</small><strong>0 / 960</strong></article><article><small>Culturas</small><strong>0 / 2</strong></article><article><small>Nível médio</small><strong>0 / 10</strong></article><article><small>Platinadas</small><strong>0 / 2</strong></article></div></div></div>
-</section>
-</div>
-</div>
-<dialog aria-labelledby="tutorialMilestoneTitle" class="confirmation-dialog confirmation-dialog-milestone tutorial-milestone-dialog" id="tutorialMilestoneDialog">
-<form method="dialog">
-<header class="milestone-preview-header"><img alt="" aria-hidden="true" src="assets/icons/marco-nivel.webp"/><div><small id="tutorialMilestoneEyebrow">Marco alcançado</small><h2 id="tutorialMilestoneTitle">Novo marco da fazenda</h2></div></header>
-<div class="milestone-preview-body milestone-dialog-list" id="tutorialMilestoneList"></div>
-<footer class="milestone-preview-actions"><button class="button primary" id="tutorialMilestoneClose" type="button" value="confirm">Continuar</button></footer>
-</form>
-</dialog>
-<div aria-live="polite" class="tutorial-message" id="tutorialMessage">Comece pela aba Fazenda e compre a Folha.</div>
-</section>
-</section>
-</main>
-<footer class="tutorial-footer"><span>Fazenda Serena · Tutorial · Versão 1.0.0</span><span><a href="index.html">Início</a> · <a href="noticias.html">Notícias</a> · <a href="terms.html">Termos de Uso</a> · <a href="privacy.html">Privacidade</a></span></footer>
-</div>
+    <div class="tutorial-page">
+        <header class="tutorial-header">
+            <a class="tutorial-brand" href="index.html"><img alt="Fazenda Serena"
+                    src="assets/logo.webp" /><span><small>Fazenda Serena</small><strong>Tutorial
+                        interativo</strong></span></a>
+            <a class="tutorial-back" href="play.html">Ir para minha fazenda</a>
+        </header>
+        <main class="tutorial-main">
+            <section class="tutorial-hero">
+                <div>
+                    <p class="tutorial-eyebrow">aprenda dentro de uma fazenda de demonstração</p>
+                    <h1>Veja como o jogo funciona antes de começar sua jornada.</h1>
+                    <p>Compre culturas, acompanhe a produção, assine um contrato, invista em pesquisas e conheça o
+                        prestígio usando telas muito próximas das que você encontrará no jogo.</p>
+                </div>
+                <div class="tutorial-safety"><strong>Seu progresso real fica intacto</strong><span>Tudo acontece somente
+                        nesta demonstração. Recarregar a página reinicia o treinamento e não altera sua fazenda.</span>
+                </div>
+            </section>
+            <section class="tutorial-layout">
+                <aside aria-label="Etapas do tutorial" class="tutorial-steps">
+                    <button class="tutorial-step active" data-jump="farm" data-step="1"><span>1</span>
+                        <div><strong>Comece com a Folha</strong><small>Produza XP e suba de nível.</small></div>
+                    </button>
+                    <button class="tutorial-step is-locked" data-jump="contracts" data-step="2"><span>2</span>
+                        <div><strong>Assine um contrato</strong><small>Aprenda a negociar sua produção.</small></div>
+                    </button>
+                    <button class="tutorial-step is-locked" data-jump="evolutions" data-step="3"><span>3</span>
+                        <div><strong>Faça uma pesquisa</strong><small>Use a recompensa do contrato.</small></div>
+                    </button>
+                    <button class="tutorial-step is-locked" data-jump="prestige" data-step="4"><span>4</span>
+                        <div><strong>Faça um prestígio</strong><small>Transforme a jornada em legado.</small></div>
+                    </button>
+                    <button class="tutorial-step is-locked" data-jump="evolutions" data-step="5"><span>5</span>
+                        <div><strong>Crie seu legado</strong><small>Compre o benefício permanente.</small></div>
+                    </button>
+                </aside>
+                <section class="tutorial-simulator">
+                    <header class="tutorial-simulator-head">
+                        <div>
+                            <p class="tutorial-eyebrow">objetivo atual</p>
+                            <h2 id="tutorialObjective">Compre sua primeira cultura</h2>
+                            <p id="tutorialHint">A Folha é a cultura inicial desta demonstração. Depois de comprada, ela
+                                começa a produzir automaticamente.</p>
+                        </div>
+                        <button class="button secondary" id="tutorialReset" type="button">Reiniciar tutorial</button>
+                    </header>
+                    <div class="tutorial-game-shell">
+                        <header aria-label="Resumo da fazenda de demonstração" class="app-header tutorial-game-header">
+                            <a class="brand tutorial-game-brand" data-tutorial-tab="farm" href="#tutorialFarm"><img
+                                    alt="Fazenda Serena" class="brand-logo" src="assets/logo.webp" /><span
+                                    class="brand-copy"><small>fazenda de demonstração</small><strong>Fazenda
+                                        Serena</strong></span></a>
+                            <section aria-label="Nível da fazenda" class="farm-progress">
+                                <div class="farm-progress-head"><span>Nível da fazenda</span><strong
+                                        id="tutorialLevel">1</strong></div>
+                                <div aria-label="Experiência da fazenda" aria-valuemax="100" aria-valuemin="0"
+                                    class="soft-progress" id="tutorialXPProgress" role="progressbar"><span
+                                        id="tutorialXPBar"></span></div>
+                                <small><span id="tutorialXPText">0 / 100</span> <img alt="XP"
+                                        class="farm-xp-inline-icon" src="assets/icons/xp.webp" /></small>
+                            </section>
+                            <section aria-label="Recursos" class="resource-strip tutorial-resource-strip">
+                                <article class="resource-pill"><img alt=""
+                                        src="assets/icons/moeda.webp" /><span><small>Moedas</small><strong
+                                            id="tutorialCoins">120</strong></span></article>
+                                <article class="resource-pill"><img alt=""
+                                        src="assets/icons/pocao-pesquisa.webp" /><span><small>Pesquisa</small><strong
+                                            id="tutorialResearch">0</strong></span></article>
+                                <article class="resource-pill prestige-resource"><img alt=""
+                                        src="assets/icons/prestigio.webp" /><span><small>Prestígio</small><strong
+                                            id="tutorialPrestigePoints">0</strong></span></article>
+                            </section>
+                        </header>
+                        <nav aria-label="Áreas da demonstração" class="tutorial-game-nav main-nav">
+                            <button class="nav-tab active" data-tutorial-tab="farm" type="button"><span
+                                    class="nav-tab-icon"><img alt="" src="assets/icons/muda-vaso.webp" /></span><span
+                                    class="nav-tab-label">Fazenda</span></button>
+                            <button class="nav-tab" data-feature-locked="true" data-tutorial-tab="contracts"
+                                type="button"><span class="nav-tab-icon"><img alt=""
+                                        data-unlocked-icon="assets/icons/contrato-comercial.webp"
+                                        src="assets/icons/cadeado.webp" /></span><span
+                                    class="nav-tab-label">Contratos</span></button>
+                            <button class="nav-tab" data-feature-locked="true" data-tutorial-tab="evolutions"
+                                type="button"><span class="nav-tab-icon"><img alt=""
+                                        data-unlocked-icon="assets/icons/livros.webp"
+                                        src="assets/icons/cadeado.webp" /></span><span
+                                    class="nav-tab-label">Evoluções</span></button>
+                            <button class="nav-tab" data-feature-locked="true" data-tutorial-tab="prestige"
+                                type="button"><span class="nav-tab-icon"><img alt=""
+                                        data-unlocked-icon="assets/icons/prestigio.webp"
+                                        src="assets/icons/cadeado.webp" /></span><span
+                                    class="nav-tab-label">Prestígio</span></button>
+                        </nav>
+                        <div class="tutorial-game-panels">
+                            <section class="tutorial-game-panel active" data-tutorial-panel="farm" id="tutorialFarm">
+                                <div class="section-heading compact-heading">
+                                    <div>
+                                        <p class="eyebrow">cultivo</p>
+                                        <h2>Fazenda</h2>
+                                        <p>Compre uma cultura e acompanhe o ciclo de produção. Cada ciclo concluído
+                                            vende a produção automaticamente, gera moedas e concede experiência à
+                                            fazenda.</p>
+                                    </div>
+                                </div>
+                                <div class="crop-grid tutorial-crop-grid" id="tutorialCropGrid">
+                                    <article class="crop-card locked" data-tutorial-crop="leaf"
+                                        style="--crop-glow:rgba(131,187,101,.20)">
+                                        <div class="crop-level-strip locked-level-strip"><span
+                                                class="crop-level-compact">Nível <strong>0</strong><small>/
+                                                    10</small></span></div>
+                                        <div class="crop-head">
+                                            <div class="crop-art locked-art crop-preview-unlocked"><img alt="Folha"
+                                                    src="assets/plants/folha.webp" /></div>
+                                            <div class="crop-info">
+                                                <div class="crop-title-row">
+                                                    <h3>Folha</h3>
+                                                </div>
+                                                <div class="crop-meta-row"><span class="crop-category-list">Folhas e
+                                                        hortaliças</span></div>
+                                            </div>
+                                        </div>
+                                        <button class="button primary full crop-buy-button" data-buy-crop="leaf"
+                                            type="button">Comprar <span
+                                                class="resource-amount resource-coins compact"><img alt=""
+                                                    src="assets/icons/moeda.webp" /><b>30</b></span></button>
+                                    </article>
+                                    <article class="crop-card locked" data-tutorial-crop="tomato"
+                                        style="--crop-glow:rgba(217,115,91,.18)">
+                                        <div class="crop-level-strip locked-level-strip"><span
+                                                class="crop-level-compact">Nível <strong>0</strong><small>/
+                                                    10</small></span></div>
+                                        <div class="crop-head">
+                                            <div class="crop-art locked-art tutorial-level-lock"><img alt="Bloqueado"
+                                                    src="assets/icons/cadeado.webp" /></div>
+                                            <div class="crop-info">
+                                                <div class="crop-title-row">
+                                                    <h3>Tomate</h3>
+                                                </div>
+                                                <div class="crop-meta-row"><span
+                                                        class="crop-category-list">Frutas</span></div>
+                                            </div>
+                                        </div>
+                                        <button class="button secondary full crop-buy-button" data-buy-crop="tomato"
+                                            disabled="" type="button">Disponível no nível 2</button>
+                                    </article>
+                                </div>
+                            </section>
+                            <div class="tutorial-office-scope" id="officeView">
+                                <section class="tutorial-game-panel" data-tutorial-panel="contracts"
+                                    id="tutorialContracts">
+                                    <div class="section-heading compact-heading">
+                                        <div>
+                                            <p class="eyebrow">oportunidade comercial</p>
+                                            <h2>Contratos</h2>
+                                            <p>Assine uma proposta e acompanhe o progresso pelo tempo até receber a
+                                                recompensa.</p>
+                                        </div>
+                                    </div>
+                                    <div class="contract-offer-toolbar tutorial-contract-offer-toolbar"><button
+                                            class="button secondary contract-refresh-button"
+                                            data-tutorial-contract-refresh="" disabled="" type="button"><img alt=""
+                                                src="assets/icons/renovar-contrato.webp" /><span
+                                                data-tutorial-contract-refresh-label="">Atualizar
+                                                contratos</span></button></div>
+                                    <div class="contract-grid" id="tutorialContractList">
+                                        <article class="contract-card contract-card-foundation contract-offer-card"
+                                            style="--contract-type-color:#7aa668">
+                                            <header class="contract-card-header-preview">
+                                                <div class="contract-company-preview"><span><img alt=""
+                                                            src="assets/icons/contrato-comercial.webp" /></span>
+                                                    <div><small>Parceiro comercial</small><strong>Mercado
+                                                            Escola</strong></div>
+                                                </div><span
+                                                    class="contract-time-preview contract-proposal-time"><small>Proposta</small><span><img
+                                                            alt=""
+                                                            src="assets/icons/relogio.webp" /><b>00:12</b></span></span>
+                                            </header>
+                                            <div class="contract-main-preview"><img alt="Folha"
+                                                    src="assets/plants/folha.webp" />
+                                                <div><span class="contract-type-label"><i></i>Comercial</span>
+                                                    <h3>12 <span>Folha</span></h3>
+                                                </div>
+                                            </div>
+                                            <div class="contract-reward-strip"><span
+                                                    class="contract-reward-title">Recompensa</span><strong
+                                                    class="contract-reward-values"><span
+                                                        class="resource-amount resource-coins"><img alt=""
+                                                            src="assets/icons/moeda.webp" /><b>120</b></span><span
+                                                        class="resource-amount resource-research"><img alt=""
+                                                            src="assets/icons/pocao-pesquisa.webp" /><b>2</b></span></strong>
+                                            </div>
+                                            <footer class="contract-offer-actions-preview contract-offer-single-action">
+                                                <button class="button primary" data-contract-accept="" disabled=""
+                                                    type="button">Desbloqueie os contratos</button></footer>
+                                        </article>
+                                    </div>
+                                </section>
+                                <section class="tutorial-game-panel" data-tutorial-panel="evolutions"
+                                    id="tutorialEvolutions">
+                                    <div id="officeEvolutionsPanel">
+                                        <div class="section-heading compact-heading">
+                                            <div>
+                                                <p class="eyebrow">evoluções da fazenda</p>
+                                                <h2>Pesquisa</h2>
+                                                <p>Use pontos de pesquisa para desenvolver melhorias que alteram a
+                                                    jornada.</p>
+                                            </div>
+                                        </div>
+                                        <div class="upgrade-grid tutorial-upgrade-grid" id="tutorialResearchList">
+                                            <article
+                                                class="upgrade-card normalized-upgrade-card redesigned-evolution-card"
+                                                data-research-card="germination">
+                                                <div class="upgrade-level-badge"><strong>Nível 0/3</strong></div>
+                                                <div class="upgrade-card-identity"><span class="upgrade-icon"><img
+                                                            alt="" src="assets/icons/livros.webp" /></span>
+                                                    <h3>Germinação acelerada</h3>
+                                                </div>
+                                                <p class="upgrade-description">Reduz em 10% o tempo de produção das
+                                                    culturas a cada nível.</p><button class="button primary full"
+                                                    data-buy-research="germination" disabled="" type="button">Pesquisar
+                                                    <span class="resource-amount resource-research compact"><img alt=""
+                                                            src="assets/icons/pocao-pesquisa.webp" /><b>2</b></span></button>
+                                            </article>
+                                            <article
+                                                class="upgrade-card normalized-upgrade-card redesigned-evolution-card"
+                                                data-research-card="prices">
+                                                <div class="upgrade-level-badge"><strong>Nível 0/3</strong></div>
+                                                <div class="upgrade-card-identity"><span class="upgrade-icon"><img
+                                                            alt="" src="assets/icons/moeda.webp" /></span>
+                                                    <h3>Previsão de preços</h3>
+                                                </div>
+                                                <p class="upgrade-description">Aumenta em 15% o valor das vendas
+                                                    automáticas a cada nível.</p><button class="button primary full"
+                                                    data-buy-research="prices" disabled="" type="button">Pesquisar <span
+                                                        class="resource-amount resource-research compact"><img alt=""
+                                                            src="assets/icons/pocao-pesquisa.webp" /><b>2</b></span></button>
+                                            </article>
+                                        </div>
+                                        <section class="tutorial-legacy-section">
+                                            <div class="section-heading compact-heading">
+                                                <div>
+                                                    <p class="eyebrow">benefícios permanentes</p>
+                                                    <h2>Legados</h2>
+                                                    <p>Pontos de prestígio podem ser investidos em benefícios que
+                                                        continuam entre jornadas.</p>
+                                                </div>
+                                            </div>
+                                            <div class="prestige-grid">
+                                                <article
+                                                    class="upgrade-card normalized-upgrade-card redesigned-evolution-card"
+                                                    data-legacy-card="">
+                                                    <div class="upgrade-level-badge"><strong>Nível 0/1</strong></div>
+                                                    <div class="upgrade-card-identity"><span class="upgrade-icon"><img
+                                                                alt="" src="assets/icons/prestigio.webp" /></span>
+                                                        <h3>Colheita experiente</h3>
+                                                    </div>
+                                                    <p class="upgrade-description">Demonstra um benefício permanente:
+                                                        +10% no valor das vendas.</p><button class="button gold full"
+                                                        data-buy-legacy="" disabled="" type="button">Desenvolver <span
+                                                            class="resource-amount resource-prestige compact"><img
+                                                                alt=""
+                                                                src="assets/icons/prestigio.webp" /><b>1</b></span></button>
+                                                </article>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </section>
+                            </div>
+                            <section class="tutorial-game-panel" data-tutorial-panel="prestige"
+                                id="tutorialPrestigePanel">
+                                <div class="section-heading compact-heading">
+                                    <div>
+                                        <p class="eyebrow">nova jornada</p>
+                                        <h2>Prestígio</h2>
+                                        <p>Quando o requisito é alcançado, o progresso da jornada pode ser convertido em
+                                            pontos permanentes.</p>
+                                    </div>
+                                </div>
+                                <div class="prestige-rework prestige-locked" id="tutorialPrestigeDashboard">
+                                    <div class="prestige-rework-gain"><span class="prestige-rework-kicker">Disponível no
+                                            nível 40</span>
+                                        <div class="prestige-rework-icon"><img alt=""
+                                                src="assets/icons/prestigio.webp" /></div><strong><span
+                                                class="resource-amount resource-prestige"><img alt=""
+                                                    src="assets/icons/prestigio.webp" /><b>0</b></span></strong>
+                                        <div class="prestige-rework-details">
+                                            <article><small>Níveis úteis</small><strong>0 / 960</strong></article>
+                                            <article><small>Culturas</small><strong>0 / 2</strong></article>
+                                            <article><small>Nível médio</small><strong>0 / 10</strong></article>
+                                            <article><small>Platinadas</small><strong>0 / 2</strong></article>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                    <dialog aria-labelledby="tutorialMilestoneTitle"
+                        class="confirmation-dialog confirmation-dialog-milestone tutorial-milestone-dialog"
+                        id="tutorialMilestoneDialog">
+                        <form method="dialog">
+                            <header class="milestone-preview-header"><img alt="" aria-hidden="true"
+                                    src="assets/icons/marco-nivel.webp" />
+                                <div><small id="tutorialMilestoneEyebrow">Marco alcançado</small>
+                                    <h2 id="tutorialMilestoneTitle">Novo marco da fazenda</h2>
+                                </div>
+                            </header>
+                            <div class="milestone-preview-body milestone-dialog-list" id="tutorialMilestoneList"></div>
+                            <footer class="milestone-preview-actions"><button class="button primary"
+                                    id="tutorialMilestoneClose" type="button" value="confirm">Continuar</button>
+                            </footer>
+                        </form>
+                    </dialog>
+                    <div aria-live="polite" class="tutorial-message" id="tutorialMessage">Comece pela aba Fazenda e
+                        compre a Folha.</div>
+                </section>
+            </section>
+        </main>
+        <footer class="tutorial-footer"><span>Fazenda Serena · Tutorial</span><span><a href="index.html">Início</a> · ·
+                <a href="terms.html">Termos de Uso</a> · <a href="privacy.html">Privacidade</a></span></footer>
+    </div>
 </body>
+
 </html>
