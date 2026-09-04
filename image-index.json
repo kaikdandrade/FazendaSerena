@@ -211,10 +211,6 @@
       "path": "assets/icons/muda-vaso.webp"
     },
     {
-      "name": "Pacote",
-      "path": "assets/icons/pacote.webp"
-    },
-    {
       "name": "Pausa de produção",
       "path": "assets/icons/pausa-producao.webp"
     },
@@ -333,6 +329,10 @@
       "path": "assets/plants/aipim.webp"
     },
     {
+      "name": "Alcachofra",
+      "path": "assets/plants/alcachofra.webp"
+    },
+    {
       "name": "Alface",
       "path": "assets/plants/alface.webp"
     },
@@ -361,8 +361,16 @@
       "path": "assets/plants/amora.webp"
     },
     {
+      "name": "Araçá",
+      "path": "assets/plants/araca.webp"
+    },
+    {
       "name": "Arroz",
       "path": "assets/plants/arroz.webp"
+    },
+    {
+      "name": "Aspargo",
+      "path": "assets/plants/aspargo.webp"
     },
     {
       "name": "Aveia",
@@ -375,6 +383,14 @@
     {
       "name": "Açaí",
       "path": "assets/plants/acai.webp"
+    },
+    {
+      "name": "Bacuri",
+      "path": "assets/plants/bacuri.webp"
+    },
+    {
+      "name": "Buriti",
+      "path": "assets/plants/buriti.webp"
     },
     {
       "name": "Banana",
@@ -421,8 +437,20 @@
       "path": "assets/plants/caja.webp"
     },
     {
+      "name": "Cambuci",
+      "path": "assets/plants/cambuci.webp"
+    },
+    {
+      "name": "Canela",
+      "path": "assets/plants/canela.webp"
+    },
+    {
       "name": "Carambola",
       "path": "assets/plants/carambola.webp"
+    },
+    {
+      "name": "Caqui",
+      "path": "assets/plants/caqui.webp"
     },
     {
       "name": "Cebola",
@@ -451,6 +479,26 @@
     {
       "name": "Cupuacu",
       "path": "assets/plants/cupuacu.webp"
+    },
+    {
+      "name": "Curcuma",
+      "path": "assets/plants/curcuma.webp"
+    },
+    {
+      "name": "Chuchu",
+      "path": "assets/plants/chuchu.webp"
+    },
+    {
+      "name": "Cravo da Índia",
+      "path": "assets/plants/cravo_india.webp"
+    },
+    {
+      "name": "Damasco",
+      "path": "assets/plants/damasco.webp"
+    },
+    {
+      "name": "Erva Chá",
+      "path": "assets/plants/erva_cha.webp"
     },
     {
       "name": "Ervilha",
@@ -489,6 +537,10 @@
       "path": "assets/plants/graviola.webp"
     },
     {
+      "name": "Groselha",
+      "path": "assets/plants/groselha.webp"
+    },
+    {
       "name": "Guaraná",
       "path": "assets/plants/guarana.webp"
     },
@@ -505,12 +557,20 @@
       "path": "assets/plants/jaca.webp"
     },
     {
+      "name": "Jenipapo",
+      "path": "assets/plants/jenipapo.webp"
+    },
+    {
       "name": "Kiwi",
       "path": "assets/plants/kiwi.webp"
     },
     {
       "name": "Laranja",
       "path": "assets/plants/laranja.webp"
+    },
+    {
+      "name": "Lichia",
+      "path": "assets/plants/lichia.webp"
     },
     {
       "name": "Limão",
@@ -525,8 +585,16 @@
       "path": "assets/plants/manga.webp"
     },
     {
+      "name": "Mangostão",
+      "path": "assets/plants/mangostao.webp"
+    },
+    {
       "name": "Maracujá",
       "path": "assets/plants/maracuja.webp"
+    },
+    {
+      "name": "Maxixe",
+      "path": "assets/plants/maxixe.webp"
     },
     {
       "name": "Maçã",
@@ -553,8 +621,16 @@
       "path": "assets/plants/morango.webp"
     },
     {
+      "name": "Noz-Moscada",
+      "path": "assets/plants/noz-moscada.webp"
+    },
+    {
       "name": "Pepino",
       "path": "assets/plants/pepino.webp"
+    },
+    {
+      "name": "Pequi",
+      "path": "assets/plants/pequi.webp"
     },
     {
       "name": "Pera",
@@ -569,6 +645,10 @@
       "path": "assets/plants/pimentao.webp"
     },
     {
+      "name": "Pitanga",
+      "path": "assets/plants/pitanga.webp"
+    },
+    {
       "name": "Pitaya",
       "path": "assets/plants/pitaya.webp"
     },
@@ -577,12 +657,28 @@
       "path": "assets/plants/pessego.webp"
     },
     {
+      "name": "Physalis",
+      "path": "assets/plants/physalis.webp"
+    },
+    {
+      "name": "Quiabo",
+      "path": "assets/plants/quiabo.webp"
+    },
+    {
       "name": "Rabanete",
       "path": "assets/plants/rabanete.webp"
     },
     {
       "name": "Repolho",
       "path": "assets/plants/repolho.webp"
+    },
+    {
+      "name": "Romã",
+      "path": "assets/plants/roma.webp"
+    },
+    {
+      "name": "Seriguela",
+      "path": "assets/plants/seriguela.webp"
     },
     {
       "name": "Soja",
@@ -605,6 +701,10 @@
       "path": "assets/plants/trigo.webp"
     },
     {
+      "name": "Umbu",
+      "path": "assets/plants/umbu.webp"
+    },
+    {
       "name": "Uva",
       "path": "assets/plants/uva.webp"
     }
@@ -619,7 +719,7 @@
       "path": "assets/avatars/arara-azul.webp"
     },
     {
-      "name": "Bicho-preguiça",
+      "name": "B. Preguiça",
       "path": "assets/avatars/bicho-preguica.webp"
     },
     {
