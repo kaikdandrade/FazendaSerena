@@ -103,19 +103,19 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
       { key: "category", label: "Categoria de plantas", type: "select", options: () => catalogOptions("categories"), allowEmpty: true, emptyOptionLabel: "Todas as categorias" },
       imageField("icon", "Ícone", "icone")
     ]},
-    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => { const delivery = Array.isArray(item.deliveryDurationRange) ? item.deliveryDurationRange : [item.minDurationSeconds || item.durationSeconds || 0, item.maxDurationSeconds || item.durationSeconds || 0]; const cropCount = Math.max(1, Math.min(4, Math.floor(Number(item.cropCount) || 1))); return `conclusão ${delivery[0] || 0}s–${delivery[1] ?? delivery[0] ?? 0}s · ${cropCount} ${cropCount === 1 ? "planta" : "plantas"} · ${item.chancePercent ?? 100}% chance · multa ${item.penaltyPercent ?? 20}% · ${rewardSelectionLabel(item.rewards)}${Number(item.xpPercent) > 0 ? ` + ${item.xpPercent}% XP` : ""}`; }, fields: [
+    contractTypes: { label: "tipo de contrato", idSource: "label", title: item => item.label || "Novo tipo de contrato", subtitle: item => { const delivery = Array.isArray(item.deliveryDurationRange) ? item.deliveryDurationRange : [item.minDurationSeconds || item.durationSeconds || 0, item.maxDurationSeconds || item.durationSeconds || 0]; const cropRange = Array.isArray(item.cropCountRange) && item.cropCountRange.length ? item.cropCountRange : [1, Math.max(1, Math.floor(Number(item.cropCount) || 1))]; const cropMin = Math.max(1, Math.floor(Number(cropRange[0]) || 1)); const cropMax = Math.max(cropMin, Math.floor(Number(cropRange[1] ?? cropRange[0]) || cropMin)); const cropLabel = cropMin === cropMax ? `${cropMin} ${cropMin === 1 ? "planta" : "plantas"}` : `${cropMin}–${cropMax} plantas`; return `conclusão ${delivery[0] || 0}s–${delivery[1] ?? delivery[0] ?? 0}s · ${cropLabel} · ${item.chancePercent ?? 100}% chance · multa ${item.penaltyPercent ?? 20}% · ${rewardSelectionLabel(item.rewards)}${Number(item.xpReward) > 0 ? ` + ${item.xpReward} XP` : ""}`; }, fields: [
       { key: "label", label: "Nome do tipo de contrato", type: "text", required: true },
       percentField("chancePercent", "Chance de aparecer (%)", { min: 0, max: 100, required: true, defaultValue: 100, help: "Probabilidade real por proposta. Use 100% em pelo menos um tipo comum. Um tipo de 5% aparece, em média, em cerca de 5 de cada 100 propostas; o tipo de 100% preenche as propostas em que nenhum raro é sorteado." }),
       numberField("priority", "Prioridade de entrega", { min: 0, integer: true, required: true, defaultValue: 0, help: "Quando dois contratos pedirem a mesma planta, a produção é entregue primeiro ao contrato com maior prioridade." }),
       percentField("penaltyPercent", "Multa / quebra do contrato (%)", { min: 0, required: true, defaultValue: 20, help: "Percentual adicional aplicado sobre (quantidade que falta × valor unitário atual da planta)." }),
-      { key: "deliveryDurationRange", label: "Tempo de conclusão — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, required: true, defaultValue: [180, 360], help: "Informe dois valores separados por vírgula. Este tempo fica estático na proposta e só começa a decair depois que o contrato é assinado." },
+      { key: "deliveryDurationRange", label: "Tempo de conclusão — mínimo, máximo (segundos)", type: "text", transform: "numberArray", rangePair: true, rangeMin: 5, required: true, defaultValue: [180, 360], help: "Informe dois valores separados por vírgula. Este tempo fica estático na proposta e só começa a decair depois que o contrato é assinado." },
       numberField("quantityMultiplier", "Multiplicador de quantidade", { min: 0.01, required: true }),
-      numberField("cropCount", "Quantidade de plantas no contrato", { min: 1, max: 4, integer: true, required: true, defaultValue: 1, help: "Define quantas plantas diferentes este tipo pode pedir na mesma proposta. Use 1 para contrato simples e até 4 para contratos combinados." }),
+      { key: "cropCountRange", label: "Quantidade de plantas — mínimo, máximo", type: "text", transform: "numberArray", rangePair: true, rangeMin: 1, singleValueMin: 1, required: true, defaultValue: [1, 1], help: "Informe mínimo e máximo separados por vírgula. Se informar apenas um valor, ele será tratado como máximo e o mínimo será 1. Ex.: 5 = de 1 a 5 plantas; 2, 5 = de 2 a 5 plantas." },
       { key: "rewards", label: "Recompensas adicionais do contrato", type: "checkboxes", options: rewardOptions, help: "Opcional. Moedas, pesquisa e prestígio podem ficar desmarcados; o contrato pode conceder somente XP." },
       percentField("coinMultiplierPercent", "Multiplicador de moedas (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "coins" }, defaultValue: 100 }),
-      percentField("researchMultiplierPercent", "Multiplicador de pesquisa (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "research" }, defaultValue: 100 }),
-      percentField("prestigeMultiplierPercent", "Multiplicador de prestígio (%)", { min: 0, showWhenIncludes: { key: "rewards", value: "prestige" }, defaultValue: 1 }),
-      percentField("xpPercent", "Recompensa de XP (%)", { min: 0, max: 100, required: true, defaultValue: 0 }),
+      numberField("researchReward", "Quantidade fixa de pesquisa", { min: 0, integer: true, showWhenIncludes: { key: "rewards", value: "research" }, defaultValue: 0 }),
+      numberField("prestigeReward", "Quantidade fixa de prestígio", { min: 0, integer: true, showWhenIncludes: { key: "rewards", value: "prestige" }, defaultValue: 0 }),
+      numberField("xpReward", "Quantidade fixa de XP", { min: 0, integer: true, required: true, defaultValue: 0 }),
       { key: "color", alphaKey: "colorAlpha", label: "Cor de destaque", type: "contractColor", required: true, defaultValue: "#e6c35f", alphaDefault: 18 }
     ]},
     contractSlots: { label: "slot de contrato", idSource: "name", title: item => item.name || "Novo slot", subtitle: item => `Libera no nível ${item.unlockLevel || 1}`, fields: [
@@ -603,9 +603,18 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
         if (field.transform === "numberArray") {
           value = value ? value.split(",").map(part => Number(sanitizePositive(part))).filter(Number.isFinite) : [];
           if (field.rangePair && value.length) {
-            const first = Math.max(5, Math.round(value[0]));
-            const second = Math.max(5, Math.round(value[1] ?? value[0]));
-            value = [Math.min(first, second), Math.max(first, second)];
+            const rangeMin = Number.isFinite(Number(field.rangeMin)) ? Number(field.rangeMin) : 0;
+            const rangeMax = Number.isFinite(Number(field.rangeMax)) ? Number(field.rangeMax) : Number.POSITIVE_INFINITY;
+            const clampRangeValue = raw => Math.min(rangeMax, Math.max(rangeMin, Math.round(Number(raw) || 0)));
+            if (value.length === 1 && Number.isFinite(Number(field.singleValueMin))) {
+              const first = clampRangeValue(field.singleValueMin);
+              const second = clampRangeValue(value[0]);
+              value = [Math.min(first, second), Math.max(first, second)];
+            } else {
+              const first = clampRangeValue(value[0]);
+              const second = clampRangeValue(value[1] ?? value[0]);
+              value = [Math.min(first, second), Math.max(first, second)];
+            }
           }
         }
         if (field.transform === "slug") value = autoId(value);

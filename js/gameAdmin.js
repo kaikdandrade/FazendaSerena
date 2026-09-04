@@ -33,7 +33,6 @@
     "assets/icons/clock.png": "assets/icons/relogio.webp",
     "assets/icons/coin.png": "assets/icons/moeda.webp",
     "assets/icons/commercial-contract.png": "assets/icons/contrato-comercial.webp",
-    "assets/icons/contract-dock-arrow.png": "assets/icons/seta-cima.webp",
     "assets/icons/crop-mastery-star.png": "assets/icons/estrela-dominio-cultura.webp",
     "assets/icons/crown.png": "assets/icons/coroa.webp",
     "assets/icons/delivery-truck.png": "assets/icons/caminhao-entrega.webp",
@@ -142,12 +141,12 @@
   const effectLabels = Object.freeze({
     growthSpeedPercent: "Velocidade de produção (%)",
     yieldPercent: "Rendimento das safras (%)",
-    salePricePercent: "Valor das vendas (%)",
+    salePricePercent: "Valor das Safras (%)",
     cropPurchaseDiscountPercent: "Desconto na compra de plantas (%)",
     cropUpgradeDiscountPercent: "Desconto nos níveis das plantas (%)",
     farmXPGainPercent: "XP recebido (%)",
     passiveXPPercentPerSecond: "XP passivo por segundo (%)",
-    contractDurationPercent: "Velocidade de conclusão dos contratos (%)",
+    contractDurationPercent: "Tempo para concluir um contrato (%)",
     contractCoinRewardPercent: "Moedas recebidas em contratos (%)",
     contractResearchRewardPercent: "Pesquisa recebida em contratos (%)",
     contractPrestigeRewardPercent: "Prestígio recebido em contratos (%)",
@@ -156,10 +155,10 @@
     startingResearch: "Pesquisa inicial (+)",
     passiveResearchPercentPerSecond: "Pesquisa passiva por segundo (%)",
     prestigeGainPercent: "Prestígio obtido (%)",
-    autoSalePricePercent: "Valor da venda automática (%)",
     offlineProductionMinutes: "Produção offline (+ minutos)"
   });
   const effectTypes = new Set(Object.keys(effectLabels));
+  const canonicalEffectType = value => String(value || "") === "autoSalePricePercent" ? "salePricePercent" : String(value || "");
 
   const legacyEffects = Object.freeze({
     acceleratedGermination: ["growthSpeedPercent", 7],
@@ -179,7 +178,7 @@
     immortalAcademy: ["contractResearchRewardPercent", 25, "startingResearch", 3],
     laboratoryFunding: ["passiveResearchPercentPerSecond", 0.01],
     prestigeResonance: ["prestigeGainPercent", 20],
-    sovereignNetwork: ["contractCoinRewardPercent", 20, "contractDurationPercent", 10, "autoSalePricePercent", 10],
+    sovereignNetwork: ["contractCoinRewardPercent", 20, "contractDurationPercent", 10, "salePricePercent", 10],
     experienceLegacy: ["passiveXPPercentPerSecond", 0.05],
     contractEmpire: ["activeContractSlots", 1]
   });
@@ -405,8 +404,8 @@
         ? [...new Set(item.rewards.filter(value => contractRewardKeys.has(value)))].slice(0, 3)
         : legacyRewardList(item?.rewardMode || inferredLegacyMode);
       const legacyCoinPercent = item?.coinMultiplier != null ? Number(item.coinMultiplier) * 100 : 100;
-      const legacyResearchPercent = item?.researchMultiplier != null ? Number(item.researchMultiplier) * 100 : 100;
-      const legacyPrestigePercent = item?.prestigeMultiplier != null ? Number(item.prestigeMultiplier) : 1;
+      const legacyResearchPercent = item?.researchMultiplierPercent != null ? Number(item.researchMultiplierPercent) : (item?.researchMultiplier != null ? Number(item.researchMultiplier) * 100 : 100);
+      const legacyPrestigePercent = item?.prestigeMultiplierPercent != null ? Number(item.prestigeMultiplierPercent) : (item?.prestigeMultiplier != null ? Number(item.prestigeMultiplier) : 1);
       return {
         id: id(item?.id, `contract_type_${index + 1}`),
         label: text(item?.label || item?.name, 80, `Tipo de contrato ${index + 1}`),
@@ -422,12 +421,20 @@
           return [Math.min(a, b), Math.max(a, b)];
         })(),
         quantityMultiplier: clamp(item?.quantityMultiplier, 0.01, 1000, Math.max(0.01, oldQuantity || 1)),
-        cropCount: integer(item?.cropCount, 1, 4, 1),
+        cropCountRange: (() => {
+          const legacyMax = integer(item?.cropCount, 1, 100, 1);
+          const rawRange = Array.isArray(item?.cropCountRange) && item.cropCountRange.length ? item.cropCountRange : [1, legacyMax];
+          const firstRaw = rawRange[0];
+          const secondRaw = rawRange.length === 1 ? rawRange[0] : rawRange[1];
+          const first = rawRange.length === 1 ? 1 : integer(firstRaw, 1, 100, 1);
+          const second = integer(secondRaw, 1, 100, legacyMax);
+          return [Math.min(first, second), Math.max(first, second)];
+        })(),
         rewards,
         coinMultiplierPercent: clamp(item?.coinMultiplierPercent, 0, 100000, legacyCoinPercent),
-        researchMultiplierPercent: clamp(item?.researchMultiplierPercent, 0, 100000, legacyResearchPercent),
-        prestigeMultiplierPercent: clamp(item?.prestigeMultiplierPercent, 0, 100000, legacyPrestigePercent),
-        xpPercent: clamp(item?.xpPercent, 0, 100, 0),
+        researchReward: integer(item?.researchReward ?? item?.rewardResearch, 0, 1000000000, Math.max(0, Math.round(legacyResearchPercent / 20))),
+        prestigeReward: integer(item?.prestigeReward ?? item?.rewardPrestige, 0, 1000000000, Math.max(0, Math.round(legacyPrestigePercent))),
+        xpReward: integer(item?.xpReward ?? item?.rewardXP, 0, 1000000000, Math.max(0, Math.round(clamp(item?.xpPercent, 0, 100, 0) * 10))),
         color: color(item?.color, toneColors[item?.tone] || "#e6c35f"),
         colorAlpha: clamp(item?.colorAlpha, 0, 100, 18)
       };
@@ -572,11 +579,12 @@
       ];
       const sourceBonuses = Array.isArray(item?.bonuses) && item.bonuses.length
         ? item.bonuses
-        : explicitLegacyRows.some(row => effectTypes.has(row.type))
+        : explicitLegacyRows.some(row => effectTypes.has(canonicalEffectType(row.type)))
           ? explicitLegacyRows
           : legacyRows.map((row, rowIndex) => ({ ...row, stageValues: item?.id === "laboratoryFunding" && rowIndex === 0 ? [0.01, 0.02, 0.02] : undefined }));
       const bonuses = sourceBonuses.slice(0, 50).map(row => {
-        const type = effectTypes.has(row?.type) ? row.type : "";
+        const candidateType = canonicalEffectType(row?.type);
+        const type = effectTypes.has(candidateType) ? candidateType : "";
         if (!type) return null;
         const normalizedBonus = {
           type,

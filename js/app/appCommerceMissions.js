@@ -1,83 +1,5 @@
 "use strict";
 
-  function renderContractDock() {
-    const previousList = dom.contractDock?.querySelector?.(".contract-dock-list");
-    const previousScrollTop = Math.max(0, Number(previousList?.scrollTop) || 0);
-    const contracts = engine.state.activeContracts || [];
-
-    if (!contracts.length || !engine.isContractsUnlocked()) {
-      dom.contractDock.classList.remove("visible", "collapsed");
-      if (dom.contractDock.childElementCount) dom.contractDock.replaceChildren();
-      markContractDockStructureRendered?.();
-      return;
-    }
-
-    dom.contractDock.classList.add("visible");
-    dom.contractDock.classList.toggle("collapsed", contractDockCollapsed);
-    const toggleLabel = contractDockCollapsed ? "Expandir contratos" : "Recolher contratos";
-
-    if (contractDockCollapsed) {
-      const compact = dom.contractDock.querySelector(".contract-dock-compact-button");
-      if (!compact || dom.contractDock.children.length !== 1) {
-        dom.contractDock.innerHTML = `<button class="contract-dock-compact-button" type="button" data-action="toggle-contract-dock" aria-label="${toggleLabel}" title="${toggleLabel}"><img src="assets/icons/contrato-agricola.webp" alt=""><b data-contract-dock-count>${contracts.length}</b></button>`;
-      } else {
-        compact.setAttribute("aria-label", toggleLabel);
-        compact.title = toggleLabel;
-        setLiveText?.(compact.querySelector("[data-contract-dock-count]"), contracts.length);
-      }
-      markContractDockStructureRendered?.();
-      return;
-    }
-
-    if (!dom.contractDock.querySelector(".contract-dock-panel.contract-dock-list")) {
-      dom.contractDock.innerHTML = `<section class="contract-dock-panel contract-dock-list">
-        <header class="contract-dock-header"><button type="button" data-go-office-contracts><img src="assets/icons/contrato-agricola.webp" alt=""><span><strong>Contratos</strong><small>Acompanhe seus contratos</small></span></button><button class="contract-dock-collapse-toggle" type="button" data-action="toggle-contract-dock"><img src="assets/icons/seta-cima.webp" alt=""></button></header>
-        <div class="contract-dock-list"></div>
-      </section>`;
-    }
-
-    const collapse = dom.contractDock.querySelector(".contract-dock-collapse-toggle");
-    if (collapse) {
-      collapse.setAttribute("aria-label", toggleLabel);
-      collapse.title = toggleLabel;
-    }
-
-    const dockReward = contract => {
-      const reward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
-      return resourceRewards({
-        coins: reward.coins,
-        research: reward.research,
-        prestige: reward.prestige,
-        xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
-      });
-    };
-
-    const listHtml = contracts.map(contract => {
-      const progress = engine.getContractProgress(contract);
-      const firstItem = progress.items[0];
-      const crop = engine.getCrop(firstItem?.cropId || contract.cropId);
-      const cropLabel = progress.items.length > 1 ? `${crop.name} +${progress.items.length - 1}` : crop.name;
-      const company = engine.getCompany(contract.companyId);
-      const canClaim = progress.completed;
-      const actionAttributes = `data-go-office-contracts data-focus-contract="${escapeHtml(contract.id)}" data-contract-dock-behavior="${canClaim ? "claim" : "navigate"}" title="${canClaim ? "Contrato concluído" : "Abrir este contrato"}"`;
-      const statusText = progress.completed ? "Concluído" : `${Math.floor(progress.percent)}%`;
-      const stateClass = progress.completed ? "is-completed" : "is-running";
-      const timeMarkup = progress.completed ? "" : `<span class="contract-dock-time" data-contract-dock-time><b data-contract-dock-time-value>${engine.formatTime(contract.timeRemaining)}</b></span>`;
-      const type = engine.getContractDifficulty(contract.difficulty);
-      const contractColor = contract.typeColor || type?.color || "#6b9870";
-      const renderState = `${progress.completed ? "completed" : "running"}|${engine.state.settings.numberFormat || "brazilian"}`;
-      return `<button class="contract-dock-item contract-dock-item ${progress.completed ? "reward-ready" : ""}" style="--contract-type-color:${escapeHtml(contractColor)}" type="button" data-live-render-key="dock:${escapeHtml(contract.id)}" data-live-render-signature="${escapeHtml(renderState)}" data-contract-dock-id="${escapeHtml(contract.id)}" ${actionAttributes}><span class="contract-dock-crop-shell"><img class="contract-dock-crop" src="${crop.image}" alt="${escapeHtml(crop.name)}"></span><span class="contract-dock-copy"><span class="contract-dock-title-line"><strong>${escapeHtml(cropLabel)}</strong><u class="contract-dock-state ${stateClass}" data-contract-dock-percent>${statusText}</u></span><span class="contract-dock-meta-line"><em>${escapeHtml(company.name)}</em></span><i class="contract-dock-progress"><b class="delivered" data-contract-dock-progress style="width:${percent(progress.percent)}%"></b></i>${timeMarkup}<span class="contract-dock-rewards" aria-label="Recompensa do contrato">${dockReward(contract)}</span></span></button>`;
-    }).join("");
-
-    const list = dom.contractDock.querySelector(".contract-dock-list");
-    if (list) {
-      list.dataset.contractCount = String(contracts.length);
-      reconcileLiveCards(list, listHtml);
-      if (previousScrollTop > 0) list.scrollTop = Math.min(previousScrollTop, Math.max(0, list.scrollHeight - list.clientHeight));
-    }
-    markContractDockStructureRendered?.();
-  }
-
   function renderContracts() {
     const hasCrops = Array.isArray(engine.data.crops) && engine.data.crops.length > 0;
     const hasCompanies = Array.isArray(engine.data.companies) && engine.data.companies.length > 0;
@@ -110,7 +32,7 @@
     const slotLimit = engine.getActiveContractSlotLimit();
     const openSlots = Math.max(0, slotLimit - active.length);
     const contractFormatMode = engine.state.settings.numberFormat || "brazilian";
-    const contractXPReward = contract => Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE));
+    const contractXPReward = contract => Math.round(engine.getContractFrozenXPReward?.(contract) ?? Math.max(0, Number(contract.rewardXP) || 0));
     const contractStyle = contract => {
       const type = engine.getContractDifficulty(contract.difficulty);
       const color = contract.typeColor || type?.color || "#6b9870";

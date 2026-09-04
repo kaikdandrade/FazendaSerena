@@ -30,6 +30,14 @@
   const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
 
+  function getCatalogEditors() {
+    const catalogEditors = window.AdminCatalogEditors;
+    if (!catalogEditors || typeof catalogEditors.get !== "function" || typeof catalogEditors.set !== "function") {
+      throw new Error("Os editores de catálogo não foram inicializados.");
+    }
+    return catalogEditors;
+  }
+
   const navigationIconFields = Object.freeze([
     ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
   ]);

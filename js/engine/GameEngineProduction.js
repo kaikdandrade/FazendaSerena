@@ -8,9 +8,7 @@ Object.assign(GameEngine.prototype, {
         if (!cropState?.owned || cropState.level <= 0) continue;
 
         const growthTime = this.getGrowthTime(crop.id);
-        cropState.progress += growthTime <= 0
-          ? seconds * this.getInstantCyclesPerSecond(crop.id)
-          : seconds / growthTime;
+        cropState.progress += seconds / Math.max(GameEngine.MIN_CROP_GROWTH_SECONDS, growthTime);
 
         const cycles = Math.floor(cropState.progress);
         if (cycles < 1) continue;
@@ -54,35 +52,26 @@ Object.assign(GameEngine.prototype, {
     },
 
   getInstantGrowthLevel() {
-      const currentBonus = Math.max(0, this.getEvolutionBonus("growthSpeedPercent"));
-      const maximumBonus = Math.max(100, currentBonus);
-      const progress = Math.max(0, Math.min(1, currentBonus / maximumBonus));
-      const reduction = Math.round((GameEngine.INSTANT_GROWTH_LEVEL - GameEngine.MIN_INSTANT_GROWTH_LEVEL) * progress);
-      return Math.max(GameEngine.MIN_INSTANT_GROWTH_LEVEL, GameEngine.INSTANT_GROWTH_LEVEL - reduction);
+      return GameEngine.MAX_CROP_LEVEL;
     },
 
   getGrowthTime(cropId, includeEventBonuses = true) {
       const crop = this.getCrop(cropId);
       const cropState = this.state.crops[cropId];
       if (!crop || !cropState) return Infinity;
+      const minimum = GameEngine.MIN_CROP_GROWTH_SECONDS;
       const level = Math.max(1, Math.min(GameEngine.MAX_CROP_LEVEL, Number(cropState.level) || 1));
-      const instantLevel = this.getInstantGrowthLevel();
-      if (level >= instantLevel) return 0;
-  
-      const levelProgress = Math.max(0, Math.min(1, (level - 1) / (instantLevel - 1)));
-      const remainingFactor = 1 - Math.sqrt(levelProgress);
-      const levelAdjustedTime = crop.baseGrowth * remainingFactor;
-      return Math.max(0.01, levelAdjustedTime / this.getGlobalGrowthSpeed(includeEventBonuses));
+      const progress = (level - 1) / Math.max(1, GameEngine.MAX_CROP_LEVEL - 1);
+      const easedRemaining = 1 - Math.sqrt(Math.max(0, Math.min(1, progress)));
+      const baseGrowth = Math.max(minimum, Number(crop.baseGrowth) || minimum);
+      const levelAdjustedTime = minimum + (baseGrowth - minimum) * easedRemaining;
+      const acceleratedTime = levelAdjustedTime / Math.max(1, this.getGlobalGrowthSpeed(includeEventBonuses));
+      return Math.max(minimum, acceleratedTime);
     },
 
   getInstantCyclesPerSecond(cropId, includeEventBonuses = true) {
-      const crop = this.getCrop(cropId);
-      if (!crop) return 0;
-      const instantLevel = this.getInstantGrowthLevel();
-      const previousProgress = Math.max(0, (instantLevel - 2) / (instantLevel - 1));
-      const previousFactor = Math.max(0.0001, 1 - Math.sqrt(previousProgress));
-      const previousTime = Math.max(0.01, (crop.baseGrowth * previousFactor) / this.getGlobalGrowthSpeed(includeEventBonuses));
-      return Math.max(1, 1 / previousTime);
+      const growthTime = this.getGrowthTime(cropId, includeEventBonuses);
+      return Number.isFinite(growthTime) && growthTime > 0 ? 1 / growthTime : 0;
     },
 
   getYieldRange(cropId, includeEventBonuses = true) {
@@ -141,7 +130,7 @@ Object.assign(GameEngine.prototype, {
 
   getProductionRate(cropId, includeEventBonuses = true) {
       const growthTime = this.getGrowthTime(cropId, includeEventBonuses);
-      const cyclesPerSecond = growthTime <= 0 ? this.getInstantCyclesPerSecond(cropId, includeEventBonuses) : 1 / growthTime;
+      const cyclesPerSecond = Number.isFinite(growthTime) && growthTime > 0 ? 1 / growthTime : 0;
       return Math.max(0, this.getExpectedYield(cropId, includeEventBonuses) * cyclesPerSecond);
     }
 });

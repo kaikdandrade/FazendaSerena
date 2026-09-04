@@ -154,8 +154,16 @@
       const result = mode === "max" ? engine.upgradeCropMax(cropId) : engine.upgradeCrop(cropId, 1);
       act(result);
     }
-    if (action === "buy-research") act(engine.buyResearch(id));
-    if (action === "buy-prestige-upgrade") act(engine.buyPrestigeUpgrade(id));
+    if (action === "buy-research") {
+      const result = engine.buyResearch(id);
+      if (result?.ok && Number(result.xpAward) > 0) animateResourceReward(button, { xp: result.xpAward });
+      act(result);
+    }
+    if (action === "buy-prestige-upgrade") {
+      const result = engine.buyPrestigeUpgrade(id);
+      if (result?.ok && Number(result.xpAward) > 0) animateResourceReward(button, { xp: result.xpAward });
+      act(result);
+    }
     if (action === "accept-contract") {
       const offer = engine.state.contractOffers.find(contract => contract.id === id);
       const canSignNow = Boolean(offer && engine.state.activeContracts.length < engine.getActiveContractSlotLimit());
@@ -196,11 +204,7 @@
       render(true);
       requestGameSave();
     }
-    if (action === "toggle-contract-dock") {
-      contractDockCollapsed = !contractDockCollapsed;
-      renderContractDock();
-    }
-    if (action === "claim-mission") {
+if (action === "claim-mission") {
       const result = engine.claimMission(id);
       if (!result.ok) return act(result);
       animateResourceReward(button, result.mission.reward || {});

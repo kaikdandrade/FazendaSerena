@@ -131,6 +131,7 @@ Object.assign(GameEngine.prototype, {
   
       if (this.state.farmLevel >= GameEngine.MAX_FARM_LEVEL) {
         this.state.farmLevel = GameEngine.MAX_FARM_LEVEL;
+        this.state.farmXP = GameEngine.FARM_XP_PER_LEVEL;
         this.state.stats.maxFarmLevel = GameEngine.MAX_FARM_LEVEL;
         return gainedXP;
       }
@@ -151,6 +152,7 @@ Object.assign(GameEngine.prototype, {
         const unlocks = this.getMilestoneUnlocks(this.state.farmLevel);
         if (unlocks.length) milestones.push({ level: this.state.farmLevel, unlocks });
       }
+      if (this.state.farmLevel >= GameEngine.MAX_FARM_LEVEL) this.state.farmXP = GameEngine.FARM_XP_PER_LEVEL;
       if (leveled && !silent) this.emit("level", { level: this.state.farmLevel, levelsGained, rewardCoins, milestones });
       return gainedXP;
     },
@@ -170,16 +172,8 @@ Object.assign(GameEngine.prototype, {
     },
 
   getFarmXPNeed(level = this.state.farmLevel) {
-      const normalizedLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(level) || 1)));
-      const baseCurve = 160 + 72 * Math.pow(normalizedLevel, 1.52);
-      const journeyProgress = (normalizedLevel - 1) / Math.max(1, GameEngine.MAX_FARM_LEVEL - 1);
-  
-      // A aceleração exponencial é suave nos níveis iniciais e cresce ao longo da
-      // jornada. No nível 1.000, o requisito chega à faixa Az. Como as fontes de
-      // XP concedem percentuais do requisito atual, o ritmo de ações por nível é
-      // preservado enquanto a escala numérica acompanha a progressão completa.
-      const extendedScale = Math.pow(10, 84 * Math.pow(journeyProgress, 2));
-      return Math.round(baseCurve * extendedScale);
+      void level;
+      return GameEngine.FARM_XP_PER_LEVEL;
     },
 
   getMilestoneUnlocks(level) {
@@ -361,6 +355,11 @@ Object.assign(GameEngine.prototype, {
       }).filter(effect => effect.value > 0);
     },
 
+  grantEvolutionPurchaseXP() {
+      const baseXP = Math.max(0, this.getFarmXPNeed() * Math.max(0, Number(GameEngine.ACTION_XP_RATE) || 0));
+      return baseXP > 0 ? this.addFarmXP(baseXP) : 0;
+    },
+
   buyResearch(id) {
       if (!this.isEvolutionUnlocked()) return { ok: false, message: `As pesquisas liberam no nível ${GameEngine.EVOLUTION_UNLOCK_LEVEL} da fazenda.` };
       const item = this.data.research.find(entry => entry.id === id);
@@ -373,8 +372,8 @@ Object.assign(GameEngine.prototype, {
       if (this.state.research < cost) return { ok: false, message: `São necessários ${cost} pontos de pesquisa.` };
       this.state.research -= cost;
       this.state.researchTechs[id] = level + 1;
-      this.addFarmXPPercent(GameEngine.ACTION_XP_RATE);
-      return { ok: true, level: level + 1, effects };
+      const xpAward = this.grantEvolutionPurchaseXP();
+      return { ok: true, level: level + 1, effects, xpAward };
     },
 
   buyPrestigeUpgrade(id) {
@@ -389,7 +388,7 @@ Object.assign(GameEngine.prototype, {
       if (this.state.prestigePoints < cost) return { ok: false, message: `São necessários ${cost} pontos de prestígio.` };
       this.state.prestigePoints -= cost;
       this.state.prestigeUpgrades[id] = level + 1;
-      this.addFarmXPPercent(GameEngine.ACTION_XP_RATE);
-      return { ok: true, level: level + 1, effects };
+      const xpAward = this.grantEvolutionPurchaseXP();
+      return { ok: true, level: level + 1, effects, xpAward };
     }
 });

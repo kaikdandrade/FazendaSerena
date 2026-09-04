@@ -44,7 +44,6 @@
   let activeOfficeTab = "contracts";
   let activeProfileTab = "account";
   let showCompletedMissions = false;
-  let contractDockCollapsed = false;
   let leaderboardState = { status: "idle", top: [], rank: null, player: null, error: null, loadedAt: 0 };
   let leaderboardRequest = null;
   let ownSaveRealtimeUnsubscribe = null;
@@ -106,7 +105,6 @@
     prestigeList: $("#prestigeList"),
     contractCapacitySummary: $("#contractCapacitySummary"),
     contractOfferList: $("#contractOfferList"),
-    contractDock: $("#contractDock"),
     missionList: $("#missionList"),
     toggleCompletedMissions: $("#toggleCompletedMissions"),
     completedMissionCount: $("#completedMissionCount"),

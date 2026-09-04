@@ -6,8 +6,6 @@
 // realmente muda (ex.: contrato termina, propostas são atualizadas ou ação do jogador).
 
 let lastContractsStructureSignature = "";
-let lastContractDockStructureSignature = "";
-
 function setLiveText(node, value) {
   if (!node) return;
   const text = String(value ?? "");
@@ -55,57 +53,8 @@ function getContractsStructureSignature() {
   return `${engine.isContractsUnlocked() ? 1 : 0};slots:${engine.getActiveContractSlotLimit()};board:${board}`;
 }
 
-function getContractDockStructureSignature() {
-  if (!engine) return "";
-  const active = (engine.state.activeContracts || []).map(contract => `${contract.id}:${contractStatus(contract)}`).join("|");
-  return `${engine.isContractsUnlocked() ? 1 : 0};collapsed:${contractDockCollapsed ? 1 : 0};${active}`;
-}
-
 function markContractsStructureRendered() {
   lastContractsStructureSignature = getContractsStructureSignature();
-}
-
-function markContractDockStructureRendered() {
-  lastContractDockStructureSignature = getContractDockStructureSignature();
-}
-
-function updateLiveContractDockUI() {
-  if (!dom.contractDock) return;
-  const signature = getContractDockStructureSignature();
-  if (signature !== lastContractDockStructureSignature) {
-    renderContractDock();
-    return;
-  }
-
-  const contracts = engine.state.activeContracts || [];
-  if (contractDockCollapsed) {
-    setLiveText(dom.contractDock.querySelector("[data-contract-dock-count]"), contracts.length);
-    return;
-  }
-
-  contracts.forEach(contract => {
-    const card = dom.contractDock.querySelector(`[data-contract-dock-id="${CSS.escape(contract.id)}"]`);
-    if (!card) return;
-    const progress = engine.getContractProgress(contract);
-    const statusNode = card.querySelector("[data-contract-dock-percent]");
-    const statusText = progress.completed ? "Concluído" : `${Math.floor(progress.percent)}%`;
-    setLiveText(statusNode, statusText);
-    statusNode?.classList.toggle("is-running", !progress.completed);
-    statusNode?.classList.toggle("is-completed", progress.completed);
-    setLiveWidth(card.querySelector("[data-contract-dock-progress]"), progress.percent);
-    const timeNode = card.querySelector("[data-contract-dock-time]");
-    const timeValue = card.querySelector("[data-contract-dock-time-value]");
-    if (timeNode) {
-      timeNode.hidden = progress.completed;
-      if (!progress.completed) setLiveText(timeValue, engine.formatTime(contract.timeRemaining));
-    }
-    const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
-    setLiveRewardValues(card.querySelector(".contract-dock-rewards"), {
-      ...effectiveReward,
-      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
-    });
-
-  });
 }
 
 function updateLiveContractsUI() {
@@ -131,7 +80,7 @@ function updateLiveContractsUI() {
     const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
     setLiveRewardValues(card.querySelector(".contract-reward-strip"), {
       ...effectiveReward,
-      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? Math.max(0, Number(contract.rewardXP) || 0))
     });
 
     const penaltyRoot = card.querySelector("[data-contract-live-penalty]");
@@ -153,7 +102,7 @@ function updateLiveContractsUI() {
     const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
     setLiveRewardValues(card.querySelector(".contract-reward-strip"), {
       ...effectiveReward,
-      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? engine.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE))
+      xp: Math.round(engine.getContractFrozenXPReward?.(contract) ?? Math.max(0, Number(contract.rewardXP) || 0))
     });
   });
 
@@ -265,7 +214,6 @@ function updateLiveContractsPulse(now = performance.now(), force = false) {
 
   // Apenas patches pontuais: cronômetros, progresso, quantidades, estados e
   // recompensas. setLiveText/setLiveWidth evitam qualquer escrita se nada mudou.
-  updateLiveContractDockUI();
   updateLiveContractsUI();
 }
 

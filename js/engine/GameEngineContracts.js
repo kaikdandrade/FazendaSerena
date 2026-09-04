@@ -55,7 +55,10 @@ Object.assign(GameEngine.prototype, {
     contract.lockedRewardCoins = Math.max(0, Math.floor((Number(contract.rewardCoins) || 0) * contractRewardMultiplier * coinEventMultiplier));
     contract.lockedRewardResearch = Math.max(0, Math.floor((Number(contract.rewardResearch) || 0) * contractRewardMultiplier * researchEventMultiplier));
     contract.lockedRewardPrestige = Math.max(0, Math.floor((Number(contract.rewardPrestige) || 0) * contractRewardMultiplier));
-    contract.lockedRewardXP = Math.max(0, Math.round(this.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE)));
+    const fixedXP = Number(contract.rewardXP);
+    contract.lockedRewardXP = Number.isFinite(fixedXP)
+      ? Math.max(0, Math.round(fixedXP * contractRewardMultiplier * (1 + this.getEvolutionBonus("farmXPGainPercent") / 100) * this.getEventMultiplier("xp")))
+      : Math.max(0, Math.round(this.getFarmXPAwardForRate(contract.xpRate ?? GameEngine.CONTRACT_CLAIM_XP_RATE)));
     contract.penaltyUnitPrices = Object.fromEntries(this.getContractItems(contract).map(item => [item.cropId, Math.max(1, Number(this.getSalePrice(item.cropId)) || 1)]));
     contract.rewardSnapshotVersion = 1;
     return contract;
@@ -164,8 +167,9 @@ Object.assign(GameEngine.prototype, {
       rewardCoins: Math.max(0, Math.floor(Number(contract.rewardCoins) || 0)),
       rewardResearch: Math.max(0, Math.floor(Number(contract.rewardResearch) || 0)),
       rewardPrestige: Math.max(0, Math.floor(Number(contract.rewardPrestige) || 0)),
+      rewardXP: Math.max(0, Math.floor(Number(contract.rewardXP ?? type.xpReward) || 0)),
       penaltyBaseCoins: Math.max(1, Math.floor(Number(contract.penaltyBaseCoins) || Number(contract.rewardCoins) || 1)),
-      xpRate: Math.max(0, Number(contract.xpRate ?? type.xpPercent / 100) || 0),
+      xpRate: Math.max(0, Number(contract.xpRate) || 0),
       difficulty: type.id,
       typeColor: String(contract.typeColor || type.color || "#e6c35f"),
       typeColorAlpha: Math.max(0, Math.min(100, Number(contract.typeColorAlpha ?? type.colorAlpha ?? 18) || 0)),
@@ -252,10 +256,10 @@ Object.assign(GameEngine.prototype, {
   },
 
   getContractResearchReward(type, amount) {
+    void amount;
     if (!type || !this.getContractRewardKeys(type).has("research")) return 0;
-    const base = Math.max(1, Math.round(Math.log10(Math.max(1, amount) + 1) * 2 + Math.sqrt(Math.max(1, amount)) / 25));
-    const typeValue = base * Math.max(0, Number(type.researchMultiplierPercent) || 0) / 100;
-    return Math.max(0, Math.floor(typeValue * (1 + this.getEvolutionBonus("contractResearchRewardPercent") / 100)));
+    const base = Math.max(0, Math.floor(Number(type.researchReward) || 0));
+    return Math.max(0, Math.floor(base * (1 + this.getEvolutionBonus("contractResearchRewardPercent") / 100)));
   },
 
   createContractOffers(count = 1) {
@@ -300,7 +304,13 @@ Object.assign(GameEngine.prototype, {
       if (!companyEligibleCrops.length) continue;
       const type = chooseContractType();
       if (!type) continue;
-      const requestedCropCount = Math.max(1, Math.min(4, Math.floor(Number(type.cropCount) || 1)));
+      const cropCountRange = Array.isArray(type.cropCountRange) && type.cropCountRange.length
+        ? type.cropCountRange
+        : [1, Math.max(1, Math.floor(Number(type.cropCount) || 1))];
+      const cropCountMin = Math.max(1, Math.floor(Number(cropCountRange[0]) || 1));
+      const cropCountMax = Math.max(cropCountMin, Math.floor(Number(cropCountRange[1] ?? cropCountRange[0]) || cropCountMin));
+      const randomCropCount = cropCountMin + Math.floor(Math.random() * (cropCountMax - cropCountMin + 1));
+      const requestedCropCount = Math.max(1, Math.min(randomCropCount, companyEligibleCrops.length));
       const selectedCrops = [];
       const selectedIds = new Set();
       for (let cropIndex = 0; cropIndex < requestedCropCount; cropIndex += 1) {
@@ -319,12 +329,12 @@ Object.assign(GameEngine.prototype, {
       const deliveryDurationSeconds = Math.max(5, Math.round(baseDeliveryDuration / (1 + speedBonus) * GameEngine.CONTRACT_DURATION_FACTOR));
       const workloadShare = 0.36 + Math.random() * 0.18;
       const difficultyLoad = Math.max(0.01, Number(type.quantityMultiplier) || 1);
+      const perCropQuantityMultiplier = difficultyLoad / Math.max(1, selectedCrops.length);
       const items = selectedCrops.map(crop => {
         const rate = Math.max(0.01, this.getProductionRate(crop.id, false));
         const expectedProduction = Math.max(1, rate * deliveryDurationSeconds);
-        const minimumByCycle = Math.max(1, Math.min(this.getYield(crop.id, false) * 2, expectedProduction * 0.75));
-        const splitLoad = difficultyLoad / Math.max(1, selectedCrops.length);
-        const amount = this.roundContractAmount(Math.max(minimumByCycle, expectedProduction * workloadShare * splitLoad));
+        const balancedTarget = expectedProduction * workloadShare * perCropQuantityMultiplier;
+        const amount = this.roundContractAmount(Math.max(1, balancedTarget));
         return { cropId: crop.id, amount, delivered: 0 };
       });
       const amount = items.reduce((sum, item) => sum + item.amount, 0);
@@ -337,8 +347,9 @@ Object.assign(GameEngine.prototype, {
       const rewardCoins = rewardKeys.has("coins") ? Math.max(0, Math.floor(baseCoins * missionRewardMultiplier)) : 0;
       const rewardResearch = Math.max(0, Math.floor(this.getContractResearchReward(type, amount) * missionRewardMultiplier));
       const prestigeBonus = 1 + Math.max(0, this.getEvolutionBonus("contractPrestigeRewardPercent")) / 100;
-      const prestigeBase = Math.max(0, Number(type.prestigeMultiplierPercent) || 0) / 100;
-      const rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(Math.max(1, Math.log10(contractValue + 10)) * prestigeBase * prestigeBonus * missionRewardMultiplier)) : 0;
+      const prestigeBase = Math.max(0, Math.floor(Number(type.prestigeReward) || 0));
+      const rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(prestigeBase * prestigeBonus * missionRewardMultiplier)) : 0;
+      const rewardXP = Math.max(0, Math.floor(Number(type.xpReward) || 0));
 
       const generatedContract = {
         id: `contract-${Date.now()}-${this.state.contractSerial++}-${index}`,
@@ -350,8 +361,9 @@ Object.assign(GameEngine.prototype, {
         rewardCoins,
         rewardResearch,
         rewardPrestige,
+        rewardXP,
         penaltyBaseCoins: Math.max(1, Math.floor(baseCoins)),
-        xpRate: Math.max(0, Number(type.xpPercent) || 0) / 100,
+        xpRate: 0,
         difficulty: type.id,
         typeColor: type.color,
         typeColorAlpha: type.colorAlpha,

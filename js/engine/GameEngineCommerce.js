@@ -14,7 +14,7 @@ Object.assign(GameEngine.prototype, {
     },
 
   getAutoSalePrice(cropId) {
-      return this.getSalePrice(cropId) * (1 + Math.max(0, this.getEvolutionBonus("autoSalePricePercent")) / 100);
+      return this.getSalePrice(cropId);
     },
 
   recordSale(cropId, sold, gain) {

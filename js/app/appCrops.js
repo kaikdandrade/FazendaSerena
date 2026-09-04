@@ -97,7 +97,7 @@
 
     const growthTime = engine.getGrowthTime(crop.id);
     const instant = growthTime <= 0;
-    const optimizedRing = instant || growthTime <= 1.5;
+    const optimizedRing = instant || growthTime < 1;
     const growthPct = optimizedRing ? 100 : percent(data.progress * 100);
     const speedMaxed = data.level >= engine.getInstantGrowthLevel();
     const mastered = data.level >= GameEngine.MAX_CROP_LEVEL;

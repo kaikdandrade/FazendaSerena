@@ -1,5 +1,6 @@
 "use strict";
 let maintenanceModeActive = false;
+let currentUserIsAdmin = false;
 function showMaintenanceMode() {
   maintenanceModeActive = true;
   try { window.clearTimeout(gameLoopTimer); gameLoopTimer = 0; } catch {}
@@ -30,10 +31,11 @@ async function boot() {
   try {
     initialUser = await window.FirebaseManager.ready();
     if (initialUser) {
-      const [moderation] = await Promise.all([
+      const [moderation, administratorAccess] = await Promise.all([
         window.FirebaseManager.getOwnModeration?.({ force: true }),
         window.FirebaseManager.isCurrentUserAdmin?.({ force: true })
       ]);
+      currentUserIsAdmin = administratorAccess === true;
       if (moderation?.banned) {
         throw new Error(moderation.reason ? `Esta conta foi bloqueada: ${moderation.reason}` : "Esta conta foi bloqueada pela administração.");
       }
@@ -76,7 +78,7 @@ async function boot() {
   loading?.update("Preparando a interface...", 70);
   const normalizedSourceConfig = window.GameAdminConfig.normalize(publicGameConfig || window.GameAdminConfig.getDefaults());
   const normalizedConfig = window.GameAdminConfig.apply(normalizedSourceConfig);
-  if (normalizedConfig.globalSettings?.maintenanceMode === true) {
+  if (normalizedConfig.globalSettings?.maintenanceMode === true && !currentUserIsAdmin) {
     showMaintenanceMode();
     let maintenanceSignature = JSON.stringify(normalizedConfig);
     window.FirebaseManager.subscribePublicGameConfig?.((cloudConfig) => {
@@ -132,7 +134,7 @@ async function boot() {
       leaveMaintenanceMode();
       return;
     }
-    if (normalized.globalSettings?.maintenanceMode === true) {
+    if (normalized.globalSettings?.maintenanceMode === true && !currentUserIsAdmin) {
       showMaintenanceMode();
       return;
     }

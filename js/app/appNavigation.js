@@ -476,7 +476,6 @@
     const readyMissions = engine.getReadyMissionCount();
     setNavigationAttention("contracts", readyContracts > 0);
     setNavigationAttention("profile", readyMissions > 0);
-    updateLiveContractDockUI?.();
   }
 
   function formatLiveTime(seconds) {
@@ -544,7 +543,7 @@
       if (!cropState?.owned) return;
       const growthTime = engine.getGrowthTime(cropId);
       const instant = growthTime <= 0;
-      const optimizedLoader = instant || growthTime <= 1.5;
+      const optimizedLoader = instant || growthTime < 1;
       const progress = optimizedLoader ? 100 : percent(cropState.progress * 100);
 
       if (loader && progressCircle) {

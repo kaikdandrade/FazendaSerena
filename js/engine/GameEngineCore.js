@@ -33,8 +33,11 @@ const GameEngine = class GameEngine {
   static MAX_BATCH_UPGRADES = 1000;
   static MAX_CROP_LEVEL = 500;
   static MAX_FARM_LEVEL = 1000;
+  static FARM_XP_PER_LEVEL = 1000;
+  static FARM_XP_MODEL_VERSION = 2;
+  static MIN_CROP_GROWTH_SECONDS = 0.5;
   static INSTANT_GROWTH_LEVEL = 500;
-  static MIN_INSTANT_GROWTH_LEVEL = 420;
+  static MIN_INSTANT_GROWTH_LEVEL = 500;
   static MUSIC_TRACKS = Object.freeze([
       "betweenLightAndShadows", "pixelSprouts", "moonlitFields", "fieldRain",
       "electricHarvest", "dirtRoad", "enchantedGreenhouse", "solarFarm",
@@ -105,6 +108,7 @@ const GameEngine = class GameEngine {
         passiveResearchProgress: Math.max(0, Number(permanent.passiveResearchProgress || 0)) % 1,
         farmLevel: 1,
         farmXP: 0,
+        farmXPModelVersion: GameEngine.FARM_XP_MODEL_VERSION,
         crops,
         upgrades: {},
         researchTechs: Object.fromEntries(this.data.research.map(item => [item.id, 0])),
@@ -457,9 +461,8 @@ const GameEngine = class GameEngine {
       );
 
       if (legacyStockMigration.length) {
-        const autoSaleBonus = 1 + Math.max(0, this.getEvolutionBonus("autoSalePricePercent", merged)) / 100;
         for (const { crop, amount } of legacyStockMigration) {
-          const gain = Math.floor(amount * this.getSalePriceForState(crop.id, merged) * autoSaleBonus);
+          const gain = Math.floor(amount * this.getSalePriceForState(crop.id, merged));
           merged.coins = Math.max(0, Number(merged.coins) || 0) + gain;
           merged.crops[crop.id].totalSold += amount;
           merged.stats.totalSold = Math.max(0, Number(merged.stats.totalSold) || 0) + amount;
@@ -514,8 +517,9 @@ const GameEngine = class GameEngine {
           const rewardKeys = this.getContractRewardKeys(difficulty);
           contract.rewardCoins = rewardKeys.has("coins") ? Math.max(0, Math.floor(contract.amount * salePrice * (Math.max(0, Number(difficulty?.coinMultiplierPercent) || 0) / 100) * rewardBonus)) : 0;
           contract.rewardResearch = this.getContractResearchReward(difficulty, contract.amount);
-          contract.rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(Math.max(1, Math.log10(contract.amount * salePrice + 10)) * (Math.max(0, Number(difficulty?.prestigeMultiplierPercent) || 0) / 100))) : 0;
-          contract.xpRate = Math.max(0, Number(difficulty?.xpPercent) || GameEngine.CONTRACT_CLAIM_XP_RATE * 100) / 100;
+          contract.rewardPrestige = rewardKeys.has("prestige") ? Math.max(0, Math.floor(Number(difficulty?.prestigeReward) || 0)) : 0;
+          contract.rewardXP = Math.max(0, Math.floor(Number(difficulty?.xpReward) || 0));
+          contract.xpRate = 0;
         });
       }
   
@@ -559,15 +563,22 @@ const GameEngine = class GameEngine {
   
       merged.farmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(merged.farmLevel) || 1)));
       const loadedFarmXP = Math.max(0, Number(merged.farmXP) || 0);
-      if (legacySaveFormat < 38 && merged.farmLevel < GameEngine.MAX_FARM_LEVEL) {
-        // Preserva a porcentagem já preenchida da barra ao migrar da curva antiga
-        // para a escala longa que alcança os sufixos Aa–Az nos níveis avançados.
-        const previousNeed = Math.round(160 + 72 * Math.pow(merged.farmLevel, 1.52));
-        const previousProgress = previousNeed > 0 ? Math.min(0.999999, loadedFarmXP / previousNeed) : 0;
-        merged.farmXP = this.getFarmXPNeed(merged.farmLevel) * previousProgress;
+      const loadedXPModelVersion = Math.max(0, Math.floor(Number(input.farmXPModelVersion) || 0));
+      if (merged.farmLevel >= GameEngine.MAX_FARM_LEVEL) {
+        merged.farmXP = GameEngine.FARM_XP_PER_LEVEL;
+      } else if (loadedXPModelVersion < GameEngine.FARM_XP_MODEL_VERSION) {
+        // Migração segura: preserva nível e percentual da barra atual, sem
+        // converter os valores enormes do modelo anterior em milhares de níveis.
+        const normalizedLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, merged.farmLevel));
+        const baseCurve = 160 + 72 * Math.pow(normalizedLevel, 1.52);
+        const journeyProgress = (normalizedLevel - 1) / Math.max(1, GameEngine.MAX_FARM_LEVEL - 1);
+        const legacyNeed = Math.round(baseCurve * Math.pow(10, 84 * Math.pow(journeyProgress, 2)));
+        const previousProgress = legacyNeed > 0 ? Math.max(0, Math.min(0.999999, loadedFarmXP / legacyNeed)) : 0;
+        merged.farmXP = GameEngine.FARM_XP_PER_LEVEL * previousProgress;
       } else {
-        merged.farmXP = loadedFarmXP;
+        merged.farmXP = Math.max(0, Math.min(GameEngine.FARM_XP_PER_LEVEL - 0.000001, loadedFarmXP));
       }
+      merged.farmXPModelVersion = GameEngine.FARM_XP_MODEL_VERSION;
       merged.version = GameEngine.SAVE_FORMAT_VERSION;
       merged.coins = Number.isFinite(Number(merged.coins)) ? Number(merged.coins) : 0;
       merged.research = Math.max(0, Number(merged.research) || 0);
@@ -614,8 +625,11 @@ const GameEngine = class GameEngine {
       merged.permanentBonuses.prestigeDouble = Boolean(merged.permanentBonuses.prestigeDouble);
       merged.permanentBonuses.passiveXPPercentPerSecond = Math.max(0, Number(merged.permanentBonuses.passiveXPPercentPerSecond) || 0);
       merged.permanentBonuses.contractRewardPercent = Math.max(0, Number(merged.permanentBonuses.contractRewardPercent) || 0);
-      merged.farmLevel = Math.max(1, Math.floor(Number(merged.farmLevel) || 1));
-      merged.farmXP = Math.max(0, Number(merged.farmXP) || 0);
+      merged.farmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(merged.farmLevel) || 1)));
+      merged.farmXP = merged.farmLevel >= GameEngine.MAX_FARM_LEVEL
+        ? GameEngine.FARM_XP_PER_LEVEL
+        : Math.max(0, Math.min(GameEngine.FARM_XP_PER_LEVEL - 0.000001, Number(merged.farmXP) || 0));
+      merged.farmXPModelVersion = GameEngine.FARM_XP_MODEL_VERSION;
       Reflect.deleteProperty(merged, "seasonIndex");
       Reflect.deleteProperty(merged, "seasonElapsed");
       Reflect.deleteProperty(merged.upgrades, "greenhouse");

@@ -54,42 +54,6 @@
         navigateFromResourceCounter(resourceShortcut.dataset.resourceShortcut);
         return;
       }
-      const contractShortcut = event.target.closest("[data-go-office-contracts]");
-      if (contractShortcut) {
-        const focusContractId = contractShortcut.dataset.focusContract || "";
-        const behavior = contractShortcut.dataset.contractDockBehavior || "navigate";
-        if (focusContractId && behavior === "claim") {
-          const contract = engine.state.activeContracts.find(item => item.id === focusContractId);
-          const progress = contract ? engine.getContractProgress(contract) : null;
-          if (contract && progress?.completed) {
-            const result = engine.claimContractReward(focusContractId);
-            if (result.ok) {
-              soundEngine.play("reward");
-              animateResourceReward(contractShortcut, {
-                coins: result.contract.rewardCoins,
-                research: result.contract.rewardResearch,
-                prestige: result.contract.rewardPrestige,
-                xp: result.xpAward
-              });
-              render(true);
-              requestGameSave();
-              return;
-            }
-          }
-        }
-        // Contratos ainda em preenchimento apenas conduzem o jogador ao card correspondente.
-        showView("officeView");
-        showOfficeTab("contracts");
-        render(true);
-        if (focusContractId) window.requestAnimationFrame(() => {
-          const target = document.querySelector(`[data-contract-id="${CSS.escape(focusContractId)}"]`);
-          if (!target) return;
-          target.classList.add("contract-focus-pulse");
-          target.scrollIntoView({ behavior: "smooth", block: "center" });
-          window.setTimeout(() => target.classList.remove("contract-focus-pulse"), 1400);
-        });
-        return;
-      }
       const button = event.target.closest("[data-action]");
       if (button && !button.disabled) handleAction(button);
     });
