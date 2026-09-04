@@ -19,7 +19,7 @@
 <script src="js/themeBootstrap.js"></script>
 <style id="loadingBackdropBootstrap">html,body{background:#4f8d56}</style>
 <link href="css/stylish.css" rel="stylesheet"/>
-<link href="css/play.css?v=66" rel="stylesheet"/>
+<link href="css/play.css?v=72" rel="stylesheet"/>
 <link href="css/monetization.css" rel="stylesheet"/>
 <script src="js/loadingScreen.js"></script>
 <script defer="" src="js/publicCloud.js"></script>
@@ -80,7 +80,7 @@
 </img></a>
 
 <section aria-label="Recursos do jogo" class="resource-strip">
-<article aria-label="Experiência da fazenda" aria-valuemax="232" aria-valuemin="0" aria-valuenow="0" class="resource-pill farm-xp-resource" id="farmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><img alt="" src="assets/icons/xp.webp"/><span><small>Nível da fazenda</small><strong id="farmXPText"><span data-farm-level-value="">1</span></strong></span></article>
+<article aria-label="Experiência da fazenda" aria-valuemax="232" aria-valuemin="0" aria-valuenow="0" class="resource-pill farm-xp-resource" id="farmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><svg aria-hidden="true" class="farm-xp-border-v67" preserveAspectRatio="none"><path class="farm-xp-track-stroke-v67" pathLength="100"></path><path class="farm-xp-progress-stroke-v67" pathLength="100"></path></svg><img alt="" src="assets/icons/xp.webp"/><span><small>Nível da fazenda</small><strong id="farmXPText"><span data-farm-level-value="">1</span></strong></span></article>
 <article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda">
 <img alt="" src="assets/icons/moeda.webp">
 <span><small>Moedas</small><strong id="coinsCounter">0</strong></span>
@@ -137,20 +137,18 @@
 <section class="view" data-view-panel="officeView" id="officeView">
 <div class="office-workspace panel-card">
 <section aria-labelledby="contractsOfficeTab" class="office-panel active" data-office-panel="contracts" id="officeContractsPanel" role="tabpanel">
-<div class="section-heading compact-heading office-panel-heading contracts-clean-heading">
+<div class="section-heading compact-heading office-panel-heading contracts-clean-heading contracts-heading-v69">
 <div>
 <p class="eyebrow">oportunidades comerciais</p>
 <h2>Contratos</h2>
 </div>
-</div>
-<div class="contracts-clean-flow">
-<div class="active-contract-grid" id="activeContractList"></div>
-<div aria-hidden="true" class="contract-section-divider"><span></span></div>
-<div class="contract-offer-toolbar">
+<div class="contracts-heading-actions-v69">
 <div class="contract-toolbar-capacity" id="contractCapacitySummary"></div>
 <button class="button secondary contract-refresh-button" data-action="refresh-contracts" id="refreshContractsButton" type="button"><img alt="" src="assets/icons/renovar-contrato.webp"/><span data-contract-refresh-label>Atualizar contratos</span></button>
 </div>
-<div class="contract-grid contract-offer-grid" id="contractOfferList"></div>
+</div>
+<div class="contracts-clean-flow">
+<div class="contract-grid contract-offer-grid contract-board-grid-v67" id="contractOfferList"></div>
 </div>
 </section>
 
@@ -245,22 +243,25 @@
 </main>
 </div>
 <section aria-label="Publicidade" class="ad-region" data-adsense-placement="footer" hidden=""></section>
-<footer class="app-footer">
-<div class="footer-navigation-block">
-<nav aria-label="Informações e privacidade" class="footer-links">
+<footer class="game-footer-v67">
+<div class="game-footer-inner-v67">
+<nav aria-label="Informações e privacidade" class="game-footer-nav-v67">
 <a href="index.html">Início</a>
 <a href="noticias.html">Notícias</a>
 <a href="tutorial.html">Tutorial</a>
 <a href="terms.html">Termos de Uso</a>
 <a href="privacy.html">Política de Privacidade</a>
-<button class="footer-link-button" data-open-cookie-preferences="" type="button">Preferências de cookies</button>
+<button class="game-footer-link-button-v67" data-open-cookie-preferences="" type="button">Preferências de cookies</button>
 </nav>
+<div class="game-footer-meta-v67">
+<span>Desenvolvido por <a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a></span>
+<a class="game-footer-version-v67" href="noticias.html" title="Ver notícias e atualizações">v<b data-app-version=""></b></a>
 </div>
-<div class="footer-credit"><span class="footer-developer">Desenvolvido por <a href="https://github.com/kaikdandrade/FazendaSerena" rel="noopener noreferrer" target="_blank">Kaik D'Andrade</a></span><a class="footer-version-link" href="noticias.html" title="Ver notícias e atualizações">Versão <b data-app-version=""></b></a></div>
+</div>
 </footer>
 </div>
 <section aria-label="Recursos do jogo durante a rolagem" class="resource-strip floating-resource-strip" id="floatingResourceStrip">
-<article aria-label="Experiência da fazenda" class="resource-pill farm-xp-resource" id="floatingFarmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><img alt="" src="assets/icons/xp.webp"/><span><small>Nível da fazenda</small><strong id="floatingFarmXPText"><span data-farm-level-value="">1</span></strong></span></article>
+<article aria-label="Experiência da fazenda" class="resource-pill farm-xp-resource" id="floatingFarmXPResource" role="progressbar" style="--farm-xp-progress:0%" title="Nível 1 · 0 / 232 XP"><svg aria-hidden="true" class="farm-xp-border-v67" preserveAspectRatio="none"><path class="farm-xp-track-stroke-v67" pathLength="100"></path><path class="farm-xp-progress-stroke-v67" pathLength="100"></path></svg><img alt="" src="assets/icons/xp.webp"/><span><small>Nível da fazenda</small><strong id="floatingFarmXPText"><span data-farm-level-value="">1</span></strong></span></article>
 <article class="resource-pill resource-shortcut" data-resource-shortcut="coins" role="button" tabindex="0" title="Abrir Fazenda"><img alt="" src="assets/icons/moeda.webp"><span><small>Moedas</small><strong id="floatingCoinsCounter">0</strong></span></img></article>
 <article class="resource-pill resource-shortcut" data-resource-shortcut="research" role="button" tabindex="0" title="Abrir Pesquisas"><img alt="" src="assets/icons/pocao-pesquisa.webp"><span><small>Pesquisa</small><strong id="floatingResearchCounter">0</strong></span></img></article>
 <article class="resource-pill prestige-resource resource-shortcut" data-resource-shortcut="prestige" role="button" tabindex="0" title="Abrir Evoluções de prestígio"><img alt="" data-prestige-icon="resource" src="assets/icons/prestigio.webp"><span><small>Prestígio</small><strong id="floatingPrestigeCounter">0</strong></span></img></article>
