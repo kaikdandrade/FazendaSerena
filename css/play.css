@@ -23358,3 +23358,3085 @@ html[data-theme="dark"] #officeContractsPanel .contract-card-v5 .contract-reward
   background: color-mix(in srgb, var(--contract-type-color, #6b9870) 10%, rgba(25,35,29,.88)) !important;
   border-color: color-mix(in srgb, var(--contract-type-color, #6b9870) 22%, transparent) !important;
 }
+
+/* ========================================================================== */
+/* Revisão da Fazenda — cards clean, contratos, missões e perfil              */
+/* ========================================================================== */
+
+/* Fazenda: progresso realmente circular e conteúdo textual centralizado. */
+#farmView .crop-card .crop-art-progress {
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1;
+  overflow: visible;
+}
+#farmView .crop-card .crop-art-progress > .crop-art {
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+#farmView .crop-card .crop-info {
+  align-self: stretch !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 3px !important;
+}
+#farmView .crop-card .crop-meta-row { margin-top: 0 !important; }
+#farmView .crop-card .crop-quick-stats { display: none !important; }
+#farmView .crop-card .crop-art-progress.instant .crop-progress-percent,
+#farmView .crop-card .crop-art-progress.optimized-ring .crop-progress-percent {
+  display: none !important;
+}
+
+/* Contratos: tempo vira um único badge maior; sem rótulos Proposta/Conclusão. */
+#officeContractsPanel .contract-time-v5 {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  min-width: 92px;
+}
+#officeContractsPanel .contract-time-v5 > small { display: none !important; }
+#officeContractsPanel .contract-time-badge-v5 {
+  align-items: center !important;
+  display: inline-flex !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 34px !important;
+  min-width: 92px !important;
+  padding: 7px 11px !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #6b9870) 24%, transparent) !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--contract-type-color, #6b9870) 16%, white) !important;
+  color: color-mix(in srgb, var(--contract-type-color, #6b9870) 78%, #2d4432) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.62) !important;
+  white-space: nowrap !important;
+}
+#officeContractsPanel .contract-time-badge-v5 img {
+  width: 17px !important;
+  height: 17px !important;
+  object-fit: contain !important;
+}
+#officeContractsPanel .contract-time-badge-v5 b {
+  font-size: .76rem !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+}
+#officeContractsPanel .contract-time-completed-v5 {
+  border-color: rgba(188, 145, 43, .24) !important;
+  background: #fff2bf !important;
+  color: #795c16 !important;
+}
+
+/* Recompensa ganha separação de leitura sem mudar sua estrutura. */
+#officeContractsPanel .contract-card-v5 .contract-reward-v5 {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--contract-type-color, #6b9870) 8%, transparent) !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-reward-v5 .resource-amount {
+  background: rgba(255,255,255,.72) !important;
+  border: 1px solid color-mix(in srgb, var(--contract-type-color, #6b9870) 16%, transparent) !important;
+}
+
+/* Quebra de contrato: mesma anatomia, leitura de perigo mais clara por cor. */
+#officeContractsPanel .contract-break-button-v3 {
+  border-color: rgba(179, 66, 55, .28) !important;
+  background: linear-gradient(135deg, rgba(196, 74, 61, .12), rgba(196, 74, 61, .20)) !important;
+  color: #8e3e35 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.42) !important;
+}
+#officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  border-color: rgba(168, 57, 47, .38) !important;
+  background: linear-gradient(135deg, rgba(196, 74, 61, .19), rgba(196, 74, 61, .29)) !important;
+  color: #722f28 !important;
+}
+#officeContractsPanel .contract-break-button-v3 .resource-amount {
+  background: rgba(255,255,255,.66) !important;
+  border: 1px solid rgba(172, 60, 50, .15) !important;
+}
+
+/* Missões: série fixa no canto superior direito do card. */
+#profileMissionsPanel .mission-card { position: relative !important; }
+#profileMissionsPanel .mission-card .mission-head > div { min-width: 0; padding-right: 92px; }
+#profileMissionsPanel .mission-stage-label {
+  position: absolute !important;
+  top: 11px !important;
+  right: 11px !important;
+  z-index: 2;
+  margin: 0 !important;
+  max-width: calc(100% - 22px);
+  white-space: nowrap;
+}
+
+/* Perfil: login pertence ao bloco da conta, logo abaixo da identidade. */
+#profileAccountPanel .account-identity {
+  align-content: center !important;
+  display: grid !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+#profileAccountPanel .account-inline-google-sign-in:not([hidden]) {
+  position: static !important;
+  inset: auto !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+  margin: 5px 0 0 !important;
+  padding-inline: 12px !important;
+}
+#profileAccountPanel .account-settings-card:has(.account-inline-google-sign-in:not([hidden])) .account-settings-head {
+  padding-right: inherit !important;
+}
+#profileAccountPanel .account-actions:empty { display: none !important; }
+
+/* Estatísticas: oito indicadores formam uma grade 4x2 balanceada. */
+#profileAccountPanel #lifetimeStats.stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card {
+  min-width: 0 !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card strong {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+#profileAccountPanel #recordStats:empty,
+#profileAccountPanel .stats-section:has(#recordStats:empty) { display: none !important; }
+
+@media (max-width: 980px) {
+  #profileAccountPanel #lifetimeStats.stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 560px) {
+  #profileMissionsPanel .mission-card .mission-head > div { padding-right: 78px; }
+  #profileMissionsPanel .mission-stage-label { top: 9px !important; right: 9px !important; font-size: .49rem !important; }
+  #profileAccountPanel #lifetimeStats.stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 8px !important; }
+  #profileAccountPanel .account-inline-google-sign-in:not([hidden]) { width: 100% !important; }
+}
+@media (max-width: 380px) {
+  #profileAccountPanel #lifetimeStats.stats-grid { grid-template-columns: 1fr !important; }
+}
+
+html[data-theme="dark"] #officeContractsPanel .contract-time-badge-v5 {
+  border-color: color-mix(in srgb, var(--contract-type-color, #6b9870) 34%, transparent) !important;
+  background: color-mix(in srgb, var(--contract-type-color, #6b9870) 16%, #1b2720) !important;
+  color: color-mix(in srgb, var(--contract-type-color, #8fbd92) 72%, #e7efe8) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-time-completed-v5 {
+  border-color: rgba(214, 176, 76, .25) !important;
+  background: rgba(151, 116, 35, .22) !important;
+  color: #f2d783 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v5 .contract-reward-v5 .resource-amount {
+  background: rgba(14,21,17,.34) !important;
+  border-color: color-mix(in srgb, var(--contract-type-color, #6b9870) 24%, transparent) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3 {
+  border-color: rgba(222, 108, 94, .25) !important;
+  background: linear-gradient(135deg, rgba(164, 62, 53, .18), rgba(164, 62, 53, .27)) !important;
+  color: #f0aaa0 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  border-color: rgba(229, 116, 102, .36) !important;
+  background: linear-gradient(135deg, rgba(179, 69, 59, .25), rgba(179, 69, 59, .34)) !important;
+  color: #ffc0b7 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3 .resource-amount {
+  background: rgba(16,20,17,.36) !important;
+  border-color: rgba(222, 108, 94, .16) !important;
+}
+
+/* Especificidade final do login: neutraliza regras antigas que o fixavam no canto. */
+#profileAccountPanel #googleSignIn.account-inline-google-sign-in:not([hidden]) {
+  position: static !important;
+  inset: auto !important;
+  width: fit-content !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+  height: auto !important;
+  margin: 5px 0 0 !important;
+  padding-inline: 12px !important;
+}
+#profileAccountPanel .account-actions:has(> .ranking-profile-launch[hidden]) {
+  display: none !important;
+}
+#profileAccountPanel .account-actions:has(> .ranking-profile-launch:not([hidden])) {
+  display: flex !important;
+}
+@media (max-width: 560px) {
+  #profileAccountPanel #googleSignIn.account-inline-google-sign-in:not([hidden]) { width: 100% !important; }
+}
+
+
+/* ========================================================================== */
+/* R48.1 — ajustes finais: anel circular, agenda da comunidade e perfil       */
+/* ========================================================================== */
+
+/* Anel da planta: círculo perfeito em volta do ícone. */
+#farmView .crop-card .crop-head {
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  align-items: center !important;
+}
+#farmView .crop-card .crop-art-progress {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  padding: 4px !important;
+  border-radius: 999px !important;
+  aspect-ratio: 1 / 1 !important;
+  background: conic-gradient(from -90deg, #63a456 var(--growth-progress, 0%), rgba(86, 130, 82, .11) 0) !important;
+  box-shadow: 0 10px 22px rgba(57, 94, 58, .11), inset 0 0 0 1px rgba(255,255,255,.52) !important;
+}
+#farmView .crop-card .crop-art-progress::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.55);
+  pointer-events: none;
+}
+#farmView .crop-card .crop-art-progress > .crop-art {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+}
+#farmView .crop-card .crop-art-progress > .crop-art img {
+  width: 50px !important;
+  height: 50px !important;
+}
+#farmView .crop-card .crop-art,
+#farmView .crop-card .locked-art,
+#farmView .crop-card .crop-preview-unlocked {
+  border-radius: 999px !important;
+}
+
+/* Perfil visitante: deixa só a conta e o botão Google. */
+#profileAccountPanel #accountName[hidden] {
+  display: none !important;
+}
+#profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) .account-name-title-line {
+  min-height: 0 !important;
+  margin-top: 2px !important;
+}
+
+/* Agenda da comunidade: remake visual. */
+#profileSocialPanel .social-events-accordion {
+  border-radius: 20px !important;
+}
+#profileSocialPanel .social-events-accordion > summary {
+  gap: 14px !important;
+  padding: 16px 18px !important;
+}
+#profileSocialPanel .social-events-accordion-body {
+  display: grid !important;
+  gap: 12px !important;
+  padding: 14px !important;
+}
+#profileSocialPanel .social-agenda-card {
+  display: grid !important;
+  grid-template-columns: 84px 50px minmax(0, 1fr) minmax(170px, 210px) !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, #ffffff, #f7fbf4) !important;
+  border: 1px solid rgba(64, 111, 72, .12) !important;
+  box-shadow: 0 10px 24px rgba(36, 59, 39, .05) !important;
+}
+#profileSocialPanel .social-agenda-card.active {
+  box-shadow: inset 3px 0 0 rgba(81, 139, 75, .78), 0 12px 28px rgba(36, 59, 39, .08) !important;
+}
+#profileSocialPanel .social-event-day-panel {
+  display: grid;
+  gap: 2px;
+  align-content: center;
+  min-height: 72px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(64,111,72,.11);
+  background: linear-gradient(180deg, rgba(239,247,239,.92), rgba(255,255,255,.98));
+  text-align: center;
+}
+#profileSocialPanel .social-event-day-panel small {
+  color: var(--ink-soft);
+  font-size: .57rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-day-panel strong {
+  color: var(--green-deep);
+  font-size: .88rem;
+  line-height: 1.15;
+}
+#profileSocialPanel .social-event-day-panel span {
+  color: var(--ink-soft);
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+}
+#profileSocialPanel .social-event-copy {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+#profileSocialPanel .social-event-copy-topline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+#profileSocialPanel .social-event-bonus-chip,
+#profileSocialPanel .social-event-type-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: .56rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-bonus-chip {
+  background: rgba(80, 137, 74, .10);
+  border: 1px solid rgba(80, 137, 74, .14);
+  color: #417247;
+}
+#profileSocialPanel .social-event-type-chip {
+  background: rgba(205, 177, 88, .12);
+  border: 1px solid rgba(205, 177, 88, .18);
+  color: #8a6c19;
+}
+#profileSocialPanel .social-event-copy h3 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+}
+#profileSocialPanel .social-event-copy p {
+  margin: 0 !important;
+  color: #607066;
+}
+#profileSocialPanel .social-event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+#profileSocialPanel .social-event-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(65, 102, 67, .055);
+  border: 1px solid rgba(65, 102, 67, .08);
+  color: #425247;
+  font-size: .72rem;
+  font-weight: 800;
+}
+#profileSocialPanel .social-event-meta img {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+#profileSocialPanel .social-event-status-panel {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  min-width: 0;
+  min-height: 100%;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(64, 111, 72, .12);
+  background: linear-gradient(180deg, rgba(248, 251, 246, .96), rgba(255,255,255,.98));
+}
+#profileSocialPanel .social-event-status-panel.is-running {
+  background: linear-gradient(180deg, rgba(232, 245, 231, .96), rgba(255,255,255,.98));
+  border-color: rgba(81, 139, 75, .22);
+}
+#profileSocialPanel .social-event-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(76, 114, 80, .08);
+  border: 1px solid rgba(76, 114, 80, .10);
+  color: #516253;
+  font-size: .56rem;
+  font-weight: 950;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-status-badge.is-running {
+  background: rgba(80, 137, 74, .12);
+  border-color: rgba(80, 137, 74, .18);
+  color: #3d7143;
+}
+#profileSocialPanel .social-event-status-badge.is-ended {
+  background: rgba(122, 128, 132, .10);
+  border-color: rgba(122, 128, 132, .14);
+  color: #647177;
+}
+#profileSocialPanel .social-event-timing-box {
+  display: grid;
+  gap: 2px;
+}
+#profileSocialPanel .social-event-timing-box small {
+  color: var(--ink-soft);
+  font-size: .62rem;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-timing-box strong {
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+#profileSocialPanel .social-event-timing-box.secondary strong {
+  font-size: .84rem;
+}
+
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress {
+  background: conic-gradient(from -90deg, #78bb71 var(--growth-progress, 0%), rgba(120, 187, 113, .14) 0) !important;
+  box-shadow: 0 10px 22px rgba(0,0,0,.20), inset 0 0 0 1px rgba(255,255,255,.05) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress::before {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+}
+html[data-theme="dark"] #profileSocialPanel .social-agenda-card {
+  background: linear-gradient(180deg, #1a241d, #161d18) !important;
+  border-color: var(--dark-line) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,.18) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-panel,
+html[data-theme="dark"] #profileSocialPanel .social-event-status-panel {
+  background: linear-gradient(180deg, #202a24, #1a221d) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-panel small,
+html[data-theme="dark"] #profileSocialPanel .social-event-day-panel span,
+html[data-theme="dark"] #profileSocialPanel .social-event-timing-box small {
+  color: #91a196 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-panel strong,
+html[data-theme="dark"] #profileSocialPanel .social-event-copy h3,
+html[data-theme="dark"] #profileSocialPanel .social-event-timing-box strong {
+  color: var(--dark-text) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-copy p {
+  color: #9dada2 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-meta span {
+  background: rgba(255,255,255,.035) !important;
+  border-color: rgba(225,238,228,.06) !important;
+  color: #c8d2cb !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-bonus-chip {
+  color: #99d29f !important;
+  background: rgba(80, 137, 74, .14) !important;
+  border-color: rgba(80, 137, 74, .22) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-type-chip {
+  color: #e2c773 !important;
+  background: rgba(205, 177, 88, .12) !important;
+  border-color: rgba(205, 177, 88, .17) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-status-badge {
+  color: #a6b3aa !important;
+  background: rgba(255,255,255,.04) !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-status-badge.is-running {
+  color: #a6dbaa !important;
+  background: rgba(80, 137, 74, .15) !important;
+  border-color: rgba(80, 137, 74, .25) !important;
+}
+
+@media (max-width: 860px) {
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 72px 42px minmax(0, 1fr) !important;
+  }
+  #profileSocialPanel .social-event-status-panel {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 620px) {
+  #farmView .crop-card .crop-head {
+    grid-template-columns: 60px minmax(0, 1fr) !important;
+  }
+  #farmView .crop-card .crop-art-progress {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+  }
+  #farmView .crop-card .crop-art-progress > .crop-art {
+    width: 52px !important;
+    height: 52px !important;
+  }
+  #farmView .crop-card .crop-art-progress > .crop-art img {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 1fr !important;
+  }
+  #profileSocialPanel .social-event-icon {
+    width: 46px !important;
+    height: 46px !important;
+    flex-basis: 46px !important;
+  }
+  #profileSocialPanel .social-event-day-panel,
+  #profileSocialPanel .social-event-status-panel {
+    width: 100%;
+  }
+}
+
+
+/* ========================================================================== */
+/* R50 — círculo real nas plantas + agenda simplificada                       */
+/* ========================================================================== */
+
+/* Planta: transforma o progresso em um anel realmente circular. */
+#farmView .crop-card .crop-art-progress {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 50% !important;
+  clip-path: circle(50% at 50% 50%);
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+#farmView .crop-card .crop-art-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50% !important;
+  background: conic-gradient(from -90deg, #63a456 var(--growth-progress, 0%), rgba(86, 130, 82, .12) 0) !important;
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px));
+  box-shadow: 0 8px 16px rgba(53, 86, 53, .08);
+  pointer-events: none;
+}
+#farmView .crop-card .crop-art-progress > .crop-art {
+  position: relative;
+  z-index: 1;
+  width: 50px !important;
+  height: 50px !important;
+  border: none !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  clip-path: circle(50% at 50% 50%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.72), 0 3px 8px rgba(30, 52, 31, .10);
+}
+#farmView .crop-card .crop-art-progress > .crop-art img {
+  width: 44px !important;
+  height: 44px !important;
+  padding: 0 !important;
+}
+#farmView .crop-card .crop-art-progress.instant::before,
+#farmView .crop-card .crop-art-progress.optimized-ring::before {
+  background: conic-gradient(from -90deg, #63a456 100%, rgba(86, 130, 82, .12) 0) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress::before {
+  background: conic-gradient(from -90deg, #78bb71 var(--growth-progress, 0%), rgba(120, 187, 113, .15) 0) !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, .20);
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress > .crop-art {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 3px 10px rgba(0,0,0,.28);
+}
+@media (max-width: 620px) {
+  #farmView .crop-card .crop-art-progress {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+  }
+  #farmView .crop-card .crop-art-progress::before {
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
+  }
+  #farmView .crop-card .crop-art-progress > .crop-art {
+    width: 47px !important;
+    height: 47px !important;
+  }
+  #farmView .crop-card .crop-art-progress > .crop-art img {
+    width: 41px !important;
+    height: 41px !important;
+  }
+}
+
+/* Agenda: remake mais clean, com apenas as informações necessárias. */
+#profileSocialPanel .social-events-accordion-copy strong {
+  font-size: 1rem !important;
+}
+#profileSocialPanel .social-events-accordion-copy em {
+  white-space: normal !important;
+  line-height: 1.35;
+}
+#profileSocialPanel .social-agenda-card {
+  grid-template-columns: 86px minmax(0, 1fr) 190px !important;
+  gap: 14px !important;
+  padding: 14px !important;
+}
+#profileSocialPanel .social-event-icon,
+#profileSocialPanel .social-event-copy-topline,
+#profileSocialPanel .social-event-bonus-chip,
+#profileSocialPanel .social-event-type-chip,
+#profileSocialPanel .social-event-meta,
+#profileSocialPanel .social-event-status-badge {
+  display: none !important;
+}
+#profileSocialPanel .social-event-simple-copy {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  min-width: 0;
+}
+#profileSocialPanel .social-event-title-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+#profileSocialPanel .social-event-title-line h3 {
+  margin: 0 !important;
+}
+#profileSocialPanel .social-event-simple-copy p {
+  margin: 0 !important;
+  color: #6a796f;
+}
+#profileSocialPanel .social-event-live-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(80, 137, 74, .12);
+  border: 1px solid rgba(80, 137, 74, .16);
+  color: #3c7342;
+  font-size: .58rem;
+  font-weight: 950;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-schedule-panel {
+  display: grid !important;
+  gap: 10px !important;
+  align-content: center !important;
+}
+#profileSocialPanel .social-event-info-row {
+  display: grid;
+  gap: 2px;
+}
+#profileSocialPanel .social-event-info-row small {
+  color: var(--ink-soft);
+  font-size: .58rem;
+  font-weight: 900;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-info-row strong {
+  color: var(--ink);
+  font-size: .92rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+#profileSocialPanel .social-event-info-row.emphasis {
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(64, 111, 72, .10);
+}
+#profileSocialPanel .social-event-info-row.emphasis strong {
+  font-size: 1.06rem;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-simple-copy p {
+  color: #9dada2 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-live-pill {
+  color: #a8dfad !important;
+  background: rgba(80, 137, 74, .15) !important;
+  border-color: rgba(80, 137, 74, .24) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row.emphasis {
+  border-top-color: rgba(225, 238, 228, .08);
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row strong {
+  color: var(--dark-text) !important;
+}
+@media (max-width: 860px) {
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 74px minmax(0, 1fr) !important;
+  }
+  #profileSocialPanel .social-event-schedule-panel {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 620px) {
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
+/* ========================================================================== */
+/* R51 — correções finais do círculo e agenda recorrente                      */
+/* ========================================================================== */
+
+/* Barra de progresso da planta: círculo visível, ícone acima do anel e
+   porcentagem fora do anel sem ser cortada. */
+#farmView .crop-card .crop-art-progress {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  background: conic-gradient(from -90deg, #63a456 var(--growth-progress, 0%), rgba(86, 130, 82, .14) 0) !important;
+  overflow: visible !important;
+  clip-path: none !important;
+  box-shadow: 0 8px 18px rgba(53, 86, 53, .09) !important;
+}
+#farmView .crop-card .crop-art-progress::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 50% !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(245,249,242,.98));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78), 0 2px 6px rgba(43, 67, 45, .06);
+  pointer-events: none;
+}
+#farmView .crop-card .crop-art-progress > .crop-art {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 54px !important;
+  height: 54px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#farmView .crop-card .crop-art-progress > .crop-art img {
+  position: relative;
+  z-index: 3;
+  width: 50px !important;
+  height: 50px !important;
+  padding: 3px !important;
+  object-fit: contain;
+}
+#farmView .crop-card .crop-progress-percent {
+  position: absolute !important;
+  right: -7px !important;
+  bottom: -5px !important;
+  z-index: 5 !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress {
+  background: conic-gradient(from -90deg, #78bb71 var(--growth-progress, 0%), rgba(120, 187, 113, .18) 0) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,.22) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress::before {
+  background: linear-gradient(180deg, #1d261f, #18201a) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 2px 8px rgba(0,0,0,.22) !important;
+}
+@media (max-width: 620px) {
+  #farmView .crop-card .crop-art-progress {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+  }
+  #farmView .crop-card .crop-art-progress::before {
+    inset: 6px;
+  }
+  #farmView .crop-card .crop-art-progress > .crop-art {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  #farmView .crop-card .crop-art-progress > .crop-art img {
+    width: 46px !important;
+    height: 46px !important;
+  }
+}
+
+/* Agenda da comunidade: somente dia, início, duração e tempo restante quando ativo. */
+#profileSocialPanel .social-agenda-card {
+  grid-template-columns: 88px minmax(0, 1fr) 200px !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 14px !important;
+}
+#profileSocialPanel .social-event-day-chip {
+  display: grid !important;
+  gap: 2px !important;
+  align-content: center !important;
+  min-height: 72px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(64, 111, 72, .12);
+  background: linear-gradient(180deg, rgba(240,247,239,.98), rgba(255,255,255,.98));
+  text-align: center;
+}
+#profileSocialPanel .social-event-day-chip small {
+  color: var(--green-deep);
+  font-size: .62rem;
+  font-weight: 950;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+#profileSocialPanel .social-event-day-chip strong {
+  color: var(--ink);
+  font-size: .92rem;
+  font-weight: 950;
+  font-variant-numeric: tabular-nums;
+}
+#profileSocialPanel .social-event-main-block {
+  display: grid !important;
+  grid-template-columns: 48px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-width: 0;
+}
+#profileSocialPanel .social-event-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 48px !important;
+  height: 48px !important;
+  flex: 0 0 48px !important;
+  padding: 7px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(64, 111, 72, .10) !important;
+  background: rgba(239, 247, 239, .86) !important;
+}
+#profileSocialPanel .social-event-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+#profileSocialPanel .social-event-simple-copy {
+  display: grid !important;
+  gap: 4px !important;
+}
+#profileSocialPanel .social-event-simple-copy h3 {
+  margin: 0 !important;
+  font-size: .98rem !important;
+}
+#profileSocialPanel .social-event-simple-copy p {
+  margin: 0 !important;
+  color: #68796f;
+  line-height: 1.42;
+}
+#profileSocialPanel .social-event-schedule-panel {
+  display: grid !important;
+  gap: 10px !important;
+  align-content: center !important;
+  min-height: 100%;
+  padding: 12px !important;
+  border-radius: 16px !important;
+}
+#profileSocialPanel .social-event-info-row {
+  display: grid !important;
+  gap: 2px !important;
+}
+#profileSocialPanel .social-event-info-row small {
+  color: var(--ink-soft) !important;
+  font-size: .58rem !important;
+  font-weight: 950 !important;
+  letter-spacing: .055em !important;
+  text-transform: uppercase !important;
+}
+#profileSocialPanel .social-event-info-row strong {
+  color: var(--ink) !important;
+  font-size: .92rem !important;
+  font-weight: 900 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#profileSocialPanel .social-event-info-row.emphasis {
+  margin-top: 2px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(64, 111, 72, .10);
+}
+#profileSocialPanel .social-event-info-row.emphasis strong {
+  font-size: 1.05rem !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-chip,
+html[data-theme="dark"] #profileSocialPanel .social-event-icon,
+html[data-theme="dark"] #profileSocialPanel .social-event-schedule-panel {
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-chip {
+  background: linear-gradient(180deg, #202a24, #1a221d) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-chip small {
+  color: #93d39a !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-chip strong,
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row strong,
+html[data-theme="dark"] #profileSocialPanel .social-event-simple-copy h3 {
+  color: var(--dark-text) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-simple-copy p {
+  color: #9dada2 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row.emphasis {
+  border-top-color: rgba(225,238,228,.08) !important;
+}
+@media (max-width: 860px) {
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 78px minmax(0, 1fr) !important;
+  }
+  #profileSocialPanel .social-event-schedule-panel {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 620px) {
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 1fr !important;
+  }
+  #profileSocialPanel .social-event-main-block {
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    gap: 10px !important;
+  }
+  #profileSocialPanel .social-event-icon {
+    width: 42px !important;
+    height: 42px !important;
+    flex-basis: 42px !important;
+    padding: 6px !important;
+  }
+}
+
+
+/* ========================================================================== */
+/* R52 — anel único das plantas + agenda enxuta                              */
+/* ========================================================================== */
+
+/* Um único círculo de carregamento. Nenhuma caixa interna. */
+#farmView .crop-card .crop-art-progress {
+  --ring-track: rgba(86, 130, 82, .13);
+  --ring-fill: #63a456;
+  position: relative !important;
+  isolation: isolate !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  overflow: visible !important;
+  clip-path: none !important;
+  background: conic-gradient(from -90deg, var(--ring-fill) var(--growth-progress, 0%), var(--ring-track) 0) !important;
+  box-shadow: none !important;
+  transition: --growth-progress .18s linear !important;
+}
+#farmView .crop-card .crop-art-progress::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 6px !important;
+  z-index: 0 !important;
+  border-radius: 50% !important;
+  background: var(--surface, #fff) !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+#farmView .crop-card .crop-art-progress > .crop-art {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 64px !important;
+  height: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#farmView .crop-card .crop-art-progress > .crop-art img {
+  position: relative !important;
+  z-index: 3 !important;
+  width: 52px !important;
+  height: 52px !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 2px !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  filter: drop-shadow(0 3px 5px rgba(45, 72, 47, .10)) !important;
+}
+#farmView .crop-card .crop-progress-percent {
+  position: absolute !important;
+  right: -8px !important;
+  bottom: -5px !important;
+  z-index: 6 !important;
+  overflow: visible !important;
+}
+#farmView .crop-card .crop-art-progress.progress-resetting {
+  transition: none !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress {
+  --ring-track: rgba(120, 187, 113, .16);
+  --ring-fill: #78bb71;
+  background: conic-gradient(from -90deg, var(--ring-fill) var(--growth-progress, 0%), var(--ring-track) 0) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-art-progress::before {
+  background: #1b241e !important;
+}
+@media (max-width: 620px) {
+  #farmView .crop-card .crop-art-progress,
+  #farmView .crop-card .crop-art-progress > .crop-art {
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+  }
+  #farmView .crop-card .crop-art-progress::before { inset: 6px !important; }
+  #farmView .crop-card .crop-art-progress > .crop-art img {
+    width: 49px !important;
+    height: 49px !important;
+  }
+}
+
+/* Agenda: sem contagem no cabeçalho; ícone maior; dia junto ao horário/duração. */
+#profileSocialPanel .social-events-accordion-copy em,
+#profileSocialPanel #socialEventsSummary {
+  display: none !important;
+}
+#profileSocialPanel .social-agenda-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 220px !important;
+  align-items: stretch !important;
+  gap: 16px !important;
+  padding: 15px !important;
+}
+#profileSocialPanel .social-event-main-block {
+  display: grid !important;
+  grid-template-columns: 68px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+#profileSocialPanel .social-event-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 68px !important;
+  height: 68px !important;
+  min-width: 68px !important;
+  padding: 8px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(64, 111, 72, .10) !important;
+  background: rgba(239, 247, 239, .72) !important;
+}
+#profileSocialPanel .social-event-icon img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+#profileSocialPanel .social-event-schedule-panel {
+  display: grid !important;
+  gap: 10px !important;
+  align-content: center !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+}
+#profileSocialPanel .social-event-day-inline {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  padding-bottom: 9px !important;
+  border-bottom: 1px solid rgba(64, 111, 72, .09) !important;
+}
+#profileSocialPanel .social-event-day-inline > span {
+  display: grid !important;
+  gap: 1px !important;
+}
+#profileSocialPanel .social-event-day-inline small,
+#profileSocialPanel .social-event-info-row small {
+  color: var(--ink-soft) !important;
+  font-size: .56rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .055em !important;
+  text-transform: uppercase !important;
+}
+#profileSocialPanel .social-event-day-inline strong {
+  color: var(--green-deep) !important;
+  font-size: .86rem !important;
+  font-weight: 950 !important;
+}
+#profileSocialPanel .social-event-day-inline > b {
+  color: var(--ink) !important;
+  font-size: .9rem !important;
+  font-weight: 950 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#profileSocialPanel .social-event-schedule-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+#profileSocialPanel .social-event-info-row {
+  display: grid !important;
+  gap: 2px !important;
+}
+#profileSocialPanel .social-event-info-row strong {
+  color: var(--ink) !important;
+  font-size: .9rem !important;
+  font-weight: 900 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#profileSocialPanel .social-event-info-row.emphasis {
+  margin: 0 !important;
+  padding: 9px 0 0 !important;
+  border-top: 1px solid rgba(64, 111, 72, .09) !important;
+}
+#profileSocialPanel .social-event-info-row.emphasis strong {
+  font-size: 1.04rem !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-icon {
+  background: #202a24 !important;
+  border-color: rgba(225,238,228,.07) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-inline,
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row.emphasis {
+  border-color: rgba(225,238,228,.08) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-inline strong {
+  color: #9bd7a1 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-day-inline > b,
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row strong {
+  color: var(--dark-text) !important;
+}
+@media (max-width: 760px) {
+  #profileSocialPanel .social-agenda-card {
+    grid-template-columns: 1fr !important;
+  }
+  #profileSocialPanel .social-event-main-block {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+  }
+  #profileSocialPanel .social-event-icon {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    padding: 7px !important;
+  }
+}
+
+
+/* ========================================================================== */
+/* R53 — REMAKE TOTAL DO CARREGAMENTO DAS PLANTAS                            */
+/* Componente novo: SVG circular + imagem e porcentagem sobrepostas.          */
+/* ========================================================================== */
+
+#farmView .crop-card .crop-head {
+  grid-template-columns: 60px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+#farmView .crop-card .crop-loader {
+  --crop-loader-size: 60px;
+  --crop-loader-track: rgba(75, 119, 72, .13);
+  --crop-loader-progress: #63a456;
+  position: relative;
+  isolation: isolate;
+  width: var(--crop-loader-size);
+  height: var(--crop-loader-size);
+  min-width: var(--crop-loader-size);
+  min-height: var(--crop-loader-size);
+  overflow: visible;
+  border-radius: 50%;
+}
+
+#farmView .crop-card .crop-loader-svg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+#farmView .crop-card .crop-loader-track,
+#farmView .crop-card .crop-loader-progress {
+  fill: none;
+  stroke-width: 5;
+  vector-effect: non-scaling-stroke;
+}
+
+#farmView .crop-card .crop-loader-track {
+  stroke: var(--crop-loader-track);
+}
+
+#farmView .crop-card .crop-loader-progress {
+  stroke: var(--crop-loader-progress);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 160ms linear;
+  will-change: stroke-dashoffset;
+}
+
+#farmView .crop-card .crop-loader.is-resetting .crop-loader-progress {
+  transition: none !important;
+}
+
+#farmView .crop-card .crop-loader.is-static .crop-loader-progress {
+  stroke-dashoffset: 0 !important;
+}
+
+#farmView .crop-card .crop-loader-image {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  padding: 3px;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  pointer-events: none;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  filter: drop-shadow(0 4px 6px rgba(46, 73, 47, .12));
+}
+
+#farmView .crop-card .crop-loader-percent {
+  position: absolute;
+  z-index: 5;
+  right: -7px;
+  bottom: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 31px;
+  height: 21px;
+  padding: 0 6px;
+  border: 2px solid rgba(255, 255, 255, .92);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #5f9e59, #4d874a);
+  box-shadow: 0 3px 8px rgba(46, 77, 47, .18);
+  color: #fff;
+  font-size: .55rem;
+  font-weight: 950;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#farmView .crop-card .crop-loader-percent[hidden] {
+  display: none !important;
+}
+
+html[data-theme="dark"] #farmView .crop-card .crop-loader {
+  --crop-loader-track: rgba(126, 190, 120, .18);
+  --crop-loader-progress: #78bb71;
+}
+
+html[data-theme="dark"] #farmView .crop-card .crop-loader-percent {
+  border-color: #1a231d;
+  background: linear-gradient(135deg, #6cad66, #4f8d4d);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #farmView .crop-card .crop-loader-progress {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 620px) {
+  #farmView .crop-card .crop-head {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+  }
+  #farmView .crop-card .crop-loader {
+    --crop-loader-size: 58px;
+  }
+  #farmView .crop-card .crop-loader-image {
+    width: 46px;
+    height: 46px;
+  }
+  #farmView .crop-card .crop-loader-percent {
+    right: -6px;
+    bottom: -5px;
+  }
+}
+
+
+/* ========================================================================== */
+/* R54 — Fazenda mais clean + recursos que nunca estouram                     */
+/* ========================================================================== */
+
+/* Base dos valores: ícone e número respeitam sempre o espaço disponível. */
+.resource-amount {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  width: auto !important;
+  flex: 0 1 auto !important;
+  overflow: hidden !important;
+}
+.resource-amount img {
+  flex: 0 0 auto !important;
+  max-width: 100% !important;
+}
+.resource-amount b {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.resource-reward-group,
+.contract-reward-values,
+.mission-reward-content {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Card da Fazenda: menos camadas, menos brilho e hierarquia mais clara. */
+#farmView .crop-card {
+  --crop-card-pad: 12px;
+  background: color-mix(in srgb, var(--surface) 96%, #f7faf4) !important;
+  border: 1px solid rgba(63, 94, 66, .10) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 5px 16px rgba(38, 59, 41, .055) !important;
+  backdrop-filter: none !important;
+  gap: 10px !important;
+  padding-bottom: 11px !important;
+}
+#farmView .crop-card:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 9px 23px rgba(38, 59, 41, .085) !important;
+}
+#farmView .crop-card::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* O nível deixa de ser uma faixa pesada e vira apenas um cabeçalho discreto. */
+#farmView .crop-level-strip {
+  min-height: 29px !important;
+  margin-inline: calc(var(--crop-card-pad) * -1) !important;
+  padding: 6px var(--crop-card-pad) 5px !important;
+  background: transparent !important;
+  border-bottom: 1px solid rgba(63, 94, 66, .075) !important;
+  color: var(--ink-soft) !important;
+}
+#farmView .crop-level-compact {
+  color: var(--ink-soft) !important;
+  font-size: .59rem !important;
+  font-weight: 800 !important;
+}
+#farmView .crop-level-compact strong {
+  color: var(--ink) !important;
+  font-size: .72rem !important;
+}
+#farmView .crop-level-compact small {
+  color: var(--ink-soft) !important;
+  opacity: .72;
+}
+
+#farmView .crop-head {
+  min-height: 64px;
+  padding-inline: 1px;
+}
+#farmView .crop-info {
+  display: grid !important;
+  align-content: center !important;
+  gap: 3px !important;
+}
+#farmView .crop-title-row h3 {
+  color: var(--ink) !important;
+  font-size: .88rem !important;
+  letter-spacing: -.025em !important;
+  line-height: 1.15 !important;
+}
+#farmView .crop-category-list {
+  color: var(--ink-soft) !important;
+  font-size: .57rem !important;
+  font-weight: 750 !important;
+  opacity: .82;
+}
+
+/* Painel de aprimoramento vira um bloco plano, com menos elementos concorrendo. */
+#farmView .crop-upgrade-redesign {
+  background: rgba(77, 112, 75, .035) !important;
+  border: 1px solid rgba(63, 94, 66, .075) !important;
+  border-radius: 12px !important;
+  gap: 7px !important;
+  padding: 7px !important;
+}
+#farmView .upgrade-mode-selector {
+  background: rgba(69, 103, 65, .065) !important;
+  border-radius: 9px !important;
+  padding: 2px !important;
+}
+#farmView .upgrade-mode-option {
+  border-radius: 7px !important;
+  min-height: 29px !important;
+  font-size: .60rem !important;
+  box-shadow: none !important;
+}
+#farmView .upgrade-mode-option.active {
+  background: #5d9157 !important;
+  box-shadow: none !important;
+}
+#farmView .crop-upgrade-summary {
+  min-width: 0 !important;
+  justify-content: flex-end !important;
+}
+#farmView .crop-upgrade-summary > strong {
+  min-width: 39px !important;
+  min-height: 27px !important;
+  padding-inline: 8px !important;
+  background: rgba(255,255,255,.72) !important;
+  border-color: rgba(63, 94, 66, .09) !important;
+  box-shadow: none !important;
+}
+
+/* Botões de compra/aprimoramento: texto e custo possuem áreas próprias. */
+#farmView .crop-upgrade-cta,
+#farmView .crop-buy-button:has(.crop-buy-button-cost) {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: 5px 7px 5px 11px !important;
+  text-align: left !important;
+}
+#farmView .crop-upgrade-button-label,
+#farmView .crop-buy-button-label {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#farmView .crop-upgrade-button-cost,
+#farmView .crop-buy-button-cost {
+  display: flex !important;
+  justify-content: flex-end !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+#farmView .crop-upgrade-cta .resource-amount,
+#farmView .crop-buy-button .resource-amount {
+  flex: 0 1 auto !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 24px !important;
+  padding: 3px 6px 3px 4px !important;
+  gap: 3px !important;
+  overflow: hidden !important;
+}
+#farmView .crop-upgrade-cta .resource-amount img,
+#farmView .crop-buy-button .resource-amount img {
+  width: 15px !important;
+  height: 15px !important;
+}
+#farmView .crop-upgrade-cta .resource-amount b,
+#farmView .crop-buy-button .resource-amount b {
+  font-size: clamp(.56rem, .85vw, .65rem) !important;
+  line-height: 1 !important;
+}
+
+/* Estado bloqueado mantém frase inteira centralizada. */
+#farmView .crop-buy-button:disabled {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  padding-inline: 8px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Valores em recompensas: compactação segura sem deixar o ícone escapar. */
+#officeContractsPanel .resource-amount,
+#profileMissionsPanel .resource-amount,
+#profileView .resource-amount,
+#officeEvolutionsPanel .resource-amount {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+html[data-theme="dark"] #farmView .crop-card {
+  background: #18211b !important;
+  border-color: rgba(225,238,228,.07) !important;
+  box-shadow: 0 7px 20px rgba(0,0,0,.16) !important;
+}
+html[data-theme="dark"] #farmView .crop-level-strip {
+  background: transparent !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #farmView .crop-level-compact,
+html[data-theme="dark"] #farmView .crop-level-compact small,
+html[data-theme="dark"] #farmView .crop-category-list {
+  color: #95a59a !important;
+}
+html[data-theme="dark"] #farmView .crop-level-compact strong,
+html[data-theme="dark"] #farmView .crop-title-row h3 {
+  color: #eef5f0 !important;
+}
+html[data-theme="dark"] #farmView .crop-upgrade-redesign {
+  background: rgba(255,255,255,.025) !important;
+  border-color: rgba(225,238,228,.065) !important;
+}
+html[data-theme="dark"] #farmView .upgrade-mode-selector {
+  background: rgba(255,255,255,.045) !important;
+}
+html[data-theme="dark"] #farmView .crop-upgrade-summary > strong {
+  background: rgba(255,255,255,.045) !important;
+  border-color: rgba(225,238,228,.07) !important;
+  color: #b7d7b7 !important;
+}
+
+@media (max-width: 520px) {
+  #farmView .crop-card,
+  body.compact-cards #farmView .crop-card {
+    --crop-card-pad: 8px !important;
+    gap: 7px !important;
+    padding-inline: var(--crop-card-pad) !important;
+    padding-bottom: 8px !important;
+  }
+  #farmView .crop-upgrade-redesign {
+    padding: 6px !important;
+    gap: 6px !important;
+  }
+  #farmView .crop-upgrade-cta,
+  #farmView .crop-buy-button:has(.crop-buy-button-cost) {
+    padding: 4px 5px 4px 8px !important;
+    gap: 4px !important;
+    font-size: .61rem !important;
+  }
+  #farmView .crop-upgrade-cta .resource-amount,
+  #farmView .crop-buy-button .resource-amount {
+    padding: 2px 4px 2px 3px !important;
+    min-height: 22px !important;
+  }
+  #farmView .crop-upgrade-cta .resource-amount img,
+  #farmView .crop-buy-button .resource-amount img {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  #farmView .crop-upgrade-cta .resource-amount b,
+  #farmView .crop-buy-button .resource-amount b {
+    font-size: .56rem !important;
+  }
+}
+
+/* ========================================================================== */
+/* R55 — descrição full-width, CTA sem reticências e XP na própria borda     */
+/* ========================================================================== */
+
+/* Evoluções/Legados: o badge nunca participa do layout. A descrição sempre
+   ocupa toda a largura útil do card, inclusive nos breakpoints antigos que
+   convertiam esses cards para três colunas. */
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card,
+#profileView .prestige-grid .redesigned-evolution-card {
+  position: relative !important;
+  display: grid !important;
+  grid-template-areas:
+    "identity"
+    "description"
+    "action" !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto !important;
+  align-items: start !important;
+  align-content: start !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-level-badge,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card .upgrade-level-badge,
+#profileView .prestige-grid .redesigned-evolution-card .upgrade-level-badge {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  z-index: 4 !important;
+  justify-self: auto !important;
+  width: auto !important;
+  max-width: calc(100% - 24px) !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-card-identity,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card .upgrade-card-identity,
+#profileView .prestige-grid .redesigned-evolution-card .upgrade-card-identity {
+  grid-area: identity !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  padding-right: 88px !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-description,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card .upgrade-description,
+#profileView .prestige-grid .redesigned-evolution-card .upgrade-description {
+  grid-area: description !important;
+  display: block !important;
+  justify-self: stretch !important;
+  align-self: start !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card > .button,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card > .button,
+#profileView .prestige-grid .redesigned-evolution-card > .button {
+  grid-area: action !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin-top: 2px !important;
+}
+
+/* Fazenda: “Aprimorar” é conteúdo prioritário e nunca pode ser truncado.
+   O custo recebe todo o espaço restante e compacta somente o valor se preciso. */
+#farmView .crop-upgrade-cta {
+  grid-template-columns: max-content minmax(0, 1fr) !important;
+  column-gap: 7px !important;
+}
+#farmView .crop-upgrade-button-label {
+  display: block !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+#farmView .crop-upgrade-button-cost {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  justify-content: flex-end !important;
+  overflow: hidden !important;
+}
+#farmView .crop-upgrade-button-cost .resource-amount {
+  min-width: 0 !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+}
+#farmView .crop-upgrade-button-cost .resource-amount b {
+  min-width: 0 !important;
+  font-size: clamp(.50rem, .78vw, .64rem) !important;
+  letter-spacing: -.015em !important;
+}
+@media (max-width: 520px) {
+  #farmView .crop-upgrade-cta {
+    column-gap: 4px !important;
+    padding-left: 7px !important;
+    padding-right: 4px !important;
+  }
+  #farmView .crop-upgrade-button-label {
+    font-size: .59rem !important;
+  }
+  #farmView .crop-upgrade-button-cost .resource-amount {
+    gap: 2px !important;
+    padding-inline: 3px !important;
+  }
+  #farmView .crop-upgrade-button-cost .resource-amount img {
+    width: 13px !important;
+    height: 13px !important;
+  }
+  #farmView .crop-upgrade-button-cost .resource-amount b {
+    font-size: .50rem !important;
+  }
+}
+
+/* XP da fazenda: a própria borda externa é a barra de progresso. Não há mais
+   borda estática + espaço + anel interno. */
+.resource-pill.farm-xp-resource {
+  --farm-xp-ring: #4f995b;
+  --farm-xp-track: rgba(79,153,91,.18);
+  position: relative !important;
+  isolation: isolate !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  background-clip: padding-box !important;
+}
+.resource-pill.farm-xp-resource::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  box-sizing: border-box !important;
+  padding: 3px !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  background: conic-gradient(
+    from -90deg,
+    var(--farm-xp-ring) 0 var(--farm-xp-progress, 0%),
+    var(--farm-xp-track) var(--farm-xp-progress, 0%) 100%
+  ) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask-composite: exclude !important;
+}
+.resource-pill.farm-xp-resource > * {
+  position: relative !important;
+  z-index: 2 !important;
+}
+.resource-pill.farm-xp-resource.max-level {
+  --farm-xp-ring: #2f7a40;
+}
+html[data-theme="dark"] .resource-pill.farm-xp-resource {
+  --farm-xp-ring: #72b77d;
+  --farm-xp-track: rgba(114,183,125,.18);
+  border: 0 !important;
+}
+
+/* ========================================================================== */
+/* R56 — grade responsiva, topo verde, descrição full-width e XP mais grosso */
+/* ========================================================================== */
+
+/* Fazenda: o cabeçalho do nível volta a preencher todo o topo do card. */
+#farmView .crop-card .crop-level-strip {
+  margin: 0 calc(var(--crop-card-pad) * -1) !important;
+  min-height: 30px !important;
+  padding: 6px var(--crop-card-pad) !important;
+  background: linear-gradient(90deg, rgba(209, 234, 198, .98), rgba(229, 243, 218, .96)) !important;
+  border-bottom: 1px solid rgba(62, 111, 67, .12) !important;
+  color: #315f37 !important;
+}
+#farmView .crop-card .crop-level-compact {
+  color: #426c47 !important;
+}
+#farmView .crop-card .crop-level-compact strong {
+  color: #244d2c !important;
+}
+#farmView .crop-card .crop-level-compact small {
+  color: rgba(49, 95, 55, .62) !important;
+}
+#farmView .crop-card.locked .crop-level-strip,
+#farmView .crop-card .locked-level-strip {
+  background: linear-gradient(90deg, rgba(218, 232, 210, .92), rgba(235, 241, 229, .94)) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-strip {
+  background: linear-gradient(90deg, rgba(55, 89, 60, .78), rgba(45, 70, 50, .72)) !important;
+  border-bottom-color: rgba(142, 192, 149, .12) !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-compact,
+html[data-theme="dark"] #farmView .crop-card .crop-level-compact small {
+  color: #a8c9ad !important;
+}
+html[data-theme="dark"] #farmView .crop-card .crop-level-compact strong {
+  color: #e6f3e8 !important;
+}
+
+/* Fazenda: tablet = 3 colunas; celular = 2 colunas. */
+@media (min-width: 601px) and (max-width: 1024px) {
+  #farmView .crop-grid,
+  body.compact-cards #farmView .crop-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+}
+@media (max-width: 600px) {
+  #farmView .crop-grid,
+  body.compact-cards #farmView .crop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+}
+
+/* Missões: tablet = 2 colunas; celular = 1 coluna. */
+@media (min-width: 601px) and (max-width: 900px) {
+  #profileMissionsPanel .mission-grid,
+  .mission-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 9px !important;
+  }
+}
+@media (max-width: 600px) {
+  #profileMissionsPanel .mission-grid,
+  .mission-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Evoluções/Legados: a descrição ocupa fisicamente toda a largura do card.
+   O badge continua absoluto e não reserva nenhuma coluna ou margem. */
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card,
+#profileView .prestige-grid .redesigned-evolution-card {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas: "identity" "description" "action" !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-level-badge,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card .upgrade-level-badge,
+#profileView .prestige-grid .redesigned-evolution-card .upgrade-level-badge {
+  position: absolute !important;
+  right: 12px !important;
+  top: 12px !important;
+  margin: 0 !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-description,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card .upgrade-description,
+#profileView .prestige-grid .redesigned-evolution-card .upgrade-description {
+  grid-area: description !important;
+  grid-column: 1 / -1 !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  inline-size: 100% !important;
+  width: 100% !important;
+  min-inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  justify-self: stretch !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  float: none !important;
+  clear: both !important;
+}
+:is(#officeView .office-evolutions-panel, #profileView .prestige-profile-panel) .redesigned-evolution-card .upgrade-description > *,
+#officeEvolutionsPanel .prestige-grid .redesigned-evolution-card .upgrade-description > *,
+#profileView .prestige-grid .redesigned-evolution-card .upgrade-description > * {
+  max-width: none !important;
+}
+
+/* XP: mesma posição aprovada, apenas engrossa a borda de progresso. */
+.resource-pill.farm-xp-resource::before {
+  padding: 4px !important;
+}
+
+/* Correção específica das descrições das missões: o badge de série é absoluto,
+   então somente o título reserva espaço para ele. A descrição usa 100%. */
+#profileMissionsPanel .mission-card .mission-head,
+#profileMissionsPanel .mission-card .mission-head > div {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding-right: 0 !important;
+  box-sizing: border-box !important;
+}
+#profileMissionsPanel .mission-card .mission-head h3 {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  padding-right: 92px !important;
+}
+#profileMissionsPanel .mission-card .mission-head p {
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+@media (max-width: 560px) {
+  #profileMissionsPanel .mission-card .mission-head > div { padding-right: 0 !important; }
+  #profileMissionsPanel .mission-card .mission-head h3 { padding-right: 78px !important; }
+}
+
+/* Com as duas novas estatísticas, dez cards ficam balanceados em 5x2 no
+   desktop e 2 colunas em larguras menores. */
+@media (min-width: 1100px) {
+  #profileAccountPanel #lifetimeStats.stats-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 381px) and (max-width: 1099px) {
+  #profileAccountPanel #lifetimeStats.stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* ========================================================================== */
+/* R57 — agenda em grid + contratos com paleta cromática normalizada         */
+/* ========================================================================== */
+
+/* Agenda: conjunto de eventos em 3/2/1 colunas. */
+#profileSocialPanel .social-events-accordion-body {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 14px !important;
+}
+#profileSocialPanel .social-live-empty {
+  grid-column: 1 / -1 !important;
+}
+
+/* Cada evento é uma coluna com exatamente duas faixas: identidade e agenda. */
+#profileSocialPanel .social-agenda-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto auto !important;
+  align-content: start !important;
+  gap: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 17px !important;
+  background: #fff !important;
+  border: 1px solid rgba(64, 103, 68, .12) !important;
+  box-shadow: 0 8px 22px rgba(35, 58, 38, .045) !important;
+}
+#profileSocialPanel .social-agenda-card.active {
+  border-color: rgba(75, 132, 80, .24) !important;
+  box-shadow: 0 9px 24px rgba(48, 91, 53, .08) !important;
+}
+
+/* Linha 1 — ícone grande + nome + descrição. */
+#profileSocialPanel .social-event-main-block {
+  display: grid !important;
+  grid-template-columns: 76px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 13px !important;
+  min-width: 0 !important;
+  padding: 15px !important;
+}
+#profileSocialPanel .social-event-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 76px !important;
+  height: 76px !important;
+  min-width: 76px !important;
+  padding: 8px !important;
+  border-radius: 17px !important;
+  border: 1px solid rgba(65, 109, 69, .09) !important;
+  background: rgba(239, 247, 239, .72) !important;
+}
+#profileSocialPanel .social-event-icon img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+#profileSocialPanel .social-event-simple-copy {
+  display: grid !important;
+  align-content: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+#profileSocialPanel .social-event-simple-copy h3 {
+  margin: 0 !important;
+  font-size: .96rem !important;
+  line-height: 1.2 !important;
+}
+#profileSocialPanel .social-event-simple-copy p {
+  display: -webkit-box !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  color: #68766d !important;
+  font-size: .72rem !important;
+  line-height: 1.42 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+}
+
+/* Linha 2 — todas as informações temporais juntas. */
+#profileSocialPanel .social-event-schedule-panel {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-content: start !important;
+  gap: 8px 10px !important;
+  min-height: 0 !important;
+  padding: 12px 15px 14px !important;
+  border: 0 !important;
+  border-top: 1px solid rgba(64, 103, 68, .09) !important;
+  border-radius: 0 !important;
+  background: rgba(246, 249, 245, .72) !important;
+  box-shadow: none !important;
+}
+#profileSocialPanel .social-event-info-row {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+#profileSocialPanel .social-event-info-row small {
+  color: #8a968d !important;
+  font-size: .52rem !important;
+  font-weight: 900 !important;
+  letter-spacing: .055em !important;
+  text-transform: uppercase !important;
+}
+#profileSocialPanel .social-event-info-row strong {
+  min-width: 0 !important;
+  color: #2f3f34 !important;
+  font-size: .77rem !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#profileSocialPanel .social-event-day-row strong span {
+  color: #7d8b80 !important;
+  font-size: .68rem !important;
+  font-weight: 800 !important;
+}
+#profileSocialPanel .social-event-status-row strong {
+  color: #68766c !important;
+}
+#profileSocialPanel .social-event-status-row.is-live strong,
+#profileSocialPanel .social-event-time-left strong {
+  color: #3f7b49 !important;
+}
+#profileSocialPanel .social-event-time-left {
+  grid-column: 1 / -1 !important;
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(65, 109, 69, .09) !important;
+}
+#profileSocialPanel .social-event-time-left strong {
+  font-size: .92rem !important;
+}
+
+@media (min-width: 621px) and (max-width: 1024px) {
+  #profileSocialPanel .social-events-accordion-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 620px) {
+  #profileSocialPanel .social-events-accordion-body {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 10px !important;
+  }
+  #profileSocialPanel .social-event-main-block {
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+    gap: 11px !important;
+    padding: 13px !important;
+  }
+  #profileSocialPanel .social-event-icon {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    padding: 7px !important;
+  }
+}
+
+html[data-theme="dark"] #profileSocialPanel .social-agenda-card {
+  background: #18211b !important;
+  border-color: rgba(226, 238, 228, .075) !important;
+  box-shadow: 0 9px 24px rgba(0, 0, 0, .17) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-icon {
+  background: #202a24 !important;
+  border-color: rgba(226, 238, 228, .07) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-simple-copy h3,
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row strong {
+  color: #e5eee7 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-simple-copy p,
+html[data-theme="dark"] #profileSocialPanel .social-event-info-row small,
+html[data-theme="dark"] #profileSocialPanel .social-event-day-row strong span {
+  color: #95a39a !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-schedule-panel {
+  background: rgba(13, 19, 15, .24) !important;
+  border-top-color: rgba(226, 238, 228, .07) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-status-row.is-live strong,
+html[data-theme="dark"] #profileSocialPanel .social-event-time-left strong {
+  color: #9bd6a4 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-event-time-left {
+  border-top-color: rgba(226, 238, 228, .07) !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Contratos: uma cor de texto + uma cor de superfície por tipo.              */
+/* -------------------------------------------------------------------------- */
+#officeContractsPanel .contract-card-v5 {
+  --contract-tone-text: color-mix(in srgb, var(--contract-type-color, #6b9870) 72%, #26352b);
+  --contract-tone-surface: color-mix(in srgb, var(--contract-type-color, #6b9870) 9%, #ffffff);
+  --contract-tone-border: color-mix(in srgb, var(--contract-type-color, #6b9870) 18%, #dce5dc);
+  --contract-tone-track: color-mix(in srgb, var(--contract-type-color, #6b9870) 9%, #e7ece7);
+  background: #ffffff !important;
+  border-color: var(--contract-tone-border) !important;
+  border-top: 3px solid var(--contract-tone-text) !important;
+  box-shadow: 0 9px 23px rgba(40, 62, 43, .055) !important;
+}
+#officeContractsPanel .contract-card-v5:hover {
+  border-color: var(--contract-tone-border) !important;
+  border-top-color: var(--contract-tone-text) !important;
+  box-shadow: 0 12px 28px rgba(40, 62, 43, .075) !important;
+}
+
+/* Toda caixa temática usa exatamente a mesma superfície/borda. */
+#officeContractsPanel .contract-card-v5 :is(
+  .contract-card-header-v5,
+  .contract-company-icon-v5,
+  .contract-time-badge-v5,
+  .contract-type-label-v5,
+  .contract-crop-item-v5,
+  .contract-crop-art-v5,
+  .contract-progress-v5,
+  .contract-reward-v5
+) {
+  background: var(--contract-tone-surface) !important;
+  border-color: var(--contract-tone-border) !important;
+  box-shadow: none !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-card-header-v5 {
+  border-bottom: 1px solid var(--contract-tone-border) !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-crop-art-v5 {
+  box-shadow: inset 0 0 0 1px var(--contract-tone-border) !important;
+}
+
+/* Todo texto que carrega identidade do tipo usa exatamente o mesmo tom. */
+#officeContractsPanel .contract-card-v5 :is(
+  .contract-type-label-v5,
+  .contract-time-badge-v5,
+  .contract-crop-item-v5 > strong,
+  .contract-progress-v5-head strong,
+  .contract-reward-title
+) {
+  color: var(--contract-tone-text) !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-type-label-v5 i {
+  background: var(--contract-tone-text) !important;
+}
+
+/* Progresso: trilho neutro e preenchimento no mesmo tom do texto. */
+#officeContractsPanel .contract-card-v5 .contract-progress-v5 .progress-track {
+  background: var(--contract-tone-track) !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-progress-v5 .progress-track > span {
+  background: var(--contract-tone-text) !important;
+}
+
+/* Recursos dentro da recompensa não ganham uma terceira tonalidade do contrato. */
+#officeContractsPanel .contract-card-v5 .contract-reward-v5 .resource-amount {
+  background: rgba(255, 255, 255, .72) !important;
+  border-color: var(--contract-tone-border) !important;
+}
+
+/* Botão de assinatura usa o mesmo tom cromático do tipo, sem gradiente extra. */
+#officeContractsPanel .contract-offer-card .contract-actions-v5 .button.primary:not(:disabled) {
+  background: var(--contract-tone-text) !important;
+  border-color: var(--contract-tone-text) !important;
+  box-shadow: none !important;
+  color: #fff !important;
+}
+
+/* Concluído mantém o mesmo sistema cromático; o estado vem do texto do badge. */
+#officeContractsPanel .contract-card-v5.contract-completed-card {
+  background: #fff !important;
+  border-color: var(--contract-tone-border) !important;
+  border-top-color: var(--contract-tone-text) !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-time-completed-v5 {
+  background: var(--contract-tone-surface) !important;
+  border-color: var(--contract-tone-border) !important;
+  color: var(--contract-tone-text) !important;
+}
+
+/* Quebrar contrato: linguagem de ação crítica independente da cor do tipo. */
+#officeContractsPanel .contract-break-button-v3 {
+  position: relative !important;
+  overflow: hidden !important;
+  border: 1px solid #303832 !important;
+  background: linear-gradient(180deg, #3a423c, #2e3530) !important;
+  color: #ffffff !important;
+  box-shadow: 0 5px 12px rgba(24, 31, 26, .13) !important;
+}
+#officeContractsPanel .contract-break-button-v3::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #d6a83f;
+  pointer-events: none;
+}
+#officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  border-color: #202620 !important;
+  background: linear-gradient(180deg, #454e47, #343c36) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+}
+#officeContractsPanel .contract-break-button-v3 .resource-amount {
+  background: rgba(255, 255, 255, .09) !important;
+  border-color: rgba(255, 255, 255, .13) !important;
+  color: #fff !important;
+}
+#officeContractsPanel .contract-break-button-v3 .resource-amount b {
+  color: #fff !important;
+}
+
+/* Dark: mesmas duas tonalidades conceituais, adaptadas ao fundo escuro. */
+html[data-theme="dark"] #officeContractsPanel .contract-card-v5 {
+  --contract-tone-text: color-mix(in srgb, var(--contract-type-color, #8fbd92) 64%, #e8f0e9);
+  --contract-tone-surface: color-mix(in srgb, var(--contract-type-color, #6b9870) 9%, #1b241e);
+  --contract-tone-border: color-mix(in srgb, var(--contract-type-color, #6b9870) 20%, #314037);
+  --contract-tone-track: color-mix(in srgb, var(--contract-type-color, #6b9870) 8%, #252f29);
+  background: #18211b !important;
+  border-color: var(--contract-tone-border) !important;
+  border-top-color: var(--contract-tone-text) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v5 :is(
+  .contract-card-header-v5,
+  .contract-company-icon-v5,
+  .contract-time-badge-v5,
+  .contract-type-label-v5,
+  .contract-crop-item-v5,
+  .contract-crop-art-v5,
+  .contract-progress-v5,
+  .contract-reward-v5
+) {
+  background: var(--contract-tone-surface) !important;
+  border-color: var(--contract-tone-border) !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v5 .contract-reward-v5 .resource-amount {
+  background: rgba(8, 13, 10, .24) !important;
+  border-color: var(--contract-tone-border) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3 {
+  border-color: #4b554d !important;
+  background: linear-gradient(180deg, #333b35, #282f2a) !important;
+  color: #f4f7f4 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3::before {
+  background: #ddb755 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3:hover:not(:disabled) {
+  border-color: #606d63 !important;
+  background: linear-gradient(180deg, #3b463e, #2d3630) !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-break-button-v3 .resource-amount {
+  background: rgba(255, 255, 255, .06) !important;
+  border-color: rgba(255, 255, 255, .10) !important;
+}
+
+/* R57.1 — ações positivas do contrato seguem a própria paleta do tipo. */
+#officeContractsPanel .contract-card-v5 .contract-claim-action,
+#officeContractsPanel .contract-offer-card .contract-actions-v5 .button.primary:not(:disabled) {
+  background: var(--contract-tone-text) !important;
+  border-color: var(--contract-tone-text) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-card-v5 .contract-claim-action,
+html[data-theme="dark"] #officeContractsPanel .contract-offer-card .contract-actions-v5 .button.primary:not(:disabled) {
+  background: var(--contract-tone-text) !important;
+  border-color: var(--contract-tone-text) !important;
+  color: #142019 !important;
+}
+
+
+
+/* ========================================================================== */
+/* R58 — filtros, conta, agenda ativa, footer, XP e estatísticas              */
+/* ========================================================================== */
+
+/* Conta visitante: aproxima o status do botão Google sem perder legibilidade. */
+#profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) .account-identity {
+  gap: 1px !important;
+}
+#profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) #accountProviderLabel {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.12 !important;
+}
+#profileAccountPanel #googleSignIn.account-inline-google-sign-in:not([hidden]) {
+  margin-top: 2px !important;
+}
+
+/* Evento ativo ganha uma identidade própria, sem alterar os cards futuros. */
+#profileSocialPanel .social-agenda-card.active {
+  background: linear-gradient(180deg, #f4fbf2 0%, #ffffff 62%) !important;
+  border-color: rgba(65, 132, 72, .34) !important;
+  box-shadow: 0 10px 26px rgba(50, 111, 58, .12) !important;
+}
+#profileSocialPanel .social-agenda-card.active .social-event-main-block {
+  background: rgba(111, 177, 103, .055) !important;
+}
+#profileSocialPanel .social-agenda-card.active .social-event-icon {
+  background: rgba(116, 184, 107, .14) !important;
+  border-color: rgba(75, 139, 80, .20) !important;
+}
+#profileSocialPanel .social-agenda-card.active .social-event-schedule-panel {
+  background: rgba(220, 241, 216, .62) !important;
+  border-top-color: rgba(65, 132, 72, .18) !important;
+}
+#profileSocialPanel .social-agenda-card.active .social-event-status-row strong,
+#profileSocialPanel .social-agenda-card.active .social-event-time-left strong {
+  color: #327340 !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-agenda-card.active {
+  background: linear-gradient(180deg, #1d2d22 0%, #18221b 68%) !important;
+  border-color: rgba(111, 190, 122, .28) !important;
+  box-shadow: 0 11px 28px rgba(0, 0, 0, .22), 0 0 0 1px rgba(111,190,122,.035) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-agenda-card.active .social-event-main-block {
+  background: rgba(93, 160, 102, .055) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-agenda-card.active .social-event-icon {
+  background: rgba(94, 163, 103, .13) !important;
+  border-color: rgba(111, 190, 122, .16) !important;
+}
+html[data-theme="dark"] #profileSocialPanel .social-agenda-card.active .social-event-schedule-panel {
+  background: rgba(60, 109, 67, .11) !important;
+  border-top-color: rgba(111, 190, 122, .12) !important;
+}
+
+/* Footer: sem marca; links começam à esquerda. */
+.app-footer {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+.app-footer .footer-brand { display: none !important; }
+.app-footer .footer-links {
+  width: auto !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  justify-self: start !important;
+  justify-content: flex-start !important;
+}
+.app-footer .footer-credit {
+  justify-self: end !important;
+  text-align: right !important;
+}
+@media (max-width: 980px) {
+  .app-footer {
+    grid-template-columns: 1fr !important;
+    justify-items: stretch !important;
+  }
+  .app-footer .footer-links {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    margin: 0 !important;
+    justify-content: flex-start !important;
+  }
+  .app-footer .footer-credit {
+    justify-self: start !important;
+    justify-items: start !important;
+    text-align: left !important;
+  }
+}
+@media (max-width: 700px) {
+  .app-footer .footer-links {
+    justify-items: stretch !important;
+  }
+  .app-footer .footer-links a,
+  .app-footer .footer-links .footer-link-button {
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+}
+
+/* Botão de cultura bloqueada: a exigência pode quebrar linha naturalmente. */
+#farmView .crop-card.locked .crop-buy-button:disabled,
+#farmView .crop-card.level-locked .crop-buy-button:disabled {
+  height: auto !important;
+  min-height: 38px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  line-height: 1.25 !important;
+  overflow-wrap: break-word !important;
+  padding-block: 7px !important;
+}
+
+/* XP: interpola o percentual da própria borda. Em troca de nível o reset é
+   instantâneo para não desenhar a barra andando para trás. */
+@property --farm-xp-progress {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 0%;
+}
+.resource-pill.farm-xp-resource {
+  transition: --farm-xp-progress .58s cubic-bezier(.22,.82,.24,1), transform .18s ease !important;
+}
+.resource-pill.farm-xp-resource.xp-ring-resetting {
+  transition: none !important;
+}
+
+/* Primeira grade de estatísticas: todos os indicadores têm a mesma hierarquia. */
+#profileAccountPanel #lifetimeStats .player-stat-card,
+#profileAccountPanel #lifetimeStats .player-stat-card.stat-featured,
+#profileAccountPanel #lifetimeStats .player-stat-card.stat-record {
+  min-height: 92px !important;
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid rgba(64,96,66,.10) !important;
+  box-shadow: 0 6px 18px rgba(37,62,40,.045) !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card strong,
+#profileAccountPanel #lifetimeStats .player-stat-card.stat-featured strong,
+#profileAccountPanel #lifetimeStats .player-stat-card.stat-record strong {
+  font-size: 1.05rem !important;
+  line-height: 1.16 !important;
+}
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card.stat-featured,
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card.stat-record {
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.018) !important;
+}
+
+
+/* ========================================================================== */
+/* R59 — platina, evoluções concluídas, estatísticas e Admin simplificado     */
+/* ========================================================================== */
+
+/* Exigência de nível: quebra exatamente depois de “Necessário:”. */
+#farmView .crop-required-label {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  justify-items: center !important;
+  gap: 1px !important;
+  width: 100% !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+}
+#farmView .crop-required-label > span { display: block !important; }
+
+/* Cultura platinada: o cabeçalho de nível sempre é dourado. */
+#farmView .crop-card.crop-mastered .crop-level-strip {
+  background: linear-gradient(90deg, #e9ca68 0%, #f4df93 52%, #e5bd4e 100%) !important;
+  border-bottom-color: rgba(137, 99, 20, .26) !important;
+  color: #684b0c !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.48) !important;
+}
+#farmView .crop-card.crop-mastered .crop-level-compact,
+#farmView .crop-card.crop-mastered .crop-level-compact small {
+  color: #775714 !important;
+}
+#farmView .crop-card.crop-mastered .crop-level-compact strong {
+  color: #533900 !important;
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered .crop-level-strip {
+  background: linear-gradient(90deg, #8b6922 0%, #a9812c 52%, #745618 100%) !important;
+  border-bottom-color: rgba(239, 203, 103, .22) !important;
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered .crop-level-compact,
+html[data-theme="dark"] #farmView .crop-card.crop-mastered .crop-level-compact small {
+  color: #f1d995 !important;
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered .crop-level-compact strong {
+  color: #fff0b9 !important;
+}
+
+/* Evoluções concluídas: pesquisa = azul; prestígio = roxo. Nenhum verde. */
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #f4f8ff 0%, #edf4ff 100%) !important;
+  border-color: rgba(61, 116, 188, .27) !important;
+  box-shadow: 0 8px 22px rgba(56, 105, 171, .075) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .upgrade-level-badge,
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .button:disabled {
+  background: #e3efff !important;
+  border-color: rgba(61, 116, 188, .20) !important;
+  color: #356aa9 !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #faf5fd 0%, #f5ecfa 100%) !important;
+  border-color: rgba(117, 69, 148, .26) !important;
+  box-shadow: 0 8px 22px rgba(104, 62, 131, .07) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed .upgrade-level-badge,
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed .button:disabled {
+  background: #f0e2f7 !important;
+  border-color: rgba(117, 69, 148, .19) !important;
+  color: #71458b !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #1b2938 0%, #172331 100%) !important;
+  border-color: rgba(102, 159, 218, .22) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .upgrade-level-badge,
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .button:disabled {
+  background: #20354a !important;
+  border-color: rgba(102,159,218,.20) !important;
+  color: #a9d0f2 !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #2a2131 0%, #221a28 100%) !important;
+  border-color: rgba(173, 119, 205, .22) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed .upgrade-level-badge,
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="prestige"].evolution-upgrade-completed .button:disabled {
+  background: #33243d !important;
+  border-color: rgba(173,119,205,.20) !important;
+  color: #d7b4ea !important;
+}
+
+/* Dez estatísticas principais: um único sistema visual mais limpo e consistente. */
+#profileAccountPanel #lifetimeStats.stats-grid {
+  gap: 10px !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card {
+  position: relative !important;
+  grid-template-columns: 44px minmax(0,1fr) !important;
+  gap: 11px !important;
+  min-height: 94px !important;
+  padding: 13px 14px !important;
+  border-radius: 15px !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,250,246,.96)) !important;
+  border: 1px solid rgba(63, 96, 66, .105) !important;
+  box-shadow: 0 5px 16px rgba(38, 60, 41, .045) !important;
+  overflow: hidden !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: #6f9e70;
+  opacity: .72;
+}
+#profileAccountPanel #lifetimeStats .player-stat-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  background: rgba(83, 132, 81, .075) !important;
+  border: 1px solid rgba(83,132,81,.08) !important;
+  box-shadow: none !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-icon img {
+  width: 29px !important;
+  height: 29px !important;
+  object-fit: contain !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card > div {
+  align-content: center !important;
+  gap: 4px !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card small {
+  color: var(--ink-soft) !important;
+  font-size: .62rem !important;
+  font-weight: 850 !important;
+  line-height: 1.15 !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card strong {
+  color: var(--ink) !important;
+  font-size: 1.02rem !important;
+  font-weight: 900 !important;
+  line-height: 1.12 !important;
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card .resource-amount {
+  max-width: 100% !important;
+}
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card {
+  background: linear-gradient(180deg, #202824 0%, #1a211e 100%) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: 0 5px 16px rgba(0,0,0,.15) !important;
+}
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card::before {
+  background: #80b483 !important;
+}
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-icon {
+  background: rgba(126,180,131,.08) !important;
+  border-color: rgba(126,180,131,.09) !important;
+}
+
+/* Admin: campos principais sem texto auxiliar. */
+.admin-balance-section .admin-balance-grid label > small { display: none !important; }
+
+
+/* ========================================================================== */
+/* R60 — evoluções, estatísticas, perfil/ranking e feedback                  */
+/* ========================================================================== */
+
+/* Pesquisa: identidade azul muito suave desde o card ainda não concluído. */
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) {
+  background: linear-gradient(180deg, #fbfdff 0%, #f3f8fd 100%) !important;
+  border-color: rgba(91, 139, 184, .17) !important;
+  box-shadow: 0 6px 18px rgba(63, 105, 146, .045) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) .upgrade-level-badge {
+  background: #edf5fc !important;
+  border-color: rgba(91, 139, 184, .13) !important;
+  color: #557fa5 !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #f7fbff 0%, #eef6fd 100%) !important;
+  border-color: rgba(77, 130, 180, .22) !important;
+  box-shadow: 0 7px 20px rgba(61, 111, 158, .055) !important;
+}
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .upgrade-level-badge,
+#officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed .button:disabled {
+  background: #e8f3fc !important;
+  border-color: rgba(77,130,180,.16) !important;
+  color: #4d789d !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"]:not([data-upgrade-completed="true"]):not(.upgrade-card-preview) {
+  background: linear-gradient(180deg, #1d252b 0%, #1a2228 100%) !important;
+  border-color: rgba(114, 158, 198, .13) !important;
+}
+html[data-theme="dark"] #officeEvolutionsPanel .redesigned-evolution-card[data-upgrade-kind="research"].evolution-upgrade-completed {
+  background: linear-gradient(180deg, #202b34 0%, #1b252d 100%) !important;
+  border-color: rgba(114,158,198,.18) !important;
+}
+
+/* Estatísticas principais: só o fundo foi redesenhado; sem barra decorativa. */
+#profileAccountPanel #lifetimeStats .player-stat-card,
+#profileAccountPanel #lifetimeStats .player-stat-card.stat-featured,
+#profileAccountPanel #lifetimeStats .player-stat-card.stat-record {
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  gap: 11px !important;
+  min-height: 92px !important;
+  padding: 13px !important;
+  border-radius: 17px !important;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(118, 158, 112, .075), transparent 42%),
+    linear-gradient(145deg, rgba(255,255,255,.99), rgba(246,250,245,.97)) !important;
+  border: 1px solid rgba(64,96,66,.10) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.86), 0 6px 18px rgba(37,62,40,.045) !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-card::before { display: none !important; content: none !important; }
+#profileAccountPanel #lifetimeStats .player-stat-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 13px !important;
+  background: linear-gradient(145deg,#edf5e9,#f8fbf6) !important;
+  border: 1px solid rgba(73,111,71,.09) !important;
+}
+#profileAccountPanel #lifetimeStats .player-stat-icon img { width: 30px !important; height: 30px !important; }
+#profileAccountPanel #lifetimeStats .player-stat-card strong { font-size: 1.05rem !important; }
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card,
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card.stat-featured,
+html[data-theme="dark"] #profileAccountPanel #lifetimeStats .player-stat-card.stat-record {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(124,177,128,.055), transparent 44%),
+    linear-gradient(145deg, #202824, #1a211e) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.02), 0 5px 16px rgba(0,0,0,.14) !important;
+}
+
+/* Conta conectada: o botão Google desaparece de forma incontornável. */
+#profileAccountPanel #googleSignIn[hidden] { display: none !important; }
+#profileAccountPanel #accountName {
+  text-transform: capitalize !important;
+  font-size: clamp(1.05rem, 1.65vw, 1.34rem) !important;
+  line-height: 1.15 !important;
+  letter-spacing: -.015em !important;
+}
+
+/* Perfil do ranking: Apelido e Avatar empilhados, ambos 100% do modal. */
+#rankingProfileDialog .player-profile-fields {
+  grid-template-columns: minmax(0, 1fr) !important;
+  width: 100% !important;
+}
+#rankingProfileDialog .profile-nickname-field,
+#rankingProfileDialog .profile-avatar-field,
+#rankingProfileDialog .profile-player-title-field {
+  grid-column: 1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+#rankingProfileDialog .avatar-picker-panel,
+#rankingProfileDialog .player-title-picker-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-inline: 0 !important;
+}
+#rankingProfileDialog .avatar-picker-heading,
+#rankingProfileDialog .player-title-picker-heading {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 9px !important;
+}
+#rankingProfileDialog .avatar-picker-heading > div,
+#rankingProfileDialog .player-title-picker-heading > div { display: grid !important; gap: 2px !important; }
+#rankingProfileDialog .avatar-picker-heading strong,
+#rankingProfileDialog .player-title-picker-heading strong { font-size: .82rem !important; }
+#rankingProfileDialog .avatar-picker-heading small,
+#rankingProfileDialog .player-title-picker-heading small { color: #77837d !important; font-size: .66rem !important; font-weight: 750 !important; }
+#rankingProfileDialog .player-title-picker-grid,
+#rankingProfileDialog .avatar-picker { width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+html[data-theme="dark"] #rankingProfileDialog .avatar-picker-heading small,
+html[data-theme="dark"] #rankingProfileDialog .player-title-picker-heading small { color: #9ba9a0 !important; }
+
+
+/* ========================================================================== */
+/* R61 — missões naturais, perfil/ranking, configurações, cultivo e footer   */
+/* ========================================================================== */
+
+/* Missões: cada card usa apenas a altura necessária ao próprio conteúdo. */
+#profileMissionsPanel .mission-grid,
+.mission-grid {
+  align-items: start !important;
+  grid-auto-rows: max-content !important;
+}
+#profileMissionsPanel .mission-card,
+.mission-grid .mission-card {
+  align-self: start !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/* Modal do ranking: galerias realmente pertencem ao mesmo campo e largura. */
+#rankingProfileDialog .player-profile-scroll,
+#rankingProfileDialog .player-profile-fields,
+#rankingProfileDialog .profile-nickname-field,
+#rankingProfileDialog .profile-avatar-field,
+#rankingProfileDialog .profile-player-title-field {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+#rankingProfileDialog .profile-avatar-field,
+#rankingProfileDialog .profile-player-title-field {
+  display: grid !important;
+  gap: 8px !important;
+}
+#rankingProfileDialog .avatar-picker-panel,
+#rankingProfileDialog .player-title-picker-panel {
+  box-sizing: border-box !important;
+  display: block;
+  inline-size: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 2px 0 0 !important;
+  overflow: hidden !important;
+}
+#rankingProfileDialog .avatar-picker-panel[hidden],
+#rankingProfileDialog .player-title-picker-panel[hidden] { display: none !important; }
+#rankingProfileDialog .avatar-picker,
+#rankingProfileDialog .player-title-picker-grid {
+  box-sizing: border-box !important;
+  inline-size: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+#rankingProfileDialog .player-title-picker-option,
+#rankingProfileDialog .avatar-option { box-sizing: border-box !important; max-width: 100% !important; }
+
+/* Mensagens de seleção/salvamento são redundantes; erros continuam visíveis. */
+#rankingProfileDialog #playerProfileFeedback:not([data-type="error"]) {
+  display: none !important;
+}
+#rankingProfileDialog #playerProfileFeedback[data-type="error"] {
+  display: block !important;
+  grid-column: 1 / -1 !important;
+  color: #9b3d34 !important;
+  font-weight: 800 !important;
+  text-align: left !important;
+}
+
+/* Configurações: um único fundo pai, como as demais views. */
+#settingsView .settings-page-container {
+  background:
+    radial-gradient(circle at 96% 0%, rgba(126, 177, 103, .085), transparent 28%),
+    var(--surface, #fff) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 10px 28px rgba(45, 69, 47, .055) !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 16px !important;
+  padding: 18px !important;
+  width: 100% !important;
+}
+#settingsView .feedback-settings-card {
+  margin: 0 !important;
+  width: 100% !important;
+}
+html[data-theme="dark"] #settingsView .settings-page-container {
+  background: linear-gradient(180deg, #1b221e, #171d19) !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,.16) !important;
+}
+
+/* Cultivo: ação e custo centralizados no mesmo grupo. */
+#farmView .crop-upgrade-cta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-align: center !important;
+}
+#farmView .crop-upgrade-cta .crop-upgrade-button-label,
+#farmView .crop-upgrade-cta .crop-upgrade-button-cost {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+}
+
+/* Cultura platinada: o anel fica permanentemente cheio e dourado. */
+#farmView .crop-card.crop-mastered .crop-loader-track {
+  stroke: rgba(190, 146, 42, .22) !important;
+}
+#farmView .crop-card.crop-mastered .crop-loader-progress {
+  stroke: #d1a33a !important;
+  stroke-dashoffset: 0 !important;
+  filter: drop-shadow(0 0 2px rgba(194, 147, 38, .20));
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered .crop-loader-track {
+  stroke: rgba(221, 183, 83, .20) !important;
+}
+html[data-theme="dark"] #farmView .crop-card.crop-mastered .crop-loader-progress {
+  stroke: #dfb954 !important;
+}
+
+/* Conta: margem padrão e o mesmo card em desktop/tablet/celular. */
+#profileAccountPanel .account-settings-card {
+  box-sizing: border-box !important;
+  margin: 0 0 12px !important;
+  border-radius: 18px !important;
+  padding: 16px !important;
+  background: var(--surface, #fff) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 7px 20px rgba(43,66,45,.045) !important;
+}
+#profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) {
+  margin-bottom: 12px !important;
+  padding: 16px !important;
+}
+@media (max-width: 768px) {
+  #profileAccountPanel .account-settings-card,
+  #profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) {
+    border-radius: 18px !important;
+    padding: 16px !important;
+    background: var(--surface, #fff) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 7px 20px rgba(43,66,45,.045) !important;
+  }
+}
+html[data-theme="dark"] #profileAccountPanel .account-settings-card,
+html[data-theme="dark"] #profileAccountPanel .account-settings-card:has(#googleSignIn:not([hidden])) {
+  background: #1d2420 !important;
+  border-color: rgba(226,237,228,.08) !important;
+  box-shadow: 0 7px 20px rgba(0,0,0,.15) !important;
+}
+
+/* Social: mesma distância usada pelos demais headings da área. */
+#profileSocialPanel > .profile-panel-heading {
+  margin-bottom: 10px !important;
+  padding-bottom: 0 !important;
+}
+#profileSocialPanel .social-events-accordion {
+  margin-top: 0 !important;
+}
+
+/* Footer: links à esquerda e crédito sempre alinhado à direita. */
+.app-footer {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 14px 24px !important;
+}
+.app-footer .footer-links {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+.app-footer .footer-credit {
+  grid-column: 2 !important;
+  justify-self: end !important;
+  justify-items: end !important;
+  margin: 0 !important;
+  text-align: right !important;
+}
+@media (max-width: 760px) {
+  .app-footer {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: end !important;
+  }
+  .app-footer .footer-links {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+  .app-footer .footer-credit {
+    align-self: end !important;
+    justify-self: end !important;
+    text-align: right !important;
+  }
+}
+@media (max-width: 520px) {
+  .app-footer {
+    grid-template-columns: 1fr !important;
+  }
+  .app-footer .footer-links {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  .app-footer .footer-credit {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    justify-self: end !important;
+    justify-items: end !important;
+    text-align: right !important;
+  }
+}
+
+
+/* ========================================================================== */
+/* R62 — missões, ações de cultivo, perfil e contratos estáveis              */
+/* ========================================================================== */
+
+/* Missões: o CTA só nasce quando a meta foi concluída. */
+#profileMissionsPanel .mission-claim-slot:empty { display: none !important; }
+#profileMissionsPanel .mission-claim-slot:not(:empty) { display: block !important; width: 100% !important; }
+
+/* Cultivo: Comprar/Aprimorar e custo funcionam como um único grupo central. */
+#farmView .crop-upgrade-cta,
+#farmView .crop-buy-button:has(.crop-buy-button-cost) {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding-inline: 9px !important;
+  text-align: center !important;
+}
+#farmView .crop-upgrade-button-label,
+#farmView .crop-buy-button-label,
+#farmView .crop-upgrade-button-cost,
+#farmView .crop-buy-button-cost {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+#farmView .crop-upgrade-cta .resource-amount,
+#farmView .crop-buy-button .resource-amount {
+  color: #fff !important;
+  background: rgba(255,255,255,.16) !important;
+  border-color: rgba(255,255,255,.18) !important;
+}
+#farmView .crop-upgrade-cta .resource-amount b,
+#farmView .crop-upgrade-cta .resource-amount strong,
+#farmView .crop-buy-button .resource-amount b,
+#farmView .crop-buy-button .resource-amount strong {
+  color: #fff !important;
+}
+#farmView .crop-upgrade-cta:disabled .resource-amount,
+#farmView .crop-buy-button:disabled .resource-amount,
+#farmView .crop-upgrade-cta:disabled .resource-amount b,
+#farmView .crop-buy-button:disabled .resource-amount b { color: rgba(255,255,255,.90) !important; }
+
+/* Perfil: título/subtítulo e bloco de conta mais bem demarcado. */
+#profileAccountPanel .account-settings-card {
+  border-color: rgba(74, 111, 77, .18) !important;
+  background: linear-gradient(180deg, rgba(250,253,249,.98), rgba(255,255,255,.98)) !important;
+  box-shadow: 0 9px 24px rgba(43,66,45,.07) !important;
+}
+#profileAccountPanel .account-card-heading {
+  display: grid !important;
+  gap: 3px !important;
+  margin: 0 0 13px !important;
+}
+#profileAccountPanel .account-card-heading .eyebrow { margin: 0 !important; }
+#profileAccountPanel .account-card-heading h2 { margin: 0 !important; font-size: 1.08rem !important; }
+#profileAccountPanel .account-card-heading > p:last-child {
+  margin: 0 !important;
+  color: var(--ink-soft) !important;
+  font-size: .72rem !important;
+  line-height: 1.35 !important;
+}
+html[data-theme="dark"] #profileAccountPanel .account-settings-card {
+  background: linear-gradient(180deg, #202923, #1b221e) !important;
+  border-color: rgba(178, 210, 182, .13) !important;
+  box-shadow: 0 9px 24px rgba(0,0,0,.20) !important;
+}
+html[data-theme="dark"] #profileAccountPanel .account-card-heading > p:last-child { color: #9cab9f !important; }
+
+/* Contratos: resumo de capacidade e atualização dividem a mesma faixa. */
+#officeContractsPanel .contract-offer-toolbar {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, auto) !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+#officeContractsPanel .contract-toolbar-capacity { min-width: 0 !important; }
+#officeContractsPanel .contract-toolbar-capacity:empty { display: none !important; }
+#officeContractsPanel .contract-toolbar-capacity .contract-capacity-v5 {
+  box-sizing: border-box !important;
+  min-height: 48px !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 8px 11px !important;
+  border-radius: 13px !important;
+  background: rgba(247,250,246,.94) !important;
+  border: 1px solid rgba(74,108,75,.12) !important;
+  box-shadow: none !important;
+}
+#officeContractsPanel .contract-toolbar-capacity .contract-capacity-v5 img { width: 30px !important; height: 30px !important; }
+#officeContractsPanel .contract-refresh-button {
+  min-height: 48px !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+html[data-theme="dark"] #officeContractsPanel .contract-toolbar-capacity .contract-capacity-v5 {
+  background: rgba(255,255,255,.035) !important;
+  border-color: rgba(226,237,228,.08) !important;
+}
+
+/* Tempo: sem relógio e com leitura mais forte. */
+#officeContractsPanel .contract-time-badge-v5 img,
+.contract-dock-time img { display: none !important; }
+#officeContractsPanel .contract-time-badge-v5 {
+  min-height: 34px !important;
+  padding: 6px 10px !important;
+}
+#officeContractsPanel .contract-time-badge-v5 b {
+  font-size: .92rem !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: .01em !important;
+}
+.contract-dock-time b {
+  font-size: .82rem !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+}
+
+/* Ícones das plantas: imagem livre, sem caixa/borda/fundo. */
+#officeContractsPanel .contract-card-v5 .contract-crop-art-v5,
+.contract-dock-crop-shell {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  padding: 0 !important;
+}
+#officeContractsPanel .contract-card-v5 .contract-crop-art-v5 img,
+.contract-dock-crop-shell img { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+
+@media (max-width: 680px) {
+  #officeContractsPanel .contract-offer-toolbar {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  #officeContractsPanel .contract-refresh-button { width: 100% !important; }
+}
