@@ -119,10 +119,10 @@
           </div>
         </div>
         <div class="social-event-status-panel social-event-schedule-panel ${active ? "is-running" : ""}" data-event-live-shell data-event-start="${start}" data-event-end="${end}" data-event-live-state="${active ? "running" : "scheduled"}">
-          <div class="social-event-info-row social-event-day-row"><small>Dia</small><strong>${escapeHtml(weekday)} <span>${escapeHtml(dateLabel)}</span></strong></div>
+          <div class="social-event-info-row social-event-day-row"><small>Data</small><strong>${escapeHtml(dateLabel)}</strong><span class="social-event-weekday">(${escapeHtml(weekday)})</span></div>
           <div class="social-event-info-row"><small>Início</small><strong>${escapeHtml(startTime)}</strong></div>
           <div class="social-event-info-row"><small>Duração</small><strong>${escapeHtml(durationLabel)}</strong></div>
-          <div class="social-event-info-row social-event-status-row ${active ? "is-live" : ""}"><small>Status</small><strong>${active ? "Em andamento" : "Programado"}</strong></div>
+          <div class="social-event-info-row social-event-status-row ${active ? "is-live" : ""}"><small>Andamento</small><strong>${active ? "Evento ativo" : "Fora da data"}</strong></div>
           ${active ? `<div class="social-event-info-row social-event-time-left"><small>Restante</small><strong data-event-countdown>${formatEventCountdown(end - now)}</strong></div>` : ""}
         </div>
       </article>`;

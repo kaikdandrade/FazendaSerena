@@ -207,7 +207,10 @@
     if (dom.togglePlayerTitlePicker) dom.togglePlayerTitlePicker.disabled = profileDisabled;
     $$(".player-title-picker-option", dom.playerTitlePickerGrid || document).forEach(button => { button.disabled = profileDisabled; });
     if (dom.savePlayerProfile) dom.savePlayerProfile.disabled = profileDisabled;
-    $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => { button.disabled = profileDisabled; });
+    $$(".avatar-option", dom.playerAvatarPicker || document).forEach(button => {
+      const unlocked = engine?.isAvatarUnlocked ? engine.isAvatarUnlocked(button.dataset.avatarId) : true;
+      button.disabled = profileDisabled || !unlocked;
+    });
   }
 
   async function applyAuthenticatedUser(user, authError = null) {

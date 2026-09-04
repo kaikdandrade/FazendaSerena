@@ -25,14 +25,14 @@
       showOfficeTab(activeOfficeTab, false);
     } else if (activeView === "profileView") {
       if (activeProfileTab === "account") {
-        renderStats();
         renderPrestigeDashboard();
+        renderMissions();
+        renderStats();
         renderPlayerTitleControl();
       }
       if (activeProfileTab === "social") {
         refreshPrestigeLeaderboard(false);
       }
-      if (activeProfileTab === "missions") renderMissions();
       showProfileTab(activeProfileTab, false);
     }
 
@@ -205,6 +205,7 @@
       if (!result.ok) return act(result);
       animateResourceReward(button, result.mission.reward || {});
       if (result.titleUnlock?.newlyUnlocked) showPlayerTitleUnlock(result.titleUnlock.title);
+      if (result.avatarUnlock?.newlyUnlocked) showPlayerAvatarUnlock(result.avatarUnlock.avatar);
       render(true);
       requestGameSave();
     }

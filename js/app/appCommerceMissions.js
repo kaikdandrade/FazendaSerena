@@ -166,10 +166,12 @@
   function rewardHtml(reward) {
     const resources = resourceRewards(reward) || "";
     const title = reward?.titleId ? getPlayerTitleEntry(reward.titleId) : null;
+    const avatar = reward?.avatarId ? getAvatarEntry(reward.avatarId) : null;
     const rarity = title?.rarity || "common";
     const resourcesMarkup = resources ? `<div class="mission-resource-rewards resource-reward-group">${resources}</div>` : "";
     const titleReward = title ? `<div class="mission-title-reward" data-title-rarity="${escapeHtml(rarity)}" title="Título: ${escapeHtml(title.name)}"><span class="mission-title-reward-mark" aria-hidden="true">✦</span><span class="mission-title-reward-copy"><small>Título de jogador</small><b>${escapeHtml(title.name)}</b><em class="mission-title-reward-rarity">${escapeHtml(playerTitleRarityLabel(rarity))}</em></span></div>` : "";
-    return `<div class="mission-reward-content">${resourcesMarkup}${titleReward}</div>`;
+    const avatarReward = avatar ? `<div class="mission-avatar-reward" title="Avatar: ${escapeHtml(avatar.label)}"><img src="${escapeHtml(avatar.src)}" alt=""><span><small>Avatar</small><b>${escapeHtml(avatar.label)}</b></span></div>` : "";
+    return `<div class="mission-reward-content">${resourcesMarkup}${titleReward}${avatarReward}</div>`;
   }
 
   function renderMissions() {
@@ -178,10 +180,15 @@
       reconcileLiveCards(dom.missionList, `<div class="empty-state" data-live-render-key="missions-empty" data-live-render-signature="empty">${runtimeTextHtml("emptyMissionsCatalog", "Nenhuma missão foi publicada no catálogo administrativo.")}</div>`);
       if (dom.toggleCompletedMissions) dom.toggleCompletedMissions.hidden = true;
       if (dom.completedMissionCount) dom.completedMissionCount.textContent = "";
+      if (dom.missionSectionCounter) dom.missionSectionCounter.textContent = "0/0";
       return;
     }
     const activeMissions = engine.getActiveMissions();
     const claimedMissions = visibleMissions.filter(mission => engine.state.missionsClaimed[mission.id]);
+    if (dom.missionSectionCounter) {
+      dom.missionSectionCounter.textContent = `${claimedMissions.length}/${visibleMissions.length}`;
+      dom.missionSectionCounter.setAttribute("aria-label", `${claimedMissions.length} de ${visibleMissions.length} missões concluídas`);
+    }
     const list = showCompletedMissions ? [...activeMissions, ...claimedMissions] : activeMissions;
     const missionMarkup = list.map(mission => {
       const value = engine.missionValue(mission.metric, mission);

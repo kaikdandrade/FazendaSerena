@@ -111,6 +111,7 @@
     missionList: $("#missionList"),
     toggleCompletedMissions: $("#toggleCompletedMissions"),
     completedMissionCount: $("#completedMissionCount"),
+    missionSectionCounter: $("#missionSectionCounter"),
     officeTabs: $$("[data-office-tab]"),
     officePanels: $$("[data-office-panel]"),
     profileTabs: $$("[data-profile-tab]"),

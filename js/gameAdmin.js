@@ -196,8 +196,7 @@
     settings: "assets/icons/configuracoes.webp",
     contracts: "assets/icons/contrato-comercial.webp",
     evolutions: "assets/icons/livros.webp",
-    social: "assets/icons/social.webp",
-    missions: "assets/icons/chapeu-formatura.webp"
+    social: "assets/icons/social.webp"
   });
   function normalizeNavigationIcons(raw = {}) {
     return Object.fromEntries(Object.entries(defaultNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
@@ -208,7 +207,6 @@
     evolutions: defaultNavigationIcons.evolutions,
     profile: defaultNavigationIcons.profile,
     social: defaultNavigationIcons.social,
-    missions: defaultNavigationIcons.missions,
     settings: defaultNavigationIcons.settings
   });
   const defaultPrestigeIcons = Object.freeze({
@@ -220,8 +218,8 @@
   function normalizePrestigeIcons(raw = {}) {
     return Object.fromEntries(Object.entries(defaultPrestigeIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], fallback)]));
   }
-  const defaultLineNavigationOrder = Object.freeze(["farm", "contracts", "evolutions", "missions", "social", "profile", "settings"]);
-  const defaultGridNavigationOrder = Object.freeze(["farm", "contracts", "evolutions", "missions", "social", "profile", "settings"]);
+  const defaultLineNavigationOrder = Object.freeze(["farm", "contracts", "evolutions", "social", "profile", "settings"]);
+  const defaultGridNavigationOrder = Object.freeze(["farm", "contracts", "evolutions", "social", "profile", "settings"]);
   function normalizeGridNavigationIcons(raw = {}, line = defaultNavigationIcons) {
     return Object.fromEntries(Object.entries(defaultGridNavigationIcons).map(([key, fallback]) => [key, assetPath(raw?.[key], line?.[key] || fallback)]));
   }
@@ -475,6 +473,8 @@
     });
     const titleId = id(raw?.titleId, "");
     if (titleId) reward.titleId = titleId;
+    const avatarId = String(raw?.avatarId || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+    if (avatarId) reward.avatarId = avatarId;
     return reward;
   }
 
@@ -922,6 +922,10 @@
     const invalidTitleReward = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))
       .find(entry => entry.serie?.reward?.titleId && !titleIds.has(entry.serie.reward.titleId));
     if (invalidTitleReward) throw new Error(`A missão “${invalidTitleReward.mission.title}”, série ${invalidTitleReward.index + 1}, usa um título de jogador que não existe.`);
+    const avatarIds = new Set((window.AvatarData || []).map(item => String(item.id || "")).filter(Boolean));
+    const invalidAvatarReward = normalized.missions.flatMap(mission => (mission.series || []).map((serie, index) => ({ mission, serie, index })))
+      .find(entry => entry.serie?.reward?.avatarId && !avatarIds.has(entry.serie.reward.avatarId));
+    if (invalidAvatarReward) throw new Error(`A missão “${invalidAvatarReward.mission.title}”, série ${invalidAvatarReward.index + 1}, usa um avatar que não existe.`);
     const invalidCompany = normalized.companies.find(company => company.category && !categoryIds.has(company.category));
     if (invalidCompany) throw new Error(`A indústria “${invalidCompany.name}” usa uma categoria que não existe.`);
     return normalized;

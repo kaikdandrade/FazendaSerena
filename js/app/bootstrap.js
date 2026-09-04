@@ -71,7 +71,7 @@ async function boot() {
   const requestedOffice = initialRoute.get("office");
   if (["contracts", "evolutions"].includes(requestedOffice)) activeOfficeTab = requestedOffice;
   const requestedProfile = initialRoute.get("profile");
-  if (["account", "social", "missions"].includes(requestedProfile)) activeProfileTab = requestedProfile;
+  if (["account", "social"].includes(requestedProfile)) activeProfileTab = requestedProfile;
 
   loading?.update("Preparando a interface...", 70);
   const normalizedSourceConfig = window.GameAdminConfig.normalize(publicGameConfig || window.GameAdminConfig.getDefaults());

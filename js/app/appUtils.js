@@ -99,12 +99,12 @@
 
   function setNavigationAttention(key, active) {
     const safeKey = String(key || "").replace(/[^a-z0-9_-]/gi, "");
-    if (!safeKey || !["contracts", "missions"].includes(safeKey)) return;
+    if (!safeKey || !["contracts", "missions", "profile"].includes(safeKey)) return;
     const enabled = Boolean(active);
     document.querySelectorAll(`[data-navigation-key="${safeKey}"], [data-grid-navigation-key="${safeKey}"]`).forEach(tab => {
       tab.classList.toggle("has-navigation-attention", enabled);
       tab.toggleAttribute("data-navigation-attention", enabled);
-      const baseLabel = safeKey === "contracts" ? "Contratos" : "Missões";
+      const baseLabel = safeKey === "contracts" ? "Contratos" : safeKey === "profile" ? "Perfil" : "Missões";
       if (tab.hasAttribute("aria-label")) tab.setAttribute("aria-label", enabled ? `${baseLabel}, recompensa disponível` : baseLabel);
     });
   }
@@ -149,6 +149,19 @@
     window.setTimeout(() => { toast.classList.remove("visible"); window.setTimeout(() => toast.remove(), 260); }, 4300);
   }
 
+  function showPlayerAvatarUnlock(avatar) {
+    if (!avatar) return;
+    document.querySelector(".player-avatar-unlock-toast")?.remove();
+    const toast = document.createElement("div");
+    toast.className = "player-title-unlock-toast player-avatar-unlock-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    toast.innerHTML = `<div class="player-title-unlock-icon"><img src="${escapeHtml(avatar.src)}" alt=""></div><div><small>Novo avatar desbloqueado</small><strong>${escapeHtml(avatar.label)}</strong></div>`;
+    document.body.appendChild(toast);
+    window.requestAnimationFrame(() => toast.classList.add("visible"));
+    window.setTimeout(() => { toast.classList.remove("visible"); window.setTimeout(() => toast.remove(), 260); }, 4300);
+  }
+
   function setProfileFeedback(message = "", type = "") {
     if (!dom.playerProfileFeedback) return;
     dom.playerProfileFeedback.textContent = message;
@@ -158,7 +171,8 @@
   function renderAvatarPicker(selectedId = "", disabled = false) {
     if (!dom.playerAvatarPicker) return;
     const avatars = window.AvatarData || [];
-    const unlockedAvatars = avatars.filter(avatar => avatar?.locked !== true);
+    const avatarUnlocked = avatar => engine?.isAvatarUnlocked ? engine.isAvatarUnlocked(avatar?.id) : avatar?.locked !== true;
+    const unlockedAvatars = avatars.filter(avatarUnlocked);
     if (dom.playerAvatarUnlockCount) {
       const unlockedCount = unlockedAvatars.length;
       dom.playerAvatarUnlockCount.textContent = `${unlockedCount} de ${avatars.length} desbloqueados`;
@@ -174,7 +188,11 @@
       const selected = button.dataset.avatarId === selectedId;
       button.classList.toggle("selected", selected);
       button.setAttribute("aria-checked", String(selected));
-      button.disabled = disabled || avatars.find(avatar => avatar.id === button.dataset.avatarId)?.locked === true;
+      const avatar = avatars.find(item => item.id === button.dataset.avatarId);
+      const unlocked = avatarUnlocked(avatar);
+      button.classList.toggle("locked", !unlocked);
+      button.disabled = disabled || !unlocked;
+      button.title = avatar ? `${avatar.label}${unlocked ? "" : " · desbloqueado por missão"}` : "Avatar";
     });
 
     const selectedAvatar = getAvatarEntry(selectedId);
@@ -382,7 +400,7 @@
           renderResearch();
           renderPrestigeUpgrades();
         }
-        if (activeView === "profileView" && activeProfileTab === "missions" && cropUnlocked) renderMissions();
+        if (activeView === "profileView" && activeProfileTab === "account" && cropUnlocked) renderMissions();
         if (activeView === "profileView" && activeProfileTab === "account" && prestigeUnlocked) renderPrestigeDashboard();
         updateLiveGameUI?.(performance.now(), true);
       }, 0);

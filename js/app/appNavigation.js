@@ -418,7 +418,7 @@
     const readyContracts = engine.isContractsUnlocked() ? engine.getReadyContractCount() : 0;
     const readyMissions = engine.getReadyMissionCount();
     setNavigationAttention("contracts", readyContracts > 0);
-    setNavigationAttention("missions", readyMissions > 0);
+    setNavigationAttention("profile", readyMissions > 0);
     updateLiveContractDockUI?.();
   }
 

@@ -30,6 +30,8 @@
   const titleCatalogOptions = () => [{ value: "", label: "Sem título nesta série" }, ...((window.AdminCatalogEditors?.get?.("playerTitles") || [])
     .filter(item => item.id !== "fazendeiro" && item.default !== true)
     .map(item => option(item.id, `${item.name || item.id} · ${playerTitleRarityLabel(item.rarity)}`)))];
+  const avatarCatalogOptions = () => [{ value: "", label: "Sem avatar nesta série" }, ...((window.AvatarData || [])
+    .map(item => option(item.id, item.label || item.id)))];
   const cropTargetOptions = currentValue => {
     const items = (window.AdminCatalogEditors?.get?.("crops") || []).map(item => option(item.id, `${item.name || item.id} · libera no nível ${Math.max(1, Number(item.unlockLevel) || 1)}`));
     const current = String(currentValue || "");
@@ -230,6 +232,7 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
           <label><span>Recompensa em pesquisa</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="reward.research" value="${escapeHtml(numeric(reward.research || 0))}"></label>
           <label><span>Recompensa em prestígio</span><input autocomplete="off" type="text" inputmode="numeric" data-series-field="reward.prestige" value="${escapeHtml(numeric(reward.prestige || 0))}"></label>
           <label class="admin-series-title-reward"><span>Título de jogador</span><select data-series-field="reward.titleId">${titleCatalogOptions().map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(reward.titleId || "") ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select><small>Opcional. O título é desbloqueado ao receber a recompensa desta série.</small></label>
+          <label class="admin-series-avatar-reward"><span>Avatar</span><select data-series-field="reward.avatarId">${avatarCatalogOptions().map(entry => `<option value="${escapeHtml(entry.value)}" ${entry.value === String(reward.avatarId || "") ? "selected" : ""}>${escapeHtml(entry.label)}</option>`).join("")}</select><small>Opcional. O avatar fica bloqueado enquanto esta recompensa não for recebida.</small></label>
         </div>
       </article>`;
     }
@@ -256,6 +259,11 @@ const eventDurationLabel = value => { const minutes = Math.max(1, Math.floor(Num
           if (path === "reward.titleId") {
             const titleId = String(input.value || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
             if (titleId) serie.reward.titleId = titleId;
+            return;
+          }
+          if (path === "reward.avatarId") {
+            const avatarId = String(input.value || "").replace(/[^a-zA-Z0-9_]/g, "").slice(0, 48);
+            if (avatarId) serie.reward.avatarId = avatarId;
             return;
           }
           if (path === "cropId") {

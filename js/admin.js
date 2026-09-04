@@ -31,11 +31,11 @@
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
 
   const navigationIconFields = Object.freeze([
-    ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"], ["missions", "Missões"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
+    ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
   ]);
   const gridNavigationIconFields = Object.freeze([
     ["farm", "Fazenda"], ["contracts", "Contratos"], ["evolutions", "Evoluções"],
-    ["missions", "Missões"], ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
+    ["social", "Social"], ["profile", "Perfil"], ["settings", "Configurações"]
   ]);
   let playerFeedbackLoaded = false;
   let globalPlayersLoaded = false;

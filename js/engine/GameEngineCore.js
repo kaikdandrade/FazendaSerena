@@ -121,6 +121,7 @@ const GameEngine = class GameEngine {
         cropPurchaseSerial: 0,
         missionsClaimed: { ...(permanent.missionsClaimed || {}) },
         unlockedPlayerTitles: { fazendeiro: true, ...(permanent.unlockedPlayerTitles || {}) },
+        unlockedPlayerAvatars: { ...(permanent.unlockedPlayerAvatars || {}) },
         stats: {
           totalHarvested: 0,
           lifetimeHarvested: Number(permanent.lifetimeHarvested || 0),
@@ -196,6 +197,7 @@ const GameEngine = class GameEngine {
         permanentBonuses: input?.permanentBonuses,
         missionsClaimed: input?.missionsClaimed,
         unlockedPlayerTitles: input?.unlockedPlayerTitles,
+        unlockedPlayerAvatars: input?.unlockedPlayerAvatars,
         cropsDiscovered: input?.cropsDiscovered,
         prestiges: input?.stats?.prestiges,
         lifetimeCoins: input?.stats?.lifetimeCoins,
@@ -235,6 +237,7 @@ const GameEngine = class GameEngine {
         permanentBonuses: { ...base.permanentBonuses, ...(input.permanentBonuses || {}) },
         missionsClaimed: { ...base.missionsClaimed, ...(input.missionsClaimed || {}) },
         unlockedPlayerTitles: { ...base.unlockedPlayerTitles, ...(input.unlockedPlayerTitles || {}) },
+        unlockedPlayerAvatars: { ...base.unlockedPlayerAvatars, ...(input.unlockedPlayerAvatars || {}) },
         cropsDiscovered: { ...base.cropsDiscovered, ...(input.cropsDiscovered || {}) },
         stats: { ...base.stats, ...(input.stats || {}) },
         crops: {},
@@ -270,6 +273,18 @@ const GameEngine = class GameEngine {
       });
       merged.settings.playerTitle = String(merged.settings.playerTitle || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro";
       if (!validPlayerTitles.has(merged.settings.playerTitle) || merged.unlockedPlayerTitles[merged.settings.playerTitle] !== true) merged.settings.playerTitle = "fazendeiro";
+      const validAvatarIds = new Set((window.AvatarData || []).map(item => String(item.id || "")).filter(Boolean));
+      merged.unlockedPlayerAvatars = Object.fromEntries(Object.entries(merged.unlockedPlayerAvatars || {}).filter(([avatarId, unlocked]) => unlocked === true && validAvatarIds.has(avatarId)));
+      // Compatibilidade retroativa: recompensas de avatar adicionadas a missões já
+      // concluídas são reconhecidas no load. Um avatar já selecionado também é
+      // preservado para não retirar uma escolha feita antes da criação da recompensa.
+      (this.data.missions || []).forEach(mission => {
+        const earnedAvatarId = String(mission?.reward?.avatarId || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+        if (earnedAvatarId && merged.missionsClaimed?.[mission.id] === true && validAvatarIds.has(earnedAvatarId)) {
+          merged.unlockedPlayerAvatars[earnedAvatarId] = true;
+        }
+      });
+      if (validAvatarIds.has(merged.settings.playerAvatar)) merged.unlockedPlayerAvatars[merged.settings.playerAvatar] = true;
       Reflect.deleteProperty(merged.settings, "playerRankingOptOut");
       if (legacySaveFormat < 42) {
         const legacyAvatarMap = { frog_1: "chameleon", frog_2: "frog_1", frog_3: "frog_2", owl: "hawk" };

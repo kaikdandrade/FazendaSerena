@@ -83,6 +83,7 @@ Object.assign(GameEngine.prototype, {
         permanentBonuses: { ...this.state.permanentBonuses },
         missionsClaimed: { ...this.state.missionsClaimed },
         unlockedPlayerTitles: { ...this.state.unlockedPlayerTitles },
+        unlockedPlayerAvatars: { ...this.state.unlockedPlayerAvatars },
         prestiges: this.state.stats.prestiges + 1,
         lifetimeCoins: this.state.stats.lifetimeCoins,
         lifetimeResearchEarned: this.state.stats.lifetimeResearchEarned,

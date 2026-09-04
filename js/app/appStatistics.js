@@ -119,8 +119,6 @@
   function renderStats() {
     const state = engine.state;
     const stats = state.stats;
-    const visibleMissions = engine.data.missions.filter(mission => engine.isMissionVisible?.(mission) !== false);
-    const claimed = visibleMissions.filter(mission => state.missionsClaimed[mission.id]);
     const legacyEntries = engine.data.prestigeUpgrades.map(item => ({ item, level: Number(state.prestigeUpgrades[item.id] || 0) })).filter(entry => entry.level > 0);
     const researchEntries = engine.data.research.map(item => ({ item, level: Number(state.researchTechs[item.id] || 0) })).filter(entry => entry.level > 0);
     const legacyLevels = legacyEntries.reduce((sum, entry) => sum + entry.level, 0);
@@ -150,8 +148,7 @@
     }
     dom.achievementSummary.innerHTML = `
       <article><span>${statIcon("assets/icons/livros.webp", "Pesquisa")}</span><div><small>Pesquisas adquiridas</small><strong data-achievement-live="researchLevels">${engine.formatNumber(researchLevels)} / ${engine.formatNumber(totalResearchLevels)} níveis</strong></div></article>
-      <article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Legados permanentes</small><strong data-achievement-live="legacyLevels">${engine.formatNumber(legacyLevels)} / ${engine.formatNumber(totalLegacyLevels)} níveis</strong></div></article>
-      <article><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missões")}</span><div><small>Missões concluídas</small><strong data-achievement-live="missionsClaimed">${claimed.length} / ${visibleMissions.length}</strong></div></article>`;
+      <article><span>${statIcon("assets/icons/coroa.webp", "Legados")}</span><div><small>Legados permanentes</small><strong data-achievement-live="legacyLevels">${engine.formatNumber(legacyLevels)} / ${engine.formatNumber(totalLegacyLevels)} níveis</strong></div></article>`;
 
     const emptyState = text => `<div class="stats-empty-state stats-empty-state-normalized"><p>${text}</p></div>`;
     const researchMarkup = researchEntries.length ? researchEntries.map(({ item, level }) => {
@@ -164,14 +161,10 @@
       const icon = typeof item.icon === "string" && /\.(?:png|webp|svg)$/i.test(item.icon) ? item.icon : "assets/icons/prestigio.webp";
       return `<article class="achievement-card legacy-achievement progression-benefit-card"><span>${statIcon(icon, item.name)}</span><div><small>Legado · nível ${level}/${item.max}</small><h3>${escapeHtml(item.name)}</h3><p>${benefits.length ? benefits.map(escapeHtml).join(" · ") : enrichResourceText(item.desc)}</p></div></article>`;
     }).join("") : emptyState("Nenhum legado adquirido ainda.");
-
-    const missionMarkup = claimed.length ? claimed.map(mission => `<article class="achievement-card"><span>${statIcon("assets/icons/prancheta-tarefas.webp", "Missão concluída")}</span><div><small>${mission.series ? `Série ${mission.stage}` : "Conquista"}</small><h3>${escapeHtml(mission.title)}</h3><p>${enrichResourceText(mission.desc)}</p></div></article>`).join("") : emptyState(runtimeTextHtml("completedMissionHistoryDescription", "As missões que você concluir aparecerão aqui para registrar as conquistas da sua fazenda."));
-
     const benefitSection = ({ eyebrow, title, count, content, className = "" }) => `<section class="stats-benefit-section stats-benefit-section-normalized ${className}"><header><div><small>${eyebrow}</small><h3>${title}</h3></div><b>${count}</b></header><div class="stats-benefit-list">${content}</div></section>`;
     dom.achievementGrid.innerHTML = [
       benefitSection({ eyebrow: "benefícios acumulados", title: "Pesquisa", count: researchLevels, content: researchMarkup, className: "research-benefit-section" }),
-      benefitSection({ eyebrow: "benefícios permanentes", title: "Legados", count: legacyLevels, content: legacyMarkup, className: "legacy-benefit-section" }),
-      benefitSection({ eyebrow: "conquistas da fazenda", title: "Missões", count: claimed.length, content: missionMarkup, className: "missions-benefit-section" })
+      benefitSection({ eyebrow: "benefícios permanentes", title: "Legados", count: legacyLevels, content: legacyMarkup, className: "legacy-benefit-section" })
     ].join("");
   }
 

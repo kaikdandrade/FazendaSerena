@@ -107,8 +107,9 @@
     return `
       <article class="crop-card ${mastered ? "crop-mastered" : ""}" data-live-render-key="${renderKey}" data-live-render-signature="owned|${data.level}|${mastered ? 1 : 0}|${numberFormat}" data-live-crop="${crop.id}" style="--crop-glow:${getCropGlow(crop.category)}">
         <div class="crop-level-strip" title="${mastered ? `Nível máximo alcançado e bônus de ${engine.formatNumber(masteryXpPercent)}% de XP` : speedMaxed ? `Velocidade máxima; ao alcançar o nível 500 esta cultura concede ${engine.formatNumber(masteryXpPercent)}% de XP` : `Ao alcançar o nível 500 esta cultura concede ${engine.formatNumber(masteryXpPercent)}% de XP`}">
-          <span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>
-          ${mastered ? `<span class="crop-mastery-badge" aria-label="Cultura no nível máximo"><img alt="" src="assets/icons/estrela-dominio-cultura.webp"></span>` : ""}
+          ${mastered
+            ? `<span class="crop-platinized-label">Plantinada</span><span class="crop-mastery-badge" aria-label="Nível máximo ${GameEngine.MAX_CROP_LEVEL}"><img alt="" src="assets/icons/estrela-dominio-cultura.webp"><span>${GameEngine.MAX_CROP_LEVEL}</span></span>`
+            : `<span class="crop-level-compact">Nível <strong>${data.level}</strong><small>/ ${GameEngine.MAX_CROP_LEVEL}</small></span>`}
         </div>
         <div class="crop-head">
           <div class="crop-loader ${optimizedRing ? "is-static" : ""}" data-crop-loader data-last-progress="${growthPct}" title="Progresso da produção">

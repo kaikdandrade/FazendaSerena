@@ -171,7 +171,7 @@
   }
 
   function showProfileTab(tabId, updateRoute = true) {
-    const allowedTabs = ["account", "social", "missions"];
+    const allowedTabs = ["account", "social"];
     activeProfileTab = allowedTabs.includes(tabId) ? tabId : "account";
     dom.profileTabs.forEach(tab => {
       const active = activeView === "profileView" && tab.dataset.profileTab === activeProfileTab;

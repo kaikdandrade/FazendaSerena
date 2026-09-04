@@ -69,6 +69,30 @@ Object.assign(GameEngine.prototype, {
       return (this.data.playerTitles || []).filter(title => title.default === true || unlocked[title.id] === true);
     },
 
+  getMissionRewardAvatarIds() {
+      return new Set((this.data.missions || []).map(mission => String(mission?.reward?.avatarId || "")).filter(Boolean));
+    },
+
+  isAvatarUnlocked(avatarId) {
+      const safeId = String(avatarId || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+      if (!safeId) return false;
+      const valid = (window.AvatarData || []).some(avatar => avatar.id === safeId);
+      if (!valid) return false;
+      if (!this.getMissionRewardAvatarIds().has(safeId)) return true;
+      if (String(this.state.settings?.playerAvatar || "") === safeId) return true;
+      return this.state.unlockedPlayerAvatars?.[safeId] === true;
+    },
+
+  unlockPlayerAvatar(avatarId) {
+      const safeId = String(avatarId || "").replace(/[^a-z0-9_]/gi, "").slice(0, 48);
+      const avatar = (window.AvatarData || []).find(item => item.id === safeId);
+      if (!avatar) return null;
+      this.state.unlockedPlayerAvatars ||= {};
+      const newlyUnlocked = this.state.unlockedPlayerAvatars[avatar.id] !== true;
+      this.state.unlockedPlayerAvatars[avatar.id] = true;
+      return { avatar, newlyUnlocked };
+    },
+
   claimMission(id) {
       const mission = this.data.missions.find(item => item.id === id);
       if (!mission || !this.isMissionVisible(mission) || this.state.missionsClaimed[id]) return { ok: false, message: "Missão indisponível." };
@@ -78,7 +102,8 @@ Object.assign(GameEngine.prototype, {
       if (reward.research) this.addResearch(reward.research);
       if (reward.prestige) this.addPrestigePoints(reward.prestige);
       const titleUnlock = reward.titleId ? this.unlockPlayerTitle(reward.titleId) : null;
+      const avatarUnlock = reward.avatarId ? this.unlockPlayerAvatar(reward.avatarId) : null;
       this.state.missionsClaimed[id] = true;
-      return { ok: true, mission, titleUnlock };
+      return { ok: true, mission, titleUnlock, avatarUnlock };
     }
 });

@@ -160,7 +160,7 @@ function updateLiveContractsUI() {
 }
 
 function updateLiveMissionsUI() {
-  if (activeView !== "profileView" || activeProfileTab !== "missions") return;
+  if (activeView !== "profileView" || activeProfileTab !== "account") return;
 
   dom.missionList?.querySelectorAll?.("[data-mission-id]").forEach(card => {
     const mission = engine.data.missions.find(item => item.id === card.dataset.missionId);
@@ -236,17 +236,15 @@ function updateLiveStatsUI() {
   const totalResearchLevels = engine.data.research.reduce((sum, item) => sum + Math.max(0, Number(item.max) || 0), 0);
   const legacyLevels = engine.data.prestigeUpgrades.reduce((sum, item) => sum + Math.max(0, Number(engine.state.prestigeUpgrades[item.id]) || 0), 0);
   const totalLegacyLevels = engine.data.prestigeUpgrades.reduce((sum, item) => sum + Math.max(0, Number(item.max) || 0), 0);
-  const claimed = engine.data.missions.filter(mission => engine.state.missionsClaimed[mission.id]).length;
   setLiveText(dom.achievementSummary?.querySelector?.('[data-achievement-live="researchLevels"]'), `${engine.formatNumber(researchLevels)} / ${engine.formatNumber(totalResearchLevels)} níveis`);
   setLiveText(dom.achievementSummary?.querySelector?.('[data-achievement-live="legacyLevels"]'), `${engine.formatNumber(legacyLevels)} / ${engine.formatNumber(totalLegacyLevels)} níveis`);
-  setLiveText(dom.achievementSummary?.querySelector?.('[data-achievement-live="missionsClaimed"]'), `${claimed} / ${engine.data.missions.length}`);
 }
 
 function updateLiveNavigationBadges() {
   const readyContracts = engine.isContractsUnlocked() ? engine.getReadyContractCount() : 0;
   const readyMissions = engine.getReadyMissionCount();
   setNavigationAttention("contracts", readyContracts > 0);
-  setNavigationAttention("missions", readyMissions > 0);
+  setNavigationAttention("profile", readyMissions > 0);
 }
 
 
