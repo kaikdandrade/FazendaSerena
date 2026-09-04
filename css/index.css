@@ -457,3 +457,16 @@ font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Sego
   }
   .error-page .error-shortcuts small { display: block; }
 }
+
+
+/* R64 — botões verdes usam texto branco para contraste consistente. */
+.home-play-button,
+.home-install-action.home-play-button,
+.ios-install-action,
+.android-install-action {
+  color: #fff !important;
+}
+/* Exceção: este CTA é deliberadamente claro, não verde. */
+.home-cta .home-play-button {
+  color: #2f6239 !important;
+}

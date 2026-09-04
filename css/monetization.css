@@ -447,3 +447,35 @@
   .cookie-banner-icon { margin-inline: 0 3px !important; }
   .cookie-banner-actions { min-width: 0; }
 }
+
+
+/* R66 — banner compacto: ícone livre e botões inline com altura natural. */
+#cookieBanner .cookie-banner-icon {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+#cookieBanner .cookie-banner-actions {
+  display: flex !important;
+  flex-flow: row nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+#cookieBanner .cookie-banner-actions .cookie-button {
+  flex: 0 1 auto !important;
+  width: auto !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  padding: 0 14px !important;
+  align-self: center !important;
+  line-height: 1 !important;
+}
+@media (max-width: 540px) {
+  #cookieBanner .cookie-banner-actions { width: 100% !important; }
+  #cookieBanner .cookie-banner-actions .cookie-button { flex: 1 1 0 !important; }
+}

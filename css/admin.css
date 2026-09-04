@@ -2527,3 +2527,48 @@ button.admin-action-tile:hover { border-color: rgba(164, 67, 67, .30) !important
 .admin-maintenance-toggle small { color:var(--admin-muted); line-height:1.45; }
 .admin-maintenance-toggle input { width:22px; height:22px; accent-color:#c69217; flex:0 0 auto; }
 @media (max-width:720px) { .admin-maintenance-row { grid-template-columns:1fr; } .admin-maintenance-row .admin-button { width:100%; } }
+
+
+/* R65 — superfícies dos tipos de pontos no modo escuro. */
+html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-meta {
+  color: #9eaca2 !important;
+  background: #202824 !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-meta b {
+  color: #a6d0ac !important;
+}
+html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-item,
+html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-fixed-point-item {
+  color: #eaf1eb !important;
+  background: linear-gradient(180deg,#202824,#1a211e) !important;
+  border-color: rgba(225,237,228,.08) !important;
+}
+html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-item small {
+  color: #9eaca2 !important;
+}
+html[data-theme="dark"] .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-fixed-point-badge {
+  color: #bedcc2 !important;
+  background: #27352c !important;
+  border-color: rgba(128,181,138,.12) !important;
+}
+@media (prefers-color-scheme: dark) {
+  .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-meta {
+    color: #9eaca2 !important;
+    background: #202824 !important;
+    border-color: rgba(225,237,228,.08) !important;
+  }
+  .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-meta b { color: #a6d0ac !important; }
+  .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-item,
+  .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-fixed-point-item {
+    color: #eaf1eb !important;
+    background: linear-gradient(180deg,#202824,#1a211e) !important;
+    border-color: rgba(225,237,228,.08) !important;
+  }
+  .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-catalog-item small { color: #9eaca2 !important; }
+  .admin-catalog-editor[data-catalog-editor="pointTypes"] .admin-fixed-point-badge {
+    color: #bedcc2 !important;
+    background: #27352c !important;
+    border-color: rgba(128,181,138,.12) !important;
+  }
+}
