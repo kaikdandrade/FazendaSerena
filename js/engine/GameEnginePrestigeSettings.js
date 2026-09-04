@@ -26,11 +26,20 @@ Object.assign(GameEngine.prototype, {
       // linha de partida: chegar exatamente nele não concede ponto algum.
       // O teto base é pequeno mesmo no nível 1000 e com todas as plantas
       // platinadas, evitando saltos de milhares/milhões no início do jogo.
+      const researchCatalog = Array.isArray(this.data.research) ? this.data.research : [];
+      const totalResearchLevels = researchCatalog.reduce((sum, item) => sum + Math.max(0, Math.floor(Number(item.max) || 0)), 0);
+      const acquiredResearchLevels = researchCatalog.reduce((sum, item) => {
+        const level = Math.max(0, Math.min(Math.max(0, Number(item.max) || 0), Number(this.state.researchTechs?.[item.id]) || 0));
+        return sum + level;
+      }, 0);
+      const researchProgress = totalResearchLevels > 0 ? acquiredResearchLevels / totalResearchLevels : 0;
+
       const levelScore = levelProgress * 24;
+      const researchScore = researchProgress * 12;
       const ownershipScore = (owned / totalCrops) * 3;
       const upgradeScore = (normalizedUpgradeProgress / totalCrops) * 12;
       const masteryScore = (mastered / totalCrops) * 24;
-      const base = Math.max(0, Math.floor(levelScore + ownershipScore + upgradeScore + masteryScore + 1e-9));
+      const base = Math.max(0, Math.floor(levelScore + researchScore + ownershipScore + upgradeScore + masteryScore + 1e-9));
       const resonance = 1 + Math.max(0, this.getEvolutionBonus("prestigeGainPercent")) / 100;
       const missionMultiplier = this.state.permanentBonuses.prestigeDouble ? 2 : 1;
       const configuredBonus = Math.max(0, Math.floor(Number(GameEngine.PRESTIGE_BONUS) || 0));
@@ -41,6 +50,7 @@ Object.assign(GameEngine.prototype, {
 
       return {
         level: Math.max(0, Math.floor(levelScore)),
+        research: Math.max(0, Math.floor(researchScore)),
         ownership: Math.max(0, Math.floor(ownershipScore)),
         upgrades: Math.max(0, Math.floor(upgradeScore)),
         mastery: Math.max(0, Math.floor(masteryScore)),
@@ -48,6 +58,8 @@ Object.assign(GameEngine.prototype, {
         calculated,
         configuredBonus,
         total,
+        researchAcquired: acquiredResearchLevels,
+        totalResearch: totalResearchLevels,
         owned,
         mastered,
         totalCrops,

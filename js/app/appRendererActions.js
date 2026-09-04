@@ -169,7 +169,7 @@
       const penalty = engine.calculateContractPenalty(contract);
       pendingContractBreakId = id;
       if (dom.contractBreakAmount) dom.contractBreakAmount.innerHTML = resourceAmount("coins", -penalty);
-      const missing = Math.max(0, Math.floor(Number(contract.amount || 0) - Number(contract.delivered || 0)));
+      const missing = Math.max(0, Math.floor(engine.getContractProgress(contract).remaining));
       if (dom.contractBreakMissing) dom.contractBreakMissing.textContent = engine.formatNumber(missing);
       if (typeof dom.contractBreakDialog?.showModal === "function") dom.contractBreakDialog.showModal();
       else if (window.confirm(`Quebrar contrato e pagar ${engine.formatNumber(penalty)} moedas?`)) {

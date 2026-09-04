@@ -7,12 +7,13 @@
     userActions: $("#adminUserActions"), userLabel: $("#adminUserLabel"), signOut: $("#adminSignOut"), cloudStatus: $("#adminCloudStatus"), feedback: $("#adminFeedback"),
     actionXP: $("#adminActionXP"), cropMasteryXPPercent: $("#adminCropMasteryXPPercent"), passiveXP: $("#adminPassiveXP"), passiveResearch: $("#adminPassiveResearch"),
 evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $("#adminPrestigeUnlockLevel"), prestigeBonus: $("#adminPrestigeBonus"), startingCoins: $("#adminStartingCoins"), baseProductionMin: $("#adminBaseProductionMin"), baseProductionCap: $("#adminBaseProductionCap"),
-    contractRefreshCooldown: $("#adminContractRefreshCooldown"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
+    contractRefreshCooldownMin: $("#adminContractRefreshCooldownMin"), contractRefreshCooldownMax: $("#adminContractRefreshCooldownMax"), contractOfferCount: $("#adminContractOfferCount"), maxOfflineMinutes: $("#adminMaxOfflineMinutes"),
     workspaceSelect: $("#adminWorkspaceSelect"),
     navigationIconGrid: $("#adminNavigationIconGrid"), gridNavigationIconGrid: $("#adminGridNavigationIconGrid"), prestigeIconGrid: $("#adminPrestigeIconGrid"), saveNavigationIcons: $("#adminSaveNavigationIcons"),
     playerFeedbackList: $("#adminPlayerFeedbackList"), refreshPlayerFeedback: $("#adminRefreshPlayerFeedback"), feedbackTypeFilter: $("#adminFeedbackTypeFilter"), feedbackStatusFilter: $("#adminFeedbackStatusFilter"), feedbackFilterCount: $("#adminFeedbackFilterCount"),
     textsEditor: $("#adminTextsEditor"), saveBalance: $("#adminSaveBalance"), saveTexts: $("#adminSaveTexts"),
     administratorForm: $("#adminAdministratorForm"), administratorEmail: $("#adminAdministratorEmail"), administratorName: $("#adminAdministratorName"), administratorList: $("#adminAdministratorList"),
+    maintenanceMode: $("#adminMaintenanceMode"), saveMaintenanceMode: $("#adminSaveMaintenanceMode"),
     globalResetCoins: $("#adminGlobalResetCoins"), globalResetResearchPoints: $("#adminGlobalResetResearchPoints"), globalResetPrestigePoints: $("#adminGlobalResetPrestigePoints"), globalResolveCrops: $("#adminGlobalResolveCrops"), globalResolveResearch: $("#adminGlobalResolveResearch"), globalRefundResearch: $("#adminGlobalRefundResearch"), globalResetEvolutions: $("#adminGlobalResetEvolutions"), globalRefundEvolutions: $("#adminGlobalRefundEvolutions"), globalRefreshPlayers: $("#adminGlobalRefreshPlayers"), globalPlayerSelect: $("#adminGlobalPlayerSelect"), globalPlayerStatus: $("#adminGlobalPlayerStatus"), globalPlayerCoins: $("#adminGlobalPlayerCoins"), globalPlayerResearch: $("#adminGlobalPlayerResearch"), globalPlayerPrestigePoints: $("#adminGlobalPlayerPrestigePoints"), globalPlayerPrestigeCount: $("#adminGlobalPlayerPrestigeCount"), globalPlayerFarmLevel: $("#adminGlobalPlayerFarmLevel"), globalPlayerApply: $("#adminGlobalPlayerApply"), globalPlayerRanking: $("#adminGlobalPlayerRanking"), globalPlayerReset: $("#adminGlobalPlayerReset"), globalPlayerBan: $("#adminGlobalPlayerBan"), globalFeedback: $("#adminGlobalFeedback")
   };
   const balanceFields = [
@@ -21,7 +22,7 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
     ["passiveXPPercentPerSecond", dom.passiveXP, true, false],
     ["passiveResearchPercentPerSecond", dom.passiveResearch, true, false],
 ["evolutionsUnlockLevel", dom.evolutionsUnlockLevel, false, true], ["prestigeUnlockLevel", dom.prestigeUnlockLevel, false, true], ["prestigeBonus", dom.prestigeBonus, false, true], ["startingCoins", dom.startingCoins, false, true], ["baseProductionMin", dom.baseProductionMin, false, true], ["baseProductionCap", dom.baseProductionCap, false, true],
-    ["contractRefreshCooldownSeconds", dom.contractRefreshCooldown, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
+    ["contractRefreshCooldownMinSeconds", dom.contractRefreshCooldownMin, false, true], ["contractRefreshCooldownMaxSeconds", dom.contractRefreshCooldownMax, false, true], ["contractOfferCount", dom.contractOfferCount, false, true], ["maxOfflineMinutes", dom.maxOfflineMinutes, false, true]
   ];
   const catalogNames = ["pointTypes", "categories", "crops", "companies", "contractTypes", "contractSlots", "playerTitles", "missions", "research", "prestigeUpgrades", "events", "updateNotes"];
   const PRIMARY_ADMIN_EMAIL = "kaikdossantossilva2@gmail.com";
@@ -182,12 +183,13 @@ evolutionsUnlockLevel: $("#adminEvolutionsUnlockLevel"), prestigeUnlockLevel: $(
   }
   function fillEditors(input, { source = "editor" } = {}) {
     const config = window.GameAdminConfig.normalize(input); currentConfig = clone(config);
+    if (dom.maintenanceMode) dom.maintenanceMode.checked = config.globalSettings?.maintenanceMode === true;
     balanceFields.forEach(([key, element, isPercent,, range]) => { const raw = config.balance[key]; const value = range && Array.isArray(raw) ? raw.join(",") : String(raw); element.value = isPercent ? `${value}%` : value; });
     const editors = getCatalogEditors();
     catalogNames.forEach(name => editors.set(name, config[name])); buildNavigationIconFields(config.navigationIcons, config.gridNavigationIcons, config.lineNavigationOrder, config.gridNavigationOrder, config.prestigeIcons, config.prestigeIconOrder); dom.textsEditor.value = JSON.stringify(config.texts, null, 2);
     dom.cloudStatus.textContent = source === "cloud" ? "Configuração carregada da nuvem." : source === "empty" ? "Ainda não existe configuração publicada." : "Configuração carregada."; return config;
   }
-  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.globalResetCoins, dom.globalResetResearchPoints, dom.globalResetPrestigePoints, dom.globalResolveResearch, dom.globalResetEvolutions, dom.globalResolveCrops, dom.globalRefreshPlayers, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
+  function setBusy(busy) { [dom.saveBalance, dom.saveTexts, dom.saveNavigationIcons, dom.saveMaintenanceMode, dom.globalResetCoins, dom.globalResetResearchPoints, dom.globalResetPrestigePoints, dom.globalResolveResearch, dom.globalResetEvolutions, dom.globalResolveCrops, dom.globalRefreshPlayers, dom.textsEditor, ...balanceFields.map(([, element]) => element)].filter(Boolean).forEach(element => { element.disabled = Boolean(busy); }); window.AdminCatalogEditors?.setBusy(Boolean(busy)); }
   function showGate(message, { login = false, loading = false } = {}) {
     authorized = false;
     dom.app.hidden = true;
@@ -359,11 +361,17 @@ expressPacking: "logisticsSimulation"
       if (state?.cropsDiscovered && state.cropsDiscovered[cropId]) { delete state.cropsDiscovered[cropId]; changed = true; }
     });
     if (Array.isArray(state.contractOffers)) {
-      const next = state.contractOffers.filter(contract => !lockedIds.has(contract?.cropId));
+      const next = state.contractOffers.filter(contract => {
+        const cropIds = Array.isArray(contract?.items) && contract.items.length ? contract.items.map(item => item?.cropId) : [contract?.cropId];
+        return !cropIds.some(cropId => lockedIds.has(cropId));
+      });
       if (next.length !== state.contractOffers.length) { state.contractOffers = next; changed = true; }
     }
     if (Array.isArray(state.activeContracts)) {
-      const next = state.activeContracts.filter(contract => !lockedIds.has(contract?.cropId));
+      const next = state.activeContracts.filter(contract => {
+        const cropIds = Array.isArray(contract?.items) && contract.items.length ? contract.items.map(item => item?.cropId) : [contract?.cropId];
+        return !cropIds.some(cropId => lockedIds.has(cropId));
+      });
       if (next.length !== state.activeContracts.length) { state.activeContracts = next; changed = true; }
     }
     return changed;
@@ -408,6 +416,13 @@ expressPacking: "logisticsSimulation"
   dom.signIn.addEventListener("click", async () => { dom.signIn.disabled = true; try { await window.FirebaseManager.signInWithGoogle(); } catch (error) { showGate(window.FirebaseManager.getFriendlyError(error), { login: true }); } finally { dom.signIn.disabled = false; } });
   dom.signOut.addEventListener("click", async () => { dom.signOut.disabled = true; try { await window.FirebaseManager.signOut(); } finally { dom.signOut.disabled = false; } });
   dom.saveBalance.addEventListener("click", () => queueCloudSave("Salvando parâmetros...", async () => { const next = clone(currentConfig); next.balance = balanceFromForm(); return publishConfig(next, "Parâmetros atualizados."); }).catch(() => {}));
+  dom.saveMaintenanceMode?.addEventListener("click", () => queueCloudSave("Atualizando modo manutenção...", async () => {
+    const next = clone(currentConfig);
+    next.globalSettings = { ...(next.globalSettings || {}), maintenanceMode: Boolean(dom.maintenanceMode?.checked) };
+    const published = await publishConfig(next, next.globalSettings.maintenanceMode ? "Modo manutenção ativado." : "Modo manutenção desativado.");
+    setGlobalFeedback(next.globalSettings.maintenanceMode ? "Jogo bloqueado para manutenção." : "Jogo liberado para os jogadores.", "success");
+    return published;
+  }).catch(() => {}));
   dom.saveTexts.addEventListener("click", () => queueCloudSave("Salvando textos...", async () => { const next = clone(currentConfig); next.texts = parseJSON(dom.textsEditor.value); return publishConfig(next, "Textos atualizados."); }).catch(() => {}));
 
   dom.saveNavigationIcons?.addEventListener("click", () => queueCloudSave("Salvando ícones de navegação...", async () => {

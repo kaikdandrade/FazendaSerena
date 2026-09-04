@@ -128,23 +128,6 @@
 
     renderPlayerTitleControl();
 
-    if (dom.accountConnectionStatus) {
-      dom.accountConnectionStatus.textContent = "Conta não conectada";
-      dom.accountConnectionStatus.hidden = signedIn;
-      dom.accountConnectionStatus.classList.toggle("is-disconnected", !signedIn);
-    }
-    if (dom.accountEmail) {
-      dom.accountEmail.textContent = signedIn ? (user.email || "Conta Google conectada") : "";
-      dom.accountEmail.hidden = !signedIn;
-      dom.accountEmail.classList.remove("is-disconnected");
-    }
-    if (dom.accountDescription) {
-      dom.accountDescription.textContent = signedIn
-        ? "Seu progresso é privado e salvo automaticamente na nuvem."
-        : "";
-      dom.accountDescription.hidden = !signedIn;
-    }
-
     if (dom.accountAvatar) {
       const gameAvatar = getAvatarEntry(storedAvatarId);
       const googlePhoto = signedIn && /^https:\/\//i.test(String(user.photoURL || "")) ? user.photoURL : "";

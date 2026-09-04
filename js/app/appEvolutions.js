@@ -133,7 +133,8 @@
     const totalCrops = Math.max(0, Number(prestigeBreakdown.totalCrops) || engine.data.crops.length || 0);
     const currentFarmLevel = Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(engine.state.farmLevel) || 1)));
     const drivers = [
-      { key: "level", label: "Nível", value: `${currentFarmLevel} / ${GameEngine.MAX_FARM_LEVEL}` },
+      { key: "level", label: "Nível da fazenda", value: `${currentFarmLevel} / ${GameEngine.MAX_FARM_LEVEL}` },
+      { key: "research", label: "Pesquisas adquiridas", value: `${engine.formatNumber(prestigeBreakdown.researchAcquired || 0)} / ${engine.formatNumber(prestigeBreakdown.totalResearch || 0)}` },
       { key: "owned", label: "Plantas compradas", value: `${engine.formatNumber(prestigeBreakdown.owned || 0)} / ${engine.formatNumber(totalCrops)}` },
       { key: "mastered", label: "Plantas prestigiadas", value: `${engine.formatNumber(prestigeBreakdown.mastered || 0)} / ${engine.formatNumber(totalCrops)}` },
     ];

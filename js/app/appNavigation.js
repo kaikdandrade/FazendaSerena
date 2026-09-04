@@ -365,12 +365,11 @@
       ? engine.formatNumber(state.farmXP)
       : `${engine.formatNumber(state.farmXP)} / ${engine.formatNumber(farmNeed)}`;
 
-    if (dom.farmLevelLabel?.textContent !== levelText) dom.farmLevelLabel.textContent = levelText;
-    const xpValue = dom.farmXPText?.querySelector?.("[data-farm-xp-value]");
-    if (xpValue && xpValue.textContent !== xpText) xpValue.textContent = xpText;
-    if (dom.floatingFarmXPText?.textContent !== xpText) dom.floatingFarmXPText.textContent = xpText;
-    const floatingLevel = dom.floatingFarmXPResource?.querySelector?.("[data-floating-farm-level]");
-    if (floatingLevel && floatingLevel.textContent !== levelText) floatingLevel.textContent = levelText;
+    const levelValues = [
+      dom.farmXPText?.querySelector?.("[data-farm-level-value]"),
+      dom.floatingFarmXPResource?.querySelector?.("[data-farm-level-value]")
+    ];
+    levelValues.forEach(value => { if (value && value.textContent !== levelText) value.textContent = levelText; });
 
     [dom.farmXPResource, dom.floatingFarmXPResource].forEach(counter => {
       if (!counter) return;
@@ -401,10 +400,8 @@
     const metrics = engine.getMetrics();
     const readyContracts = engine.isContractsUnlocked() ? engine.getReadyContractCount() : 0;
     const readyMissions = engine.getReadyMissionCount();
-    if (dom.contractTabCount) dom.contractTabCount.textContent = String(readyContracts);
-    if (dom.contractTabCount) dom.contractTabCount.hidden = readyContracts < 1;
-    if (dom.missionTabCount) dom.missionTabCount.textContent = String(readyMissions);
-    if (dom.missionTabCount) dom.missionTabCount.hidden = readyMissions < 1;
+    setNavigationAttention("contracts", readyContracts > 0);
+    setNavigationAttention("missions", readyMissions > 0);
     updateLiveContractDockUI?.();
   }
 

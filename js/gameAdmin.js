@@ -132,7 +132,8 @@
     startingCoins: 120,
     baseProductionMin: 1,
     baseProductionCap: 10,
-    contractRefreshCooldownSeconds: 10,
+    contractRefreshCooldownMinSeconds: 5,
+    contractRefreshCooldownMaxSeconds: 15,
     contractOfferCount: 6,
     maxOfflineMinutes: 15
   });
@@ -236,7 +237,7 @@
     Object.freeze({ id: "xp", key: "xp", icon: "assets/icons/xp.webp", locked: true })
   ]);
 
-  const playerTitleRarities = Object.freeze(["common", "uncommon", "rare", "epic", "legendary"]);
+  const playerTitleRarities = Object.freeze(["common", "uncommon", "rare", "epic", "legendary", "mystic"]);
   const defaultPlayerTitle = Object.freeze({
     id: "fazendeiro",
     name: "Fazendeiro",
@@ -262,8 +263,9 @@
   }
 
   const defaults = Object.freeze({
-    schemaVersion: 23,
+    schemaVersion: 24,
     gameVersion: window.FazendaSerenaConfig?.appVersion || "1.0.0",
+    globalSettings: { maintenanceMode: false },
     balance: clone(defaultBalance),
     pointTypes: clone(standardPointTypes),
     categories: [],
@@ -312,6 +314,17 @@
       baseProductionMin,
       integer(raw.baseProductionCap, 1, 1000000, defaultBalance.baseProductionCap)
     );
+    const legacyContractRefresh = integer(raw.contractRefreshCooldownSeconds, 1, 3600, 10);
+    const refreshMinFallback = raw.contractRefreshCooldownSeconds != null
+      ? Math.max(1, Math.floor(legacyContractRefresh * 0.5))
+      : defaultBalance.contractRefreshCooldownMinSeconds;
+    const refreshMaxFallback = raw.contractRefreshCooldownSeconds != null
+      ? Math.max(1, Math.ceil(legacyContractRefresh * 1.5))
+      : defaultBalance.contractRefreshCooldownMaxSeconds;
+    const requestedRefreshMin = integer(raw.contractRefreshCooldownMinSeconds, 1, 3600, refreshMinFallback);
+    const requestedRefreshMax = integer(raw.contractRefreshCooldownMaxSeconds, 1, 3600, refreshMaxFallback);
+    const contractRefreshCooldownMinSeconds = Math.min(requestedRefreshMin, requestedRefreshMax);
+    const contractRefreshCooldownMaxSeconds = Math.max(requestedRefreshMin, requestedRefreshMax);
     return {
       actionXPPercent: clamp(raw.actionXPPercent, 0, 100, defaultBalance.actionXPPercent),
       cropMasteryXPPercent: clamp(raw.cropMasteryXPPercent, 0, 100, defaultBalance.cropMasteryXPPercent),
@@ -328,7 +341,8 @@
       startingCoins: integer(raw.startingCoins, 0, Number.MAX_SAFE_INTEGER, defaultBalance.startingCoins),
       baseProductionMin,
       baseProductionCap,
-      contractRefreshCooldownSeconds: integer(raw.contractRefreshCooldownSeconds, 1, 3600, defaultBalance.contractRefreshCooldownSeconds),
+      contractRefreshCooldownMinSeconds,
+      contractRefreshCooldownMaxSeconds,
       contractOfferCount: integer(raw.contractOfferCount, 1, 12, defaultBalance.contractOfferCount),
       maxOfflineMinutes: integer(raw.maxOfflineMinutes ?? (Number(raw.maxOfflineSeconds) / 60), 1, 43200, defaultBalance.maxOfflineMinutes)
     };
@@ -408,6 +422,7 @@
           return [Math.min(a, b), Math.max(a, b)];
         })(),
         quantityMultiplier: clamp(item?.quantityMultiplier, 0.01, 1000, Math.max(0.01, oldQuantity || 1)),
+        cropCount: integer(item?.cropCount, 1, 4, 1),
         rewards,
         coinMultiplierPercent: clamp(item?.coinMultiplierPercent, 0, 100000, legacyCoinPercent),
         researchMultiplierPercent: clamp(item?.researchMultiplierPercent, 0, 100000, legacyResearchPercent),
@@ -688,8 +703,9 @@
     const updateNotes = normalizeUpdateNotes(source?.updateNotes);
     const newestVersion = updateNotes[0]?.version;
     return {
-      schemaVersion: 23,
+      schemaVersion: 24,
       gameVersion: text(source?.gameVersion || newestVersion || window.FazendaSerenaConfig?.appVersion, 30, window.FazendaSerenaConfig?.appVersion || "1.0.0"),
+      globalSettings: { maintenanceMode: source?.globalSettings?.maintenanceMode === true },
       balance,
       pointTypes: normalizePointTypes(source?.pointTypes),
       categories,
@@ -810,7 +826,8 @@
     GameEngine.PRESTIGE_UNLOCK_LEVEL = balance.prestigeUnlockLevel;
     GameEngine.PRESTIGE_BONUS = balance.prestigeBonus;
     GameEngine.BASE_STARTING_COINS = balance.startingCoins;
-    GameEngine.CONTRACT_REFRESH_COOLDOWN_SECONDS = balance.contractRefreshCooldownSeconds;
+    GameEngine.CONTRACT_REFRESH_COOLDOWN_MIN_SECONDS = Math.min(balance.contractRefreshCooldownMinSeconds, balance.contractRefreshCooldownMaxSeconds);
+    GameEngine.CONTRACT_REFRESH_COOLDOWN_MAX_SECONDS = Math.max(balance.contractRefreshCooldownMinSeconds, balance.contractRefreshCooldownMaxSeconds);
     GameEngine.CONTRACT_OFFER_COUNT = balance.contractOfferCount;
     GameEngine.BASE_MAX_OFFLINE_SECONDS = Math.max(60, Math.floor(balance.maxOfflineMinutes * 60));
     GameEngine.MAX_OFFLINE_SECONDS = GameEngine.BASE_MAX_OFFLINE_SECONDS;
@@ -846,6 +863,7 @@
   function applyLiveContent(raw = {}) {
     const normalized = normalizeConfig(raw);
     const current = window.FazendaSerenaRuntimeConfig || clone(defaults);
+    current.globalSettings = clone(normalized.globalSettings);
     current.events = clone(normalized.events);
     current.pointTypes = clone(normalized.pointTypes);
     current.gameVersion = normalized.gameVersion;

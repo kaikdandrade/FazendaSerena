@@ -499,10 +499,15 @@
   // Ciclo principal e inicialização.
   function scheduleGameLoop(delay = getPerformanceProfile().loopInterval) {
     window.clearTimeout(gameLoopTimer);
+    if (typeof maintenanceModeActive !== "undefined" && maintenanceModeActive) {
+      gameLoopTimer = 0;
+      return;
+    }
     gameLoopTimer = window.setTimeout(() => requestAnimationFrame(gameLoop), Math.max(0, delay));
   }
 
   function gameLoop(now) {
+    if (typeof maintenanceModeActive !== "undefined" && maintenanceModeActive) return;
     const startedAt = performance.now();
     const dt = Math.max(0, Math.min(2, (now - lastFrame) / 1000));
     lastFrame = now;

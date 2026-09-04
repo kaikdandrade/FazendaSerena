@@ -278,7 +278,8 @@ Object.assign(GameEngine.prototype, {
       const cost = this.getBuyCost(cropId);
       if (this.state.coins < cost) return { ok: false, message: `Faltam ${this.formatMoney(cost - this.state.coins)}.` };
       this.state.coins -= cost;
-      Object.assign(cropState, { owned: true, level: 1, progress: 0 });
+      this.state.cropPurchaseSerial = Math.max(0, Math.floor(Number(this.state.cropPurchaseSerial) || 0)) + 1;
+      Object.assign(cropState, { owned: true, level: 1, progress: 0, purchaseOrder: this.state.cropPurchaseSerial });
       this.state.cropsDiscovered[cropId] = true;
       this.state.stats.lifetimeCropPurchases += 1;
       this.addFarmXPPercent(GameEngine.ACTION_XP_RATE);

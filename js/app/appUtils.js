@@ -71,7 +71,19 @@
     return nickname.length >= 4 && nickname.length <= 24 && Boolean(avatar);
   }
 
-  const PLAYER_TITLE_RARITY_LABELS = Object.freeze({ common: "Comum", uncommon: "Incomum", rare: "Raro", epic: "Épico", legendary: "Lendário" });
+  const PLAYER_TITLE_RARITY_LABELS = Object.freeze({ common: "Comum", uncommon: "Incomum", rare: "Raro", epic: "Épico", legendary: "Lendário", mystic: "Místico" });
+
+  function setNavigationAttention(key, active) {
+    const safeKey = String(key || "").replace(/[^a-z0-9_-]/gi, "");
+    if (!safeKey || !["contracts", "missions"].includes(safeKey)) return;
+    const enabled = Boolean(active);
+    document.querySelectorAll(`[data-navigation-key="${safeKey}"], [data-grid-navigation-key="${safeKey}"]`).forEach(tab => {
+      tab.classList.toggle("has-navigation-attention", enabled);
+      tab.toggleAttribute("data-navigation-attention", enabled);
+      const baseLabel = safeKey === "contracts" ? "Contratos" : "Missões";
+      if (tab.hasAttribute("aria-label")) tab.setAttribute("aria-label", enabled ? `${baseLabel}, recompensa disponível` : baseLabel);
+    });
+  }
 
   function getPlayerTitleEntry(titleId) {
     const safeId = String(titleId || "fazendeiro").replace(/[^a-z0-9_-]/gi, "").slice(0, 64) || "fazendeiro";

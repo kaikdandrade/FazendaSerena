@@ -1,4 +1,23 @@
 "use strict";
+let maintenanceModeActive = false;
+function showMaintenanceMode() {
+  maintenanceModeActive = true;
+  try { window.clearTimeout(gameLoopTimer); gameLoopTimer = 0; } catch {}
+  document.body.classList.add("maintenance-mode");
+  document.body.classList.remove("is-loading");
+  const screen = document.getElementById("maintenanceScreen");
+  const shell = document.querySelector(".app-shell");
+  if (screen) screen.hidden = false;
+  if (shell) {
+    shell.setAttribute("aria-hidden", "true");
+    try { shell.inert = true; } catch {}
+  }
+  window.FazendaSerenaLoading?.complete?.();
+}
+function leaveMaintenanceMode() {
+  if (!maintenanceModeActive) return;
+  window.location.reload();
+}
 async function boot() {
   const loading = window.FazendaSerenaLoading;
   loading?.update("Conectando aos serviços do jogo...", 20);
@@ -55,7 +74,20 @@ async function boot() {
   if (["account", "social", "missions"].includes(requestedProfile)) activeProfileTab = requestedProfile;
 
   loading?.update("Preparando a interface...", 70);
-  const normalizedConfig = window.GameAdminConfig.apply(publicGameConfig || window.GameAdminConfig.getDefaults());
+  const normalizedSourceConfig = window.GameAdminConfig.normalize(publicGameConfig || window.GameAdminConfig.getDefaults());
+  const normalizedConfig = window.GameAdminConfig.apply(normalizedSourceConfig);
+  if (normalizedConfig.globalSettings?.maintenanceMode === true) {
+    showMaintenanceMode();
+    let maintenanceSignature = JSON.stringify(normalizedConfig);
+    window.FirebaseManager.subscribePublicGameConfig?.((cloudConfig) => {
+      const liveConfig = window.GameAdminConfig.normalize(cloudConfig);
+      const signature = JSON.stringify(liveConfig);
+      if (signature === maintenanceSignature) return;
+      maintenanceSignature = signature;
+      if (liveConfig.globalSettings?.maintenanceMode !== true) leaveMaintenanceMode();
+    }, error => console.warn("Atualização do modo manutenção indisponível:", error));
+    return;
+  }
   if (publicGameConfig) {
     window.FazendaSerenaConfig?.applyCloudVersion?.(
       window.FazendaSerenaConfig.versionFromConfig(publicGameConfig)
@@ -101,6 +133,14 @@ async function boot() {
     const signature = JSON.stringify(normalized);
     if (signature === runtimeConfigSignature || !engine) return;
     runtimeConfigSignature = signature;
+    if (maintenanceModeActive && normalized.globalSettings?.maintenanceMode !== true) {
+      leaveMaintenanceMode();
+      return;
+    }
+    if (normalized.globalSettings?.maintenanceMode === true) {
+      showMaintenanceMode();
+      return;
+    }
     window.GameAdminConfig.apply(normalized);
     engine.data = window.GameData;
     engine.cropById = new Map(engine.data.crops.map(crop => [crop.id, crop]));

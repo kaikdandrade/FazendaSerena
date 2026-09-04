@@ -117,7 +117,8 @@ function updateLiveContractsUI() {
     const progress = engine.getContractProgress(contract);
     const timeText = progress.completed ? "Concluído" : engine.formatTime(contract.timeRemaining);
     setLiveText(card.querySelector("[data-contract-live-time-value]"), timeText);
-    setLiveText(card.querySelector("[data-contract-live-delivered]"), `${engine.formatNumber(progress.delivered)} / ${engine.formatNumber(contract.amount)}`);
+    setLiveText(card.querySelector("[data-contract-live-delivered]"), engine.formatNumber(progress.delivered));
+    progress.items.forEach(item => setLiveText(card.querySelector(`[data-contract-live-item-delivered="${CSS.escape(item.cropId)}"]`), engine.formatNumber(item.delivered)));
     setLiveWidth(card.querySelector("[data-contract-live-progress]"), progress.percent);
     setLiveText(card.querySelector("[data-contract-live-fill]"), `${Math.floor(progress.percent)}%`);
 
@@ -141,7 +142,7 @@ function updateLiveContractsUI() {
     const signButton = card.querySelector('[data-action="accept-contract"]');
     if (signButton) {
       signButton.disabled = openSlots < 1;
-      setLiveText(signButton, openSlots < 1 ? "Sem vaga" : "Assinar");
+      setLiveText(signButton, "Assinar");
     }
     const effectiveReward = engine.getEffectiveContractRewards?.(contract) || { coins: contract.rewardCoins, research: contract.rewardResearch, prestige: contract.rewardPrestige };
     setLiveRewardValues(card.querySelector(".contract-reward-strip"), {
@@ -194,6 +195,7 @@ function updateLivePrestigeDashboardUI() {
   const totalCrops = Math.max(0, Number(breakdown.totalCrops) || engine.data.crops.length || 0);
   const values = {
     level: `${Math.max(1, Math.min(GameEngine.MAX_FARM_LEVEL, Math.floor(Number(engine.state.farmLevel) || 1)))} / ${GameEngine.MAX_FARM_LEVEL}`,
+    research: `${engine.formatNumber(breakdown.researchAcquired || 0)} / ${engine.formatNumber(breakdown.totalResearch || 0)}`,
     owned: `${engine.formatNumber(breakdown.owned || 0)} / ${engine.formatNumber(totalCrops)}`,
     mastered: `${engine.formatNumber(breakdown.mastered || 0)} / ${engine.formatNumber(totalCrops)}`,
   };
@@ -239,14 +241,8 @@ function updateLiveStatsUI() {
 function updateLiveNavigationBadges() {
   const readyContracts = engine.isContractsUnlocked() ? engine.getReadyContractCount() : 0;
   const readyMissions = engine.getReadyMissionCount();
-  if (dom.contractTabCount) {
-    setLiveText(dom.contractTabCount, readyContracts);
-    dom.contractTabCount.hidden = readyContracts < 1;
-  }
-  if (dom.missionTabCount) {
-    setLiveText(dom.missionTabCount, readyMissions);
-    dom.missionTabCount.hidden = readyMissions < 1;
-  }
+  setNavigationAttention("contracts", readyContracts > 0);
+  setNavigationAttention("missions", readyMissions > 0);
 }
 
 
