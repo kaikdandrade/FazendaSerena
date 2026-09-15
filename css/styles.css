@@ -1,10 +1,3 @@
-/*
- * Fazenda Serena — Stylish global
- * * * Camada global única: normalização, tipografia, botões, formulários,
- * * * counters, superfícies e comportamento acessível compartilhado pelo site.
- * * * Regras exclusivas de páginas pertencem aos respectivos arquivos locais.
- */
-
 :root {
   --ui-bg: #f3f7ef;
   --ui-surface: rgba(255, 255, 255, .88);
@@ -50,8 +43,17 @@
   --surface: var(--ui-surface-strong);
 }
 
-*, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   color: var(--ui-text);
@@ -62,10 +64,32 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
-img, svg { max-width: 100%; }
-button, input, select, textarea { font: inherit; }
-button, .button, .nav-tab, [role="button"] { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+.button,
+.nav-tab,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
   outline: 3px solid rgba(57, 120, 73, .25);
   outline-offset: 2px;
 }
@@ -80,17 +104,28 @@ h1 {
   line-height: var(--font-title-line);
   letter-spacing: -.03em;
 }
-h2, h3 {
+
+h2,
+h3 {
   font-size: var(--font-subtitle-size);
   font-weight: var(--font-subtitle-weight);
   line-height: var(--font-subtitle-line);
 }
-p, li, label, input, select, textarea, button {
+
+p,
+li,
+label,
+input,
+select,
+textarea,
+button {
   font-family: var(--font-family-ui);
   font-size: var(--font-text-size);
   line-height: var(--font-text-line);
 }
-.ui-title, .text-title {
+
+.ui-title,
+.text-title {
   margin: 0;
   color: var(--ui-text);
   font-size: var(--font-title-size);
@@ -98,26 +133,32 @@ p, li, label, input, select, textarea, button {
   letter-spacing: -.03em;
   line-height: var(--font-title-line);
 }
-.ui-subtitle, .text-subtitle {
+
+.ui-subtitle,
+.text-subtitle {
   margin: 0;
   color: var(--ui-text);
   font-size: var(--font-subtitle-size);
   font-weight: var(--font-subtitle-weight);
   line-height: var(--font-subtitle-line);
 }
-.ui-text, .text-body {
+
+.ui-text,
+.text-body {
   margin: 0;
   color: var(--ui-muted);
   font-size: var(--font-text-size);
   font-weight: var(--font-text-weight);
   line-height: var(--font-text-line);
 }
-:where(main, article, section) > h1:not([class]),
-:where(main, article, section) > header h1:not([class]) {
+
+:where(main, article, section)>h1:not([class]),
+:where(main, article, section)>header h1:not([class]) {
   font-size: var(--font-title-size);
   font-weight: var(--font-title-weight);
   line-height: var(--font-title-line);
 }
+
 :where(main, article, section) h2:not([class]),
 :where(main, article, section) h3:not([class]) {
   font-weight: var(--font-subtitle-weight);
@@ -125,7 +166,10 @@ p, li, label, input, select, textarea, button {
 }
 
 /* Botões globais. Variações locais podem mudar cor/forma, não a anatomia. */
-.button, button.button, .admin-button, .cookie-button {
+.button,
+button.button,
+.admin-button,
+.cookie-button {
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -137,17 +181,29 @@ p, li, label, input, select, textarea, button {
   text-decoration: none;
   cursor: pointer;
 }
-.button:disabled, button.button:disabled, .admin-button:disabled, .cookie-button:disabled {
+
+.button:disabled,
+button.button:disabled,
+.admin-button:disabled,
+.cookie-button:disabled {
   cursor: not-allowed;
   opacity: .58;
 }
-.button img, button.button img, .admin-button img, .cookie-button img {
+
+.button img,
+button.button img,
+.admin-button img,
+.cookie-button img {
   flex: 0 0 auto;
   width: 20px;
   height: 20px;
   object-fit: contain;
 }
-.button.primary { box-shadow: 0 5px 14px rgba(57, 120, 73, .16); }
+
+.button.primary {
+  box-shadow: 0 5px 14px rgba(57, 120, 73, .16);
+}
+
 .button.danger {
   background: var(--ui-red-soft);
   color: var(--ui-red);
@@ -155,18 +211,24 @@ p, li, label, input, select, textarea, button {
 }
 
 /* Campos globais. */
-input, select, textarea {
+input,
+select,
+textarea {
   min-width: 0;
 }
+
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-select, textarea {
+select,
+textarea {
   border-radius: 10px;
 }
 
 /* Counter de recurso global. */
-.resource-strip, .floating-resource-strip {
+.resource-strip,
+.floating-resource-strip {
   min-width: 0;
 }
+
 .resource-pill {
   min-width: 0;
   min-height: 46px;
@@ -178,17 +240,20 @@ select, textarea {
   border-radius: 14px;
   background: rgba(255, 255, 255, .84);
 }
-.resource-pill > img,
+
+.resource-pill>img,
 .resource-pill .resource-icon {
   flex: 0 0 auto;
   width: 30px;
   height: 30px;
   object-fit: contain;
 }
-.resource-pill > div,
+
+.resource-pill>div,
 .resource-pill .resource-copy {
   min-width: 0;
 }
+
 .resource-pill small,
 .resource-pill strong {
   display: block;
@@ -197,7 +262,11 @@ select, textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.resource-pill strong { font-variant-numeric: tabular-nums; }
+
+.resource-pill strong {
+  font-variant-numeric: tabular-nums;
+}
+
 .resource-amount {
   min-width: 0;
   display: inline-flex;
@@ -205,6 +274,7 @@ select, textarea {
   gap: 5px;
   white-space: nowrap;
 }
+
 .resource-amount img {
   flex: 0 0 auto;
   width: 18px;
@@ -213,14 +283,19 @@ select, textarea {
 }
 
 /* Superfícies e modais compartilhados. */
-.panel-card, .settings-card, .account-settings-card, .social-profile-panel,
-.prestige-leaderboard, .evolution-panel {
+.panel-card,
+.settings-card,
+.account-settings-card,
+.social-profile-panel,
+.prestige-leaderboard,
+.evolution-panel {
   min-width: 0;
   border-color: var(--ui-border);
   background: var(--ui-surface);
   border-radius: var(--ui-radius-lg);
   box-shadow: var(--ui-shadow-soft);
 }
+
 dialog::backdrop {
   background: rgba(18, 28, 19, .42);
   backdrop-filter: blur(4px);
@@ -228,7 +303,10 @@ dialog::backdrop {
 
 /* Acessibilidade de movimento. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
@@ -271,7 +349,7 @@ dialog::backdrop {
   width: min(560px, calc(100vw - 24px)) !important;
 }
 
-.confirmation-dialog-milestone > form {
+.confirmation-dialog-milestone>form {
   display: grid !important;
   gap: 0 !important;
   grid-template-columns: 1fr !important;
@@ -293,7 +371,7 @@ dialog::backdrop {
   padding: 18px !important;
 }
 
-.confirmation-dialog-milestone .milestone-preview-header > img {
+.confirmation-dialog-milestone .milestone-preview-header>img {
   background: transparent !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -303,7 +381,7 @@ dialog::backdrop {
   width: 60px !important;
 }
 
-.confirmation-dialog-milestone .milestone-preview-header > div {
+.confirmation-dialog-milestone .milestone-preview-header>div {
   display: grid !important;
   gap: 3px !important;
   min-width: 0 !important;
@@ -349,13 +427,13 @@ dialog::backdrop {
   padding: 10px !important;
 }
 
-.confirmation-dialog-milestone .milestone-preview-card > img {
+.confirmation-dialog-milestone .milestone-preview-card>img {
   height: 40px !important;
   object-fit: contain !important;
   width: 40px !important;
 }
 
-.confirmation-dialog-milestone .milestone-preview-card > div {
+.confirmation-dialog-milestone .milestone-preview-card>div {
   display: grid !important;
   gap: 2px !important;
   min-width: 0 !important;
@@ -397,7 +475,7 @@ dialog::backdrop {
   width: min(620px, calc(100vw - 24px)) !important;
 }
 
-.offline-progress-dialog > form {
+.offline-progress-dialog>form {
   background: #fff !important;
   border: 1px solid rgba(63, 94, 66, .12) !important;
   border-radius: 22px !important;
@@ -433,7 +511,7 @@ dialog::backdrop {
   width: 66px !important;
 }
 
-.offline-progress-dialog .offline-progress-symbol > img {
+.offline-progress-dialog .offline-progress-symbol>img {
   height: 50px !important;
   object-fit: contain !important;
   width: 50px !important;
@@ -489,13 +567,13 @@ dialog::backdrop {
   padding: 12px 13px !important;
 }
 
-.offline-progress-dialog .offline-gain-card > img {
+.offline-progress-dialog .offline-gain-card>img {
   height: 44px !important;
   object-fit: contain !important;
   width: 44px !important;
 }
 
-.offline-progress-dialog .offline-gain-card > div {
+.offline-progress-dialog .offline-gain-card>div {
   display: grid !important;
   gap: 2px !important;
   min-width: 0 !important;
@@ -531,14 +609,17 @@ dialog::backdrop {
     border-radius: 16px !important;
     width: calc(100vw - 12px) !important;
   }
+
   .confirmation-dialog-milestone .milestone-preview-header {
     grid-template-columns: 54px minmax(0, 1fr) !important;
     padding: 14px !important;
   }
-  .confirmation-dialog-milestone .milestone-preview-header > img {
+
+  .confirmation-dialog-milestone .milestone-preview-header>img {
     height: 50px !important;
     width: 50px !important;
   }
+
   .confirmation-dialog-milestone .milestone-preview-body {
     padding: 12px 14px !important;
   }
@@ -547,26 +628,32 @@ dialog::backdrop {
     border-radius: 16px !important;
     width: calc(100vw - 12px) !important;
   }
-  .offline-progress-dialog > form {
+
+  .offline-progress-dialog>form {
     border-radius: 16px !important;
   }
+
   .offline-progress-dialog .offline-progress-header {
     grid-template-columns: 54px minmax(0, 1fr) !important;
     padding: 14px !important;
   }
+
   .offline-progress-dialog .offline-progress-symbol {
     border-radius: 14px !important;
     height: 54px !important;
     width: 54px !important;
   }
-  .offline-progress-dialog .offline-progress-symbol > img {
+
+  .offline-progress-dialog .offline-progress-symbol>img {
     height: 42px !important;
     width: 42px !important;
   }
+
   .offline-progress-dialog .offline-progress-summary {
     grid-template-columns: 1fr !important;
     padding: 12px 14px !important;
   }
+
   .offline-progress-dialog .offline-progress-actions {
     padding: 10px 14px 14px !important;
   }
@@ -577,8 +664,8 @@ dialog::backdrop {
  * * * As revisões antigas deixaram regras de grid/flex concorrentes; estas regras
  * * * intencionalmente vencem a cascata e mantêm o conteúdo principal em coluna.
  */
-.confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog) > form,
-.ranking-profile-dialog > form {
+.confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog)>form,
+.ranking-profile-dialog>form {
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
@@ -587,8 +674,8 @@ dialog::backdrop {
   width: 100% !important;
 }
 
-.confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog) > form > *,
-.ranking-profile-dialog > form > * {
+.confirmation-dialog:not(.confirmation-dialog-milestone):not(.offline-progress-dialog)>form>*,
+.ranking-profile-dialog>form>* {
   box-sizing: border-box !important;
   flex: 0 0 auto !important;
   max-width: 100% !important;
@@ -614,4 +701,41 @@ dialog::backdrop {
 
 .ranking-profile-dialog .player-profile-fields {
   grid-template-columns: minmax(0, 1fr) !important;
+}
+
+
+
+
+
+
+
+
+
+
+:root {
+  --border: var(--border)
+
+}
+
+
+.logo {
+  width: 200px;
+  object-fit: contain;
+}
+
+.dis {
+  display: none;
+  visibility: visible;
+}
+
+header { 
+  width: calc(100% - 40px);
+  min-height: 76px;
+  margin: auto;
+  border-bottom: 1px solid rgba(48, 89, 57, .09);
+  background: rgba(249, 251, 245, .9);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 28px
 }
